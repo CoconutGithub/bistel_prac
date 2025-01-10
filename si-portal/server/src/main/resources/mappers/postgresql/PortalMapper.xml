@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.siportal.portal.mapper.PortalMapper">
+    <select id="getMenuTreeList" resultType="com.siportal.portal.dto.PMenuDTO">
+        SELECT A.MENU_ID, A.MENU_NAME AS TITLE, A.PATH, A.COMPONENT_PATH, A.PARENT_MENU_ID
+        , A.DEPTH, A.CHILD_YN
+        FROM P_MENU A
+        WHERE A.STATUS = 'ACTIVE'
+        ORDER BY A.DEPTH, A.POSITION
+    </select>
+
+    <select id="getUserByName" parameterType="String" resultType="com.siportal.portal.dto.User">
+        SELECT USER_ID, USER_NAME, EMAIL, PHONE_NUMBER, STATUS
+        FROM P_USER
+        WHERE USER_NAME = #{userName}
+        AND PASSWORD = #{password}
+    </select>
+</mapper>
