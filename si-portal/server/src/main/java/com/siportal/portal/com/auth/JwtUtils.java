@@ -16,8 +16,7 @@ public class JwtUtils {
     public static String generateToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
-                .setExpiration(new Date(System.currentTimeMillis() + 864_000_000))
-//                .signWith(SignatureAlgorithm.HS512, SECRET)
+                .setExpiration(new Date(System.currentTimeMillis() + 30 * 60 * 1000)) // 우선 세션 유지 시간은 30분으로 지정한다.
                 .signWith(SECRET)
                 .compact();
     }

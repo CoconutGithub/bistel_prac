@@ -1,4 +1,4 @@
-import React, {useEffect, useState, Suspense, lazy} from 'react';
+import React, {useEffect, useState } from 'react';
 import {Navbar, Nav, Container, NavDropdown} from 'react-bootstrap';
 import {Routes, Route, Link, Navigate} from 'react-router-dom';
 import axios from 'axios';
@@ -7,6 +7,9 @@ import Home from 'components/portal/menu/layout/Home';
 import ManageUser from 'components/portal/menu/admin/ManageUser';
 import ManageRole from 'components/portal/menu/admin/ManageRole';
 import ManageMenu from 'components/portal/menu/admin/MangeMenu';
+import { useSelector, useDispatch } from 'react-redux';
+import { removeLoginToken } from 'components/portal/com/store/AuthSlice';
+
 
 const componentMap = {
     '/about': React.lazy(() => import('components/portal/menu/layout/About')),
@@ -18,10 +21,9 @@ const componentMap = {
 };
 
 const DynamicComponent = ({ path }) => {
-    console.log("path:", path);
+    //console.log("path:", path);
 
     const Component = componentMap[path] || (() => <div>Component Not Found</div>);
-
     return (
         <React.Suspense fallback={<div>Loading...</div>}>
             <Component />
@@ -34,24 +36,26 @@ const DynamicComponent = ({ path }) => {
 
 function MainPage() {
 
+    const authToken = useSelector((state) => state.auth.authToken); // Redux 상태에서 토큰 가져오기
+    const dispatch = useDispatch();
+
     const [menuData, setMenuData] = useState([]);
     const [routeData, setRouteData] = useState([]);
     const [selectedMenu, setSelectedMenu] = useState('Home');
 
 
+
     useEffect(() => {
         const fetchMenuData = async () => {
             try {
-                console.log("1. useEffect")
-                const token = localStorage.getItem('token'); // JWT 토큰 가져오기
-                console.log("2.token:", token);
-
+                console.log("# search-menu/start")
+                console.log(authToken)
                 axios.get("http://localhost:8080/menu", {
-                    headers: { Authorization: `Bearer ${token}` },
+                    headers: { Authorization: `Bearer ${authToken}` },
                 }).then((res) => {
                     if (res.data) {
-                        console.log("2. response-menuInfo:", res.data.menuInfo);
-                        console.log("2. response-routeInfo:", res.data.routeInfo);
+                        console.log("# search-menu/result-menuInfo:", res.data.menuInfo);
+                        console.log("# search-menu/result-routeInfo:", res.data.routeInfo);
                         setMenuData(res.data.menuInfo);
                         setRouteData(res.data.routeInfo);
                     }
@@ -69,6 +73,10 @@ function MainPage() {
     const handleMenuClick = (menuName) => {
         setSelectedMenu(menuName);
     };
+
+    const handleLogoutClick = () => {
+        dispatch(removeLoginToken());
+    }
 
     return (
         <>
@@ -100,12 +108,21 @@ function MainPage() {
                                 })
                             }
                         </Nav>
-                        <Nav style={{flex: '0 0 10%'}} className="ms-auto">
+                        <Nav style={{flex: '0 0 5%'}} className="ms-auto">
                             <NavDropdown title="Admin" id="basic-nav-dropdown" menuVariant="dark">
                                 <NavDropdown.Item as={Link} to="/main/manage-menu" onClick={() => handleMenuClick('Setting > 메뉴 관리')} >메뉴 관리</NavDropdown.Item>
                                 <NavDropdown.Item as={Link} to="/main/manage-role" onClick={() => handleMenuClick('Setting > 권한 관리')}>권한 관리</NavDropdown.Item>
                                 <NavDropdown.Item as={Link} to="/main/manage-user" onClick={() => handleMenuClick('Setting > 사용자 관리')}>사용자 관리</NavDropdown.Item>
                             </NavDropdown>
+                        </Nav>
+                        <Nav style={{flex: '0 0 5%'}} className="ms-auto">
+                            <Nav.Link
+                                key='/main/logout'
+                                as={Link}
+                                onClick={() => handleLogoutClick()}
+                            >
+                                logout
+                            </Nav.Link>
                         </Nav>
                     </Navbar.Collapse>
                 </Container>
@@ -126,11 +143,13 @@ function MainPage() {
             </div>
             {routeData.length > 0 ? (
                 <>
-                    {console.log('routeData data length is not 0')}
+                    {
+                        //console.log('routeData data length is not 0')
+                    }
                     <Routes>
                         {
                             routeData.map((item) => {
-                                console.log(item);
+                                // console.log(item);
                                 return (
                                     <Route
                                         key={item.menuId}
@@ -141,20 +160,11 @@ function MainPage() {
                             })
                         }
                         <Route path="/" element={<Navigate to="/main/home"/>}/>
+                        <Route path="/logout" element={<Navigate to="/main/home"/>}/>
                         <Route path="/home" element={<Home/>}/>
                         <Route path="/manage-user" element={<ManageUser/>}/>
                         <Route path="/manage-role" element={<ManageRole/>}/>
                         <Route path="/manage-menu" element={<ManageMenu/>}/>
-
-
-
-
-
-
-
-
-
-
                     </Routes>
                 </>
             ) : (

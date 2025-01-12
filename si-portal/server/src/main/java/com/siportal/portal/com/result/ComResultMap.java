@@ -20,7 +20,10 @@ public class ComResultMap  extends ListOrderedMap<String, Object> implements Ser
         if (value instanceof java.sql.Clob) {
             value = convertClobToString((java.sql.Clob) value);
         }
-        return super.put(key, value);
+
+        String camelCaseKey = convertToCamelCase(key);
+
+        return super.put(camelCaseKey, value);
     }
 
     private String convertClobToString(java.sql.Clob clob) {
@@ -37,6 +40,31 @@ public class ComResultMap  extends ListOrderedMap<String, Object> implements Ser
         }
         return sb.toString();
     }
+
+    /**
+     * Snake_case를 camelCase로 변환하는 메서드
+     */
+    private String convertToCamelCase(String key) {
+        StringBuilder result = new StringBuilder();
+        boolean nextUpperCase = false;
+
+        for (int i = 0; i < key.length(); i++) {
+            char c = key.charAt(i);
+
+            if (c == '_') {
+                // 다음 문자를 대문자로 변환하도록 설정
+                nextUpperCase = true;
+            } else if (nextUpperCase) {
+                result.append(Character.toUpperCase(c)); // 대문자로 변환
+                nextUpperCase = false;
+            } else {
+                result.append(Character.toLowerCase(c)); // 소문자로 변환
+            }
+        }
+
+        return result.toString();
+    }
+
 
     // 필요에 따라 추가적인 메소드들을 추가할 수 있습니다.
     public Object get(String key) {

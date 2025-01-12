@@ -39,21 +39,26 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
             // JSON 데이터를 파싱하여 ID와 Password 추출
             Map<String, String> authRequest = objectMapper.readValue(requestBody, Map.class);
-            String username = authRequest.get("id");
+            String userId = authRequest.get("userId");
             String password = authRequest.get("password");
 
-            System.out.println("username:" + username);
+            System.out.println("userId:" + userId);
             System.out.println("password:" + password);
 
 
             // Oracle DB에서 사용자 확인
-            if (!validateUserFromDB(username, password)) {
-                throw new BadCredentialsException("Invalid username or password");
+            User user = validateUserFromDB(userId, password);
+            if (validateUserFromDB(userId, password) == null) {
+                throw new BadCredentialsException("Invalid userid or password");
             }
 
             // 인증 객체 생성
             UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(username, password);
+                    new UsernamePasswordAuthenticationToken(userId, password);
+
+            // 추가 정보를 details에 저장
+            authenticationToken.setDetails(user);
+
             return authenticationToken;
 
         } catch (Exception e) {
@@ -66,34 +71,37 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                                             HttpServletResponse response,
                                             FilterChain chain,
                                             Authentication authResult) throws IOException {
+
+        System.out.println(authResult);
+        User user = (User)authResult.getDetails();
+
         // JWT 생성
         String token = generateJwtToken(authResult);
 
         // 응답 헤더 또는 바디에 JWT 추가
         response.setContentType("application/json");
-        response.getWriter().write("{\"token\": \"" + token + "\"}");
+        response.getWriter().write("{\"token\": \"" + token +
+                "\", \"userId\": \"" + user.getUserId() +
+                "\", \"userName\": \"" + user.getUserName() +
+                "\", \"email\": \"" + user.getEmail() + "\"}");
+
     }
 
     private String generateJwtToken(Authentication authResult) {
-        String username = authResult.getName();
-        return JwtUtils.generateToken(username);
+        String userId = authResult.getName();
+        return JwtUtils.generateToken(userId);
     }
 
-    private boolean validateUserFromDB(String username, String password) {
-        boolean rtnValue = false;
+    private User validateUserFromDB(String username, String password) {
+        User user = null;
         try {
-            User user = portalMapper.getUserByName(username, password);
-            if (user != null) {
-                rtnValue = true;
-            } else {
-                rtnValue = false;
-            }
+            user = portalMapper.getUserByUserId(username, password);
         } catch (Exception ex) {
             ex.printStackTrace();
             log.error(ex.toString());
-            return false;
+            return null;
         }
 
-        return rtnValue;
+        return user;
     }
 }

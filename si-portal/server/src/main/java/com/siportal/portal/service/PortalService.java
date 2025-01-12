@@ -1,17 +1,16 @@
 package com.siportal.portal.service;
 
+import com.siportal.portal.com.auth.JwtUtils;
+import com.siportal.portal.com.result.ComResultMap;
 import com.siportal.portal.dto.PMenuDTO;
 import com.siportal.portal.mapper.PortalMapper;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:9090")
@@ -20,6 +19,46 @@ public class PortalService {
 
     @Autowired
     private PortalMapper portalMapper;
+
+    @GetMapping("/api/get-user")
+    public ResponseEntity<?> getUser(@RequestParam String userName) {
+
+        try {
+            List<ComResultMap> result = this.portalMapper.getUserByUserName(userName);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/api/update-user")
+    public ResponseEntity<?> updateUser(@RequestBody Map<String, String> requestBody) {
+
+        try {
+            System.out.println("ddddddddddddddddddddddd");
+//            List<ComResultMap> result = this.portalMapper.getUserByUserName(userName);
+            return ResponseEntity.ok(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
+
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<?> refreshToken(@RequestBody Map<String, String> requestBody) {
+
+        try {
+            String newToken = JwtUtils.generateToken(requestBody.get("userId"));
+
+            return ResponseEntity.ok(Collections.singletonMap("token", newToken));
+        } catch (ExpiredJwtException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token expired");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+        }
+    }
 
     @GetMapping("/menu")
     public Map<String, Object> getMenuTreeList() {

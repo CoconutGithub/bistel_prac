@@ -28,7 +28,13 @@ public class AfterLoginFilter extends BasicAuthenticationFilter {
             return;
         }
         String token = header.replace("Bearer ", "");
+
+        System.out.println( "token:" + token);
+
         String username = JwtUtils.validateTokenAndGetUsername(token);
+
+        System.out.println( "userName:" + username);
+
         if (username != null) {
             SecurityContextHolder.getContext().setAuthentication(
                     new UsernamePasswordAuthenticationToken(username, null, null)

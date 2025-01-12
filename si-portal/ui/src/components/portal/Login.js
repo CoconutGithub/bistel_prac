@@ -1,27 +1,36 @@
 import React, { useState } from 'react';
 import { Container, Form, Button } from 'react-bootstrap';
 import axios from "axios";
+import { useDispatch } from "react-redux";
+import { setLoginToken } from "components/portal/com/store/AuthSlice"; // Redux 액션 가져오기
 
-function Login({ onLogin }) {
-    const [id, setId] = useState('');
+function Login() {
+    const [userId, setUserId] = useState('');
     const [password, setPassword] = useState('');
+    const dispatch = useDispatch();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             const response = await axios.post('http://localhost:8080/login', {
-                id: id,
+                userId: userId,
                 password: password
             });
 
-            localStorage.setItem('token', response.data.token); // JWT 토큰 저장
-            console.log("1.response:", response)
-            console.log("2.localStorage:", localStorage)
-            onLogin();
+            console.log("# login-response:", response)
+            dispatch(setLoginToken({
+                token: response.data.token,      // JWT 토큰
+                userId: response.data.userId,     // 사용자 ID
+                userName: response.data.userName,   // 사용자 이름
+                email: response.data.email,      // 이메일
+            }));
+
+
 
         } catch (error) {
-            console.log('response->', error)
-            alert("Login fail. there is no user information")
+            console.log('# login-error:', error)
+            //showToast("Login fail. there is no user information", "danger");
+            alert("Login fail. there is no user information", "danger")
         }
     };
 
@@ -34,8 +43,8 @@ function Login({ onLogin }) {
                     <Form.Control
                         type="text"
                         placeholder="Enter ID"
-                        value={id}
-                        onChange={(e) => setId(e.target.value)}
+                        value={userId}
+                        onChange={(e) => setUserId(e.target.value)}
                     />
                 </Form.Group>
                 <Form.Group controlId="formBasicPassword" className="mb-3">
