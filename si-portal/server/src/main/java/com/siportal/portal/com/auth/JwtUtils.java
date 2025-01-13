@@ -21,6 +21,16 @@ public class JwtUtils {
                 .compact();
     }
 
+    public static String refreshExpiration(String token) {
+        String username = validateTokenAndGetUsername(token); // 기존 토큰에서 사용자 정보 추출
+        return Jwts.builder()
+                .setSubject(username)
+                .setExpiration(new Date(System.currentTimeMillis() + 30 * 60 * 1000)) // 유효 기간 연장
+                .signWith(SECRET)
+                .compact();
+    }
+
+
     public static String validateTokenAndGetUsername(String token) {
         return Jwts.parser()
                 .setSigningKey(SECRET)

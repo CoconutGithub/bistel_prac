@@ -50,7 +50,8 @@ public class PortalService {
     public ResponseEntity<?> refreshToken(@RequestBody Map<String, String> requestBody) {
 
         try {
-            String newToken = JwtUtils.generateToken(requestBody.get("userId"));
+            String oldToken = requestBody.get("token");
+            String newToken = JwtUtils.refreshExpiration(oldToken);
 
             return ResponseEntity.ok(Collections.singletonMap("token", newToken));
         } catch (ExpiredJwtException e) {

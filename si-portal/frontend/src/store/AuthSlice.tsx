@@ -1,0 +1,139 @@
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { jwtDecode } from 'jwt-decode';
+
+
+// AuthState 타입 정의
+interface AuthState {
+    authToken: string | null;
+    isAuthenticated: boolean;
+    user: {
+        userId: string | null;
+        userName: string | null;
+        email: string | null;
+    } | null;
+    error: string | null;
+}
+
+interface DecodedToken {
+    exp: number; // 만료 시간 (Unix Timestamp)
+    [key: string]: any; // JWT에 포함된 기타 정보
+}
+
+const initialState: AuthState = {
+    authToken: null,
+    isAuthenticated: false,
+    user: null,
+    error: null,
+};
+
+// refreshToken 정의
+export const refreshToken = createAsyncThunk<
+    string,
+    void,
+    {
+        state: { auth: AuthState };
+        rejectValue: string;
+    }
+>(
+    "auth/refreshToken",
+    async (_, { getState, rejectWithValue }) => {
+        const state = getState();
+        const token = state.auth.authToken;
+
+        if (!state.auth.user) {
+            return rejectWithValue("User information is missing");
+        }
+
+        try {
+            const response = await fetch("http://localhost:8080/refresh-token", {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ userId: state.auth.user.userId }),
+            });
+
+            if (!response.ok) {
+                return rejectWithValue("Failed to refresh token");
+            }
+
+            const data = await response.json();
+            return data.token;
+        } catch (error) {
+            return rejectWithValue((error as Error).message);
+        }
+    }
+);
+
+// 토큰 유효성 확인 및 갱신 비동기 작업
+export const chkLoginToken = createAsyncThunk<void, void, { state: { auth: AuthState } }>(
+    "auth/chkLoginToken",
+    async (_, { getState, dispatch }) => {
+        const { authToken } = getState().auth;
+
+        if (!authToken) {
+            dispatch(removeLoginToken());
+            throw new Error("No token found");
+        }
+
+        try {
+            const decoded: DecodedToken = jwtDecode(authToken);
+            const now = new Date();
+            const expiration = new Date(decoded.exp * 1000);
+
+            console.log("# token-expiration-date:", expiration);
+
+            if (now >= expiration) {
+                dispatch(removeLoginToken()); // 만료된 토큰 삭제
+                throw new Error("Token expired");
+            } else {
+                // 토큰 유효: 새로 갱신
+                await dispatch(refreshToken());
+            }
+        } catch (error) {
+            console.error("Invalid token:", error);
+            dispatch(removeLoginToken());
+            throw error;
+        }
+    }
+);
+
+const authSlice = createSlice({
+    name: "auth",
+    initialState,
+    reducers: {
+        setLoginToken(state, action: PayloadAction<{ token: string; userId: string; userName: string; email: string }>) {
+            console.log('setLoginToekn:',action.payload.token);
+            console.log('setLoginToekn-UserId:',action.payload.userId);
+
+            state.authToken = action.payload.token;
+            state.isAuthenticated = true;
+            state.user = {
+                userId: action.payload.userId,
+                userName: action.payload.userName,
+                email: action.payload.email,
+            };
+        },
+        removeLoginToken(state) {
+            state.authToken = null;
+            state.isAuthenticated = false;
+            state.user = null;
+        },
+    },
+    extraReducers: (builder) => {
+        builder
+            .addCase(refreshToken.fulfilled, (state, action: PayloadAction<string>) => {
+                state.authToken = action.payload;
+                state.isAuthenticated = true;
+            })
+            .addCase(refreshToken.rejected, (state, action: PayloadAction<string | undefined>) => {
+                state.authToken = null;
+                state.isAuthenticated = false;
+                state.error = action.payload || "Unknown error";
+            });
+    },
+});
+
+export const { setLoginToken, removeLoginToken } = authSlice.actions;
+export default authSlice.reducer;

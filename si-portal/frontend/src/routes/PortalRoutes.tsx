@@ -1,0 +1,23 @@
+import React from 'react';
+import { Route } from 'react-router-dom';
+import ProtectedRoute from '~routes/ProtectedRoute';
+import { RouteConfig } from '~types/RouteTypes';
+
+const routes: RouteConfig[] = [
+  { path: '/main/about', component: React.lazy(() => import('~pages/portal/example/About')) },
+  { path: '/main/contect', component: React.lazy(() => import('~pages/portal/example/Contect')) },
+  { path: '/main/manage-menu', component: React.lazy(() => import('~pages/portal/admin/MangeMenu')) },
+  { path: '/main/manage-role', component: React.lazy(() => import('~pages/portal/admin/ManageRole')) },
+  { path: '/main/manage-user', component: React.lazy(() => import('~pages/portal/admin/ManageUser')) },
+
+];
+
+export default function PortalRoutes() {
+  return (
+      <>
+        {routes.map((route, index) => (
+            <Route key={index} path={route.path} element={<ProtectedRoute element={<route.component />} />} />
+        ))}
+      </>
+  );
+}
