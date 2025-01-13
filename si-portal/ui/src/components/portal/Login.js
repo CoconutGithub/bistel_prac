@@ -25,8 +25,6 @@ function Login() {
                 email: response.data.email,      // 이메일
             }));
 
-
-
         } catch (error) {
             console.log('# login-error:', error)
             //showToast("Login fail. there is no user information", "danger");
