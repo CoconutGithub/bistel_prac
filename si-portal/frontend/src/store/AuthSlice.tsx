@@ -44,6 +44,8 @@ export const refreshToken = createAsyncThunk<
             return rejectWithValue("User information is missing");
         }
 
+        console.log('refreshToken수행하려함:', token);
+
         try {
             const response = await fetch("http://localhost:8080/refresh-token", {
                 method: "POST",
@@ -51,7 +53,7 @@ export const refreshToken = createAsyncThunk<
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ userId: state.auth.user.userId }),
+                body: JSON.stringify({ userId: state.auth.user.userId, token: token }),
             });
 
             if (!response.ok) {
@@ -67,14 +69,14 @@ export const refreshToken = createAsyncThunk<
 );
 
 // 토큰 유효성 확인 및 갱신 비동기 작업
-export const chkLoginToken = createAsyncThunk<void, void, { state: { auth: AuthState } }>(
+export const chkLoginToken = createAsyncThunk<boolean, void, { state: { auth: AuthState } }>(
     "auth/chkLoginToken",
     async (_, { getState, dispatch }) => {
         const { authToken } = getState().auth;
 
         if (!authToken) {
             dispatch(removeLoginToken());
-            throw new Error("No token found");
+            return false;
         }
 
         try {
@@ -86,15 +88,15 @@ export const chkLoginToken = createAsyncThunk<void, void, { state: { auth: AuthS
 
             if (now >= expiration) {
                 dispatch(removeLoginToken()); // 만료된 토큰 삭제
-                throw new Error("Token expired");
+                return false;
             } else {
                 // 토큰 유효: 새로 갱신
                 await dispatch(refreshToken());
+                return true;
             }
         } catch (error) {
             console.error("Invalid token:", error);
-            dispatch(removeLoginToken());
-            throw error;
+            return false;
         }
     }
 );
@@ -131,6 +133,12 @@ const authSlice = createSlice({
                 state.authToken = null;
                 state.isAuthenticated = false;
                 state.error = action.payload || "Unknown error";
+            })
+            .addCase(chkLoginToken.rejected, (state) => {
+                state.authToken = null;
+                state.isAuthenticated = false;
+                state.user = null;
+                console.error("Token is invalid or expired - handled in extraReducers");
             });
     },
 });
