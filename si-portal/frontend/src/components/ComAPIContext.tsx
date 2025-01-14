@@ -1,4 +1,4 @@
-import React, { createContext, useState, useCallback, ReactNode } from "react";
+import React, { createContext, useState, useCallback, ReactNode, useMemo } from "react";
 import ToastContainer from "react-bootstrap/ToastContainer";
 import Toast from "react-bootstrap/Toast";
 import ProgressBar from "react-bootstrap/ProgressBar";
@@ -37,7 +37,7 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
 
     // Toast 관리 메서드
     const showToast = useCallback(
-        (message: string, variant:  "dark" | "success" | "danger" | "warning" | "info" = "success") => {
+        (message: string, variant: "dark" | "success" | "danger" | "warning" | "info" = "success") => {
             const id = Date.now();
             setToasts((prevToasts) => [...prevToasts, { id, message, variant }]);
             setTimeout(() => removeToast(id), 3000);
@@ -58,11 +58,22 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
         setProgressBarVisible(false);
     }, []);
 
+    // useMemo를 사용하여 value 메모이제이션
+    const contextValue = useMemo(
+        () => ({
+            showToast,
+            showProgressBar,
+            hideProgressBar,
+        }),
+        [showToast, showProgressBar, hideProgressBar]
+    );
+
     return (
-        <ComAPIContext.Provider value={{ showToast, showProgressBar, hideProgressBar }}>
+        <ComAPIContext.Provider value={contextValue}>
             {children}
+
             {/* Toast UI */}
-            <ToastContainer className="p-3" position="bottom-center" style={{ zIndex: 1}}>
+            <ToastContainer className="p-3" position="bottom-center" style={{ zIndex: 1 }}>
                 {toasts.map((toast) => (
                     <Toast
                         key={toast.id}
