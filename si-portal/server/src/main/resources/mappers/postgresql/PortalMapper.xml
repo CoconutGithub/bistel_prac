@@ -12,7 +12,7 @@
     <select id="getUserByUserId" parameterType="String" resultType="com.siportal.portal.dto.User">
         SELECT USER_ID, USER_NAME, EMAIL, PHONE_NUMBER, STATUS
         FROM P_USER
-        WHERE USER_ID = CAST(#{userId} AS INTEGER)
+        WHERE USER_ID = #{userId}
         AND PASSWORD = #{password}
     </select>
 
