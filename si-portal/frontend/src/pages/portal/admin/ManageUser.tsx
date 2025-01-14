@@ -1,13 +1,19 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, {useState, useEffect, useContext, useRef} from 'react';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { chkLoginToken } from "~store/AuthSlice";
-import AgGridWrapper from '~components/AgGridWrapper';
+import AgGridWrapper, {AgGridWrapperHandle} from '~components/AgGridWrapper';
 import { useDispatch, useSelector  } from 'react-redux';
 import { ComAPIContext } from "~components/ComAPIContext";
 import axios from "axios";
 import {AppDispatch, RootState} from "~store/Store";
 
+interface User {
+  userId: string;
+  userName: string;
+  email: string;
+  phoneNumber: string;
+  status: string;
+}
 
 // 컬럼 정의
 const columnDefs = [
@@ -40,13 +46,14 @@ const ManageUser: React.FC = () => {
   console.log("ManageUser 생성됨.");
 
   //==start: 여기는 무조건 공통으로 받는다고 생각하자
-  const dispatch = useDispatch<AppDispatch>();
   const state = useSelector((state: RootState) => state.auth);
   const comAPIContext = useContext(ComAPIContext);
   //==end: 여기는 무조건 공통으로 받는다고 생각하자
 
-  const [userName, setUserName] = useState('');
-  const [rowData, setRowData] = useState([]);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const gridRef = useRef<AgGridWrapperHandle>(null);
+
+
   const [deletedRows, setDeletedRows] = useState([]); // 삭제된 행 관리
   const [updatedRows, setUpdatedRows] = useState([]); // 수정된 행 관리
 
@@ -60,43 +67,48 @@ const ManageUser: React.FC = () => {
     await new Promise((resolve) => setTimeout(resolve, 500))
 
     axios.get("http://localhost:8080/api/get-user",
-        {
-          headers: { Authorization: `Bearer ${state.authToken}` },
-          params: { userName },
-        }).then((res) => {
-      console.log(res.data);
-      //setRowData(res.data); // API에서 받은 데이터를 rowData에 세팅
-      comAPIContext.hideProgressBar();
-      comAPIContext.showToast('조회가 완료됐습니다.','dark');
-
-    }).catch((err) => {
-      console.error("Error fetching data:", err);
-      comAPIContext.showToast("Error User Search: "+ err, "danger");
-    }).finally(() =>{
-      comAPIContext.hideProgressBar();
+    {
+      headers: { Authorization: `Bearer ${state.authToken}` },
+      params: { 'userName' : inputRef.current?.value || ''},
+    })
+    .then((res) => {
+        if (gridRef.current) {
+          gridRef.current.setRowData(res.data); // 데이터를 AgGridWrapper에 설정
+        }
+        comAPIContext.hideProgressBar();
+        comAPIContext.showToast('조회가 완료됐습니다.','dark');
+    })
+    .catch((err) => {
+        console.error("Error fetching data:", err);
+        comAPIContext.showToast("Error User Search: "+ err, "danger");
+    })
+    .finally(() =>{
+        comAPIContext.hideProgressBar();
     });
   };
 
-  const handleSave = async (updatedRows: any[]) => {
+  const handleSave = async () => {
+    if (!gridRef.current) return;
+
+    const updatedRows = gridRef.current.getRowData();
     if (!updatedRows || updatedRows.length === 0) {
       comAPIContext.showToast('수정된 데이터가 없습니다.', 'dark');
       return;
     }
 
     try {
-      console.log("수정된행들:", updatedRows);
-      console.log("token정보:", state.authToken)
+      comAPIContext.showProgressBar();
+      console.log('수정된 행들:', updatedRows);
 
       await axios.post('http://localhost:8080/api/update-user', updatedRows, {
         headers: { Authorization: `Bearer ${state.authToken}` },
       });
-      comAPIContext.hideProgressBar();
+
       comAPIContext.showToast('수정사항이 저장되었습니다.', 'success');
-      handleSearch();
+      handleSearch(); // 저장 후 최신 데이터 조회
     } catch (err) {
-      console.error('Error updating data:', err);
+      console.error('Error saving data:', err);
       comAPIContext.showToast('저장 중 오류가 발생했습니다.', 'danger');
-      handleSearch();
     } finally {
       comAPIContext.hideProgressBar();
     }
@@ -125,9 +137,8 @@ const ManageUser: React.FC = () => {
               </Form.Label>
               <Col sm={4}>
                 <Form.Control
+                    ref={inputRef}
                     type="text"
-                    value={userName}
-                    onChange={(e) => setUserName(e.target.value)}
                     placeholder="사용자 이름 입력"
                 />
               </Col>
@@ -143,8 +154,8 @@ const ManageUser: React.FC = () => {
         <Row>
           <Col>
             <AgGridWrapper
+                ref={gridRef} // forwardRef를 통해 연결된 ref
                 showButtonArea={true}
-                rowData={rowData}
                 columnDefs={columnDefs}
                 enableCheckbox={true}
                 onDelete={handleDelete} // 삭제 핸들러 전달
