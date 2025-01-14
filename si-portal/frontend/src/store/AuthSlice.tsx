@@ -44,7 +44,7 @@ export const refreshToken = createAsyncThunk<
             return rejectWithValue("User information is missing");
         }
 
-        console.log('refreshToken수행하려함:', token);
+        console.log('--->refreshToken수행하려함:', token);
 
         try {
             const response = await fetch("http://localhost:8080/refresh-token", {

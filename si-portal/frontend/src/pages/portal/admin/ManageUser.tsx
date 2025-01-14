@@ -8,7 +8,37 @@ import { ComAPIContext } from "~components/ComAPIContext";
 import axios from "axios";
 import {AppDispatch, RootState} from "~store/Store";
 
+
+// 컬럼 정의
+const columnDefs = [
+  { field: 'userId', headerName: 'ID', sortable: true, filter: true, editable: false, width: 100 },
+  { field: 'userName', headerName: '이름', sortable: true, filter: true, editable: true, width: 150 },
+  { field: 'email', headerName: '이메일', sortable: true, filter: true, editable: true, width: 250 },
+  { field: 'phoneNumber', headerName: '전화번호', sortable: true, filter: true, editable: true, width: 300 },
+  { field: 'roleName'
+    , headerName: '역할'
+    , sortable: true
+    , filter: true
+    , editable: true
+    , width: 150
+    , cellEditor: 'agSelectCellEditor' // Combobox 설정
+    , cellEditorParams: { values: ['SA', 'ADMIN', 'USER'] }// Combobox 옵션
+  },
+  { field: 'status'
+    , headerName: '상태'
+    , sortable: true
+    , filter: true
+    , editable: true
+    , width: 100
+    , cellEditor: 'agSelectCellEditor' // Combobox 설정
+    , cellEditorParams: { values: ['ACTIVE', 'INACTIVE'] }// Combobox 옵션
+  },
+  { field: "createDate", headerName: "생성일", sortable: true, filter: true },
+];
+
 const ManageUser: React.FC = () => {
+  console.log("ManageUser 생성됨.");
+
   //==start: 여기는 무조건 공통으로 받는다고 생각하자
   const dispatch = useDispatch<AppDispatch>();
   const state = useSelector((state: RootState) => state.auth);
@@ -23,32 +53,7 @@ const ManageUser: React.FC = () => {
   useEffect(() => {
   }, []);
 
-  // 컬럼 정의
-  const columnDefs = [
-    { field: 'userId', headerName: 'ID', sortable: true, filter: true, editable: false, width: 100 },
-    { field: 'userName', headerName: '이름', sortable: true, filter: true, editable: true, width: 150 },
-    { field: 'email', headerName: '이메일', sortable: true, filter: true, editable: true, width: 250 },
-    { field: 'phoneNumber', headerName: '전화번호', sortable: true, filter: true, editable: true, width: 300 },
-    { field: 'roleName'
-      , headerName: '역할'
-      , sortable: true
-      , filter: true
-      , editable: true
-      , width: 150
-      , cellEditor: 'agSelectCellEditor' // Combobox 설정
-      , cellEditorParams: { values: ['SA', 'ADMIN', 'USER'] }// Combobox 옵션
-    },
-    { field: 'status'
-      , headerName: '상태'
-      , sortable: true
-      , filter: true
-      , editable: true
-      , width: 100
-      , cellEditor: 'agSelectCellEditor' // Combobox 설정
-      , cellEditorParams: { values: ['ACTIVE', 'INACTIVE'] }// Combobox 옵션
-    },
-    { field: "createDate", headerName: "생성일", sortable: true, filter: true },
-  ];
+
 
   const handleSearch = async() => {
     comAPIContext.showProgressBar();
@@ -60,8 +65,9 @@ const ManageUser: React.FC = () => {
           params: { userName },
         }).then((res) => {
       console.log(res.data);
-      setRowData(res.data); // API에서 받은 데이터를 rowData에 세팅
+      //setRowData(res.data); // API에서 받은 데이터를 rowData에 세팅
       comAPIContext.hideProgressBar();
+      comAPIContext.showToast('조회가 완료됐습니다.','dark');
 
     }).catch((err) => {
       console.error("Error fetching data:", err);
