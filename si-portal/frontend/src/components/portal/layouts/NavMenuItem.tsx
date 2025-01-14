@@ -1,40 +1,78 @@
-import { Nav, NavDropdown, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { MenuItemProps } from '~types/LayoutTypes';
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Nav, Dropdown } from 'react-bootstrap';
+import { Link, useNavigate } from 'react-router-dom';
+import { MenuItem } from '~types/LayoutTypes';
 
-const NavMenuItem = ({ item, depth }: MenuItemProps) => {
-  // 최대 4단계
-  if (depth > 4) return null;
+interface NavMenuItemProps {
+  item: MenuItem;
+  depth?: number;
+}
 
-  // 하위 메뉴 존재
+const RecursiveDropdown = ({ item, depth = 0 }: NavMenuItemProps) => {
+  const [show, setShow] = useState(false);
+  const navigate = useNavigate();
+
+  // 메뉴 클릭 핸들러
+  const handleNavigate = (path: string | undefined) => {
+    if (path) {
+      setShow(false);
+      navigate(path);
+    }
+  };
+
+  // 최대 4단계까지만 허용
+  if (depth >= 4) return null;
+
+  // 하위 메뉴가 있는 경우
   if (item.children && item.children.length > 0) {
     return (
-      <NavDropdown title={item.title} id={`nav-dropdown-${item.menuId}`} className={`depth-${depth}`} renderMenuOnMount>
-        {item.children.map((child) => (
-          <NavMenuItem key={child.menuId} item={child} depth={depth + 1} />
-        ))}
-      </NavDropdown>
+        <Dropdown
+            show={show}
+            onMouseEnter={() => setShow(true)}
+            onMouseLeave={() => setShow(false)}
+            drop={depth === 0 ? 'down' : 'end'}
+            className={depth === 0 ? 'nav-item' : 'position-relative w-100'}
+        >
+          <Dropdown.Toggle as={depth === 0 ? Nav.Link : Dropdown.Item} id={`dropdown-${item.menuId}`} className={depth === 0 ? 'p-2' : ''}>
+            {item.title}
+          </Dropdown.Toggle>
+
+          <Dropdown.Menu >
+            {item.children.map((child) => {
+              if (child.children && child.children.length > 0) {
+                return <RecursiveDropdown key={child.menuId} item={child} depth={depth + 1} />;
+              }
+              return (
+                  <Dropdown.Item key={child.menuId} onClick={() => handleNavigate(child.path)}>
+                    {child.title}
+                  </Dropdown.Item>
+              );
+            })}
+          </Dropdown.Menu>
+        </Dropdown>
     );
   }
 
-  // 최종 메뉴일 때
+  // 최하위 메뉴인 경우
+  return <Dropdown.Item onClick={() => handleNavigate(item.path)}>{item.title}</Dropdown.Item>;
+};
+
+// 최상위 메뉴 아이템 컴포넌트
+const NavMenuItem = ({ item }: NavMenuItemProps) => {
+  const navigate = useNavigate();
+
+  // 하위 메뉴가 있는 경우 RecursiveDropdown 사용
+  if (item.children && item.children.length > 0) {
+    return <RecursiveDropdown item={item} />;
+  }
+
+  // 단일 메뉴인 경우
   return (
-    <OverlayTrigger delay={{ show: 300, hide: 0 }} placement="bottom" overlay={<Tooltip>{item.title}</Tooltip>}>
-      <Nav.Link as={Link} to={item.path || '/'} className={`depth-${depth}`}>
-        {item.title}
-      </Nav.Link>
-    </OverlayTrigger>
-    // <>
-    //   {depth === 1 ? (
-    //     <Nav.Link className={`depth-${depth}`} href={item.path}>
-    //       {item.title}
-    //     </Nav.Link>
-    //   ) : (
-    //     <NavDropdown.Item className={`depth-${depth}`} href={item.path}>
-    //       {item.title}
-    //     </NavDropdown.Item>
-    //   )}
-    // </>
+      <Nav.Item>
+        <Nav.Link as={Link} to={item.path || '/'} className="p-2" onClick={() => item.path && navigate(item.path)}>
+          {item.title}
+        </Nav.Link>
+      </Nav.Item>
   );
 };
 
