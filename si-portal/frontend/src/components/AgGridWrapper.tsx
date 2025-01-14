@@ -92,6 +92,21 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
             }
         };
 
+        const handleAddRow = () => {
+            const newRow = {}; // 신규 행 데이터
+            const gridApi = gridRef.current?.api;
+
+            if (gridApi) {
+                gridApi.applyTransaction({
+                    add: [newRow], // 추가할 행
+                    addIndex: 0, // 맨 상단에 삽입
+                });
+
+                // 상태도 업데이트 (선택 사항)
+                setRowData((prev) => [newRow, ...prev]);
+            }
+        };
+
         const handleCellValueChange = (event: any) => {
             const updatedRow = { ...event.data, isUpdated: true };
 
@@ -121,7 +136,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
                         </Col>
                         {showButtonArea && (
                             <Col className="d-flex justify-content-end">
-                                <Button size="sm" className="me-2" variant="primary">
+                                <Button size="sm" className="me-2" variant="primary" onClick={handleAddRow}>
                                     추가
                                 </Button>
                                 <Button size="sm" className="me-2" variant="primary" onClick={handleSave}>
