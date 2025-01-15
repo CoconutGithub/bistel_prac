@@ -8,6 +8,7 @@ const routes: RouteConfig[] = [
   { path: '/main/contect', component: React.lazy(() => import('~pages/portal/example/Contect')) },
   { path: '/main/manage-menu', component: React.lazy(() => import('~pages/portal/admin/MangeMenu')) },
   { path: '/main/manage-role', component: React.lazy(() => import('~pages/portal/admin/ManageRole')) },
+  { path: '/main/manage-email', component: React.lazy(() => import('~pages/portal/admin/ManageEmail')) },
   { path: '/main/manage-user', component: React.lazy(() => import('~pages/portal/admin/ManageUser')) },
 
 ];

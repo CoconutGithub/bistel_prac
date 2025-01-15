@@ -8,10 +8,9 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.sql.SQLException;
 
-public class ComResultMap  extends ListOrderedMap<String, Object> implements Serializable {
+public class ComResultMap extends ListOrderedMap<String, Object> implements Serializable {
     @Serial
     private static final long serialVersionUID = -3373848823544700461L;
-
 
     // put() 메소드 오버라이드
     @Override
@@ -36,7 +35,6 @@ public class ComResultMap  extends ListOrderedMap<String, Object> implements Ser
             }
         } catch (IOException | SQLException e) {
             e.printStackTrace();
-            // 필요하면 예외를 로깅하거나 처리
         }
         return sb.toString();
     }
@@ -52,7 +50,6 @@ public class ComResultMap  extends ListOrderedMap<String, Object> implements Ser
             char c = key.charAt(i);
 
             if (c == '_') {
-                // 다음 문자를 대문자로 변환하도록 설정
                 nextUpperCase = true;
             } else if (nextUpperCase) {
                 result.append(Character.toUpperCase(c)); // 대문자로 변환
@@ -65,6 +62,21 @@ public class ComResultMap  extends ListOrderedMap<String, Object> implements Ser
         return result.toString();
     }
 
+    // 상태 설정 메소드
+    public void setStatus(String status) {
+        this.put("status", status);
+    }
+
+    // 메시지 설정 메소드
+    public void setMessage(String message) {
+        this.put("message", message);
+    }
+
+    // 이메일과 관련된 데이터를 설정할 수 있는 메소드
+    public void setEmailStatus(String status, String message) {
+        this.setStatus(status);
+        this.setMessage(message);
+    }
 
     // 필요에 따라 추가적인 메소드들을 추가할 수 있습니다.
     public Object get(String key) {

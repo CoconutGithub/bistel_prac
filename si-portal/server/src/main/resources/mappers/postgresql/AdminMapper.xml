@@ -62,4 +62,21 @@
         END $$;
     </update>
 
+    <select id="getEmailHistory" resultType="com.siportal.portal.com.result.ComResultMap">
+        SELECT ROW_NUMBER() OVER (ORDER BY CREATION_TIME desc) as GRID_ROW_ID
+        ,SEND_USER
+        ,SEND_RECIVER
+        ,TITLE
+        ,CONTENT
+        ,READ_YN
+        ,CREATION_TIME
+        FROM P_EMAIL_HISTORY
+        WHERE 1=1
+        <if test="sendUser != null and sendUser != ''">
+            AND SEND_USER = #{sendUser}
+        </if>
+        ORDER BY CREATION_TIME desc
+    </select>
+
+
 </mapper>
