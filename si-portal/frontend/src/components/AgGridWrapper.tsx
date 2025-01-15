@@ -13,6 +13,8 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import '~styles/components/grid.scss';
 
+
+//##################### type 지정-start #######################
 // Props 타입 정의
 interface AgGridWrapperProps {
     showButtonArea?: boolean;
@@ -20,14 +22,15 @@ interface AgGridWrapperProps {
     enableCheckbox?: boolean;
     onDelete?: (selectedRows: any[]) => void;
     onSave?: (lists: { deleteList: any[]; updateList: any[] }) => void;
-    rowData?: any[]; // rowData prop 추가
 }
+
 
 // 외부에서 사용할 메서드 타입 정의
 export interface AgGridWrapperHandle {
     setRowData: (data: any[]) => void;
     getRowData: () => any[];
 }
+//##################### type 지정-end #######################
 
 // 수정된 행에 스타일을 적용하는 규칙
 const rowClassRules = {
@@ -35,29 +38,16 @@ const rowClassRules = {
     'ag-row-updated': (params: any) => params.data?.isUpdated === true, // isUpdated가 true인 경우
 };
 
-// 체크박스 렌더러
-const CheckboxRenderer = (props: any) => {
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const updatedValue = event.target.checked;
-        props.node.setDataValue(props.colDef.field, updatedValue); // 현재 Row의 데이터만 업데이트
-    };
+const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
+    ({ showButtonArea = false, columnDefs, enableCheckbox = false, onDelete, onSave }, ref) => {
 
-    return (
-        <input
-            type="checkbox"
-            checked={props.value || false} // Row의 개별 데이터와 연결
-            onChange={handleChange}
-        />
-    );
-};
+        console.log("======create AgGridWrapper======");
 
-const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
-    ({ showButtonArea = false, columnDefs, enableCheckbox = false, onDelete, onSave, rowData: initialRowData = [] }, ref) => {
         const gridRef = useRef<AgGridReact>(null); // AgGrid 참조
-        const [rowData, setRowData] = useState<any[]>(initialRowData); // 초기 rowData 설정
-
+        const [rowData, setRowData] = useState<any[]>([]);
         const [modifiedRows, setModifiedRows] = useState(new Set()); // 수정된 행 추적
-        let updateList: any[] = [];
+
+        let updateList = new Map();
         let deleteList: any[] = [];
 
         // 기본 컬럼 정의
@@ -65,7 +55,6 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
             resizable: true,
             sortable: true,
             filter: true,
-            editable: true,
         };
 
         // 컬럼 정의 생성
@@ -73,10 +62,8 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
             const baseColumnDefs = enableCheckbox
                 ? [
                     {
-                        field: 'isSelected', // 체크박스 필드 이름
-                        headerCheckboxSelection: false, // 전체 선택 비활성화
-                        checkboxSelection: false, // 기본 체크박스 사용 비활성화
-                        cellRendererFramework: CheckboxRenderer, // 사용자 정의 렌더러
+                        headerCheckboxSelection: true,
+                        checkboxSelection: true,
                         width: 50,
                     },
                     ...columnDefs,
@@ -85,8 +72,17 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
 
             return baseColumnDefs.map((colDef) => ({
                 ...colDef,
-                cellClass: (params: CellClassParams) =>
-                    params.data?.isDeleted ? 'ag-row-deleted' : 'ag-row-default',
+                cellClass: (params: CellClassParams) => {
+                    // if (params.data?.isDeleted) {
+                    //     return 'ag-row-deleted'
+                    // } else if(params.data?.isUpdated) {
+                    //     return '.ag-row-updated'
+                    // } else {
+                    //     return 'ag-row-default'
+                    // }
+                    return 'ag-row-default'
+                }
+
             }));
         };
 
@@ -96,66 +92,66 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
 
         const handleCellValueChange = (event: any) => {
             console.log("handleCellValueChange:", event);
-            const { data } = event;
-            data.isUpdated = true;
 
-            setRowData((prev) =>
-                prev.map((row) =>
-                    row.id === data.id ? { ...row, ...data } : row
-                )
-            );
+            const { data } = event; // 변경된 행 데이터 가져오기
+            data.isUpdated = true; // isUpdated 플래그 설정
 
-            setModifiedRows((prev) => new Set([...prev, data.id]));
-            updateList = [...updateList, data];
+
+            updateList.set(data.gridRowId || data.id, data); // 고유 ID를 키로 사용
+
+            // 변경된 행만 업데이트
+            gridRef.current?.api.applyTransaction({ update: [data] });
         };
 
         const handleDelete = () => {
+            console.log("handleDelete-----------");
+
             const selectedNodes = gridRef.current?.api.getSelectedNodes();
             const selectedRows = selectedNodes ? selectedNodes.map((node) => node.data) : [];
 
+            // 선택된 행에 isDeleted 플래그 추가
             selectedRows.forEach((row) => {
-                row.isDeleted = true;
+                row.isDeleted = true; // 플래그 설정
             });
 
-            setRowData((prev) =>
-                prev.map((row) =>
-                    selectedRows.includes(row) ? { ...row, isDeleted: true } : row
-                )
-            );
+            deleteList = selectedRows;
 
-            deleteList = [...deleteList, ...selectedRows];
+            // 선택된 행만 업데이트
+            gridRef.current?.api.applyTransaction({ update: selectedRows });
         };
 
         const handleSave = () => {
             if (onSave) {
-                const modifiedData = Array.from(modifiedRows).map((id) =>
-                    rowData.find((row) => row.id === id)
-                );
-                onSave({ deleteList, updateList: modifiedData });
+                const finalUpdateList = Array.from(updateList.values());
+                onSave({ 'deleteList': deleteList, 'updateList': finalUpdateList });
             }
         };
 
         const handleAddRow = () => {
-            const newRow = { id: Date.now(), isSelected: false }; // 고유 ID 추가 및 체크박스 초기화
+            const newRow = {}; // 신규 행 데이터
             const gridApi = gridRef.current?.api;
 
             if (gridApi) {
                 gridApi.applyTransaction({
-                    add: [newRow],
-                    addIndex: 0,
+                    add: [newRow], // 추가할 행
+                    addIndex: 0, // 맨 상단에 삽입
                 });
 
+                // 상태도 업데이트 (선택 사항)
                 setRowData((prev) => [newRow, ...prev]);
             }
         };
 
+
+
+
         // useImperativeHandle로 외부에서 접근 가능한 메서드 정의
         useImperativeHandle(ref, () => ({
             setRowData: (newData: any[]) => {
-                setRowData(newData);
+                setRowData(newData); // 데이터 설정
             },
             getRowData: () => {
-                return rowData;
+                return rowData; // 현재 데이터 반환
             },
         }));
 
@@ -191,7 +187,8 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
                                 defaultColDef={defaultColDef}
                                 modules={[ClientSideRowModelModule]}
                                 onCellValueChanged={handleCellValueChange}
-                                rowClassRules={rowClassRules}
+                                rowClassRules={rowClassRules} // 행 스타일 규칙 적용
+                                getRowId={(params) => String(params.data.gridRowId || params.data.id)} // GRID 에서 행별로 유일한 고유 ID 설정
                                 onGridReady={onGridReady}
                             />
                         </div>

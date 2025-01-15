@@ -88,7 +88,6 @@ const ManageRole: React.FC = () => {
                         ref={gridRef}
                         showButtonArea={true}
                         columnDefs={columnDefs}
-                        rowData={rowData}
                         onDelete={() => {}}
                         onSave={() => {}}
                     />

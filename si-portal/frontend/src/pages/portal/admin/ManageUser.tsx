@@ -68,24 +68,24 @@ const ManageUser: React.FC = () => {
     await new Promise((resolve) => setTimeout(resolve, 500))
 
     axios.get("http://localhost:8080/admin/api/get-user",
-    {
-      headers: { Authorization: `Bearer ${state.authToken}` },
-      params: { 'userName' : inputRef.current?.value || ''},
-    })
-    .then((res) => {
-        if (gridRef.current) {
-          gridRef.current.setRowData(res.data); // 데이터를 AgGridWrapper에 설정
-        }
-        comAPIContext.hideProgressBar();
-        comAPIContext.showToast('조회가 완료됐습니다.','dark');
-    })
-    .catch((err) => {
-        console.error("Error fetching data:", err);
-        comAPIContext.showToast("Error User Search: "+ err, "danger");
-    })
-    .finally(() =>{
-        comAPIContext.hideProgressBar();
-    });
+        {
+          headers: { Authorization: `Bearer ${state.authToken}` },
+          params: { 'userName' : inputRef.current?.value || ''},
+        })
+        .then((res) => {
+          if (gridRef.current) {
+            gridRef.current.setRowData(res.data); // 데이터를 AgGridWrapper에 설정
+          }
+          comAPIContext.hideProgressBar();
+          comAPIContext.showToast('조회가 완료됐습니다.','dark');
+        })
+        .catch((err) => {
+          console.error("Error fetching data:", err);
+          comAPIContext.showToast("Error User Search: "+ err, "danger");
+        })
+        .finally(() =>{
+          comAPIContext.hideProgressBar();
+        });
   };
 
   const handleSave = async (lists: { deleteList: any[]; updateList: any[] }) => {
