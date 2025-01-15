@@ -16,7 +16,7 @@ public class ComPortalDataLoader {
     @Autowired
     private PortalMapper portalMapper;
 
-    private ComPortalData comPortalData; // ComPortalData 객체
+    private ComPortalData comPortalData; // ComPortalData 媛앹껜
 
     @PostConstruct
     public void loadPortalData() {
