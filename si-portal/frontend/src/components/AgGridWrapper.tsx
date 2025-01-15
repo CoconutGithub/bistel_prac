@@ -24,11 +24,6 @@ interface AgGridWrapperProps {
     onSave?: (lists: { deleteList: any[]; updateList: any[] }) => void;
 }
 
-interface User {
-
-}
-
-
 
 // 외부에서 사용할 메서드 타입 정의
 export interface AgGridWrapperHandle {
@@ -52,7 +47,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
         const [rowData, setRowData] = useState<any[]>([]);
         const [modifiedRows, setModifiedRows] = useState(new Set()); // 수정된 행 추적
 
-        let updateList: any[] = [];
+        let updateList = new Map();
         let deleteList: any[] = [];
 
         // 기본 컬럼 정의
@@ -101,6 +96,9 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
             const { data } = event; // 변경된 행 데이터 가져오기
             data.isUpdated = true; // isUpdated 플래그 설정
 
+
+            updateList.set(data.gridRowId || data.id, data); // 고유 ID를 키로 사용
+
             // 변경된 행만 업데이트
             gridRef.current?.api.applyTransaction({ update: [data] });
         };
@@ -124,7 +122,8 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
 
         const handleSave = () => {
             if (onSave) {
-                onSave({ 'deleteList': deleteList, 'updateList': updateList });
+                const finalUpdateList = Array.from(updateList.values());
+                onSave({ 'deleteList': deleteList, 'updateList': finalUpdateList });
             }
         };
 
