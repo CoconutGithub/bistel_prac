@@ -9,6 +9,12 @@
         ORDER BY A.DEPTH, A.POSITION
     </select>
 
+    <select id="getAllRole" resultType="java.util.Map">
+        SELECT *
+        FROM P_ROLE
+    </select>
+
+
     <select id="getUserByUserId" parameterType="String" resultType="com.siportal.portal.dto.User">
         SELECT USER_ID, USER_NAME, EMAIL, PHONE_NUMBER, STATUS
         FROM P_USER
