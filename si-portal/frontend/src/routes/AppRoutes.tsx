@@ -22,7 +22,7 @@ export default function AppRoutes() {
               <React.Fragment key={idx}>{route}</React.Fragment>
             ))}
           </Route>
-          <Route path="/main" element={isAuthenticated ?  <MainLayout /> : <Navigate to="*" /> }>
+          <Route path="/main" element={isAuthenticated ?  <MainLayout /> : <Navigate to="/login" /> }>
             {routes.map((route, idx) => (
             <React.Fragment key={idx}>{route}</React.Fragment>
             ))}
@@ -30,6 +30,9 @@ export default function AppRoutes() {
 
           {/* 상태 값 확인 해서(redux?) 유효하면 메인 그렇지 않으면 Login */}
           <Route path="/login" element={<Login />} />
+
+            {/* 상태 값 확인 해서(redux?) 유효하면 메인 그렇지 않으면 Login */}
+            <Route path="/logout" element={<Login />} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>

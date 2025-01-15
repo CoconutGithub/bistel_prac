@@ -3,13 +3,16 @@ import {Navbar, Nav, Container, NavDropdown} from 'react-bootstrap';
 import NavMenuItem from '~components/portal/layouts/NavMenuItem';
 import { MenuItem } from '~types/LayoutTypes';
 import axios from 'axios';
-import {Link} from "react-router-dom";
-import {useSelector} from "react-redux";
-import {RootState} from "~store/Store";
+import {Link, useNavigate} from "react-router-dom";
+import {useDispatch, useSelector} from "react-redux";
+import {AppDispatch, RootState} from "~store/Store";
+import {removeLoginToken} from "~store/AuthSlice";
 
 const Header = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const state = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMenuData = async () => {
@@ -33,6 +36,13 @@ const Header = () => {
     fetchMenuData();
   }, []);
 
+  const handleLogout = () => {
+    console.log("Logging out...");
+    dispatch(removeLoginToken())
+    // 로그아웃 처리 로직
+    navigate('/main');
+  };
+
   return (
     <Navbar bg="light" expand="lg" className="mb-3">
       <Container fluid>
@@ -53,6 +63,7 @@ const Header = () => {
           </Nav>
           <Nav>
             <Nav.Link href="/">Profile</Nav.Link>
+            <Nav.Link onClick={handleLogout}>Logout</Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Container>
