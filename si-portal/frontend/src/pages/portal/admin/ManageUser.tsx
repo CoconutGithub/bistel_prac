@@ -73,6 +73,9 @@ const ManageUser: React.FC = () => {
     })
     .then((res) => {
         if (gridRef.current) {
+
+          console.log("data 보기:",res.data)
+          
           gridRef.current.setRowData(res.data); // 데이터를 AgGridWrapper에 설정
         }
         comAPIContext.hideProgressBar();
