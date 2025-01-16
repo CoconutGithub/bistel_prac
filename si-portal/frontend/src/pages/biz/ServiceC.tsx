@@ -12,7 +12,6 @@ function ServiceC() {
   const [email, setEmail] = useState<string>('');
   const [subject, setSubject] = useState<string>('');
   const [message, setMessage] = useState<string>('');
-  const inputRef = useRef<HTMLInputElement>(null);
   const comAPIContext = useContext(ComAPIContext);
 
   // 모달을 열 때 폼 초기화

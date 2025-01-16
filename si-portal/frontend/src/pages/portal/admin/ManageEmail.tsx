@@ -63,9 +63,7 @@ const ManageEmail: React.FC = () => {
 
 
   return (
-    <Container className="mt-5">
-      <div style={{ borderTop: '1px solid black', margin: '15px 0' }}></div>
-        {/* 검색 및 그리드 */}
+    <Container fluid>
         <Row className="mb-3">
             <Col>
             <h2>이메일 관리</h2>
@@ -97,7 +95,7 @@ const ManageEmail: React.FC = () => {
         <Col>
           <AgGridWrapper
             ref={gridRef}
-            showButtonArea={true}
+            showButtonArea={false}
             columnDefs={columnDefs}
             enableCheckbox={true}
           />
