@@ -1,10 +1,8 @@
 package com.siportal.portal.service;
 
 import com.siportal.portal.com.auth.JwtUtils;
-import com.siportal.portal.com.batch.config.QuartzDynamicConfig;
 import com.siportal.portal.com.result.ComResultMap;
 import com.siportal.portal.dto.PMenuDTO;
-import com.siportal.portal.dto.SchedulDTO;
 import com.siportal.portal.mapper.PortalMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,21 +20,13 @@ public class PortalService {
     @Autowired
     private PortalMapper portalMapper;
 
-    @Autowired
-    QuartzDynamicConfig quartzDynamicConfig;
-
-    @GetMapping("/api/get-schedule")
-    public ResponseEntity<?> getScheduleList(@RequestParam String jobName, @RequestParam String status) {
+    @PostMapping("/api/update-user")
+    public ResponseEntity<?> updateScheduleList(@RequestBody Map<String, String> requestBody) {
 
         try {
-            List<SchedulDTO> result = this.portalMapper.getScheduleList(jobName, status);
-            for(SchedulDTO dto : result) {
-                if(dto.getJobName().equals("dynamicJob")) {
-//                    quartzDynamicConfig.deleteJob(dto.getJobName(), dto.getGroupName());
-                    quartzDynamicConfig.updateJobTrigger(dto.getTriggerKey(), "0/2 * * * * ?");
-                }
-            }
-            return ResponseEntity.ok(result);
+            System.out.println("updateScheduleList");
+//            List<ComResultMap> result = this.portalMapper.getUserByUserName(userName);
+            return ResponseEntity.ok(null);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
                     .body("Error occurred: " + e.getMessage());
