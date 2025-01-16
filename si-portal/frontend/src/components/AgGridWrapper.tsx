@@ -13,6 +13,9 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import '~styles/components/grid.scss';
 import {ComAPIContext} from "~components/ComAPIContext";
+import AddButton from '~pages/portal/buttons/AddButton';
+import DeleteButton from '~pages/portal/buttons/DeleteButton';
+import SaveButton from "~pages/portal/buttons/SaveButton";
 
 
 //##################### type 지정-start #######################
@@ -183,19 +186,22 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
                         <Col className="d-flex justify-content-end">
                             {children}
                             {showAddButton && (
-                                <Button size="sm" className="me-2" variant="primary" onClick={handleAddRow}>
-                                    추가
-                                </Button>
+                                // <Button size="sm" className="me-2" variant="primary" onClick={handleAddRow}>
+                                //     추가
+                                // </Button>
+                                <AddButton onClick={handleAddRow}></AddButton>
                             )}
                             {showSaveButton && (
-                                <Button size="sm" className="me-2" variant="primary" onClick={handleSave}>
-                                    저장
-                                </Button>
+                                // <Button size="sm" className="me-2" variant="primary" onClick={handleSave}>
+                                //     저장
+                                // </Button>
+                                <SaveButton onClick={handleSave}></SaveButton>
                             )}
                             {showDeleteButton && (
-                                <Button size="sm" className="me-2" variant="danger" onClick={handleDelete}>
-                                    삭제
-                                </Button>
+                                // <Button size="sm" className="me-2" variant="danger" onClick={handleDelete}>
+                                //     삭제
+                                // </Button>
+                                <DeleteButton onClick={handleDelete}></DeleteButton>
                             )}
                         </Col>
                     )}
@@ -223,4 +229,4 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
     }
 );
 
-export default AgGridWrapper;
+export default React.memo(AgGridWrapper);

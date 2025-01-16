@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext, useRef} from 'react';
+import React, {useState, useEffect, useContext, useRef, useMemo, useCallback} from 'react';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import AgGridWrapper, {AgGridWrapperHandle} from '~components/AgGridWrapper';
@@ -6,14 +6,9 @@ import { useSelector  } from 'react-redux';
 import { ComAPIContext } from "~components/ComAPIContext";
 import axios from "axios";
 import {RootState} from "~store/Store";
-
-interface User {
-  userId: string;
-  userName: string;
-  email: string;
-  phoneNumber: string;
-  status: string;
-}
+import UserRegistPopup from "~pages/portal/admin/UserRegistPopupProps";
+import SearchButton from "~pages/portal/buttons/SearchButton";
+import RegistButton from "~pages/portal/buttons/ReigstButton"; // 팝업 컴포넌트 가져오기
 
 // 컬럼 정의
 const columnDefs = [
@@ -57,13 +52,17 @@ const ManageUser: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const gridRef = useRef<AgGridWrapperHandle>(null);
 
+  const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
   }, []);
 
-
+  const handleRegist = useCallback(() => {
+    setShowPopup(true);
+  },[]);
 
   const handleSearch = async() => {
+
     comAPIContext.showProgressBar();
     await new Promise((resolve) => setTimeout(resolve, 500))
 
@@ -88,12 +87,12 @@ const ManageUser: React.FC = () => {
         });
   };
 
-  const handleRegist = () => {
-    alert('dddd');
+
+  const handleClosePopup = () => {
+    setShowPopup(false);
   }
 
-
-  const handleSave = async (lists: { deleteList: any[]; updateList: any[] }) => {
+  const handleSave = useCallback(async (lists: { deleteList: any[]; updateList: any[] }) => {
 
     if (!gridRef.current) return;
 
@@ -127,7 +126,17 @@ const ManageUser: React.FC = () => {
     } finally {
       comAPIContext.hideProgressBar();
     }
-  };
+  }, []);
+
+  const registerButton = useMemo(() => (
+      <>
+        {/*<Button size="sm" className="me-2" variant="primary" onClick={handleRegist}>*/}
+        {/*  등록*/}
+        {/*</Button>*/}
+        <RegistButton onClick={handleRegist} ></RegistButton>
+      </>
+  ), []);
+
 
 
   return (
@@ -153,9 +162,10 @@ const ManageUser: React.FC = () => {
             </Form.Group>
           </Col>
           <Col lg={3} className="d-flex justify-content-end">
-            <Button size="sm" variant="primary" onClick={handleSearch}>
-              검색
-            </Button>
+            {/*<Button size="sm" variant="primary" onClick={handleSearch}>*/}
+            {/*  검색*/}
+            {/*</Button>*/}
+            <SearchButton onClick={handleSearch}></SearchButton>
           </Col>
         </Row>
         <div style={{ borderTop: '1px solid black', margin: '15px 0' }}></div>
@@ -167,14 +177,17 @@ const ManageUser: React.FC = () => {
                 showAddButton={false}
                 columnDefs={columnDefs}
                 enableCheckbox={true}
-                onSave={handleSave} // 저장 버튼 동작
+                onSave={handleSave} // 저장 버튼 동작z`
             >
-                <Button size="sm" className="me-2" variant="primary" onClick={handleRegist}>
-                  등록
-                </Button>
+              { registerButton }
             </AgGridWrapper>
           </Col>
         </Row>
+        {/* 팝업 컴포넌트 */}
+        <UserRegistPopup
+            show={showPopup}
+            onClose={handleClosePopup}
+        />
       </Container>
   );
 };
