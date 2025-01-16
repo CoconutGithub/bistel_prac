@@ -10,6 +10,7 @@ import java.util.Map;
 @Mapper
 public interface AdminMapper {
     List<ComResultMap> getUserByUserName(@Param("userName") String userName);
+    List<ComResultMap> getEmailHistory(@Param("sendUser") String sendUser);
 
     int updateUser(Map<String, Object> user);
     int updateUserRole(Map<String, Object> user);
