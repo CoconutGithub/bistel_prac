@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +27,7 @@ import java.util.Map;
 @CrossOrigin(origins = "http://localhost:9090")
 @RequestMapping("/admin") // API 기본 경로
 @Transactional
+@Slf4j
 public class AdminService {
 
     @Autowired
@@ -158,5 +160,48 @@ public class AdminService {
         jdbcTemplate.update(sql, sendUser, sendReceiver, title, content);
     }
 
+    @GetMapping("/api/get-roles")
+    public ResponseEntity<?> getRoles() {
+        try {
+            List<ComResultMap> roles = adminMapper.getAllRoles(); // 모든 권한 조회 메서드
+            return ResponseEntity.ok(roles);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/api/save-roles")
+    public ResponseEntity<?> saveRoles(@RequestBody List<ComResultMap> roles) {
+
+        try {
+            for (ComResultMap role : roles) {
+
+                if (role.get("roleId") != null) {
+                    adminMapper.updateRole(role); // 역할 업데이트
+                } else {
+                    adminMapper.insertRole(role); // 역할 삽입
+                }
+            }
+            return ResponseEntity.ok("Roles saved successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/api/delete-roles")
+    public ResponseEntity<?> deleteRoles(@RequestBody List<String> roleIds) {
+
+        try {
+            for (String roleId : roleIds) {
+                adminMapper.deleteRole(roleId);
+            }
+            return ResponseEntity.ok("Roles deleted successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
 
 }
