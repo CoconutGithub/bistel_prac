@@ -30,4 +30,6 @@ public interface AdminMapper {
     void deleteUserInfo(@Param("userId") String userId);
 
     List<SchedulDTO> getScheduleList(@Param("jobName") String jobName, @Param("status") String status);
+
+    void deleteSchedule(@Param("jobName") String jobName, @Param("groupName") String groupName);
 }
