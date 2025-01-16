@@ -1,6 +1,7 @@
 package com.siportal.portal.mapper;
 
 import com.siportal.portal.com.result.ComResultMap;
+import com.siportal.portal.dto.SchedulDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -27,4 +28,6 @@ public interface AdminMapper {
     void deleteRole(@Param("roleId") String roleId);
 
     void deleteUserInfo(@Param("userId") String userId);
+
+    List<SchedulDTO> getScheduleList(@Param("jobName") String jobName, @Param("status") String status);
 }

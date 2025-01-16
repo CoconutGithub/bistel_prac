@@ -1,7 +1,7 @@
 package com.siportal.portal.com.batch.config;
 
 import com.siportal.portal.dto.SchedulDTO;
-import com.siportal.portal.mapper.PortalMapper;
+import com.siportal.portal.mapper.AdminMapper;
 import jakarta.annotation.PostConstruct;
 import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,13 +16,13 @@ public class QuartzDynamicConfig {
     private Scheduler scheduler;
 
     @Autowired
-    PortalMapper portalMapper;
+    AdminMapper adminMapper;
 
     // 애플리케이션 시작 후 동적으로 작업을 등록
     @PostConstruct
     public void init() throws Exception {
 
-        List<SchedulDTO> scheduleList = portalMapper.getScheduleList(null, "ACTIVE");
+        List<SchedulDTO> scheduleList = adminMapper.getScheduleList(null, "ACTIVE");
 
         for(SchedulDTO dto : scheduleList) {
             try {

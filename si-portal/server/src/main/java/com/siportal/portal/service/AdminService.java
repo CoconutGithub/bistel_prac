@@ -2,9 +2,10 @@ package com.siportal.portal.service;
 
 import com.siportal.portal.com.ComPortalData;
 import com.siportal.portal.com.ComPortalDataLoader;
+import com.siportal.portal.com.batch.config.QuartzDynamicConfig;
 import com.siportal.portal.com.result.ComResultMap;
+import com.siportal.portal.dto.SchedulDTO;
 import com.siportal.portal.mapper.AdminMapper;
-import com.siportal.portal.mapper.PortalMapper;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,28 @@ public class AdminService {
     private AdminMapper adminMapper;
     @Autowired
     private ComPortalDataLoader dataLoader;
+
+    @Autowired
+    QuartzDynamicConfig quartzDynamicConfig;
+
+    @GetMapping("/api/get-schedule")
+    public ResponseEntity<?> getScheduleList(@RequestParam String jobName, @RequestParam String status) {
+
+        try {
+            List<SchedulDTO> result = this.adminMapper.getScheduleList(jobName, status);
+            //스케줄잡 Quartz 삭제 업데이트 테스트 임시
+//            for(SchedulDTO dto : result) {
+//                if(dto.getJobName().equals("dynamicJob")) {
+////                    quartzDynamicConfig.deleteJob(dto.getJobName(), dto.getGroupName());
+//                    quartzDynamicConfig.updateJobTrigger(dto.getTriggerKey(), "0/2 * * * * ?");
+//                }
+//            }
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
 
     @GetMapping("/api/get-user")
     public ResponseEntity<?> getUser(@RequestParam String userName) {

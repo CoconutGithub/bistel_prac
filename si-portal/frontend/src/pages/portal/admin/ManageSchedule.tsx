@@ -82,43 +82,39 @@ const ManageSchedule: React.FC = () => {
     };
   
     const handleSave = async (lists: { deleteList: any[]; updateList: any[] }) => {
-      if (!gridRef.current) return;
-  
-      console.log(lists)
-  
-      const updatedRows = gridRef.current.getRowData();
-      console.log("updatedRows ", updatedRows)
-      if (!updatedRows || updatedRows.length === 0) {
-        comAPIContext.showToast('수정된 데이터가 없습니다.', 'dark');
-        return;
-      }
-  
-      try {
-        comAPIContext.showProgressBar();
-        console.log('수정된 행들:', updatedRows);
-  
-        await axios.post('http://localhost:8080/api/update-user', updatedRows, {
-          headers: { Authorization: `Bearer ${state.authToken}` },
-        });
-  
-        comAPIContext.showToast('수정사항이 저장되었습니다.', 'success');
-        handleSearch(); // 저장 후 최신 데이터 조회
-      } catch (err) {
-        console.error('Error saving data:', err);
-        comAPIContext.showToast('저장 중 오류가 발생했습니다.', 'danger');
-      } finally {
-        comAPIContext.hideProgressBar();
-      }
+        if (!gridRef.current) return;
+
+        if (lists.deleteList.length === 0 && lists.updateList.length === 0) {
+          comAPIContext.showToast('저장할 데이터가 없습니다.', 'dark');
+          return;
+        }
+    
+    
+        try {
+          comAPIContext.showProgressBar();
+          console.log('1.update 행들:', lists);
+          console.log('2.delete 행들:', lists);
+    
+          // 전송 데이터 구성
+          const payload = {
+            updateList: lists.updateList,
+            deleteList: lists.deleteList,
+          };
+    
+          await axios.post('http://localhost:8080/admin/api/update-user', payload, {
+            headers: { Authorization: `Bearer ${state.authToken}` },
+          });
+    
+          comAPIContext.showToast('저장되었습니다.', 'success');
+          handleSearch(); // 저장 후 최신 데이터 조회
+        } catch (err) {
+          console.error('Error saving data:', err);
+          comAPIContext.showToast('저장 중 오류가 발생했습니다.', 'danger');
+          handleSearch();
+        } finally {
+          comAPIContext.hideProgressBar();
+        }
     };
-  
-    const handleDelete = (selectedRows: any[]) => {
-      // const updatedRows = rowData.map((row) =>
-      //     selectedRows.includes(row) ? { ...row, isDeleted: true } : row
-      // );
-      // setRowData(updatedRows);
-      // setDeletedRows((prev) => [...prev, ...selectedRows]);
-    };
-  
     return (
         <Container fluid>
           <Row className="mb-3">
@@ -155,7 +151,6 @@ const ManageSchedule: React.FC = () => {
                   showButtonArea={true}
                   columnDefs={columnDefs}
                   enableCheckbox={true}
-                  onDelete={handleDelete} // 삭제 핸들러 전달
                   onSave={handleSave} // 저장 버튼 동작
               />
             </Col>
