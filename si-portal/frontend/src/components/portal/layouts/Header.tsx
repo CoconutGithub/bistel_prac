@@ -60,6 +60,7 @@ const Header = () => {
               <NavDropdown.Item as={Link} to="/main/manage-role">권한 관리</NavDropdown.Item>
               <NavDropdown.Item as={Link} to="/main/manage-email">이메일 관리</NavDropdown.Item>
               <NavDropdown.Item as={Link} to="/main/manage-user">사용자 관리</NavDropdown.Item>
+              <NavDropdown.Item as={Link} to="/main/manage-schedule">스케줄 관리</NavDropdown.Item>
             </NavDropdown>
           </Nav>
           <Nav>
