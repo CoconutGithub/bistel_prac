@@ -88,6 +88,11 @@ const ManageUser: React.FC = () => {
         });
   };
 
+  const handleRegist = () => {
+    alert('dddd');
+  }
+
+
   const handleSave = async (lists: { deleteList: any[]; updateList: any[] }) => {
 
     if (!gridRef.current) return;
@@ -133,7 +138,7 @@ const ManageUser: React.FC = () => {
           </Col>
         </Row>
         <Row className="mb-3">
-          <Col lg={11}>
+          <Col lg={9} >
             <Form.Group as={Row}>
               <Form.Label column sm={1} className="text-center">
                 사용자 이름
@@ -147,7 +152,7 @@ const ManageUser: React.FC = () => {
               </Col>
             </Form.Group>
           </Col>
-          <Col lg={1}>
+          <Col lg={3} className="d-flex justify-content-end">
             <Button size="sm" variant="primary" onClick={handleSearch}>
               검색
             </Button>
@@ -159,10 +164,15 @@ const ManageUser: React.FC = () => {
             <AgGridWrapper
                 ref={gridRef} // forwardRef를 통해 연결된 ref
                 showButtonArea={true}
+                showAddButton={false}
                 columnDefs={columnDefs}
                 enableCheckbox={true}
                 onSave={handleSave} // 저장 버튼 동작
-            />
+            >
+                <Button size="sm" className="me-2" variant="primary" onClick={handleRegist}>
+                  등록
+                </Button>
+            </AgGridWrapper>
           </Col>
         </Row>
       </Container>
