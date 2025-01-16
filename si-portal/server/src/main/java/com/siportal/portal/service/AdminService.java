@@ -47,12 +47,53 @@ public class AdminService {
             //스케줄잡 Quartz 삭제 업데이트 테스트 임시
 //            for(SchedulDTO dto : result) {
 //                if(dto.getJobName().equals("dynamicJob")) {
-////                    quartzDynamicConfig.deleteJob(dto.getJobName(), dto.getGroupName());
+//                    quartzDynamicConfig.deleteJob(dto.getJobName(), dto.getGroupName());
 //                    quartzDynamicConfig.updateJobTrigger(dto.getTriggerKey(), "0/2 * * * * ?");
 //                }
 //            }
             return ResponseEntity.ok(result);
         } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
+    @PostMapping("/api/update-schedule")
+    public ResponseEntity<?> updateScheduler(@RequestBody Map<String, Object> requestData) {
+
+        try {
+            // 데이터 파싱
+            List<Map<String, Object>> updateList = (List<Map<String, Object>>) requestData.get("updateList");
+            List<Map<String, Object>> deleteList = (List<Map<String, Object>>) requestData.get("deleteList");
+
+            int updatedCount = 0; // 업데이트된 행 갯수
+            int deletedCount = 0; // 삭제된 행 갯수
+
+            // Delete 처리
+            for (Map<String, Object> job : deleteList) {
+                System.out.println("DELETE JOB: " + job.get("jobName"));
+                if (quartzDynamicConfig.deleteJob((String) job.get("jobName"), (String) job.get("groupName"))) {
+                    adminMapper.deleteSchedule((String) job.get("jobName"), (String) job.get("groupName"));
+                    deletedCount++;
+                }
+            }
+
+            // Update 처리
+//            for (Map<String, Object> user : updateList) {
+//                System.out.println( user);
+//
+//                adminMapper.updateUser(user);
+//                updatedCount += adminMapper.updateUserRole(user);
+//            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("messageCode", "success");
+            response.put("message", "모든 작업이 성공적으로 처리되었습니다.");
+            response.put("updatedUsersCnt", updatedCount);
+            response.put("deletedUsersCnt", deletedCount);
+
+            return ResponseEntity.ok(null);
+        } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
                     .body("Error occurred: " + e.getMessage());
         }

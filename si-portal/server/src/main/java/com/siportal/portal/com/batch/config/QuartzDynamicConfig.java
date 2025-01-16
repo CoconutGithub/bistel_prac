@@ -59,7 +59,8 @@ public class QuartzDynamicConfig {
         System.out.println("regist job and trigger(" + jobName + ")(" + groupName + ")("+ triggerKey + ")(" + cronTab + ")");
     }
 
-    public void deleteJob(String jobName, String groupName) throws Exception {
+    public boolean deleteJob(String jobName, String groupName) throws Exception {
+        boolean ret = false;
         scheduler.deleteJob(new JobKey(jobName, groupName));
         System.out.println("delete job(" + jobName + ")(" + groupName + ")");
 
@@ -67,9 +68,11 @@ public class QuartzDynamicConfig {
 
         if (!jobExists) {
             System.out.println("check job delete(" + jobName + ")(" + groupName + ") ===> completed");
+            ret = true;
         } else {
             System.out.println("check job delete(" + jobName + ")(" + groupName + ") ===> not completed");
         }
+        return ret;
     }
 
     public void updateJobTrigger(String triggerKey, String cronTab) throws Exception {

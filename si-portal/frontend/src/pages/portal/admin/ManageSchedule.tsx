@@ -58,7 +58,7 @@ const ManageSchedule: React.FC = () => {
       comAPIContext.showProgressBar();
       await new Promise((resolve) => setTimeout(resolve, 500))
   
-      axios.get("http://localhost:8080/api/get-schedule",
+      axios.get("http://localhost:8080/admin/api/get-schedule",
       {
         headers: { Authorization: `Bearer ${state.authToken}` },
         params: { 'jobName' : inputRef.current?.value || '', 'status' : ''},
@@ -101,7 +101,7 @@ const ManageSchedule: React.FC = () => {
             deleteList: lists.deleteList,
           };
     
-          await axios.post('http://localhost:8080/admin/api/update-user', payload, {
+          await axios.post('http://localhost:8080/admin/api/update-schedule', payload, {
             headers: { Authorization: `Bearer ${state.authToken}` },
           });
     
