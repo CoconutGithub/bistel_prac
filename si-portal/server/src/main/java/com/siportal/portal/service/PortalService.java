@@ -20,19 +20,6 @@ public class PortalService {
     @Autowired
     private PortalMapper portalMapper;
 
-    @PostMapping("/api/update-user")
-    public ResponseEntity<?> updateScheduleList(@RequestBody Map<String, String> requestBody) {
-
-        try {
-            System.out.println("updateScheduleList");
-//            List<ComResultMap> result = this.portalMapper.getUserByUserName(userName);
-            return ResponseEntity.ok(null);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
-                    .body("Error occurred: " + e.getMessage());
-        }
-    }
-
     @GetMapping("/api/get-user")
     public ResponseEntity<?> getUser(@RequestParam String userName) {
 
