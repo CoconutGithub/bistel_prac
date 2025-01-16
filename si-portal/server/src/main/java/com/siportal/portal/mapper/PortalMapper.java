@@ -2,6 +2,7 @@ package com.siportal.portal.mapper;
 
 import com.siportal.portal.com.result.ComResultMap;
 import com.siportal.portal.dto.PMenuDTO;
+import com.siportal.portal.dto.SchedulDTO;
 import com.siportal.portal.dto.User;
 import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Mapper;

@@ -54,6 +54,9 @@ dependencies {
 	// Jakarta Mail 의존성 추가
 	implementation 'jakarta.mail:jakarta.mail-api:2.1.0'  // 최신 버전
 	implementation 'javax.mail:javax.mail-api:1.6.2'
+
+	// Quartz 의존성 추가
+	implementation 'org.springframework.boot:spring-boot-starter-quartz'
 }
 
 tasks.named('test') {

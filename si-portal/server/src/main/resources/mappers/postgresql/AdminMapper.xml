@@ -1,6 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.siportal.portal.mapper.AdminMapper">
+    <select id="getScheduleList" parameterType="String" resultType="com.siportal.portal.dto.SchedulDTO">
+        SELECT
+        JOB_NAME, GROUP_NAME, TRIGGER_KEY, CLASS_NAME, CRON_TAB, TO_CHAR(CREATE_DATE, 'YYYY-MM-DD HH24:MI:SS') CREATE_DATE, STATUS
+        , ROW_NUMBER() OVER() AS GRID_ROW_ID
+        FROM
+        P_SCHEDULER
+        WHERE 1 = 1
+        <if test="status != null and status != ''">
+            AND STATUS = #{status}
+        </if>
+        <if test="jobName != null and jobName != ''">
+            AND JOB_NAME = #{jobName}
+        </if>
+        ORDER BY JOB_NAME
+    </select>
     <select id="getUserByUserName" resultType="com.siportal.portal.com.result.ComResultMap">
         SELECT
         ROW_NUMBER() OVER (ORDER BY A.CREATE_DATE DESC) as GRID_ROW_ID
@@ -77,5 +92,41 @@
         </if>
         ORDER BY CREATION_TIME desc
     </select>
+
+    <select id="getAllRoles" resultType="com.siportal.portal.com.result.ComResultMap">
+        SELECT
+        ROLE_ID ,
+        ROLE_NAME ,
+        STATUS ,
+        MENU ,
+        CAN_CREATE ,
+        CAN_READ ,
+        CAN_UPDATE ,
+        CAN_DELETE ,
+        TO_CHAR(CREATE_DATE, 'YYYY-MM-DD') AS CREATE_DATE
+        FROM P_ROLE
+    </select>
+
+    <update id="updateRole">
+        UPDATE P_ROLE
+        SET
+        ROLE_NAME = #{roleName},
+        STATUS = #{status},
+        CAN_CREATE = #{canCreate},
+        CAN_READ = #{canRead},
+        CAN_UPDATE = #{canUpdate},
+        CAN_DELETE = #{canDelete},
+        MENU = #{menu}
+        WHERE ROLE_ID = #{roleId}
+    </update>
+
+    <insert id="insertRole">
+        INSERT INTO P_ROLE (ROLE_ID, ROLE_NAME, STATUS, CAN_CREATE, CAN_READ, CAN_UPDATE, CAN_DELETE, MENU)
+        VALUES (#{roleId}, #{roleName}, #{status}, #{canCreate}, #{canRead}, #{canUpdate}, #{canDelete}, #{menu})
+    </insert>
+
+    <delete id="deleteRole">
+        DELETE FROM P_ROLE WHERE ROLE_ID = #{roleId}
+    </delete>
 
 </mapper>
