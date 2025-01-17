@@ -19,7 +19,11 @@ public interface AdminMapper {
     int deleteUser(@Param("userId") String userId);
     int deleteUserRole(@Param("userId") String userId);
 
-    List<ComResultMap> getAllRoles();
+    List<ComResultMap> getAllRoles(@Param("roleName") String roleName);
+    List<ComResultMap> getRoleList();
+
+    int updatePermission(Map<String, Object> permission);
+    int deletePermission(@Param("permissionId") Integer permissionId);
 
     void updateRole(ComResultMap role);
 
