@@ -99,16 +99,33 @@
     </select>
 
     <select id="getAllRoles" resultType="com.siportal.portal.com.result.ComResultMap">
+        select
+         C.permission_id
+        ,B.role_name
+        ,A.menu_name
+        ,C.can_create
+        ,C.can_read
+        ,C.can_update
+        ,C.can_delete
+        ,TO_CHAR(C.create_date, 'YYYY-MM-DD') AS create_date
+        ,C.create_by
+        ,TO_CHAR(C.update_date, 'YYYY-MM-DD') AS update_date
+        ,C.update_by
+        from p_menu A
+        ,p_role B
+        ,p_permission C
+        where 1=1
+        and A.menu_id = C.menu_id
+        and B.role_id = C.role_id
+        <if test="roleName != null and roleName != ''">
+            AND B.role_name = #{roleName}
+        </if>
+    </select>
+
+    <select id="getRoleList" resultType="com.siportal.portal.com.result.ComResultMap">
         SELECT
-        ROLE_ID ,
-        ROLE_NAME ,
-        STATUS ,
-        MENU ,
-        CAN_CREATE ,
-        CAN_READ ,
-        CAN_UPDATE ,
-        CAN_DELETE ,
-        TO_CHAR(CREATE_DATE, 'YYYY-MM-DD') AS CREATE_DATE
+            ROLE_ID ,
+            ROLE_NAME
         FROM P_ROLE
     </select>
 
@@ -132,6 +149,22 @@
 
     <delete id="deleteRole">
         DELETE FROM P_ROLE WHERE ROLE_ID = #{roleId}
+    </delete>
+
+    <update id="updatePermission">
+        UPDATE p_permission
+        SET can_create = #{canCreate}
+          , can_read = #{canRead}
+          , can_update = #{canUpdate}
+          , can_delete = #{canDelete}
+          , create_date = CURRENT_TIMESTAMP
+          , UPDATE_BY = 'ADMIN'
+        WHERE permission_id = #{permissionId}
+    </update>
+
+    <delete id="deletePermission" >
+        DELETE FROM p_permission
+        WHERE permission_id = #{permissionId}
     </delete>
 
 </mapper>
