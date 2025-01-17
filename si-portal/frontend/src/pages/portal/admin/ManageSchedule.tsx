@@ -115,6 +115,23 @@ const ManageSchedule: React.FC = () => {
           comAPIContext.hideProgressBar();
         }
     };
+
+    // 셀 편집 시작 시 호출되는 이벤트
+    const onCellEditingStopped = (event: any) => {
+        setTimeout(() => {
+            console.log('Cell editing stopped', event);
+            const oldValue = event.oldValue;
+            const newValue = event.newValue;
+            const uneditableCell = ['jobName', 'groupName', 'triggerKey', 'className']
+            if (uneditableCell.includes(event.colDef.field) && oldValue !== undefined && oldValue !== newValue) {
+                // 편집 취소하고 원래 값으로 되돌리기
+                event.node.setDataValue(event.column, oldValue);
+                event.api.stopEditing(false); // 편집 취소
+                comAPIContext.showToast('해당 컬럼은 변경할 수 없습니다.', 'danger');
+            } 
+        }, 0);  // 타이밍을 조금 늦춰서 호출
+    };
+    
     return (
         <Container fluid>
           <Row className="mb-3">
@@ -152,6 +169,7 @@ const ManageSchedule: React.FC = () => {
                   columnDefs={columnDefs}
                   enableCheckbox={true}
                   onSave={handleSave} // 저장 버튼 동작
+                  onCellEditingStopped={onCellEditingStopped} // 셀편집마침 이벤트 핸들러 등록
               />
             </Col>
           </Row>
