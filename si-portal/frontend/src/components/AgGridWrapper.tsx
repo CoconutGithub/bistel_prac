@@ -21,8 +21,10 @@ interface AgGridWrapperProps {
     columnDefs: ColDef[];
     enableCheckbox?: boolean;
     onDelete?: (selectedRows: any[]) => void;
-    onSave?: (lists: { deleteList: any[]; updateList: any[] }) => void;
+    onSave?: (lists: { deleteList: any[]; updateList: any[]; createList: any[]; }) => void;
     onCellEditingStopped?: (event: any) => void;
+    onCellValueChanged?: (event: any) => void;
+    onCellEditingStarted?: (event: any) => void;
 }
 
 
@@ -40,7 +42,7 @@ const rowClassRules = {
 };
 
 const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
-    ({ showButtonArea = false, columnDefs, enableCheckbox = false, onDelete, onSave, onCellEditingStopped}, ref) => {
+    ({ showButtonArea = false, columnDefs, enableCheckbox = false, onDelete, onSave, onCellEditingStopped, onCellValueChanged, onCellEditingStarted}, ref) => {
 
         console.log("======create AgGridWrapper======");
 
@@ -49,6 +51,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
         const [modifiedRows, setModifiedRows] = useState(new Set()); // 수정된 행 추적
 
         let updateList = new Map();
+        let createList = new Map();
         let deleteList: any[] = [];
 
         // 기본 컬럼 정의
@@ -95,13 +98,36 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
             console.log("handleCellValueChange:", event);
 
             const { data } = event; // 변경된 행 데이터 가져오기
-            data.isUpdated = true; // isUpdated 플래그 설정
-
-
-            updateList.set(data.gridRowId || data.id, data); // 고유 ID를 키로 사용
+            if(data.isCreated == true){
+                createList.set(data.gridRowId, data); // 고유 ID를 키로 사용
+                console.log('createList:', createList)
+            } else {
+                data.isUpdated = true; // isUpdated 플래그 설정
+                updateList.set(data.gridRowId || data.id, data); // 고유 ID를 키로 사용
+                console.log('updateList:', updateList)
+            }
 
             // 변경된 행만 업데이트
             gridRef.current?.api.applyTransaction({ update: [data] });
+
+            // 외부에서 전달받은 이벤트 핸들러 호출
+            if (onCellValueChanged) {
+                onCellValueChanged(event);  // 외부에서 전달된 핸들러 호출
+            }
+        };
+
+        const handleCellEditingStopped = (event: any) => {
+          
+            // 외부에서 전달받은 이벤트 핸들러 호출
+            if (onCellEditingStopped) {
+              onCellEditingStopped(event);  // 외부에서 전달된 핸들러 호출
+            }
+          };
+
+        const handleCellEditingStarted  = (event: any) => {
+            if (onCellEditingStarted) {
+                onCellEditingStarted(event);
+            }
         };
 
         const handleDelete = () => {
@@ -124,12 +150,13 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
         const handleSave = () => {
             if (onSave) {
                 const finalUpdateList = Array.from(updateList.values());
-                onSave({ 'deleteList': deleteList, 'updateList': finalUpdateList });
+                const finalCreateList = Array.from(createList.values());
+                onSave({ 'deleteList': deleteList, 'updateList': finalUpdateList, 'createList': finalCreateList });
             }
         };
 
         const handleAddRow = () => {
-            const newRow = {}; // 신규 행 데이터
+            const newRow = {'isCreated': true, 'gridRowId': new Date().getTime() + Math.random().toString(36)}; // 신규 행 데이터
             const gridApi = gridRef.current?.api;
 
             if (gridApi) {
@@ -139,7 +166,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
                 });
 
                 // 상태도 업데이트 (선택 사항)
-                setRowData((prev) => [newRow, ...prev]);
+                // setRowData((prev) => [newRow, ...prev]);
             }
         };
 
@@ -188,7 +215,8 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
                                 rowClassRules={rowClassRules} // 행 스타일 규칙 적용
                                 getRowId={(params) => String(params.data.gridRowId || params.data.id)} // GRID 에서 행별로 유일한 고유 ID 설정
                                 onGridReady={onGridReady}
-                                onCellEditingStopped={onCellEditingStopped}
+                                onCellEditingStopped={handleCellEditingStopped}
+                                onCellEditingStarted={handleCellEditingStarted}
                             />
                         </div>
                     </Row>
