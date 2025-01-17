@@ -35,9 +35,9 @@ const columnDefs = [
             params.data.canRead = newValue ? 'Y' : 'N';
             return true;
         },
-        sortable: true, 
-        filter: true, 
-        editable: true, 
+        sortable: true,
+        filter: true,
+        editable: true,
         width: 150
     },
     { field: 'canUpdate', headerName: '업데이트 권한',

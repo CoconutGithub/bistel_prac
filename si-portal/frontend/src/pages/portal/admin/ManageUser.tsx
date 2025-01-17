@@ -24,9 +24,8 @@ const columnDefs = [
     , editable: true
     , width: 150
     , cellEditor: 'agSelectCellEditor' // Combobox 설정
-    , cellEditorParams: { values: ['SA', 'ADMIN', 'USER'] }// Combobox 옵션
+    , cellEditorParams: { values: [] }// 동적으로 role이 가져와질 Combobox 옵션
   },
-  { field: 'roleId', headerName: 'roleId', hide: true },
   { field: 'status'
     , headerName: '상태'
     , sortable: true
@@ -41,6 +40,13 @@ const columnDefs = [
   { field: "updateBy", headerName: "수정자", sortable: true, filter: true },
 ];
 
+interface Role {
+  roleId: number;
+  roleName: string;
+}
+
+let roleKind : any = null;
+
 const ManageUser: React.FC = () => {
   console.log("ManageUser 생성됨.");
 
@@ -52,10 +58,50 @@ const ManageUser: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const gridRef = useRef<AgGridWrapperHandle>(null);
 
+  const [dynamicColumnDefs, setDynamicColumnDefs] = useState(columnDefs); // 컬럼 정보
   const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
+    const getRoleList = async () => {
+      try {
+        comAPIContext.showProgressBar();
+
+        // API 호출
+        const res = await axios.get("http://localhost:8080/admin/api/get-roles-list", {
+          headers: {
+            Authorization: `Bearer ${state.authToken}`,
+          },
+        });
+
+        if (res && res.data) {
+          // 기존 columnDefs 복사 후 특정 컬럼 업데이트
+          const updatedColumnDefs: any = columnDefs.map((col) => {
+            if (col.field === 'roleName') {
+              return {
+                ...col,
+                cellEditorParams: { values: res.data.map((item:any) => item.roleName) },
+              };
+            }
+            return col; // 반드시 반환
+          });
+
+          console.log("DBSearch Role 기준정보: ", res.data)
+          roleKind = res.data;
+          setDynamicColumnDefs(updatedColumnDefs); // 상태 업데이트
+
+        }
+      } catch (err) {
+        const error = err as Error; // 타입 단언
+        console.error("Error fetching data:", err);
+        comAPIContext.showToast("Error fetching roles: " + error.message, "danger");
+      } finally {
+        comAPIContext.hideProgressBar();
+      }
+    };
+
+    getRoleList();
   }, []);
+
 
   const handleRegist = useCallback(() => {
     setShowPopup(true);
@@ -94,6 +140,9 @@ const ManageUser: React.FC = () => {
 
   const handleSave = useCallback(async (lists: { deleteList: any[]; updateList: any[] }) => {
 
+    console.log('--------->', roleKind);
+
+
     if (!gridRef.current) return;
 
     if (lists.deleteList.length === 0 && lists.updateList.length === 0) {
@@ -106,6 +155,16 @@ const ManageUser: React.FC = () => {
       comAPIContext.showProgressBar();
       console.log('1.update 행들:', lists);
       console.log('2.delete 행들:', lists);
+
+      if (lists.updateList.length !== 0) {
+
+        if (roleKind !== null) {
+          lists.updateList.forEach( e => {
+            const roleData : any  = roleKind.find( (r:any) => r.roleName === e.roleName);
+            e.roleId = roleData.roleId;
+          });
+        }
+      };
 
       // 전송 데이터 구성
       const payload = {
@@ -175,7 +234,7 @@ const ManageUser: React.FC = () => {
                 ref={gridRef} // forwardRef를 통해 연결된 ref
                 showButtonArea={true}
                 showAddButton={false}
-                columnDefs={columnDefs}
+                columnDefs={dynamicColumnDefs}
                 enableCheckbox={true}
                 onSave={handleSave} // 저장 버튼 동작z`
             >
