@@ -22,6 +22,7 @@ interface AgGridWrapperProps {
     enableCheckbox?: boolean;
     onDelete?: (selectedRows: any[]) => void;
     onSave?: (lists: { deleteList: any[]; updateList: any[] }) => void;
+    onCellEditingStopped?: (event: any) => void;
 }
 
 
@@ -39,7 +40,7 @@ const rowClassRules = {
 };
 
 const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
-    ({ showButtonArea = false, columnDefs, enableCheckbox = false, onDelete, onSave }, ref) => {
+    ({ showButtonArea = false, columnDefs, enableCheckbox = false, onDelete, onSave, onCellEditingStopped}, ref) => {
 
         console.log("======create AgGridWrapper======");
 
@@ -142,9 +143,6 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
             }
         };
 
-
-
-
         // useImperativeHandle로 외부에서 접근 가능한 메서드 정의
         useImperativeHandle(ref, () => ({
             setRowData: (newData: any[]) => {
@@ -190,6 +188,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
                                 rowClassRules={rowClassRules} // 행 스타일 규칙 적용
                                 getRowId={(params) => String(params.data.gridRowId || params.data.id)} // GRID 에서 행별로 유일한 고유 ID 설정
                                 onGridReady={onGridReady}
+                                onCellEditingStopped={onCellEditingStopped}
                             />
                         </div>
                     </Row>
