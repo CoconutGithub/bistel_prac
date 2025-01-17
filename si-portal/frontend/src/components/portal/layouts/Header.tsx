@@ -44,32 +44,28 @@ const Header = () => {
   };
 
   return (
-    <Navbar bg="light" expand="lg" className="mb-3">
-      <Container fluid>
-        <Navbar.Brand href="/">SEMES</Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto">
-            {menuItems.map((item) => (
-              <NavMenuItem key={item.menuId} item={item} depth={1} />
-            ))}
-          </Nav>
-          <Nav style={{flex: '0 0 5%'}} className="ms-auto">
-            <NavDropdown title="Admin" id="basic-nav-dropdown" menuVariant="dark">
-              <NavDropdown.Item as={Link} to="/main/manage-menu">메뉴 관리</NavDropdown.Item>
-              <NavDropdown.Item as={Link} to="/main/manage-role">권한 관리</NavDropdown.Item>
-              <NavDropdown.Item as={Link} to="/main/manage-email">이메일 관리</NavDropdown.Item>
-              <NavDropdown.Item as={Link} to="/main/manage-user">사용자 관리</NavDropdown.Item>
-              <NavDropdown.Item as={Link} to="/main/manage-schedule">스케줄 관리</NavDropdown.Item>
-            </NavDropdown>
-          </Nav>
-          <Nav>
-            <Nav.Link href="/">Profile</Nav.Link>
-            <Nav.Link onClick={handleLogout}>Logout</Nav.Link>
-          </Nav>
-        </Navbar.Collapse>
-      </Container>
-    </Navbar>
+      <Navbar bg="light" expand="lg">
+        <Container fluid>
+          <Navbar.Brand href="/">SI-Portal</Navbar.Brand>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="me-auto">
+              {menuItems.map((item) => (
+                <NavMenuItem key={item.menuId} item={item} depth={1} />
+              ))}
+            </Nav>
+            <Nav style={{flex: '0 0 5%'}} className="ms-auto">
+              <NavDropdown title="Admin" id="basic-nav-dropdown" menuVariant="dark">
+                <NavDropdown.Item as={Link} to="/main/manage-menu">메뉴 관리</NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/main/manage-role">권한 관리</NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/main/manage-email">이메일 관리</NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/main/manage-user">사용자 관리</NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/main/manage-schedule">스케줄 관리</NavDropdown.Item>
+              </NavDropdown>
+            </Nav>
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
   );
 };
 
