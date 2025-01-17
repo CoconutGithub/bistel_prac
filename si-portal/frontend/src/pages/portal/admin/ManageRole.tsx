@@ -77,12 +77,17 @@ const ManageRole: React.FC = () => {
     const state = useSelector((state: RootState) => state.auth);
     const comAPIContext = useContext(ComAPIContext);
     const gridRef = useRef<AgGridWrapperHandle>(null);
-    const [rowData, setRowData] = useState([]);
+
     const [roleList, setRoleList] = useState<Role[]>([]);
-    const [roleRef, setRoleRef] = useState<String>('');
     const [showPopup, setShowPopup] = useState(false);
 
-    console.log('Renderer...................')
+    let selectedRoleName = '';
+
+    console.log('ManageRole create.......')
+
+    useEffect(() => {
+        fetchData();
+    }, []);
 
     const fetchData = async () => {
         try {
@@ -102,30 +107,38 @@ const ManageRole: React.FC = () => {
         }
     };
     
-    useEffect(() => {
-        fetchData();
-    }, [state.authToken, comAPIContext]);
 
     const handleRoleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+
+        //[old]
+        // const selectedRoleId = parseInt(event.target.value, 10);
+        // const selectedRole = roleList.find(role => role.roleId === selectedRoleId);
+        // if (selectedRole) {
+        //     setRoleRef(selectedRole.roleName); // 선택된 role을 roleRef에 저장
+        //     console.log('Selected Role:', selectedRole.roleName); // 선택된 role을 확인
+        // }
+        //[new]
         const selectedRoleId = parseInt(event.target.value, 10);
         const selectedRole = roleList.find(role => role.roleId === selectedRoleId);
         if (selectedRole) {
-            setRoleRef(selectedRole.roleName); // 선택된 role을 roleRef에 저장
-            console.log('Selected Role:', selectedRole.roleName); // 선택된 role을 확인
+            selectedRoleName = selectedRole.roleName;
         }
+
+
+
     };
 
     const handleSearch = async () => {
         comAPIContext.showProgressBar();
         try {
-            console.log('roleRef:', roleRef)
+            console.log('selectedRoleName:', selectedRoleName);
             const response = await axios.get("http://localhost:8080/admin/api/get-roles", {
                 headers: {
                     Authorization: `Bearer ${state.authToken}`,
                 },
-                params: { 'roleName': roleRef },
+                params: { 'roleName': selectedRoleName },
             });
-            setRowData(response.data);
+
             console.log(response)
             if (gridRef.current) {
                 gridRef.current.setRowData(response.data);
