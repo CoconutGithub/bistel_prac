@@ -6,11 +6,8 @@ const Home: React.FC = () => {
     <Container>
       <Row className="text-center" style={{ marginTop: '50px' }}>
         <Col>
-          <h1>Welcome to Our Portal</h1>
-          <p>Your one-stop solution for all your needs.</p>
-          <Button variant="primary" href="/about">
-            Learn More
-          </Button>
+          <h1>Welcome to Our SI-Portal</h1>
+          <p>You just focus on developing the screen logic.</p>
         </Col>
       </Row>
       <Row className="mt-4">
@@ -31,9 +28,13 @@ const Home: React.FC = () => {
       </Row>
         <Row className="mt-4">
             <Col>
-            <h2>Don't Contact Us</h2>
-                <p>If you have any questions, feel free dont' contact Robin.</p>
-                <p>He is always in a bad mood.</p>
+                <h2>Don't Contact Us</h2>
+                <p>항상 화가 어느정도 나있습니다.</p>
+                <img
+                    src="/assets/icons/angry.png"
+                    alt="angry Icon"
+                    // className="button-icon"
+                />
             </Col>
         </Row>
     </Container>

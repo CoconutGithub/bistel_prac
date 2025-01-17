@@ -54,7 +54,7 @@ const Header = () => {
                 <NavMenuItem key={item.menuId} item={item} depth={1} />
               ))}
             </Nav>
-            <Nav style={{flex: '0 0 5%'}} className="ms-auto">
+            <Nav style={{flex: '0 0 10%'}} className="ms-auto">
               <NavDropdown title="Admin" id="basic-nav-dropdown" menuVariant="dark">
                 <NavDropdown.Item as={Link} to="/main/manage-menu">메뉴 관리</NavDropdown.Item>
                 <NavDropdown.Item as={Link} to="/main/manage-role">권한 관리</NavDropdown.Item>
