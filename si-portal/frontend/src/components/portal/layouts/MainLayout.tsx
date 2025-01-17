@@ -27,7 +27,7 @@ const MainLayout = () => {
 
           {/* Main Content */}
           <main className="flex-grow-1 p-3">
-            <Container fluid>
+            <Container fluid className="h-100">
               <Outlet/>
             </Container>
           </main>
