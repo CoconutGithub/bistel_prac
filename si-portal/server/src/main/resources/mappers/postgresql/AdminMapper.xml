@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.siportal.portal.mapper.AdminMapper">
+    <insert id="createSchedule">
+        INSERT INTO P_SCHEDULER (JOB_NAME, GROUP_NAME, TRIGGER_KEY,, CLASS_NAME, CRON_TAB, STATUS, CREATE_BY)
+        VALUES (#{jobName}, #{groupName}, #{triggerKey}, #{className}, #{cronTab}, #{status}, #{createBy})
+    </insert>
     <delete id="deleteSchedule">
         DELETE FROM P_SCHEDULER
         WHERE JOB_NAME = #{jobName}
