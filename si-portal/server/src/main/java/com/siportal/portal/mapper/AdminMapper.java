@@ -38,5 +38,7 @@ public interface AdminMapper {
 
     List<SchedulDTO> getScheduleList(@Param("jobName") String jobName, @Param("status") String status);
 
-    void deleteSchedule(@Param("jobName") String jobName, @Param("groupName") String groupName);
+    int deleteSchedule(@Param("jobName") String jobName, @Param("groupName") String groupName);
+    int createSchedule(@Param("jobName") String jobName, @Param("groupName") String groupName, @Param("triggerKey") String triggerKey
+            , @Param("className") String className, @Param("cronTab") String cronTab, @Param("status") String status, @Param("createBy") String createBy);
 }

@@ -77,21 +77,31 @@ public class AdminService {
             // 데이터 파싱
             List<Map<String, Object>> updateList = (List<Map<String, Object>>) requestData.get("updateList");
             List<Map<String, Object>> deleteList = (List<Map<String, Object>>) requestData.get("deleteList");
+            List<Map<String, Object>> createList = (List<Map<String, Object>>) requestData.get("createList");
 
             int updatedCount = 0; // 업데이트된 행 갯수
             int deletedCount = 0; // 삭제된 행 갯수
+            int createdCount = 0; // 추가된 행 갯수
 
             // Delete 처리
             for (Map<String, Object> job : deleteList) {
                 System.out.println("DELETE JOB: " + job.get("jobName"));
                 if (quartzDynamicConfig.deleteJob((String) job.get("jobName"), (String) job.get("groupName"))) {
-                    adminMapper.deleteSchedule((String) job.get("jobName"), (String) job.get("groupName"));
-                    deletedCount++;
+                    deletedCount += adminMapper.deleteSchedule((String) job.get("jobName"), (String) job.get("userId"));
                 }
             }
 
+            // Create 처리
+            for (Map<String, Object> job : createList) {
+                System.out.println("CREATE JOB: " + job.get("jobName"));
+
+                createdCount += adminMapper.createSchedule((String) job.get("jobName"), (String) job.get("groupName"), (String) job.get("triggerKey")
+                                                            , (String) job.get("className"), (String) job.get("cronTab"), (String) job.get("status")
+                                                            , (String) job.get("userId") );
+            }
+
             // Update 처리
-//            for (Map<String, Object> user : updateList) {
+//            for (Map<String, Object> job : updateList) {
 //                System.out.println( user);
 //
 //                adminMapper.updateUser(user);
@@ -101,8 +111,9 @@ public class AdminService {
             Map<String, Object> response = new HashMap<>();
             response.put("messageCode", "success");
             response.put("message", "모든 작업이 성공적으로 처리되었습니다.");
-            response.put("updatedUsersCnt", updatedCount);
-            response.put("deletedUsersCnt", deletedCount);
+            response.put("updatedCnt", updatedCount);
+            response.put("deletedCnt", deletedCount);
+            response.put("createdCnt", createdCount);
 
             return ResponseEntity.ok(null);
         } catch (Exception e) {
