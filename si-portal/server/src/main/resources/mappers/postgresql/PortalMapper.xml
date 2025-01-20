@@ -48,4 +48,20 @@
         </if>
         ORDER BY A.CREATE_DATE desc
     </select>
+
+    <update id="updateUserSettings">
+        UPDATE P_USER
+           SET FOOTER_YN = #{footerYn},
+               HEADER_COLOR = #{headerColor},
+               UPDATE_DATE = CURRENT_TIMESTAMP
+         WHERE USER_ID = #{userId}
+    </update>
+
+    <select id="getUserSettings" resultType="java.util.Map">
+        SELECT FOOTER_YN AS footerYn,
+        HEADER_COLOR AS headerColor
+        FROM P_USER
+        WHERE USER_ID = #{userId}
+    </select>
+
 </mapper>

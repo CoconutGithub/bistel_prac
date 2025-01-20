@@ -4,8 +4,8 @@ import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "~store/Store";
 import {setHeaderColor, setTitle, toggleFooter} from "~store/AuthSlice";
 import { SketchPicker } from 'react-color';
-import ComButton from "~pages/portal/buttons/ComButton";
-
+import ComButton from '~pages/portal/buttons/ComButton';
+import axios from 'axios';
 
 const Settings: React.FC = () => {
 
@@ -35,6 +35,28 @@ const Settings: React.FC = () => {
         alert("여기 구현 필요.")
     }
 
+        console.log('Request Data:', {
+            userId: userId,
+            footerYn: isShowFooter ? 'Y' : 'N',
+            headerColor: headerColor,
+        });
+
+        try {
+            await axios.post('http://localhost:8080/api/update-settings',
+                {
+                    userId: userId,
+                    footerYn: isShowFooter ? 'Y' : 'N',
+                    headerColor: headerColor,
+                },
+                {
+                    headers: { Authorization: `Bearer ${authToken}` },
+                });
+            alert("Settings saved successfully.");
+        } catch (error) {
+            console.error('Failed to save settings:', error);
+            alert("Failed to save settings.");
+        }
+    };
 
     return (
         <Container>
@@ -55,7 +77,8 @@ const Settings: React.FC = () => {
                             id="custom-switch"
                             label={isShowFooter ? 'Footer ON' : 'Footer OFF'}
                             checked={isShowFooter}
-                            onChange={() => dispatch(toggleFooter())}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                dispatch(toggleFooter(e.target.checked))}
                         />
                     </Form>
                 </Col>

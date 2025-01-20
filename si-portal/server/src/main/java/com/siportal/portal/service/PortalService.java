@@ -47,6 +47,56 @@ public class PortalService {
         }
     }
 
+    @PostMapping("/api/update-settings")
+    public ResponseEntity<?> updateUserSettings(@RequestBody Map<String, String> settings) {
+        try {
+
+            System.out.println("Received settings: " + settings);
+
+            String userId = settings.get("userId");
+            String footerYn = settings.get("footerYn");
+            String headerColor = settings.get("headerColor");
+
+            if (userId == null || userId.isEmpty()) {
+                System.err.println("Error: userId is missing or invalid.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Error: userId is missing or invalid.");
+            }
+
+            System.out.println("Parsed userId: " + userId + ", footerYn: " + footerYn + ", headerColor: " + headerColor);
+
+            portalMapper.updateUserSettings(userId, footerYn, headerColor);
+            return ResponseEntity.ok("Settings updated successfully");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error updating settings: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/api/get-settings")
+    public ResponseEntity<?> getUserSettings(@RequestBody Map<String, String> requestBody) {
+        try {
+            String userId = requestBody.get("userId");
+
+            if (userId == null || userId.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: userId is required.");
+            }
+
+            Map<String, Object> userSettings = portalMapper.getUserSettings(userId);
+
+            if (userSettings == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Settings not found for user: " + userId);
+            }
+
+            return ResponseEntity.ok(userSettings);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error retrieving settings: " + e.getMessage());
+        }
+    }
+
     @GetMapping("/menu")
     public Map<String, Object> getMenuTreeList() {
         List<PMenuDTO> menus = portalMapper.getMenuTreeList();
