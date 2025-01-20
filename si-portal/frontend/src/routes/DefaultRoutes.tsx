@@ -3,8 +3,8 @@ import React from 'react';
 import { Route, Navigate, Routes } from 'react-router-dom';
 import ProtectedRoute from '~routes/ProtectedRoute';
 import { RouteConfig } from '~types/RouteTypes';
-import Home from '~pages/portal/example/Home';
-import MainLayout from '~components/portal/layouts/MainLayout';
+import Home from '~pages/portal/layouts/Home';
+import MainLayout from '~pages/portal/layouts/MainLayout';
 
 const routes: RouteConfig[] = [
   { path: '', component: () => <Home />, index: true },

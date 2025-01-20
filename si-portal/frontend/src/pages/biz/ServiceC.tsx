@@ -4,6 +4,7 @@ import React, { useState, useRef, useContext } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from "~store/Store";
 import axios from 'axios';
+import ComButton from '../portal/buttons/ComButton';
 
 function ServiceC() {
   const state = useSelector((state: RootState) => state.auth);
@@ -56,14 +57,14 @@ function ServiceC() {
       <h1>Email Send</h1>
 
       {/* Send Email 버튼 */}
-      <Button variant="outline-success" onClick={handleShowModal}>
+      <ComButton variant="outline-success" onClick={handleShowModal}>
         Send Email
-      </Button>
+      </ComButton>
 
       {/* Cancel 버튼 */}
-      <Button variant="outline-danger" style={{ marginLeft: '10px' }} onClick={handleCloseModal}>
+      <ComButton variant="outline-danger" style={{ marginLeft: '10px' }} onClick={handleCloseModal}>
         Cancel
-      </Button>
+      </ComButton>
 
       {/* 이메일 보내기 모달 */}
       <Modal show={showModal} onHide={handleCloseModal} centered>

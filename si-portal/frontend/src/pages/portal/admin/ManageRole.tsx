@@ -1,12 +1,13 @@
 import React, { useState, useContext, useRef, useCallback, useEffect, useMemo } from 'react';
 import { Button, Col, Container, Form, Row } from 'react-bootstrap';
 import { ComAPIContext } from "~components/ComAPIContext";
-import AgGridWrapper, { AgGridWrapperHandle } from "~components/AgGridWrapper";
+import AgGridWrapper from "~components/AgGridWrapper";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { RootState } from "~store/Store";
 import RoleRegistPopup from "~pages/portal/admin/RoleRegistPopup";
-import RegistButton from "~pages/portal/buttons/ReigstButton"; // 팝업 컴포넌트 가져오기
+import {AgGridWrapperHandle} from "~types/GlobalTypes"; // 팝업 컴포넌트 가져오기
+import ComButton from '../buttons/ComButton';
 
 const columnDefs = [
     { field: 'permissionId', headerName: '권한 ID', sortable: true, filter: true, editable: false, width: 100 },
@@ -199,8 +200,8 @@ const ManageRole: React.FC = () => {
     },[]);
 
     const roleRegistButton = useMemo(() => (
-        <RegistButton onClick={handleRegist} ></RegistButton>
-    ), [handleRegist]);
+        <ComButton onClick={handleRegist} ></ComButton>
+    ), []);
 
     const handleClosePopup = () => {
         setShowPopup(false);
@@ -265,9 +266,9 @@ const ManageRole: React.FC = () => {
                         </Form.Group>
                     </Col>
                     <Col lg={1}>
-                        <Button size="sm" variant="primary" onClick={handleSearch}>
+                        <ComButton size="sm" variant="primary" onClick={handleSearch}>
                             검색
-                        </Button>
+                        </ComButton>
                     </Col>
                 </Row>
                 <div style={{ borderTop: '1px solid black', margin: '15px 0' }}></div>

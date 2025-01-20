@@ -3,7 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import PortalRoutes from '~routes/PortalRoutes';
 import DefaultRoutes from '~routes/DefaultRoutes';
 import NotFound from '~pages/portal/NotFound';
-import MainLayout from '~components/portal/layouts/MainLayout';
+import MainLayout from '~pages/portal/layouts/MainLayout';
 import ProtectedRoute from './ProtectedRoute';
 import Login from '~pages/Login';
 import {useSelector} from "react-redux";

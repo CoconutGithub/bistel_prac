@@ -1,19 +1,16 @@
 import { Container } from 'react-bootstrap';
 import { Outlet } from 'react-router-dom';
-import Header from '~components/portal/layouts/Header';
-import Footer from '~components/portal/layouts/Footer';
-import Sidebar from "~components/portal/layouts/Sidebar";
+import Header from '~pages/portal/layouts/Header';
+import Footer from '~pages/portal/layouts/Footer';
+import Sidebar from "~pages/portal/layouts/Sidebar";
+import {useSelector} from "react-redux";
+import {RootState} from "~store/Store";
 
 const MainLayout = () => {
-  return (
-      // <div className="min-vh-100 d-flex flex-column">
-      //   <Header />
-      //   <main className="flex-grow-1">
-      //     <Container fluid><Outlet /></Container>
-      //   </main>
-      //   <Footer />
-      // </div>
 
+  const isShowFooter = useSelector((state: RootState) => state.auth.isShowFooter);
+
+  return (
       <div className="min-vh-100 d-flex flex-column">
         {/* Header */}
         <Header />
@@ -34,7 +31,7 @@ const MainLayout = () => {
         </div>
 
         {/* Footer */}
-        <Footer/>
+        {isShowFooter && <Footer />}
       </div>
 
 

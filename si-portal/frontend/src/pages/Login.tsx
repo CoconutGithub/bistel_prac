@@ -31,6 +31,7 @@ const Login = () => {
       console.log('# handleSubmit:', response);
       dispatch(setLoginToken({
         token: response.data.token,      //JWT token
+        title: response.data.title,      //portal 제목
         userId: response.data.userId,     //userId
         userName: response.data.userName,   //userName
         email: response.data.email,      //email

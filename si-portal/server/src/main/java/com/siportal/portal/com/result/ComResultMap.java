@@ -14,9 +14,26 @@ public class ComResultMap  extends ListOrderedMap<String, Object> implements Ser
 
 
     // put() 메소드 오버라이드
+//    @Override
+//    public Object put(String key, Object value) {
+//
+//        if (value instanceof java.sql.Clob) {
+//            value = convertClobToString((java.sql.Clob) value);
+//        }
+//
+//        String camelCaseKey = convertToCamelCase(key);
+//
+//        return super.put(camelCaseKey, value);
+//    }
+
     @Override
     public Object put(String key, Object value) {
+        // key가 null인 경우 처리
+        if (key == null) {
+            throw new IllegalArgumentException("Key cannot be null");
+        }
 
+        // value가 null이어도 처리
         if (value instanceof java.sql.Clob) {
             value = convertClobToString((java.sql.Clob) value);
         }
@@ -25,6 +42,8 @@ public class ComResultMap  extends ListOrderedMap<String, Object> implements Ser
 
         return super.put(camelCaseKey, value);
     }
+
+
 
     private String convertClobToString(java.sql.Clob clob) {
         StringBuilder sb = new StringBuilder();

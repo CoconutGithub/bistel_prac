@@ -1,6 +1,26 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.siportal.portal.mapper.AdminMapper">
+
+    <select id="getMenuTree" resultType="com.siportal.portal.com.result.ComResultMap">
+        SELECT
+            A.MENU_ID,
+            A.MENU_NAME,
+            A.PARENT_MENU_ID,
+            coalesce(B.MENU_NAME, '-') AS PARENT_MENU_NAME,
+            A.PATH,
+            A.POSITION,
+            A.CHILD_YN,
+            A.STATUS
+        FROM
+            P_MENU A
+        LEFT JOIN
+            P_MENU B
+        ON
+            A.PARENT_MENU_ID = B.MENU_ID
+        ORDER BY A.DEPTH, A.POSITION;
+    </select>
+
     <delete id="deleteSchedule">
         DELETE FROM P_SCHEDULER
         WHERE JOB_NAME = #{jobName}
@@ -166,5 +186,7 @@
         DELETE FROM p_permission
         WHERE permission_id = #{permissionId}
     </delete>
+
+
 
 </mapper>

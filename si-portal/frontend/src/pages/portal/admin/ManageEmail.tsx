@@ -1,10 +1,12 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { Container, Button, Row, Col, Modal, Form } from 'react-bootstrap';
 import { ComAPIContext } from "~components/ComAPIContext";
-import AgGridWrapper, { AgGridWrapperHandle } from '~components/AgGridWrapper';
+import AgGridWrapper from '~components/AgGridWrapper';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from "~store/Store";
+import {AgGridWrapperHandle} from "~types/GlobalTypes";
+import ComButton from "~pages/portal/buttons/ComButton";
 
 interface User {
   userId: string;
@@ -86,9 +88,9 @@ const ManageEmail: React.FC = () => {
             </Form.Group>
             </Col>
             <Col lg={1}>
-            <Button size="sm" variant="primary" onClick={handleSearch}>
+            <ComButton size="sm" variant="primary" onClick={handleSearch}>
                 검색
-            </Button>
+            </ComButton>
             </Col>
         </Row>
       <Row>

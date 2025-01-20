@@ -1,18 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { jwtDecode } from 'jwt-decode';
-
-
-// AuthState 타입 정의
-interface AuthState {
-    authToken: string | null;
-    isAuthenticated: boolean;
-    user: {
-        userId: string | null;
-        userName: string | null;
-        email: string | null;
-    } | null;
-    error: string | null;
-}
+import { AuthState } from "~types/StateTypes";
 
 interface DecodedToken {
     exp: number; // 만료 시간 (Unix Timestamp)
@@ -24,6 +12,9 @@ const initialState: AuthState = {
     isAuthenticated: false,
     user: null,
     error: null,
+    isShowFooter: true,
+    backgroundColor: '#f8f9fa',
+    title: '',
 };
 
 // refreshToken 정의
@@ -105,10 +96,11 @@ const authSlice = createSlice({
     name: "auth",
     initialState,
     reducers: {
-        setLoginToken(state, action: PayloadAction<{ token: string; userId: string; userName: string; email: string }>) {
+        setLoginToken(state, action: PayloadAction<{ token: string; title: string, userId: string; userName: string; email: string }>) {
             console.log('setLoginToekn:',action.payload.token);
             console.log('setLoginToekn-UserId:',action.payload.userId);
 
+            state.title = action.payload.title;
             state.authToken = action.payload.token;
             state.isAuthenticated = true;
             state.user = {
@@ -121,6 +113,19 @@ const authSlice = createSlice({
             state.authToken = null;
             state.isAuthenticated = false;
             state.user = null;
+            state.title = 'SI-Portal';
+            state.backgroundColor = '#f8f9fa';
+            state.isShowFooter = true;
+        },
+        toggleFooter: (state) => {
+            state.isShowFooter = !state.isShowFooter;
+        },
+
+        setHeaderColor: (state, action: PayloadAction<string>) => {
+            state.backgroundColor = action.payload;
+        },
+        setTitle: (state, action: PayloadAction<string>) => {
+            state.title = action.payload;
         },
     },
     extraReducers: (builder) => {
@@ -143,5 +148,5 @@ const authSlice = createSlice({
     },
 });
 
-export const { setLoginToken, removeLoginToken } = authSlice.actions;
+export const { setLoginToken, removeLoginToken, toggleFooter, setHeaderColor, setTitle } = authSlice.actions;
 export default authSlice.reducer;
