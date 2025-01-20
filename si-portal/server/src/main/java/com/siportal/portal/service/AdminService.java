@@ -1,7 +1,5 @@
 package com.siportal.portal.service;
 
-import com.siportal.portal.com.ComPortalData;
-import com.siportal.portal.com.ComPortalDataLoader;
 import com.siportal.portal.com.batch.config.QuartzDynamicConfig;
 import com.siportal.portal.com.result.ComResultMap;
 import com.siportal.portal.dto.SchedulDTO;
@@ -33,11 +31,26 @@ public class AdminService {
 
     @Autowired
     private AdminMapper adminMapper;
+
     @Autowired
-    private ComPortalDataLoader dataLoader;
+    private JavaMailSender emailSender;
+
+    @Autowired
+    private TemplateEngine templateEngine;  // Thymeleaf 템플릿 엔진
 
     @Autowired
     QuartzDynamicConfig quartzDynamicConfig;
+
+    @GetMapping("/api/get-menu-tree")
+    public ResponseEntity<?> getMenuTree() {
+        try {
+            List<ComResultMap> result = this.adminMapper.getMenuTree();
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
 
     @GetMapping("/api/get-schedule")
     public ResponseEntity<?> getScheduleList(@RequestParam String jobName, @RequestParam String status) {
@@ -216,11 +229,6 @@ public class AdminService {
         }
     }
 
-    @Autowired
-    private JavaMailSender emailSender;
-
-    @Autowired
-    private TemplateEngine templateEngine;  // Thymeleaf 템플릿 엔진
 
     @PostMapping("/api/send-email")
     public ResponseEntity<?> sendEmail(@RequestBody Map<String, String> emailData) {

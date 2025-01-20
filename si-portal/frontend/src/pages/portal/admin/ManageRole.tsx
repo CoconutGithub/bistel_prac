@@ -1,12 +1,13 @@
 import React, { useState, useContext, useRef, useCallback, useEffect, useMemo } from 'react';
 import { Button, Col, Container, Form, Row } from 'react-bootstrap';
 import { ComAPIContext } from "~components/ComAPIContext";
-import AgGridWrapper, { AgGridWrapperHandle } from "~components/AgGridWrapper";
+import AgGridWrapper from "~components/AgGridWrapper";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { RootState } from "~store/Store";
 import RoleRegistPopup from "~pages/portal/admin/RoleRegistPopup";
-import RegistButton from "~pages/portal/buttons/ReigstButton"; // 팝업 컴포넌트 가져오기
+import {AgGridWrapperHandle} from "~types/GlobalTypes"; // 팝업 컴포넌트 가져오기
+import ComButton from '../buttons/ComButton';
 
 const columnDefs = [
     { field: 'permissionId', headerName: '권한 ID', sortable: true, filter: true, editable: false, width: 100 },
@@ -35,9 +36,9 @@ const columnDefs = [
             params.data.canRead = newValue ? 'Y' : 'N';
             return true;
         },
-        sortable: true, 
-        filter: true, 
-        editable: true, 
+        sortable: true,
+        filter: true,
+        editable: true,
         width: 150
     },
     { field: 'canUpdate', headerName: '업데이트 권한',
@@ -77,12 +78,17 @@ const ManageRole: React.FC = () => {
     const state = useSelector((state: RootState) => state.auth);
     const comAPIContext = useContext(ComAPIContext);
     const gridRef = useRef<AgGridWrapperHandle>(null);
-    const [rowData, setRowData] = useState([]);
+
     const [roleList, setRoleList] = useState<Role[]>([]);
-    const [roleRef, setRoleRef] = useState<String>('');
     const [showPopup, setShowPopup] = useState(false);
 
-    console.log('Renderer...................')
+    let selectedRoleName = '';
+
+    console.log('ManageRole create.......')
+
+    useEffect(() => {
+        fetchData();
+    }, []);
 
     const fetchData = async () => {
         try {
@@ -102,30 +108,38 @@ const ManageRole: React.FC = () => {
         }
     };
     
-    useEffect(() => {
-        fetchData();
-    }, [state.authToken, comAPIContext]);
 
     const handleRoleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+
+        //[old]
+        // const selectedRoleId = parseInt(event.target.value, 10);
+        // const selectedRole = roleList.find(role => role.roleId === selectedRoleId);
+        // if (selectedRole) {
+        //     setRoleRef(selectedRole.roleName); // 선택된 role을 roleRef에 저장
+        //     console.log('Selected Role:', selectedRole.roleName); // 선택된 role을 확인
+        // }
+        //[new]
         const selectedRoleId = parseInt(event.target.value, 10);
         const selectedRole = roleList.find(role => role.roleId === selectedRoleId);
         if (selectedRole) {
-            setRoleRef(selectedRole.roleName); // 선택된 role을 roleRef에 저장
-            console.log('Selected Role:', selectedRole.roleName); // 선택된 role을 확인
+            selectedRoleName = selectedRole.roleName;
         }
+
+
+
     };
 
     const handleSearch = async () => {
         comAPIContext.showProgressBar();
         try {
-            console.log('roleRef:', roleRef)
+            console.log('selectedRoleName:', selectedRoleName);
             const response = await axios.get("http://localhost:8080/admin/api/get-roles", {
                 headers: {
                     Authorization: `Bearer ${state.authToken}`,
                 },
-                params: { 'roleName': roleRef },
+                params: { 'roleName': selectedRoleName },
             });
-            setRowData(response.data);
+
             console.log(response)
             if (gridRef.current) {
                 gridRef.current.setRowData(response.data);
@@ -186,8 +200,8 @@ const ManageRole: React.FC = () => {
     },[]);
 
     const roleRegistButton = useMemo(() => (
-        <RegistButton onClick={handleRegist} ></RegistButton>
-    ), [handleRegist]);
+        <ComButton onClick={handleRegist} ></ComButton>
+    ), []);
 
     const handleClosePopup = () => {
         setShowPopup(false);
@@ -252,9 +266,9 @@ const ManageRole: React.FC = () => {
                         </Form.Group>
                     </Col>
                     <Col lg={1}>
-                        <Button size="sm" variant="primary" onClick={handleSearch}>
+                        <ComButton size="sm" variant="primary" onClick={handleSearch}>
                             검색
-                        </Button>
+                        </ComButton>
                     </Col>
                 </Row>
                 <div style={{ borderTop: '1px solid black', margin: '15px 0' }}></div>

@@ -10,6 +10,9 @@ import java.util.Map;
 
 @Mapper
 public interface AdminMapper {
+
+    List<ComResultMap> getMenuTree();
+
     List<ComResultMap> getUserByUserName(@Param("userName") String userName);
     List<ComResultMap> getEmailHistory(@Param("sendUser") String sendUser);
 

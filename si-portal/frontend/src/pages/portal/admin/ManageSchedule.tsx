@@ -1,10 +1,12 @@
 import React, {useState, useEffect, useContext, useRef} from 'react';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
-import AgGridWrapper, {AgGridWrapperHandle} from '~components/AgGridWrapper';
+import AgGridWrapper from '~components/AgGridWrapper';
 import { useSelector  } from 'react-redux';
 import { ComAPIContext } from "~components/ComAPIContext";
 import axios from "axios";
 import {RootState} from "~store/Store";
+import {AgGridWrapperHandle} from "~types/GlobalTypes";
+import ComButton from "~pages/portal/buttons/ComButton";
 
 interface User {
   userId: string;
@@ -192,9 +194,9 @@ const ManageSchedule: React.FC = () => {
               </Form.Group>
             </Col>
             <Col lg={1}>
-              <Button size="sm" variant="primary" onClick={handleSearch}>
+              <ComButton size="sm" variant="primary" onClick={handleSearch}>
                 검색
-              </Button>
+              </ComButton>
             </Col>
           </Row>
           <div style={{ borderTop: '1px solid black', margin: '15px 0' }}></div>

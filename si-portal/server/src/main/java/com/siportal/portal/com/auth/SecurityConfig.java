@@ -2,6 +2,7 @@ package com.siportal.portal.com.auth;
 
 import com.siportal.portal.mapper.PortalMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,6 +16,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @Configuration
 public class SecurityConfig {
 
+    @Value("${spring.application.name}")
+    private String title;
+
     @Autowired
     private PortalMapper portalMapper;
 
@@ -27,7 +31,7 @@ public class SecurityConfig {
                         .requestMatchers("/login").permitAll()
                         .anyRequest().authenticated()
                 )
-                .addFilter(new LoginFilter(authenticationManager, portalMapper))
+                .addFilter(new LoginFilter(authenticationManager, portalMapper, title))
                 .addFilter(new AfterLoginFilter(authenticationManager))
                 .build();
     }

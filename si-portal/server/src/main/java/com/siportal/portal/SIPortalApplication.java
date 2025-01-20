@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @MapperScan(basePackages = {
 	"com.siportal.portal.mapper",
 })
+
 public class SIPortalApplication {
 
 	public static void main(String[] args) {

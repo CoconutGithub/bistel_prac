@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,13 +23,16 @@ import java.util.stream.Collectors;
 @Slf4j
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
+    private String title;
     private final AuthenticationManager authenticationManager;
     private PortalMapper portalMapper;
 
-    public LoginFilter(AuthenticationManager authenticationManager, PortalMapper portalMapper) {
+    public LoginFilter(AuthenticationManager authenticationManager, PortalMapper portalMapper, String title) {
         this.authenticationManager = authenticationManager;
         this.portalMapper = portalMapper;
+        this.title = title;
         setFilterProcessesUrl("/login"); // 필터가 처리할 URL
+
     }
 
     @Override
@@ -81,6 +86,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // 응답 헤더 또는 바디에 JWT 추가
         response.setContentType("application/json");
         response.getWriter().write("{\"token\": \"" + token +
+                "\", \"title\": \"" + title +
                 "\", \"userId\": \"" + user.getUserId() +
                 "\", \"userName\": \"" + user.getUserName() +
                 "\", \"email\": \"" + user.getEmail() + "\"}");
