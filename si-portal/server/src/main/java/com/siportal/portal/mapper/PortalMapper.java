@@ -17,6 +17,14 @@ public interface PortalMapper {
     List<ComResultMap> getUserByUserName(@Param("userName") String userName);
     List<PMenuDTO> getMenuTreeList();
 
+    void updateUserSettings(@Param("userId") String userId,
+                            @Param("footerYn") String footerYn,
+                            @Param("headerColor") String headerColor);
+
     @MapKey("role_id")
     List<Map<String, Object>> getAllRole();
+
+    @MapKey("userId")
+    Map<String, Object> getUserSettings(@Param("userId") String userId);
+
 }

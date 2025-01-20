@@ -117,8 +117,8 @@ const authSlice = createSlice({
             state.backgroundColor = '#f8f9fa';
             state.isShowFooter = true;
         },
-        toggleFooter: (state) => {
-            state.isShowFooter = !state.isShowFooter;
+        toggleFooter: (state, action: PayloadAction<boolean>) => {
+            state.isShowFooter = action.payload;
         },
 
         setHeaderColor: (state, action: PayloadAction<string>) => {
