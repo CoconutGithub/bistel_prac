@@ -16,10 +16,19 @@
 
 
     <select id="getUserByUserId" parameterType="String" resultType="com.siportal.portal.dto.User">
-        SELECT USER_ID, USER_NAME, EMAIL, PHONE_NUMBER, STATUS
-        FROM P_USER
-        WHERE USER_ID = #{userId}
-        AND PASSWORD = #{password}
+        SELECT A.USER_ID, A.USER_NAME
+            , A.EMAIL, A.PHONE_NUMBER
+            , A.STATUS, C.ROLE_NAME
+            , A.FOOTER_YN, A.HEADER_COLOR
+        FROM P_USER A
+        , P_USER_ROLE B
+        , P_ROLE C
+        WHERE 1=1
+        AND A.STATUS ='ACTIVE'
+        AND A.USER_ID = B.USER_ID
+        AND B.ROLE_ID = C.ROLE_ID
+        AND A.USER_ID = #{userId}
+        AND A.PASSWORD = #{password}
     </select>
 
     <select id="getUserByUserName" resultType="com.siportal.portal.com.result.ComResultMap">

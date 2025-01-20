@@ -10,10 +10,16 @@ interface DecodedToken {
 const initialState: AuthState = {
     authToken: null,
     isAuthenticated: false,
-    user: null,
+    user: {
+        userId: '',
+        userName: '',
+        roleName: '',
+        phoneNumber: '',
+        isShowFooter: true, // 기본값 설정
+        headerColor: '#f8f9fa',
+        email: '',
+    },
     error: null,
-    isShowFooter: true,
-    backgroundColor: '#f8f9fa',
     title: '',
 };
 
@@ -96,7 +102,19 @@ const authSlice = createSlice({
     name: "auth",
     initialState,
     reducers: {
-        setLoginToken(state, action: PayloadAction<{ token: string; title: string, userId: string; userName: string; email: string }>) {
+        setLoginToken(state, action: PayloadAction<{
+            token: string,
+            title: string,
+            userId: string,
+            userName: string,
+            roleName: string,
+            phoneNumber: string,
+            footerYN: string // footer_yn 값 (Y/N)
+            headerColor: string
+            email: string
+            }>
+        )
+        {
             console.log('setLoginToekn:',action.payload.token);
             console.log('setLoginToekn-UserId:',action.payload.userId);
 
@@ -104,25 +122,35 @@ const authSlice = createSlice({
             state.authToken = action.payload.token;
             state.isAuthenticated = true;
             state.user = {
-                userId: action.payload.userId,
-                userName: action.payload.userName,
-                email: action.payload.email,
+                'userId': action.payload.userId,
+                'userName': action.payload.userName,
+                'roleName': action.payload.roleName,
+                'phoneNumber': action.payload.phoneNumber,
+                'isShowFooter': action.payload.footerYN === 'Y', // string → boolean 변환
+                'headerColor': action.payload.headerColor,
+                'email': action.payload.email,
             };
         },
         removeLoginToken(state) {
             state.authToken = null;
             state.isAuthenticated = false;
-            state.user = null;
+            state.user = {
+                userId: '',
+                userName: '',
+                roleName: '',
+                phoneNumber: '',
+                email: '',
+                isShowFooter: true,
+                headerColor: '#f8f9fa',
+            };
             state.title = 'SI-Portal';
-            state.backgroundColor = '#f8f9fa';
-            state.isShowFooter = true;
         },
-        toggleFooter: (state, action: PayloadAction<boolean>) => {
-            state.isShowFooter = action.payload;
+        toggleFooter: (state) => {
+            state.user.isShowFooter = !state.user.isShowFooter;
         },
 
         setHeaderColor: (state, action: PayloadAction<string>) => {
-            state.backgroundColor = action.payload;
+            state.user.headerColor = action.payload;
         },
         setTitle: (state, action: PayloadAction<string>) => {
             state.title = action.payload;
@@ -142,7 +170,15 @@ const authSlice = createSlice({
             .addCase(chkLoginToken.rejected, (state) => {
                 state.authToken = null;
                 state.isAuthenticated = false;
-                state.user = null;
+                state.user = {
+                    userId: '',
+                    userName: '',
+                    roleName: '',
+                    phoneNumber: '',
+                    email: '',
+                    isShowFooter: true,
+                    headerColor: '#f8f9fa',
+                };
                 console.error("Token is invalid or expired - handled in extraReducers");
             });
     },

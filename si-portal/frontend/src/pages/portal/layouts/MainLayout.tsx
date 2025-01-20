@@ -8,7 +8,7 @@ import {RootState} from "~store/Store";
 
 const MainLayout = () => {
 
-  const isShowFooter = useSelector((state: RootState) => state.auth.isShowFooter);
+  const isShowFooter = useSelector((state: RootState) => state.auth.user.isShowFooter);
 
   return (
       <div className="min-vh-100 d-flex flex-column">

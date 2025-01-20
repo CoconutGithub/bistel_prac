@@ -16,7 +16,7 @@ const UserRegistPopup: React.FC<UserRegistPopup> = ({ show, onClose }) => {
     };
 
     const handleSave = () => {
-
+        alert("여기서. axios 요청")
     };
 
     return (

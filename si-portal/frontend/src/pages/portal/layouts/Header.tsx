@@ -13,7 +13,7 @@ const Header = () => {
   const state = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const backgroundColor = useSelector((state: RootState) => state.auth.backgroundColor);
+  const headerColor = useSelector((state: RootState) => state.auth.user.headerColor);
   const title = useSelector((state: RootState) => state.auth.title);
 
   useEffect(() => {
@@ -46,7 +46,7 @@ const Header = () => {
   };
 
   return (
-      <Navbar style={{ backgroundColor }} expand="lg">
+      <Navbar style={{ backgroundColor: headerColor }} expand="lg">
         <Container fluid>
           <Navbar.Brand href="/">{title}</Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -57,13 +57,17 @@ const Header = () => {
               ))}
             </Nav>
             <Nav style={{flex: '0 0 10%'}} className="ms-auto">
-              <NavDropdown title="Admin" id="basic-nav-dropdown" menuVariant="dark">
-                <NavDropdown.Item as={Link} to="/main/manage-menu">메뉴 관리</NavDropdown.Item>
-                <NavDropdown.Item as={Link} to="/main/manage-user">사용자 관리</NavDropdown.Item>
-                {/*<NavDropdown.Item as={Link} to="/main/manage-role">권한 관리</NavDropdown.Item>*/}
-                <NavDropdown.Item as={Link} to="/main/manage-email">이메일 관리</NavDropdown.Item>
-                <NavDropdown.Item as={Link} to="/main/manage-schedule">스케줄 관리</NavDropdown.Item>
-              </NavDropdown>
+              { state.user!.roleName === 'SA' &&
+                (
+                  <NavDropdown title="Admin" id="basic-nav-dropdown" menuVariant="dark">
+                    <NavDropdown.Item as={Link} to="/main/manage-menu">메뉴 관리</NavDropdown.Item>
+                    <NavDropdown.Item as={Link} to="/main/manage-role">권한 관리</NavDropdown.Item>
+                    <NavDropdown.Item as={Link} to="/main/manage-user">사용자 관리</NavDropdown.Item>
+                    <NavDropdown.Item as={Link} to="/main/manage-email">이메일 관리</NavDropdown.Item>
+                    <NavDropdown.Item as={Link} to="/main/manage-schedule">스케줄 관리</NavDropdown.Item>
+                  </NavDropdown>
+                )
+              }
             </Nav>
           </Navbar.Collapse>
         </Container>

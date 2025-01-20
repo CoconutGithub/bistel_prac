@@ -9,7 +9,7 @@ const Sidebar = () => {
 
     const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
-    const backgroundColor = useSelector((state: RootState) => state.auth.backgroundColor);
+    const backgroundColor = useSelector((state: RootState) => state.auth.user.headerColor);
 
     const handleLogout = () => {
         console.log("Logging out...");

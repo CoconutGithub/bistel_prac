@@ -3,7 +3,7 @@ import React, { useRef, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ComAPIContext } from "~components/ComAPIContext";
 import {useDispatch} from "react-redux";
-import {AppDispatch, RootState} from "~store/Store";
+import {AppDispatch} from "~store/Store";
 import {setLoginToken} from "~store/AuthSlice";
 import axios from 'axios';
 
@@ -34,6 +34,10 @@ const Login = () => {
         title: response.data.title,      //portal 제목
         userId: response.data.userId,     //userId
         userName: response.data.userName,   //userName
+        roleName: response.data.roleName,
+        phoneNumber: response.data.phoneNumber,
+        footerYN: response.data.footerYN,
+        headerColor: response.data.headerColor,
         email: response.data.email,      //email
       }));
 

@@ -3,12 +3,14 @@ export interface AuthState {
     authToken: string | null;
     isAuthenticated: boolean;
     user: {
-        userId: string | null;
-        userName: string | null;
-        email: string | null;
-    } | null;
+        userId: string;
+        userName: string;
+        roleName: string;
+        phoneNumber: string;
+        email: string;
+        isShowFooter: boolean;
+        headerColor: string;
+    };
     error: string | null;
-    isShowFooter: boolean;
-    backgroundColor: string;
     title: string;
 }
