@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useContext, useRef, useState} from 'react';
 import {Container, Row, Col, Form, Button} from 'react-bootstrap';
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "~store/Store";
@@ -6,6 +6,7 @@ import {setHeaderColor, setTitle, toggleFooter} from "~store/AuthSlice";
 import { SketchPicker } from 'react-color';
 import ComButton from '~pages/portal/buttons/ComButton';
 import axios from 'axios';
+import {ComAPIContext} from "~components/ComAPIContext";
 
 const Settings: React.FC = () => {
 
@@ -14,6 +15,8 @@ const Settings: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
     const [isPickerOpen, setIsPickerOpen] = useState(false);
     const inputRef = useRef<any>(null);
+    const state = useSelector((state: RootState) => state.auth);
+    const comAPIContext = useContext(ComAPIContext);
 
     const handleColorChange = (color: any) => {
         dispatch(setHeaderColor(color.hex)); // 선택한 색상 업데이트
@@ -27,34 +30,31 @@ const Settings: React.FC = () => {
         dispatch(setHeaderColor('#f8f9fa')); //초기 color 로변경
     }
 
-    const handleTitle = () => {
-        dispatch(setTitle( inputRef.current.value)); //title 변경
-    }
-
     const handleSave = () => {
-        alert("여기 구현 필요.")
-    }
-
-        console.log('Request Data:', {
-            userId: userId,
-            footerYn: isShowFooter ? 'Y' : 'N',
-            headerColor: headerColor,
-        });
-
         try {
-            await axios.post('http://localhost:8080/api/update-settings',
+            debugger
+            console.log(headerColor);
+
+            comAPIContext.showProgressBar();
+            axios.post('http://localhost:8080/api/update-settings',
                 {
-                    userId: userId,
+                    userId: state.user.userId,
                     footerYn: isShowFooter ? 'Y' : 'N',
-                    headerColor: headerColor,
+                    headerColor: headerColor ?? '#f8f9fa',
                 },
                 {
-                    headers: { Authorization: `Bearer ${authToken}` },
-                });
-            alert("Settings saved successfully.");
-        } catch (error) {
-            console.error('Failed to save settings:', error);
-            alert("Failed to save settings.");
+                    headers: { Authorization: `Bearer ${state.authToken}` },
+                }
+            ).then(() => {
+                comAPIContext.showToast("저장되었습니다.", "dark");
+            }).finally(() => {
+                comAPIContext.hideProgressBar();
+            })
+
+        } catch (err) {
+            const error = err as Error; // 타입 단언
+            comAPIContext.showToast(error.message, "danger");
+            console.error('Failed to save settings:', error.message);
         }
     };
 
@@ -78,7 +78,7 @@ const Settings: React.FC = () => {
                             label={isShowFooter ? 'Footer ON' : 'Footer OFF'}
                             checked={isShowFooter}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                                dispatch(toggleFooter(e.target.checked))}
+                                dispatch(toggleFooter())}
                         />
                     </Form>
                 </Col>

@@ -93,7 +93,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                 "\", \"phoneNumber\": \"" + user.getPhoneNumber() +
 
                 "\", \"footerYN\": \"" + user.getFooterYN() +
-                "\", \"phoneNumber\": \"" + user.getHeaderColor() +
+                "\", \"headerColor\": \"" + user.getHeaderColor() +
 
                 "\", \"email\": \"" + user.getEmail() + "\"}");
 

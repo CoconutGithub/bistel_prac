@@ -121,27 +121,20 @@
     </select>
 
     <select id="getAllRoles" resultType="com.siportal.portal.com.result.ComResultMap">
-        select
-         C.permission_id
-        ,B.role_name
-        ,A.menu_name
-        ,C.can_create
-        ,C.can_read
-        ,C.can_update
-        ,C.can_delete
-        ,TO_CHAR(C.create_date, 'YYYY-MM-DD') AS create_date
-        ,C.create_by
-        ,TO_CHAR(C.update_date, 'YYYY-MM-DD') AS update_date
-        ,C.update_by
-        from p_menu A
-        ,p_role B
-        ,p_permission C
-        where 1=1
-        and A.menu_id = C.menu_id
-        and B.role_id = C.role_id
+        SELECT
+            ROW_NUMBER() over () AS GRID_ROW_ID
+            ,A.ROLE_ID
+            ,A.ROLE_NAME
+            ,TO_CHAR(A.CREATE_DATE, 'YYYY-MM-DD HH24:MI:SS') AS CREATE_DATE
+            ,A.CREATE_BY
+            ,TO_CHAR(A.UPDATE_DATE, 'YYYY-MM-DD HH24:MI:SS') AS UPDATE_DATE
+            ,A.UPDATE_BY
+        FROM P_ROLE A
+        WHERE 1=1
         <if test="roleName != null and roleName != ''">
-            AND B.role_name = #{roleName}
+            AND A.role_name = #{roleName}
         </if>
+        ORDER BY A.ROLE_ID ASC
     </select>
 
     <select id="getRoleList" resultType="com.siportal.portal.com.result.ComResultMap">

@@ -10,62 +10,12 @@ import {AgGridWrapperHandle} from "~types/GlobalTypes"; // 팝업 컴포넌트 �
 import ComButton from '../buttons/ComButton';
 
 const columnDefs = [
-    { field: 'permissionId', headerName: '권한 ID', sortable: true, filter: true, editable: false, width: 100 },
+    { field: 'gridRowId', headerName: 'gridRowId', editable: false, hide: true },
+    { field: 'roleId', headerName: '권한 ID', sortable: true, filter: true, editable: false, width: 100 },
     { field: 'roleName', headerName: '권한 이름', sortable: true, filter: true, editable: false, width: 150 },
-    { field: 'menuName', headerName: '메뉴 이름', sortable: true, filter: true, editable: false, width: 150 },
-    { field: 'canCreate', headerName: '생성 권한',
-        cellDataType: 'boolean',
-        valueGetter: (params: any) => {
-            return params.data.canCreate === 'Y' ? true : false;
-        },
-        valueSetter: (params: any) => {
-            const newValue: boolean = params.newValue;
-            params.data.canCreate = newValue ? 'Y' : 'N';
-            return true;
-        },
-        sortable: true, filter: true, editable: true, width: 150 },
-    {
-        field: 'canRead',
-        headerName: '읽기 권한',
-        cellDataType: 'boolean',
-        valueGetter: (params: any) => {
-            return params.data.canRead === 'Y' ? true : false;
-        },
-        valueSetter: (params: any) => {
-            const newValue: boolean = params.newValue;
-            params.data.canRead = newValue ? 'Y' : 'N';
-            return true;
-        },
-        sortable: true,
-        filter: true,
-        editable: true,
-        width: 150
-    },
-    { field: 'canUpdate', headerName: '업데이트 권한',
-        cellDataType: 'boolean',
-        valueGetter: (params: any) => {
-            return params.data.canUpdate === 'Y' ? true : false;
-        },
-        valueSetter: (params: any) => {
-            const newValue: boolean = params.newValue;
-            params.data.canUpdate = newValue ? 'Y' : 'N';
-            return true;
-        },
-        sortable: true, filter: true, editable: true, width: 150 },
-    { field: 'canDelete', headerName: '삭제 권한',
-        cellDataType: 'boolean',
-        valueGetter: (params: any) => {
-            return params.data.canDelete === 'Y' ? true : false;
-        },
-        valueSetter: (params: any) => {
-            const newValue: boolean = params.newValue;
-            params.data.canDelete = newValue ? 'Y' : 'N';
-            return true;
-        },
-        sortable: true, filter: true, editable: true, width: 150 },
-    { field: 'createDate', headerName: '생성일', sortable: true, filter: true, editable: false, width: 150 },
+    { field: 'createDate', headerName: '생성일', sortable: true, filter: true, editable: false, width: 200 },
     { field: 'createBy', headerName: '생성자', sortable: true, filter: true, editable: false, width: 100 },
-    { field: 'updateDate', headerName: '업데이트일', sortable: true, filter: false, width: 150 },
+    { field: 'updateDate', headerName: '업데이트일', sortable: true, filter: false, width: 200 },
     { field: 'updateBy', headerName: '수정자', sortable: true, filter: true, editable: false, width: 100 },
 ];
 
@@ -200,7 +150,7 @@ const ManageRole: React.FC = () => {
     },[]);
 
     const roleRegistButton = useMemo(() => (
-        <ComButton onClick={handleRegist} ></ComButton>
+        <ComButton className="me-2" onClick={handleRegist} >권한 추가</ComButton>
     ), []);
 
     const handleClosePopup = () => {
