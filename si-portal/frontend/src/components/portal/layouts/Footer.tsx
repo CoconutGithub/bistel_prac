@@ -7,7 +7,7 @@ const Footer = () => {
         <div className="text-center">
           <p className="mb-0">© {new Date().getFullYear()} BISTelligence Inc KOREA. All rights reserved.</p>
           <p className="mb-0">
-            <small>Contact: ?</small>
+            <small>Contact: +82 2 02-597-0911</small>
           </p>
         </div>
       </Container>

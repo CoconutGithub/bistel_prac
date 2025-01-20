@@ -3,7 +3,7 @@ import React, {
     useRef,
     useImperativeHandle,
     forwardRef,
-    useCallback,
+    useCallback, useContext,
 } from 'react';
 import { AgGridReact } from '@ag-grid-community/react';
 import { ClientSideRowModelModule } from '@ag-grid-community/client-side-row-model';
@@ -12,12 +12,20 @@ import { ColDef, CellClassParams } from '@ag-grid-community/core';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import '~styles/components/grid.scss';
+import {ComAPIContext} from "~components/ComAPIContext";
+import AddButton from '~pages/portal/buttons/AddButton';
+import DeleteButton from '~pages/portal/buttons/DeleteButton';
+import SaveButton from "~pages/portal/buttons/SaveButton";
 
 
 //##################### type 지정-start #######################
 // Props 타입 정의
 interface AgGridWrapperProps {
     showButtonArea?: boolean;
+    showAddButton?: boolean;
+    showSaveButton?: boolean;
+    showDeleteButton?: boolean;
+    children?: React.ReactNode;
     columnDefs: ColDef[];
     enableCheckbox?: boolean;
     onDelete?: (selectedRows: any[]) => void;
@@ -42,10 +50,21 @@ const rowClassRules = {
 };
 
 const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
-    ({ showButtonArea = false, columnDefs, enableCheckbox = false, onDelete, onSave, onCellEditingStopped, onCellValueChanged, onCellEditingStarted}, ref) => {
+    ({  showButtonArea = true
+        , showAddButton = true
+        , showSaveButton = true
+        , showDeleteButton = true
+        , children = null
+        , columnDefs
+        , enableCheckbox = false
+        , onDelete
+        , onSave
+        , onCellEditingStopped
+        , onCellValueChanged
+        , onCellEditingStarted }, ref) => {
 
         console.log("======create AgGridWrapper======");
-
+        const comAPIContext = useContext(ComAPIContext);
         const gridRef = useRef<AgGridReact>(null); // AgGrid 참조
         const [rowData, setRowData] = useState<any[]>([]);
         const [modifiedRows, setModifiedRows] = useState(new Set()); // 수정된 행 추적
@@ -134,6 +153,10 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
             console.log("handleDelete-----------");
 
             const selectedNodes = gridRef.current?.api.getSelectedNodes();
+            if((selectedNodes?.length ?? 0) === 0) {
+                comAPIContext.showToast('삭제상태로 변경할 내용이 선택이 되지 않았습니다.','dark');
+            }
+
             const selectedRows = selectedNodes ? selectedNodes.map((node) => node.data) : [];
 
             // 선택된 행에 isDeleted 플래그 추가
@@ -144,7 +167,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
             deleteList = selectedRows;
 
             // 선택된 행만 업데이트
-            gridRef.current?.api.applyTransaction({ update: selectedRows });
+            gridRef.current?.api.applyTransaction({update: selectedRows});
         };
 
         const handleSave = () => {
@@ -187,19 +210,29 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
                         <Col className="d-flex justify-content-start">
                             <Form.Label>총계: {rowData.length}</Form.Label>
                         </Col>
-                        {showButtonArea && (
-                            <Col className="d-flex justify-content-end">
-                                <Button size="sm" className="me-2" variant="primary" onClick={handleAddRow}>
-                                    추가
-                                </Button>
-                                <Button size="sm" className="me-2" variant="primary" onClick={handleSave}>
-                                    저장
-                                </Button>
-                                <Button size="sm" className="me-2" variant="danger" onClick={handleDelete}>
-                                    삭제
-                                </Button>
-                            </Col>
-                        )}
+                    {showButtonArea && (
+                        <Col className="d-flex justify-content-end">
+                            {children}
+                            {showAddButton && (
+                                // <Button size="sm" className="me-2" variant="primary" onClick={handleAddRow}>
+                                //     추가
+                                // </Button>
+                                <AddButton onClick={handleAddRow}></AddButton>
+                            )}
+                            {showSaveButton && (
+                                // <Button size="sm" className="me-2" variant="primary" onClick={handleSave}>
+                                //     저장
+                                // </Button>
+                                <SaveButton onClick={handleSave}></SaveButton>
+                            )}
+                            {showDeleteButton && (
+                                // <Button size="sm" className="me-2" variant="danger" onClick={handleDelete}>
+                                //     삭제
+                                // </Button>
+                                <DeleteButton onClick={handleDelete}></DeleteButton>
+                            )}
+                        </Col>
+                    )}
                     </Row>
 
                     <Row className="mt-3">
@@ -226,4 +259,4 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
     }
 );
 
-export default AgGridWrapper;
+export default React.memo(AgGridWrapper);

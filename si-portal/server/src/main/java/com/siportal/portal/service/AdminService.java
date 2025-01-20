@@ -169,6 +169,41 @@ public class AdminService {
         }
     }
 
+    @PostMapping("/api/update-permission")
+    public ResponseEntity<?> updateUserRole(@RequestBody Map<String, Object> requestData) {
+
+        try {
+            // 데이터 파싱
+            List<Map<String, Object>> updateList = (List<Map<String, Object>>) requestData.get("updateList");
+            List<Map<String, Object>> deleteList = (List<Map<String, Object>>) requestData.get("deleteList");
+
+            int updatedCount = 0; // 업데이트된 행 갯수
+            int deletedCount = 0; // 삭제된 행 갯수
+
+            // Update 처리
+            for (Map<String, Object> permission : updateList) {
+                adminMapper.updatePermission(permission);
+            }
+
+            // Delete 처리
+            for (Map<String, Object> permissionId : deleteList) {
+                adminMapper.deletePermission((Integer)permissionId.get("permissionId"));
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("messageCode", "success");
+            response.put("message", "모든 작업이 성공적으로 처리되었습니다.");
+//            response.put("updatedUsersCnt", updatedCount);
+//            response.put("deletedUsersCnt", deletedCount);
+
+            return ResponseEntity.ok(null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
+
     @GetMapping("/api/get-email-history")
     public ResponseEntity<?> getEmailHistory(@RequestParam String sendUser) {
 
@@ -224,6 +259,16 @@ public class AdminService {
         }
     }
 
+    @PostMapping("/api/save-role")
+    public ResponseEntity<?> saveRole(@RequestBody Map<String, String> roleData) {
+        String roleName = roleData.get("roleName");
+        String status = roleData.get("status");
+        String userName = roleData.get("userName");
+
+        saveRoleList(roleName, status, userName);
+        return ResponseEntity.ok("Email sent successfully.");
+    }
+
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
@@ -235,10 +280,29 @@ public class AdminService {
         jdbcTemplate.update(sql, sendUser, sendReceiver, title, content);
     }
 
+    private void saveRoleList(String roleName, String status, String userName) {
+        String sql = "INSERT INTO dev.p_role (role_id, role_name, status, create_date, create_by) " +
+                "VALUES (nextval('seq_p_role'), ?, ?, CURRENT_TIMESTAMP, ?)";
+
+        // JdbcTemplate을 사용하여 데이터 삽입
+        jdbcTemplate.update(sql, roleName, status, userName);
+    }
+
     @GetMapping("/api/get-roles")
-    public ResponseEntity<?> getRoles() {
+    public ResponseEntity<?> getRoles(@RequestParam String roleName) {
         try {
-            List<ComResultMap> roles = adminMapper.getAllRoles(); // 모든 권한 조회 메서드
+            List<ComResultMap> roles = adminMapper.getAllRoles(roleName); // 모든 권한 조회 메서드
+            return ResponseEntity.ok(roles);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/api/get-roles-list")
+    public ResponseEntity<?> getRoleList() {
+        try {
+            List<ComResultMap> roles = adminMapper.getRoleList(); // 모든 권한 조회 메서드
             return ResponseEntity.ok(roles);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
