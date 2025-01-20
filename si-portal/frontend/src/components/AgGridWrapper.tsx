@@ -13,9 +13,8 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import '~styles/components/grid.scss';
 import {ComAPIContext} from "~components/ComAPIContext";
-import AddButton from '~pages/portal/buttons/AddButton';
-import DeleteButton from '~pages/portal/buttons/DeleteButton';
-import SaveButton from "~pages/portal/buttons/SaveButton";
+import { AgGridWrapperHandle } from "~types/GlobalTypes";
+import ComButton from '~pages/portal/buttons/ComButton';
 
 
 //##################### type 지정-start #######################
@@ -36,11 +35,6 @@ interface AgGridWrapperProps {
 }
 
 
-// 외부에서 사용할 메서드 타입 정의
-export interface AgGridWrapperHandle {
-    setRowData: (data: any[]) => void;
-    getRowData: () => any[];
-}
 //##################### type 지정-end #######################
 
 // 수정된 행에 스타일을 적용하는 규칙
@@ -150,8 +144,6 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
         };
 
         const handleDelete = () => {
-            console.log("handleDelete-----------");
-
             const selectedNodes = gridRef.current?.api.getSelectedNodes();
             if((selectedNodes?.length ?? 0) === 0) {
                 comAPIContext.showToast('삭제상태로 변경할 내용이 선택이 되지 않았습니다.','dark');
@@ -214,22 +206,22 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
                         <Col className="d-flex justify-content-end">
                             {children}
                             {showAddButton && (
-                                // <Button size="sm" className="me-2" variant="primary" onClick={handleAddRow}>
-                                //     추가
-                                // </Button>
-                                <AddButton onClick={handleAddRow}></AddButton>
+                                <ComButton size="sm" className="me-2" variant="primary" onClick={handleAddRow}>
+                                    추가
+                                </ComButton>
+                                // <AddButton onClick={handleAddRow}></AddButton>
                             )}
                             {showSaveButton && (
-                                // <Button size="sm" className="me-2" variant="primary" onClick={handleSave}>
-                                //     저장
-                                // </Button>
-                                <SaveButton onClick={handleSave}></SaveButton>
+                                <ComButton size="sm" className="me-2" variant="primary" onClick={handleSave}>
+                                    저장
+                                </ComButton>
+                                // <SaveButton onClick={handleSave}></SaveButton>
                             )}
                             {showDeleteButton && (
-                                // <Button size="sm" className="me-2" variant="danger" onClick={handleDelete}>
-                                //     삭제
-                                // </Button>
-                                <DeleteButton onClick={handleDelete}></DeleteButton>
+                                <ComButton size="sm" className="me-2" variant="danger" onClick={handleDelete}>
+                                    삭제
+                                </ComButton>
+                                // <DeleteButton onClick={handleDelete}></DeleteButton>
                             )}
                         </Col>
                     )}

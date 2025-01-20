@@ -6,8 +6,8 @@ const Home: React.FC = () => {
     <Container>
       <Row className="text-center" style={{ marginTop: '50px' }}>
         <Col>
-          <h1>Welcome to Our SI-Portal</h1>
-          <p>You just focus on developing the screen logic.</p>
+          <h1>Welcome to Our Portal</h1>
+          <p>포탈기능은 공통으로 지원하니 오직 화면 로직 개발에만 집중세요.</p>
         </Col>
       </Row>
       <Row className="mt-4">
@@ -17,12 +17,9 @@ const Home: React.FC = () => {
                 <li>1. Progress bar 지원됨</li>
                 <li>2. Toast message 지원됨</li>
                 <li>3. Route 이동시 session 체크 기능 지원함</li>
-                <li>4. Route 이동시 session 체크 기능 지원함</li>
-                <li>5. SearchButton, AddButton, DeleteButton, SaveButton, ReigstButton 객체사용시<br/>
-                    버튼 click 시 session 체크 기능 지원함
-                </li>
-                <li>6. Grid는 Ag grid 사용함. ( Ag grid 사용시 AgGridWrapper 를 사용하면됨. / 무료이므로 EXCEL 관련 지원 안함)</li>
-                <li>7. 메뉴의 depth 는 3 LEVLE 까지 가능함.</li>
+                <li>4. Button 클릭시 session 체크 기능 지원함 (ComButton 사용해야만 지원)</li>
+                <li>5. Grid는 Ag grid 사용함. ( Ag grid 사용시 AgGridWrapper 를 사용하면됨. / 무료이므로 EXCEL 관련 지원 안함)</li>
+                <li>6. 메뉴의 depth 는 3 LEVLE 까지 가능함.</li>
             </ul>
         </Col>
       </Row>

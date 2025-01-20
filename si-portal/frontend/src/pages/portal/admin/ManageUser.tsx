@@ -1,32 +1,31 @@
 import React, {useState, useEffect, useContext, useRef, useMemo, useCallback} from 'react';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import AgGridWrapper, {AgGridWrapperHandle} from '~components/AgGridWrapper';
+import AgGridWrapper from '~components/AgGridWrapper';
 import { useSelector  } from 'react-redux';
 import { ComAPIContext } from "~components/ComAPIContext";
 import axios from "axios";
 import {RootState} from "~store/Store";
-import UserRegistPopup from "~pages/portal/admin/UserRegistPopupProps";
-import SearchButton from "~pages/portal/buttons/SearchButton";
-import RegistButton from "~pages/portal/buttons/ReigstButton"; // 팝업 컴포넌트 가져오기
+import UserRegistPopup from "~pages/portal/admin/UserRegistPopup";
+import {AgGridWrapperHandle} from "~types/GlobalTypes";
+import ComButton from "~pages/portal/buttons/ComButton"; // 팝업 컴포넌트 가져오기
 
 // 컬럼 정의
 const columnDefs = [
   { field: 'gridRowId', headerName: 'gridRowId', editable: false, hide: true },
   { field: 'userId', headerName: 'ID', sortable: true, filter: true, editable: false, width: 100 },
   { field: 'userName', headerName: '이름', sortable: true, filter: true, editable: true, width: 150 },
-  { field: 'email', headerName: '이메일', sortable: true, filter: true, editable: true, width: 250 },
-  { field: 'phoneNumber', headerName: '전화번호', sortable: true, filter: true, editable: true, width: 300 },
+  { field: 'email', headerName: '이메일', sortable: true, filter: true, editable: true, width: 200 },
+  { field: 'phoneNumber', headerName: '전화번호', sortable: true, filter: true, editable: true, width: 200 },
   { field: 'roleName'
     , headerName: '역할'
     , sortable: true
     , filter: true
     , editable: true
-    , width: 150
+    , width: 120
     , cellEditor: 'agSelectCellEditor' // Combobox 설정
-    , cellEditorParams: { values: ['SA', 'ADMIN', 'USER'] }// Combobox 옵션
+    , cellEditorParams: { values: [] }// 동적으로 role이 가져와질 Combobox 옵션
   },
-  { field: 'roleId', headerName: 'roleId', hide: true },
   { field: 'status'
     , headerName: '상태'
     , sortable: true
@@ -36,10 +35,17 @@ const columnDefs = [
     , cellEditor: 'agSelectCellEditor' // Combobox 설정
     , cellEditorParams: { values: ['ACTIVE', 'INACTIVE'] }// Combobox 옵션
   },
-  { field: "createDate", headerName: "생성일", sortable: true, filter: true },
-  { field: "updateDate", headerName: "수정일", sortable: true, filter: true },
-  { field: "updateBy", headerName: "수정자", sortable: true, filter: true },
+  { field: "createDate", headerName: "생성일", sortable: true, width: 200, filter: true },
+  { field: "updateDate", headerName: "수정일", sortable: true, width: 200, filter: true },
+  { field: "updateBy", headerName: "수정자", sortable: true, width: 200, filter: true },
 ];
+
+interface Role {
+  roleId: number;
+  roleName: string;
+}
+
+let roleKind : any = null;
 
 const ManageUser: React.FC = () => {
   console.log("ManageUser 생성됨.");
@@ -52,10 +58,50 @@ const ManageUser: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const gridRef = useRef<AgGridWrapperHandle>(null);
 
+  const [dynamicColumnDefs, setDynamicColumnDefs] = useState(columnDefs); // 컬럼 정보
   const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
+    const getRoleList = async () => {
+      try {
+        comAPIContext.showProgressBar();
+
+        // API 호출
+        const res = await axios.get("http://localhost:8080/admin/api/get-roles-list", {
+          headers: {
+            Authorization: `Bearer ${state.authToken}`,
+          },
+        });
+
+        if (res && res.data) {
+          // 기존 columnDefs 복사 후 특정 컬럼 업데이트
+          const updatedColumnDefs: any = columnDefs.map((col) => {
+            if (col.field === 'roleName') {
+              return {
+                ...col,
+                cellEditorParams: { values: res.data.map((item:any) => item.roleName) },
+              };
+            }
+            return col; // 반드시 반환
+          });
+
+          console.log("DBSearch Role 기준정보: ", res.data)
+          roleKind = res.data;
+          setDynamicColumnDefs(updatedColumnDefs); // 상태 업데이트
+
+        }
+      } catch (err) {
+        const error = err as Error; // 타입 단언
+        console.error("Error fetching data:", err);
+        comAPIContext.showToast("Error fetching roles: " + error.message, "danger");
+      } finally {
+        comAPIContext.hideProgressBar();
+      }
+    };
+
+    getRoleList();
   }, []);
+
 
   const handleRegist = useCallback(() => {
     setShowPopup(true);
@@ -94,6 +140,9 @@ const ManageUser: React.FC = () => {
 
   const handleSave = useCallback(async (lists: { deleteList: any[]; updateList: any[] }) => {
 
+    console.log('--------->', roleKind);
+
+
     if (!gridRef.current) return;
 
     if (lists.deleteList.length === 0 && lists.updateList.length === 0) {
@@ -106,6 +155,16 @@ const ManageUser: React.FC = () => {
       comAPIContext.showProgressBar();
       console.log('1.update 행들:', lists);
       console.log('2.delete 행들:', lists);
+
+      if (lists.updateList.length !== 0) {
+
+        if (roleKind !== null) {
+          lists.updateList.forEach( e => {
+            const roleData : any  = roleKind.find( (r:any) => r.roleName === e.roleName);
+            e.roleId = roleData.roleId;
+          });
+        }
+      };
 
       // 전송 데이터 구성
       const payload = {
@@ -130,10 +189,9 @@ const ManageUser: React.FC = () => {
 
   const registerButton = useMemo(() => (
       <>
-        {/*<Button size="sm" className="me-2" variant="primary" onClick={handleRegist}>*/}
-        {/*  등록*/}
-        {/*</Button>*/}
-        <RegistButton onClick={handleRegist} ></RegistButton>
+        <ComButton size="sm" className="me-2" variant="primary" onClick={handleRegist}>
+          등록
+        </ComButton>
       </>
   ), []);
 
@@ -162,10 +220,9 @@ const ManageUser: React.FC = () => {
             </Form.Group>
           </Col>
           <Col lg={3} className="d-flex justify-content-end">
-            {/*<Button size="sm" variant="primary" onClick={handleSearch}>*/}
-            {/*  검색*/}
-            {/*</Button>*/}
-            <SearchButton onClick={handleSearch}></SearchButton>
+            <ComButton size="sm" variant="primary" onClick={handleSearch}>
+              검색
+            </ComButton>
           </Col>
         </Row>
         <div style={{ borderTop: '1px solid black', margin: '15px 0' }}></div>
@@ -175,7 +232,7 @@ const ManageUser: React.FC = () => {
                 ref={gridRef} // forwardRef를 통해 연결된 ref
                 showButtonArea={true}
                 showAddButton={false}
-                columnDefs={columnDefs}
+                columnDefs={dynamicColumnDefs}
                 enableCheckbox={true}
                 onSave={handleSave} // 저장 버튼 동작z`
             >

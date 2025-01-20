@@ -1,17 +1,21 @@
 import React from 'react';
 import {Modal, Button, Form, Col, Row, InputGroup} from 'react-bootstrap';
-import SearchButton from "~pages/portal/buttons/SearchButton";
+import ComButton from '../buttons/ComButton';
 
-interface UserRegistPopupProps {
+interface UserRegistPopup {
     show: boolean; // 팝업 표시 여부
     onClose: () => void; // 팝업 닫기 핸들러
 }
 
 
 
-const UserRegistPopup: React.FC<UserRegistPopupProps> = ({ show, onClose }) => {
+const UserRegistPopup: React.FC<UserRegistPopup> = ({ show, onClose }) => {
 
     const searchId = () => {
+
+    };
+
+    const handleSave = () => {
 
     };
 
@@ -33,11 +37,8 @@ const UserRegistPopup: React.FC<UserRegistPopupProps> = ({ show, onClose }) => {
                         <Form.Label column sm={3}><strong>ID</strong></Form.Label>
                         <Col sm={9}>
                             <InputGroup>
-                                <Form.Control type="text" placeholder="Enter ID" />
-                                {/*<Button variant="outline-secondary">*/}
-                                {/*    <i className="bi bi-search"></i> /!* 돋보기 아이콘 *!/*/}
-                                {/*</Button>*/}
-                                <SearchButton onClick={searchId}></SearchButton>
+                                <Form.Control  type="text" placeholder="Enter ID" />
+                                <ComButton className="ms-3" onClick={searchId}>검색</ComButton>
                             </InputGroup>
                         </Col>
                     </Form.Group>
@@ -64,9 +65,12 @@ const UserRegistPopup: React.FC<UserRegistPopupProps> = ({ show, onClose }) => {
                 </Form>
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={onClose}>
+                <ComButton variant="primary" onClick={handleSave}>
+                    등록
+                </ComButton>
+                <ComButton variant="secondary" onClick={onClose}>
                     Close
-                </Button>
+                </ComButton>
             </Modal.Footer>
         </Modal>
     );

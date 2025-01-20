@@ -5,6 +5,24 @@
         INSERT INTO P_SCHEDULER (JOB_NAME, GROUP_NAME, TRIGGER_KEY,, CLASS_NAME, CRON_TAB, STATUS, CREATE_BY)
         VALUES (#{jobName}, #{groupName}, #{triggerKey}, #{className}, #{cronTab}, #{status}, #{userId})
     </insert>
+    <select id="getMenuTree" resultType="com.siportal.portal.com.result.ComResultMap">
+        SELECT
+            A.MENU_ID,
+            A.MENU_NAME,
+            A.PARENT_MENU_ID,
+            coalesce(B.MENU_NAME, '-') AS PARENT_MENU_NAME,
+            A.PATH,
+            A.POSITION,
+            A.CHILD_YN,
+            A.STATUS
+        FROM
+            P_MENU A
+        LEFT JOIN
+            P_MENU B
+        ON
+            A.PARENT_MENU_ID = B.MENU_ID
+        ORDER BY A.DEPTH, A.POSITION;
+    </select>
     <delete id="deleteSchedule">
         DELETE FROM P_SCHEDULER
         WHERE JOB_NAME = #{jobName}
@@ -170,5 +188,7 @@
         DELETE FROM p_permission
         WHERE permission_id = #{permissionId}
     </delete>
+
+
 
 </mapper>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import ComButton from "~pages/portal/buttons/ComButton";
 
 const NotFound: React.FC = () => {
   const navigate = useNavigate();
@@ -15,9 +16,9 @@ const NotFound: React.FC = () => {
         <Col>
           <h1>404 - Page Not Found</h1>
           <p>Sorry, the page you are looking for does not exist.</p>
-          <Button variant="primary" onClick={handleGoHome}>
+          <ComButton variant="primary" onClick={handleGoHome}>
             Go to Home
-          </Button>
+          </ComButton>
         </Col>
       </Row>
     </Container>
