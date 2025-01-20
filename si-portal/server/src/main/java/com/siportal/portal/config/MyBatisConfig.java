@@ -1,6 +1,7 @@
 package com.siportal.portal.config;
 
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.type.JdbcType;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -23,6 +24,7 @@ public class MyBatisConfig {
         // MyBatis 설정
         org.apache.ibatis.session.Configuration configuration = new org.apache.ibatis.session.Configuration();
         configuration.setLogImpl(org.apache.ibatis.logging.stdout.StdOutImpl.class); // Console에 로그 출력
+        configuration.setJdbcTypeForNull(JdbcType.NULL);
         configuration.setMapUnderscoreToCamelCase(true); // CamelCase 매핑 활성화
         sessionFactory.setConfiguration(configuration);
 

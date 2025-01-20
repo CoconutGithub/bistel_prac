@@ -32,20 +32,6 @@ public class PortalService {
         }
     }
 
-    @PostMapping("/api/update-user")
-    public ResponseEntity<?> updateUser(@RequestBody Map<String, String> requestBody) {
-
-        try {
-            System.out.println("ddddddddddddddddddddddd");
-//            List<ComResultMap> result = this.portalMapper.getUserByUserName(userName);
-            return ResponseEntity.ok(null);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
-                    .body("Error occurred: " + e.getMessage());
-        }
-    }
-
-
     @PostMapping("/refresh-token")
     public ResponseEntity<?> refreshToken(@RequestBody Map<String, String> requestBody) {
 

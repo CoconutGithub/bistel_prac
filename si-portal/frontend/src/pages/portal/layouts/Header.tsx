@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import {Navbar, Nav, Container, NavDropdown} from 'react-bootstrap';
-import NavMenuItem from '~components/portal/layouts/NavMenuItem';
+import NavMenuItem from '~pages/portal/layouts/NavMenuItem';
 import { MenuItem } from '~types/LayoutTypes';
 import axios from 'axios';
 import {Link, useNavigate} from "react-router-dom";
@@ -13,6 +13,8 @@ const Header = () => {
   const state = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const backgroundColor = useSelector((state: RootState) => state.auth.backgroundColor);
+  const title = useSelector((state: RootState) => state.auth.title);
 
   useEffect(() => {
     const fetchMenuData = async () => {
@@ -44,9 +46,9 @@ const Header = () => {
   };
 
   return (
-      <Navbar bg="light" expand="lg">
+      <Navbar style={{ backgroundColor }} expand="lg">
         <Container fluid>
-          <Navbar.Brand href="/">SI-Portal</Navbar.Brand>
+          <Navbar.Brand href="/">{title}</Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
@@ -57,9 +59,9 @@ const Header = () => {
             <Nav style={{flex: '0 0 10%'}} className="ms-auto">
               <NavDropdown title="Admin" id="basic-nav-dropdown" menuVariant="dark">
                 <NavDropdown.Item as={Link} to="/main/manage-menu">메뉴 관리</NavDropdown.Item>
-                <NavDropdown.Item as={Link} to="/main/manage-role">권한 관리</NavDropdown.Item>
-                <NavDropdown.Item as={Link} to="/main/manage-email">이메일 관리</NavDropdown.Item>
                 <NavDropdown.Item as={Link} to="/main/manage-user">사용자 관리</NavDropdown.Item>
+                {/*<NavDropdown.Item as={Link} to="/main/manage-role">권한 관리</NavDropdown.Item>*/}
+                <NavDropdown.Item as={Link} to="/main/manage-email">이메일 관리</NavDropdown.Item>
                 <NavDropdown.Item as={Link} to="/main/manage-schedule">스케줄 관리</NavDropdown.Item>
               </NavDropdown>
             </Nav>

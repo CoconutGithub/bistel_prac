@@ -1,6 +1,7 @@
 // RoleRegistPopup.tsx
 import React, { useState } from 'react';
 import { Modal, Button, Form, Col, Row } from 'react-bootstrap';
+import ComButton from "~pages/portal/buttons/ComButton";
 
 interface RoleRegistPopupProps {
     show: boolean; // 팝업 표시 여부
@@ -55,12 +56,12 @@ const RoleRegistPopup: React.FC<RoleRegistPopupProps> = ({ show, onClose, onSave
                 </Form>
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={handleSave}>
+                <ComButton variant="secondary" onClick={handleSave}>
                     Save
-                </Button>
-                <Button variant="secondary" onClick={onClose}>
+                </ComButton>
+                <ComButton variant="secondary" onClick={onClose}>
                     Close
-                </Button>
+                </ComButton>
             </Modal.Footer>
         </Modal>
     );

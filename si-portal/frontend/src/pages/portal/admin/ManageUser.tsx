@@ -1,28 +1,28 @@
 import React, {useState, useEffect, useContext, useRef, useMemo, useCallback} from 'react';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import AgGridWrapper, {AgGridWrapperHandle} from '~components/AgGridWrapper';
+import AgGridWrapper from '~components/AgGridWrapper';
 import { useSelector  } from 'react-redux';
 import { ComAPIContext } from "~components/ComAPIContext";
 import axios from "axios";
 import {RootState} from "~store/Store";
-import UserRegistPopup from "~pages/portal/admin/UserRegistPopupProps";
-import SearchButton from "~pages/portal/buttons/SearchButton";
-import RegistButton from "~pages/portal/buttons/ReigstButton"; // 팝업 컴포넌트 가져오기
+import UserRegistPopup from "~pages/portal/admin/UserRegistPopup";
+import {AgGridWrapperHandle} from "~types/GlobalTypes";
+import ComButton from "~pages/portal/buttons/ComButton"; // 팝업 컴포넌트 가져오기
 
 // 컬럼 정의
 const columnDefs = [
   { field: 'gridRowId', headerName: 'gridRowId', editable: false, hide: true },
   { field: 'userId', headerName: 'ID', sortable: true, filter: true, editable: false, width: 100 },
   { field: 'userName', headerName: '이름', sortable: true, filter: true, editable: true, width: 150 },
-  { field: 'email', headerName: '이메일', sortable: true, filter: true, editable: true, width: 250 },
-  { field: 'phoneNumber', headerName: '전화번호', sortable: true, filter: true, editable: true, width: 300 },
+  { field: 'email', headerName: '이메일', sortable: true, filter: true, editable: true, width: 200 },
+  { field: 'phoneNumber', headerName: '전화번호', sortable: true, filter: true, editable: true, width: 200 },
   { field: 'roleName'
     , headerName: '역할'
     , sortable: true
     , filter: true
     , editable: true
-    , width: 150
+    , width: 120
     , cellEditor: 'agSelectCellEditor' // Combobox 설정
     , cellEditorParams: { values: [] }// 동적으로 role이 가져와질 Combobox 옵션
   },
@@ -35,9 +35,9 @@ const columnDefs = [
     , cellEditor: 'agSelectCellEditor' // Combobox 설정
     , cellEditorParams: { values: ['ACTIVE', 'INACTIVE'] }// Combobox 옵션
   },
-  { field: "createDate", headerName: "생성일", sortable: true, filter: true },
-  { field: "updateDate", headerName: "수정일", sortable: true, filter: true },
-  { field: "updateBy", headerName: "수정자", sortable: true, filter: true },
+  { field: "createDate", headerName: "생성일", sortable: true, width: 200, filter: true },
+  { field: "updateDate", headerName: "수정일", sortable: true, width: 200, filter: true },
+  { field: "updateBy", headerName: "수정자", sortable: true, width: 200, filter: true },
 ];
 
 interface Role {
@@ -189,10 +189,9 @@ const ManageUser: React.FC = () => {
 
   const registerButton = useMemo(() => (
       <>
-        {/*<Button size="sm" className="me-2" variant="primary" onClick={handleRegist}>*/}
-        {/*  등록*/}
-        {/*</Button>*/}
-        <RegistButton onClick={handleRegist} ></RegistButton>
+        <ComButton size="sm" className="me-2" variant="primary" onClick={handleRegist}>
+          등록
+        </ComButton>
       </>
   ), []);
 
@@ -221,10 +220,9 @@ const ManageUser: React.FC = () => {
             </Form.Group>
           </Col>
           <Col lg={3} className="d-flex justify-content-end">
-            {/*<Button size="sm" variant="primary" onClick={handleSearch}>*/}
-            {/*  검색*/}
-            {/*</Button>*/}
-            <SearchButton onClick={handleSearch}></SearchButton>
+            <ComButton size="sm" variant="primary" onClick={handleSearch}>
+              검색
+            </ComButton>
           </Col>
         </Row>
         <div style={{ borderTop: '1px solid black', margin: '15px 0' }}></div>
