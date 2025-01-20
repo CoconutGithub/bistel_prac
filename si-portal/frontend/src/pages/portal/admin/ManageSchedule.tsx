@@ -41,6 +41,7 @@ const ManageSchedule: React.FC = () => {
     const state = useSelector((state: RootState) => state.auth);
     const comAPIContext = useContext(ComAPIContext);
     //==end: 여기는 무조건 공통으로 받는다고 생각하자
+    console.log('stat', state);
   
     const inputRef = useRef<HTMLInputElement>(null);
     const gridRef = useRef<AgGridWrapperHandle>(null);
@@ -124,8 +125,10 @@ const ManageSchedule: React.FC = () => {
                 updateList: realUpdateList,
                 deleteList: lists.deleteList,
                 createList: lists.createList,
+                userId: state.user?.userId,
             };
-    console.log('realUpdateList:', realUpdateList);
+            console.log('realUpdateList:', realUpdateList);
+            
             await axios.post('http://localhost:8080/admin/api/update-schedule', payload, {
                 headers: { Authorization: `Bearer ${state.authToken}` },
             });

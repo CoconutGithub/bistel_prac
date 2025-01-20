@@ -3,7 +3,7 @@
 <mapper namespace="com.siportal.portal.mapper.AdminMapper">
     <insert id="createSchedule">
         INSERT INTO P_SCHEDULER (JOB_NAME, GROUP_NAME, TRIGGER_KEY,, CLASS_NAME, CRON_TAB, STATUS, CREATE_BY)
-        VALUES (#{jobName}, #{groupName}, #{triggerKey}, #{className}, #{cronTab}, #{status}, #{createBy})
+        VALUES (#{jobName}, #{groupName}, #{triggerKey}, #{className}, #{cronTab}, #{status}, #{userId})
     </insert>
     <delete id="deleteSchedule">
         DELETE FROM P_SCHEDULER

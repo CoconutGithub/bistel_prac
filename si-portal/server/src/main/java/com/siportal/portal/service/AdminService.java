@@ -74,7 +74,7 @@ public class AdminService {
             for (Map<String, Object> job : deleteList) {
                 System.out.println("DELETE JOB: " + job.get("jobName"));
                 if (quartzDynamicConfig.deleteJob((String) job.get("jobName"), (String) job.get("groupName"))) {
-                    deletedCount += adminMapper.deleteSchedule((String) job.get("jobName"), (String) job.get("groupName"));
+                    deletedCount += adminMapper.deleteSchedule((String) job.get("jobName"), (String) job.get("userId"));
                 }
             }
 
@@ -84,7 +84,7 @@ public class AdminService {
 
                 createdCount += adminMapper.createSchedule((String) job.get("jobName"), (String) job.get("groupName"), (String) job.get("triggerKey")
                                                             , (String) job.get("className"), (String) job.get("cronTab"), (String) job.get("status")
-                                                            , (String) job.get("createBy") );
+                                                            , (String) job.get("userId") );
             }
 
             // Update 처리
