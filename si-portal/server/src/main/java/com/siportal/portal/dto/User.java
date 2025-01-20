@@ -11,4 +11,8 @@ public class User {
     private String email;
     private String status;
     private String phoneNumber;
+    private String roleName;
+
+    private String footerYN;
+    private String headerColor;
 }

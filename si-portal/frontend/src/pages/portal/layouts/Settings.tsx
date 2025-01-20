@@ -9,8 +9,8 @@ import ComButton from "~pages/portal/buttons/ComButton";
 
 const Settings: React.FC = () => {
 
-    const isShowFooter = useSelector((state: RootState) => state.auth.isShowFooter);
-    const headerColor = useSelector((state: RootState) => state.auth.backgroundColor);
+    const isShowFooter = useSelector((state: RootState) => state.auth.user.isShowFooter);
+    const headerColor = useSelector((state: RootState) => state.auth.user.headerColor);
     const dispatch = useDispatch<AppDispatch>();
     const [isPickerOpen, setIsPickerOpen] = useState(false);
     const inputRef = useRef<any>(null);
