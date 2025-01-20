@@ -31,6 +31,10 @@ const Settings: React.FC = () => {
         dispatch(setTitle( inputRef.current.value)); //title 변경
     }
 
+    const handleSave = () => {
+        alert("여기 구현 필요.")
+    }
+
 
     return (
         <Container>
@@ -77,6 +81,13 @@ const Settings: React.FC = () => {
                             onChangeComplete={handleColorChange}
                         />
                     )}
+                </Col>
+            </Row>
+            <Row>
+                <Col xe={3} className="mt-lg-5">
+                    <ComButton className="btn-sm ms-3" variant="primary" onClick={handleSave}>
+                        저장
+                    </ComButton>
                 </Col>
             </Row>
         </Container>
