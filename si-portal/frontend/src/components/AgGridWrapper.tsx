@@ -189,6 +189,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
         useImperativeHandle(ref, () => ({
             setRowData: (newData: any[]) => {
                 setRowData(newData); // 데이터 설정
+                gridRef.current?.api.deselectAll();
             },
             getRowData: () => {
                 return rowData; // 현재 데이터 반환
