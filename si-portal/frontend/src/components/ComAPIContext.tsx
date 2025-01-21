@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import ToastContainer from "react-bootstrap/ToastContainer";
 import Toast from "react-bootstrap/Toast";
 import ProgressBar from "react-bootstrap/ProgressBar";
-import { useLocation } from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import axios from "axios";
 import {useSelector} from "react-redux";
 import {RootState} from "~store/Store";
@@ -51,6 +51,7 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
     const [toasts, setToasts] = useState<ToastType[]>([]);
     const [progressBarVisible, setProgressBarVisible] = useState<boolean>(false);
     const [pageAuth, setPageAuth] = useState<PageAuth | null>(null);
+    const navigate = useNavigate();
 
     // 공통 로직: 최초 페이지 마운트 시 실행
     const location = useLocation();
@@ -60,12 +61,16 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
         const getPageAuth = async() => {
             console.log("Page mounted:", location.pathname);
 
-            if (location.pathname === '/login' || location.pathname === '/main') {
+            if (location.pathname === '/login' || location.pathname === '/main'
+                || location.pathname === '/main'
+                || location.pathname === '/quick-start'
+            ) {
+                alert("dddddddddddd-->"+ location.pathname);
                 return;
             }
 
             //XXX-우선 어찌 쓰는지 보여주기 위해 잠시 멈추게 함.
-            await new Promise((resolve) => setTimeout(resolve, 2000))
+            // await new Promise((resolve) => setTimeout(resolve, 2000))
 
             axios
                 .get("http://localhost:8080/page-auth", {
@@ -98,7 +103,7 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
                                 'canUpdate' : false,
                                 'canRead' : false,
                             });
-                        debugger
+                        navigate('/main');
                     }
                 })
                 .catch((err) =>{
@@ -106,7 +111,7 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
                     console.error('Error page-auth:', error);
                 })
 
-            showToast(`Welcome to ${location.pathname}`, "info");
+            // showToast(`Welcome to ${location.pathname}`, "info");
 
         };
 

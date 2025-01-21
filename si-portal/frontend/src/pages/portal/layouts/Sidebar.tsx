@@ -20,6 +20,7 @@ const Sidebar = () => {
 
     return (
         <Nav style={{backgroundColor}} className="flex-column h-100">
+            <Nav.Link href="/main/quick-start">Quick start</Nav.Link>
             <Nav.Link href="/main/dashboard">Dashboard</Nav.Link>
             <Nav.Link href="/main/profile">Profile</Nav.Link>
             <Nav.Link href="/main/settings">Settings</Nav.Link>

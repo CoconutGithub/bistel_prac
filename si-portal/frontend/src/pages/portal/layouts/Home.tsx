@@ -21,6 +21,9 @@ const Home: React.FC = () => {
                 <li>5. Grid는 Ag grid 사용함. ( Ag grid 사용시 AgGridWrapper 를 사용하면됨. / 무료이므로 EXCEL 관련 지원 안함)</li>
                 <li>6. 메뉴의 depth 는 3 LEVLE 까지 가능함.</li>
             </ul>
+          <h2>
+                사용법 배우기
+          </h2>
         </Col>
       </Row>
         <Row className="mt-4">
