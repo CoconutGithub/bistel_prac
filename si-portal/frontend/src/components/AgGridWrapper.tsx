@@ -63,9 +63,9 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
         const [rowData, setRowData] = useState<any[]>([]);
         const [modifiedRows, setModifiedRows] = useState(new Set()); // 수정된 행 추적
 
-        let updateList = new Map();
-        let createList = new Map();
-        let deleteList: any[] = [];
+        const updateList = useRef<Map<string, string>>(new Map());
+        const createList = useRef<Map<string, string>>(new Map());
+        const deleteList = useRef<Map<string, string>>(new Map());
 
         // 기본 컬럼 정의
         const defaultColDef: ColDef = {
@@ -112,12 +112,12 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
 
             const { data } = event; // 변경된 행 데이터 가져오기
             if(data.isCreated == true){
-                createList.set(data.gridRowId, data); // 고유 ID를 키로 사용
-                console.log('createList:', createList)
+                createList.current.set(data.gridRowId, data); // 고유 ID를 키로 사용
+                console.log('createList:', createList.current)
             } else {
                 data.isUpdated = true; // isUpdated 플래그 설정
-                updateList.set(data.gridRowId || data.id, data); // 고유 ID를 키로 사용
-                console.log('updateList:', updateList)
+                updateList.current.set(data.gridRowId || data.id, data); // 고유 ID를 키로 사용
+                console.log('updateList:', updateList.current)
             }
 
             // 변경된 행만 업데이트
@@ -145,6 +145,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
 
         const handleDelete = () => {
             const selectedNodes = gridRef.current?.api.getSelectedNodes();
+            console.log('selectedNodes:', selectedNodes);
             if((selectedNodes?.length ?? 0) === 0) {
                 comAPIContext.showToast('삭제상태로 변경할 내용이 선택이 되지 않았습니다.','dark');
             }
@@ -154,9 +155,10 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
             // 선택된 행에 isDeleted 플래그 추가
             selectedRows.forEach((row) => {
                 row.isDeleted = true; // 플래그 설정
+                deleteList.current.set(row.gridRowId || row.id, row); // 고유 ID를 키로 사용
             });
-
-            deleteList = selectedRows;
+            
+            console.log('deleteList:', deleteList.current);
 
             // 선택된 행만 업데이트
             gridRef.current?.api.applyTransaction({update: selectedRows});
@@ -164,9 +166,10 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
 
         const handleSave = () => {
             if (onSave) {
-                const finalUpdateList = Array.from(updateList.values());
-                const finalCreateList = Array.from(createList.values());
-                onSave({ 'deleteList': deleteList, 'updateList': finalUpdateList, 'createList': finalCreateList });
+                const finalUpdateList = Array.from(updateList.current.values());
+                const finalCreateList = Array.from(createList.current.values());
+                const finalDeleteList = Array.from(deleteList.current.values());
+                onSave({ 'deleteList': finalDeleteList, 'updateList': finalUpdateList, 'createList': finalCreateList });
             }
         };
 
@@ -190,6 +193,9 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
             setRowData: (newData: any[]) => {
                 setRowData(newData); // 데이터 설정
                 gridRef.current?.api.deselectAll();
+                updateList.current.clear();
+                createList.current.clear();
+                deleteList.current.clear();
             },
             getRowData: () => {
                 return rowData; // 현재 데이터 반환
