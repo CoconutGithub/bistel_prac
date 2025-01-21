@@ -98,8 +98,9 @@ public class PortalService {
     }
 
     @GetMapping("/menu")
-    public Map<String, Object> getMenuTreeList() {
-        List<PMenuDTO> menus = portalMapper.getMenuTreeList();
+    public Map<String, Object> getMenuTreeList(@RequestParam String roleId) {
+
+        List<PMenuDTO> menus = portalMapper.getMenuTreeList(roleId);
         Map<Integer, Map<String, Object>> menuMap = new HashMap<>();
         List<Map<String, Object>> roots = new ArrayList<>();
 
