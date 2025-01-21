@@ -57,7 +57,7 @@ const Header = () => {
               ))}
             </Nav>
             <Nav style={{flex: '0 0 10%'}} className="ms-auto">
-              { state.user!.roleName === 'SA' &&
+              { state.user!.roleName === 'ADMIN' &&
                 (
                   <NavDropdown title="Admin" id="basic-nav-dropdown" menuVariant="dark">
                     <NavDropdown.Item as={Link} to="/main/manage-menu">메뉴 관리</NavDropdown.Item>
