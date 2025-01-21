@@ -134,6 +134,14 @@ const ManageSchedule: React.FC = () => {
                         comAPIContext.showToast('모든 항목을 입력해주세요.', 'dark');
                         return;
                     }
+                    if(scheduleData.current.some(e=>e.jobName === obj.jobName)){
+                        comAPIContext.showToast('JobName(' + obj.jobName + ')은 이미 존재하는 데이터입니다.', 'dark');
+                        return;
+                    }
+                    if(scheduleData.current.some(e=>e.triggerKey === obj.triggerKey)){
+                      comAPIContext.showToast('TriggerKey(' + obj.triggerKey + ')은 이미 존재하는 데이터입니다.', 'dark');
+                      return;
+                  }
                 }
             }
             // 전송 데이터 구성
@@ -173,7 +181,7 @@ const ManageSchedule: React.FC = () => {
             const oldValue = event.oldValue;
             const newValue = event.newValue;
             const uneditableCell = ['jobName', 'groupName', 'triggerKey', 'className']
-            if (uneditableCell.includes(event.colDef.field) && oldValue !== undefined && oldValue !== newValue) {
+            if (!event.data.isCreated &&  uneditableCell.includes(event.colDef.field) && oldValue !== undefined && oldValue !== newValue) {
                 // 편집 취소하고 원래 값으로 되돌리기
                 event.node.setDataValue(event.column, oldValue, false);//suppressEvent: true로 설정하는 방법을 사용하여 이벤트가 재발생하지 않도록 설정
                 event.api.stopEditing(false); // 편집 취소
