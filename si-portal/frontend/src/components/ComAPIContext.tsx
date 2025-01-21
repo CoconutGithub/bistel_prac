@@ -1,7 +1,12 @@
-import React, { createContext, useState, useCallback, ReactNode, useMemo } from "react";
+import React, {createContext, useState, useCallback, ReactNode, useMemo, useEffect} from "react";
+import ReactDOM from "react-dom";
 import ToastContainer from "react-bootstrap/ToastContainer";
 import Toast from "react-bootstrap/Toast";
 import ProgressBar from "react-bootstrap/ProgressBar";
+import { useLocation } from "react-router-dom";
+import axios from "axios";
+import {useSelector} from "react-redux";
+import {RootState} from "~store/Store";
 
 // Toast 타입 정의
 interface ToastType {
@@ -15,6 +20,7 @@ interface ComAPIContextType {
     showToast: (message: string, variant?: "success" | "danger" | "warning" | "info" | "dark") => void;
     showProgressBar: () => void;
     hideProgressBar: () => void;
+    pageAuth: PageAuth | null; // 타입 선언
 }
 
 // 초기 컨텍스트 값 정의
@@ -22,6 +28,7 @@ const defaultContextValue: ComAPIContextType = {
     showToast: () => {},
     showProgressBar: () => {},
     hideProgressBar: () => {},
+    pageAuth: null,
 };
 
 // 컨텍스트 생성
@@ -31,9 +38,80 @@ interface ComAPIProviderProps {
     children: ReactNode;
 }
 
+// 권한 타입 정의
+interface PageAuth {
+    canCreate: boolean;
+    canDelete: boolean;
+    canUpdate: boolean;
+    canRead: boolean;
+}
+
 export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
+    const state = useSelector((state: RootState) => state.auth);
     const [toasts, setToasts] = useState<ToastType[]>([]);
     const [progressBarVisible, setProgressBarVisible] = useState<boolean>(false);
+    const [pageAuth, setPageAuth] = useState<PageAuth | null>(null);
+
+    // 공통 로직: 최초 페이지 마운트 시 실행
+    const location = useLocation();
+
+    useEffect(() => {
+        // 이 함수에 공통 로직 추가
+        const getPageAuth = async() => {
+            console.log("Page mounted:", location.pathname);
+
+            if (location.pathname === '/login' || location.pathname === '/main') {
+                return;
+            }
+
+            //XXX-우선 어찌 쓰는지 보여주기 위해 잠시 멈추게 함.
+            await new Promise((resolve) => setTimeout(resolve, 2000))
+
+            axios
+                .get("http://localhost:8080/page-auth", {
+                 headers: { Authorization: `Bearer ${state.authToken}` },
+                 params: { roleId: state.user.roleId, path: location.pathname },
+                })
+                .then((res) =>{
+                    if (res && res.data.length === 1) {
+
+                        console.log('pageLocation:', location.pathname
+                            , 'canWrite', res.data[0].canWrite
+                            , 'canUpdate', res.data[0].canUpdate
+                            , 'canDelete', res.data[0].canDelete
+                            , 'canRead', res.data[0].canRead
+                        );
+
+                        setPageAuth(
+                            {
+                                'canCreate' : res.data[0].canCreate === 'Y' ? true : false,
+                                'canDelete' : res.data[0].canDelete === 'Y' ? true : false,
+                                'canUpdate' : res.data[0].canUpdate === 'Y' ? true : false,
+                                'canRead' : res.data[0].canRead === 'Y' ? true : false,
+                        });
+                    } else {
+
+                        setPageAuth(
+                            {
+                                'canCreate' : false,
+                                'canDelete' : false,
+                                'canUpdate' : false,
+                                'canRead' : false,
+                            });
+                        debugger
+                    }
+                })
+                .catch((err) =>{
+                    const error = err as Error;
+                    console.error('Error page-auth:', error);
+                })
+
+            showToast(`Welcome to ${location.pathname}`, "info");
+
+        };
+
+        getPageAuth();
+    }, [location]);
 
     // Toast 관리 메서드
     const showToast = useCallback(
@@ -64,16 +142,28 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
             showToast,
             showProgressBar,
             hideProgressBar,
+            pageAuth,
         }),
-        [showToast, showProgressBar, hideProgressBar]
+        [showToast, showProgressBar, hideProgressBar, pageAuth]
     );
 
-    return (
-        <ComAPIContext.Provider value={contextValue}>
-            {children}
+    // Portal을 통한 ToastContainer 렌더링
+    const renderToastContainer = () => {
+        const mainContentRoot = document.getElementById("main-content-root");
+        if (!mainContentRoot) return null;
 
-            {/* Toast UI */}
-            <ToastContainer className="p-3" position="bottom-center" style={{ zIndex: 1 }}>
+        return ReactDOM.createPortal(
+            <ToastContainer
+                className="p-3"
+                position="bottom-center"
+                style={{
+                    zIndex: 1050,
+                    position: "absolute", // Content 영역 내에서의 위치 조정
+                    bottom: 0, // Content 하단에 고정
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                }}
+            >
                 {toasts.map((toast) => (
                     <Toast
                         key={toast.id}
@@ -86,7 +176,17 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
                         <Toast.Body className="text-white">{toast.message}</Toast.Body>
                     </Toast>
                 ))}
-            </ToastContainer>
+            </ToastContainer>,
+            mainContentRoot
+        );
+    };
+
+    return (
+        <ComAPIContext.Provider value={contextValue}>
+            {children}
+
+            {/* Toast Portal */}
+            {renderToastContainer()}
 
             {/* ProgressBar UI */}
             {progressBarVisible && (

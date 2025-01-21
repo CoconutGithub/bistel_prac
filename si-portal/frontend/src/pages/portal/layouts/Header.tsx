@@ -31,7 +31,6 @@ const Header = () => {
             }
           })
           .catch((error) => {
-            debugger
             console.error('Error fetching menus:', error);
           });
     };
