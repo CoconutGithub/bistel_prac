@@ -87,7 +87,7 @@ public class AdminService {
             for (Map<String, Object> job : deleteList) {
                 System.out.println("DELETE JOB: " + job.get("jobName"));
                 if (quartzDynamicConfig.deleteJob((String) job.get("jobName"), (String) job.get("groupName"))) {
-                    adminMapper.deleteSchedule((String) job.get("jobName"), (String) job.get("userId"));
+                    adminMapper.deleteSchedule((String) job.get("jobName"), (String) job.get("groupName"));
                 }
                 else {
                     errorList.add((String) job.get("jobName"));
