@@ -1,5 +1,5 @@
-import React, {useState, useEffect, useContext, useRef} from 'react';
-import { Container, Row, Col, Form, Button } from 'react-bootstrap';
+import React, {useEffect, useContext, useRef} from 'react';
+import { Container, Row, Col, Form } from 'react-bootstrap';
 import AgGridWrapper from '~components/AgGridWrapper';
 import { useSelector  } from 'react-redux';
 import { ComAPIContext } from "~components/ComAPIContext";
@@ -7,14 +7,6 @@ import axios from "axios";
 import {RootState} from "~store/Store";
 import {AgGridWrapperHandle} from "~types/GlobalTypes";
 import ComButton from "~pages/portal/buttons/ComButton";
-
-interface User {
-  userId: string;
-  userName: string;
-  email: string;
-  phoneNumber: string;
-  status: string;
-}
 
 // 컬럼 정의
 const columnDefs = [
@@ -47,17 +39,12 @@ const ManageSchedule: React.FC = () => {
   
     const inputRef = useRef<HTMLInputElement>(null);
     const gridRef = useRef<AgGridWrapperHandle>(null);
-    let scheduleData: any[] = [];
+    let scheduleData = useRef<any[]>([]);
   
-  
-    const [deletedRows, setDeletedRows] = useState([]); // 삭제된 행 관리
-    const [updatedRows, setUpdatedRows] = useState([]); // 수정된 행 관리
   
     useEffect(() => {
     }, []);
-  
-  
-  
+    
     const handleSearch = async() => {
       comAPIContext.showProgressBar();
       await new Promise((resolve) => setTimeout(resolve, 500))
@@ -72,7 +59,8 @@ const ManageSchedule: React.FC = () => {
         console.log('gridRef.current', gridRef.current)
           if (gridRef.current) {
             gridRef.current.setRowData(res.data); // 데이터를 AgGridWrapper에 설정
-            scheduleData = JSON.parse(JSON.stringify(res.data));
+            scheduleData.current = JSON.parse(JSON.stringify(res.data));
+//             console.log('scheduleData.current:', scheduleData.current);
           }
           comAPIContext.hideProgressBar();
           comAPIContext.showToast('조회가 완료됐습니다.','dark');
@@ -100,28 +88,54 @@ const ManageSchedule: React.FC = () => {
             console.log('2.delete 행들:', lists.deleteList);
             console.log('3.create 행들:', lists.createList);
 
-            let realUpdateList : any = []
+            let realUpdateList = []
             if(lists.updateList?.length > 0) {
                 for(const obj of lists.updateList){
-                    const temp : any = scheduleData.find(e=>e.jobName === obj.jobName && e.groupName === obj.groupName && e.triggerKey === obj.triggerKey && e.className === obj.className)
+                    if(obj.cronTab === undefined || obj.cronTab === null || typeof obj.cronTab !== 'string' || obj.cronTab.trim().length == 0 
+                      || obj.status === undefined || obj.status === null || typeof obj.status !== 'string' || obj.status.trim().length == 0){
+                        comAPIContext.showToast('Cron Exp 또는 USE를 입력해주세요.', 'dark');
+                        return;
+                    }
+                    const temp : any = scheduleData.current.find(e=>e.jobName === obj.jobName && e.groupName === obj.groupName && e.triggerKey === obj.triggerKey && e.className === obj.className)
                     // console.log('temp:', temp);
                     // console.log('temp?.cronTab:', temp?.cronTab);
                     // console.log('obj.cronTab:', obj.cronTab);
                     // console.log('temp?.status:', temp?.status);
                     // console.log('obj.status:', obj.status);
 
-                    if(temp != undefined && (temp.cronTab != obj.cronTab || temp.status != obj.status)){
-                        if(temp.cronTab != obj.cronTab){
+                    if(temp !== undefined && (temp.cronTab !== obj.cronTab || temp.status !== obj.status)){
+                        if(temp.cronTab !== obj.cronTab){
                             obj.changeCron = 'Y'
+                        } else {
+                            obj.changeCron = 'N'
                         }
-                        if(temp.status != obj.status){
+                        if(temp.status !== obj.status){
                             obj.changeStatus = 'Y'
+                        } else {
+                            obj.changeStatus = 'N'
                         }
                         realUpdateList.push(obj)
                     }
+                    else{
+                        comAPIContext.showToast('JobName(' + obj.jobName + ')은 변경된 데이터가 없습니다.', 'dark');
+                        return;
+                    }
                 }
             }
-            // console.log('realUpdateList:', realUpdateList);
+            // lists.createList에 인자들이 모두 있는지 확인하고 하나라도 없는 경우 메시지를 띄워주고 return
+            if(lists.createList?.length > 0) {
+                for(const obj of lists.createList){
+                    if(obj.jobName === undefined || obj.jobName === null || typeof obj.jobName !== 'string' || obj.jobName.trim().length == 0 
+                      || obj.groupName === undefined || obj.groupName === null || typeof obj.groupName !== 'string' || obj.groupName.trim().length == 0
+                      || obj.triggerKey === undefined || obj.triggerKey === null || typeof obj.triggerKey !== 'string' || obj.triggerKey.trim().length == 0
+                      || obj.className === undefined || obj.className === null || typeof obj.className !== 'string' || obj.className.trim().length == 0
+                      || obj.cronTab === undefined || obj.cronTab === null || typeof obj.cronTab !== 'string' || obj.cronTab.trim().length == 0
+                      || obj.status === undefined || obj.status === null || typeof obj.status !== 'string' || obj.status.trim().length == 0){
+                        comAPIContext.showToast('모든 항목을 입력해주세요.', 'dark');
+                        return;
+                    }
+                }
+            }
             // 전송 데이터 구성
             const payload = {
                 updateList: realUpdateList,
@@ -131,15 +145,21 @@ const ManageSchedule: React.FC = () => {
             };
             console.log('realUpdateList:', realUpdateList);
             
-            await axios.post('http://localhost:8080/admin/api/update-schedule', payload, {
+            const response = await axios.post('http://localhost:8080/admin/api/update-schedule', payload, {
                 headers: { Authorization: `Bearer ${state.authToken}` },
             });
-        
-            comAPIContext.showToast('저장되었습니다.', 'success');
+            console.log('response:', response);
+            
+            if(response.data.messageCode === 'success'){
+              comAPIContext.showToast(response.data.message, 'success');
+            }else{
+              comAPIContext.showToast(response.data.message + ' (' + response.data.errorList.join() + ')', 'danger');
+            }
+            
             handleSearch(); // 저장 후 최신 데이터 조회
         } catch (err) {
             console.error('Error saving data:', err);
-            comAPIContext.showToast('저장 중 오류가 발생했습니다.', 'danger');
+            comAPIContext.showToast('저장 중 오류가 발생했습니다dsafdsfsda.', 'danger');
             handleSearch();
         } finally {
             comAPIContext.hideProgressBar();
