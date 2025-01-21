@@ -5,7 +5,9 @@
         UPDATE P_SCHEDULER
         SET
             CRON_TAB = #{cronTab},
-            STATUS = #{status}
+            STATUS = #{status},
+            UPDATE_DATE = NOW(),
+            UPDATE_BY = #{userId}
         WHERE JOB_NAME = #{jobName}
             AND GROUP_NAME = #{groupName}
             AND TRIGGER_KEY = #{triggerKey}
