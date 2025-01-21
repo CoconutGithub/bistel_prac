@@ -26,13 +26,18 @@ public class QuartzDynamicConfig {
 
         for(SchedulDTO dto : scheduleList) {
             try {
-                addJob(dto.getClassName(), dto.getJobName(), dto.getGroupName(), dto.getTriggerKey(), dto.getCronTab());
+                if(addJob(dto.getClassName(), dto.getJobName(), dto.getGroupName(), dto.getTriggerKey(), dto.getCronTab()))
+                    System.out.println("check job working(" + dto.getJobName() + ")(" + dto.getGroupName() + ") ===> success!!!");
+                else
+                    System.out.println("check job working(" + dto.getJobName() + ")(" + dto.getGroupName() + ") ===> fail!!!");
             } catch (ClassNotFoundException e) {
+                System.out.println("check job working(" + dto.getJobName() + ")(" + dto.getGroupName() + ") ===> fail!!!");
             }
         }
     }
 
-    public void addJob(String className, String jobName, String groupName, String triggerKey, String cronTab) throws Exception {
+    public boolean addJob(String className, String jobName, String groupName, String triggerKey, String cronTab) throws Exception {
+        boolean ret = false;
         Class<?> jobClass = null;
         try {
             jobClass = Class.forName(className);
@@ -57,6 +62,24 @@ public class QuartzDynamicConfig {
         // Scheduler에 작업과 트리거를 등록
         scheduler.scheduleJob(jobDetail, trigger);
         System.out.println("regist job and trigger(" + jobName + ")(" + groupName + ")("+ triggerKey + ")(" + cronTab + ")");
+
+        if (checkJobExist(jobName, groupName)) {
+            System.out.println("check job create(" + jobName + ")(" + groupName + ") ===> completed");
+            ret = true;
+        } else {
+            System.out.println("check job create(" + jobName + ")(" + groupName + ") ===> not completed");
+        }
+        return ret;
+    }
+
+    boolean checkJobExist(String jobName, String groupName) throws Exception{
+        boolean ret = false;
+        boolean jobExists = scheduler.checkExists(new JobKey(jobName, groupName));
+
+        if (jobExists) {
+            ret = true;
+        }
+        return ret;
     }
 
     public boolean deleteJob(String jobName, String groupName) throws Exception {
@@ -64,9 +87,7 @@ public class QuartzDynamicConfig {
         scheduler.deleteJob(new JobKey(jobName, groupName));
         System.out.println("delete job(" + jobName + ")(" + groupName + ")");
 
-        boolean jobExists = scheduler.checkExists(new JobKey(jobName, groupName));
-
-        if (!jobExists) {
+        if (!checkJobExist(jobName, groupName)) {
             System.out.println("check job delete(" + jobName + ")(" + groupName + ") ===> completed");
             ret = true;
         } else {
@@ -75,11 +96,22 @@ public class QuartzDynamicConfig {
         return ret;
     }
 
-    public void updateJobTrigger(String triggerKey, String cronTab) throws Exception {
-        Trigger newTrigger = TriggerBuilder.newTrigger().
-                withIdentity(new TriggerKey(triggerKey)).
-                withSchedule(CronScheduleBuilder.cronSchedule(cronTab)).build();
-        scheduler.rescheduleJob(new TriggerKey(triggerKey), newTrigger);
+    public boolean updateJobTrigger(String jobName, String groupName, String triggerKey, String cronTab) throws Exception {
+        boolean ret = false;
+        try {
+            Trigger newTrigger = TriggerBuilder.newTrigger().
+                    withIdentity(new TriggerKey(triggerKey)).
+                    withSchedule(CronScheduleBuilder.cronSchedule(cronTab)).build();
+            scheduler.rescheduleJob(new TriggerKey(triggerKey), newTrigger);
+            if (checkJobExist(jobName, groupName)) {
+                System.out.println("check job update(" + jobName + ")(" + groupName + ") ===> completed");
+                ret = true;
+            } else {
+                System.out.println("check job update(" + jobName + ")(" + groupName + ") ===> not completed because job not exist");
+            }
+        } catch (Exception e) {
+            System.out.println("update job trigger(" + triggerKey + ")(" + cronTab + ") ===> fail!!!");
+        }
+        return ret;
     }
-
 }

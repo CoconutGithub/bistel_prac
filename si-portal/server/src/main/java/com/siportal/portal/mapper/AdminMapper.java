@@ -41,4 +41,6 @@ public interface AdminMapper {
     int deleteSchedule(@Param("jobName") String jobName, @Param("groupName") String groupName);
     int createSchedule(@Param("jobName") String jobName, @Param("groupName") String groupName, @Param("triggerKey") String triggerKey
             , @Param("className") String className, @Param("cronTab") String cronTab, @Param("status") String status, @Param("userId") String createBy);
+    int updateSchedule(@Param("jobName") String jobName, @Param("groupName") String groupName, @Param("triggerKey") String triggerKey
+            , @Param("className") String className, @Param("cronTab") String cronTab, @Param("status") String status, @Param("userId") String createBy);
 }

@@ -18,6 +18,7 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,44 +79,98 @@ public class AdminService {
             List<Map<String, Object>> updateList = (List<Map<String, Object>>) requestData.get("updateList");
             List<Map<String, Object>> deleteList = (List<Map<String, Object>>) requestData.get("deleteList");
             List<Map<String, Object>> createList = (List<Map<String, Object>>) requestData.get("createList");
+            String userId = (String) requestData.get("userId");
 
-            int updatedCount = 0; // 업데이트된 행 갯수
-            int deletedCount = 0; // 삭제된 행 갯수
-            int createdCount = 0; // 추가된 행 갯수
+            ArrayList<String> errorList = new ArrayList<String>();
 
             // Delete 처리
             for (Map<String, Object> job : deleteList) {
                 System.out.println("DELETE JOB: " + job.get("jobName"));
                 if (quartzDynamicConfig.deleteJob((String) job.get("jobName"), (String) job.get("groupName"))) {
-                    deletedCount += adminMapper.deleteSchedule((String) job.get("jobName"), (String) job.get("userId"));
+                    adminMapper.deleteSchedule((String) job.get("jobName"), (String) job.get("userId"));
+                }
+                else {
+                    errorList.add((String) job.get("jobName"));
                 }
             }
 
             // Create 처리
             for (Map<String, Object> job : createList) {
                 System.out.println("CREATE JOB: " + job.get("jobName"));
-
-                createdCount += adminMapper.createSchedule((String) job.get("jobName"), (String) job.get("groupName"), (String) job.get("triggerKey")
-                                                            , (String) job.get("className"), (String) job.get("cronTab"), (String) job.get("status")
-                                                            , (String) job.get("userId") );
+                try {
+                    if (quartzDynamicConfig.addJob((String) job.get("className"), (String) job.get("jobName"), (String) job.get("groupName"), (String) job.get("triggerKey"), (String) job.get("cronTab"))) {
+                        adminMapper.createSchedule((String) job.get("jobName"), (String) job.get("groupName"), (String) job.get("triggerKey")
+                                , (String) job.get("className"), (String) job.get("cronTab"), (String) job.get("status")
+                                , userId);
+                    }
+                    else {
+                        errorList.add((String) job.get("jobName"));
+                    }
+                } catch (Exception e) {
+                    errorList.add((String) job.get("jobName"));
+                }
             }
 
             // Update 처리
-//            for (Map<String, Object> job : updateList) {
-//                System.out.println( user);
-//
-//                adminMapper.updateUser(user);
-//                updatedCount += adminMapper.updateUserRole(user);
-//            }
+            for (Map<String, Object> job : updateList) {
+                System.out.println("UPDATE JOB: " + job.get("jobName"));
+                System.out.println("changeCron: " + job.get("changeCron"));
+                System.out.println("changeStatus: " + job.get("changeStatus"));
+
+                if("N".equals((String)job.get("changeStatus")) && "ACTIVE".equals((String) job.get("status"))) {
+                    try {
+                        if (quartzDynamicConfig.updateJobTrigger((String) job.get("jobName"), (String) job.get("groupName"), (String) job.get("triggerKey"), (String) job.get("cronTab"))) {
+                            adminMapper.updateSchedule((String) job.get("jobName"), (String) job.get("groupName"), (String) job.get("triggerKey")
+                                    , (String) job.get("className"), (String) job.get("cronTab"), (String) job.get("status")
+                                    , userId);
+                        }
+                        else {
+                            errorList.add((String) job.get("jobName"));
+                        }
+                    } catch (Exception e) {
+                        errorList.add((String) job.get("jobName"));
+                    }
+                } else if ("Y".equals((String)job.get("changeStatus")) && "ACTIVE".equals((String) job.get("status"))){
+                    try {
+                        if (quartzDynamicConfig.addJob((String) job.get("className"), (String) job.get("jobName"), (String) job.get("groupName"), (String) job.get("triggerKey"), (String) job.get("cronTab"))) {
+                            adminMapper.updateSchedule((String) job.get("jobName"), (String) job.get("groupName"), (String) job.get("triggerKey")
+                                    , (String) job.get("className"), (String) job.get("cronTab"), (String) job.get("status")
+                                    , userId);
+                        }
+                        else {
+                            errorList.add((String) job.get("jobName"));
+                        }
+                    } catch (Exception e) {
+                        errorList.add((String) job.get("jobName"));
+                    }
+                } else if ("Y".equals((String)job.get("changeStatus")) && "INACTIVE".equals((String) job.get("status"))){
+                    if (quartzDynamicConfig.deleteJob((String) job.get("jobName"), (String) job.get("groupName"))) {
+                        adminMapper.updateSchedule((String) job.get("jobName"), (String) job.get("groupName"), (String) job.get("triggerKey")
+                                , (String) job.get("className"), (String) job.get("cronTab"), (String) job.get("status")
+                                , userId);
+                    }
+                    else {
+                        errorList.add((String) job.get("jobName"));
+                    }
+                } else {
+                    adminMapper.updateSchedule((String) job.get("jobName"), (String) job.get("groupName"), (String) job.get("triggerKey")
+                            , (String) job.get("className"), (String) job.get("cronTab"), (String) job.get("status")
+                            , userId);
+                }
+            }
 
             Map<String, Object> response = new HashMap<>();
-            response.put("messageCode", "success");
-            response.put("message", "모든 작업이 성공적으로 처리되었습니다.");
-            response.put("updatedCnt", updatedCount);
-            response.put("deletedCnt", deletedCount);
-            response.put("createdCnt", createdCount);
+            if(!errorList.isEmpty()) {
+                response.put("messageCode", "error");
+                response.put("message", "작업 중 오류가 발생한 스케줄이 있습니다.");
+                response.put("errorList", errorList);
+            }
+            else {
+                response.put("messageCode", "success");
+                response.put("message", "모든 작업이 성공적으로 처리되었습니다.");
+            }
 
-            return ResponseEntity.ok(null);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
