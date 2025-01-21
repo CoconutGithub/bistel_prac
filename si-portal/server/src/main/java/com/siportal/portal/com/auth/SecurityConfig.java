@@ -28,7 +28,7 @@ public class SecurityConfig {
         return http.csrf(csrf -> csrf.disable()) // CSRF 비활성화
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/api/update-settings").permitAll() // 인증 없이 허용
+                        .requestMatchers("/login").permitAll() // 인증 없이 허용
                         .anyRequest().authenticated()
                 )
                 .addFilter(new LoginFilter(authenticationManager, portalMapper, title))

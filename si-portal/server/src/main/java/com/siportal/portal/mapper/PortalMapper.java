@@ -15,7 +15,7 @@ import java.util.Map;
 public interface PortalMapper {
     User getUserByUserId(@Param("userId") String userPassword, @Param("password") String password);
     List<ComResultMap> getUserByUserName(@Param("userName") String userName);
-    List<PMenuDTO> getMenuTreeList();
+    List<PMenuDTO> getMenuTreeList(@Param("roleId") String roleId);
 
     void updateUserSettings(@Param("userId") String userId,
                             @Param("footerYn") String footerYn,
