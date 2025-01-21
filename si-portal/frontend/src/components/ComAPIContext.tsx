@@ -56,67 +56,66 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
     // 공통 로직: 최초 페이지 마운트 시 실행
     const location = useLocation();
 
-    useEffect(() => {
-        // 이 함수에 공통 로직 추가
-        const getPageAuth = async() => {
-            console.log("Page mounted:", location.pathname);
-
-            if (location.pathname === '/login' || location.pathname === '/main'
-                || location.pathname === '/main'
-                || location.pathname === '/quick-start'
-            ) {
-                alert("dddddddddddd-->"+ location.pathname);
-                return;
-            }
-
-            //XXX-우선 어찌 쓰는지 보여주기 위해 잠시 멈추게 함.
-            // await new Promise((resolve) => setTimeout(resolve, 2000))
-
-            axios
-                .get("http://localhost:8080/page-auth", {
-                 headers: { Authorization: `Bearer ${state.authToken}` },
-                 params: { roleId: state.user.roleId, path: location.pathname },
-                })
-                .then((res) =>{
-                    if (res && res.data.length === 1) {
-
-                        console.log('pageLocation:', location.pathname
-                            , 'canWrite', res.data[0].canWrite
-                            , 'canUpdate', res.data[0].canUpdate
-                            , 'canDelete', res.data[0].canDelete
-                            , 'canRead', res.data[0].canRead
-                        );
-
-                        setPageAuth(
-                            {
-                                'canCreate' : res.data[0].canCreate === 'Y' ? true : false,
-                                'canDelete' : res.data[0].canDelete === 'Y' ? true : false,
-                                'canUpdate' : res.data[0].canUpdate === 'Y' ? true : false,
-                                'canRead' : res.data[0].canRead === 'Y' ? true : false,
-                        });
-                    } else {
-
-                        setPageAuth(
-                            {
-                                'canCreate' : false,
-                                'canDelete' : false,
-                                'canUpdate' : false,
-                                'canRead' : false,
-                            });
-                        navigate('/main');
-                    }
-                })
-                .catch((err) =>{
-                    const error = err as Error;
-                    console.error('Error page-auth:', error);
-                })
-
-            // showToast(`Welcome to ${location.pathname}`, "info");
-
-        };
-
-        getPageAuth();
-    }, [location]);
+    // useEffect(() => {
+    //     // 이 함수에 공통 로직 추가
+    //     const getPageAuth = async() => {
+    //         console.log("Page mounted:", location.pathname);
+    //
+    //         // if (location.pathname === '/login' || location.pathname === '/main'
+    //         //     || location.pathname === '/main'
+    //         //     || location.pathname === '/quick-start'
+    //         // ) {
+    //         //     return;
+    //         // }
+    //
+    //         //XXX-우선 어찌 쓰는지 보여주기 위해 잠시 멈추게 함.
+    //         // await new Promise((resolve) => setTimeout(resolve, 2000))
+    //
+    //         axios
+    //             .get("http://localhost:8080/page-auth", {
+    //              headers: { Authorization: `Bearer ${state.authToken}` },
+    //              params: { roleId: state.user.roleId, path: location.pathname },
+    //             })
+    //             .then((res) =>{
+    //                 if (res && res.data.length === 1) {
+    //
+    //                     console.log('pageLocation:', location.pathname
+    //                         , 'canWrite', res.data[0].canWrite
+    //                         , 'canUpdate', res.data[0].canUpdate
+    //                         , 'canDelete', res.data[0].canDelete
+    //                         , 'canRead', res.data[0].canRead
+    //                     );
+    //
+    //                     setPageAuth(
+    //                         {
+    //                             'canCreate' : res.data[0].canCreate === 'Y' ? true : false,
+    //                             'canDelete' : res.data[0].canDelete === 'Y' ? true : false,
+    //                             'canUpdate' : res.data[0].canUpdate === 'Y' ? true : false,
+    //                             'canRead' : res.data[0].canRead === 'Y' ? true : false,
+    //                     });
+    //                 } else {
+    //
+    //                     setPageAuth(
+    //                         {
+    //                             'canCreate' : false,
+    //                             'canDelete' : false,
+    //                             'canUpdate' : false,
+    //                             'canRead' : false,
+    //                         });
+    //                     navigate('/main');
+    //                 }
+    //             })
+    //             .catch((err) =>{
+    //                 const error = err as Error;
+    //                 console.error('Error page-auth:', error);
+    //             })
+    //
+    //         // showToast(`Welcome to ${location.pathname}`, "info");
+    //
+    //     };
+    //
+    //     getPageAuth();
+    // }, [location]);
 
     // Toast 관리 메서드
     const showToast = useCallback(
