@@ -32,9 +32,6 @@ const Settings: React.FC = () => {
 
     const handleSave = () => {
         try {
-            debugger
-            console.log(headerColor);
-
             comAPIContext.showProgressBar();
             axios.post('http://localhost:8080/api/update-settings',
                 {

@@ -8,6 +8,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -15,10 +16,26 @@ import java.util.*;
 @RestController
 @CrossOrigin(origins = "http://localhost:9090")
 @RequestMapping("/") // API 기본 경로
+@Transactional
 public class PortalService {
 
     @Autowired
     private PortalMapper portalMapper;
+
+
+    @GetMapping("/page-auth")
+    public ResponseEntity<?> getPageAuth(@RequestParam String roleId, @RequestParam String path) {
+
+        try {
+            List<ComResultMap> result = portalMapper.getPageAuth(roleId, path);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
+
+
 
     @GetMapping("/api/get-user")
     public ResponseEntity<?> getUser(@RequestParam String userName) {
@@ -96,6 +113,9 @@ public class PortalService {
                     .body("Error retrieving settings: " + e.getMessage());
         }
     }
+
+
+
 
     @GetMapping("/menu")
     public Map<String, Object> getMenuTreeList(@RequestParam String roleId) {
