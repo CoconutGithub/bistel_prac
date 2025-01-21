@@ -17,11 +17,11 @@ const Header = () => {
   const title = useSelector((state: RootState) => state.auth.title);
 
   useEffect(() => {
-    const fetchMenuData = async () => {
-      try {
-        await axios
+    const fetchMenuData = () => {
+      axios
           .get('http://localhost:8080/menu', {
             headers: { Authorization: `Bearer ${state.authToken}` },
+            params: { roleId: state.user.roleId },
           })
           .then((res) => {
             if (res.data) {
@@ -29,14 +29,17 @@ const Header = () => {
               console.log('fetchMenuData/routeInfo: ', res.data.routeInfo);
               setMenuItems(res.data.menuInfo);
             }
+          })
+          .catch((error) => {
+            debugger
+            console.error('Error fetching menus:', error);
           });
-      } catch (error) {
-        console.error('Error fetching menus:', error);
-      }
     };
 
     fetchMenuData();
   }, []);
+
+
 
   const handleLogout = () => {
     console.log("Logging out...");
@@ -53,20 +56,20 @@ const Header = () => {
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
               {menuItems.map((item) => (
-                <NavMenuItem key={item.menuId} item={item} depth={1} />
+                  <NavMenuItem key={item.menuId} item={item} depth={1} />
               ))}
             </Nav>
             <Nav style={{flex: '0 0 10%'}} className="ms-auto">
               { state.user!.roleName === 'ADMIN' &&
-                (
-                  <NavDropdown title="Admin" id="basic-nav-dropdown" menuVariant="dark">
-                    <NavDropdown.Item as={Link} to="/main/manage-menu">메뉴 관리</NavDropdown.Item>
-                    <NavDropdown.Item as={Link} to="/main/manage-role">권한 관리</NavDropdown.Item>
-                    <NavDropdown.Item as={Link} to="/main/manage-user">사용자 관리</NavDropdown.Item>
-                    <NavDropdown.Item as={Link} to="/main/manage-email">이메일 관리</NavDropdown.Item>
-                    <NavDropdown.Item as={Link} to="/main/manage-schedule">스케줄 관리</NavDropdown.Item>
-                  </NavDropdown>
-                )
+                  (
+                      <NavDropdown title="Admin" id="basic-nav-dropdown" menuVariant="dark">
+                        <NavDropdown.Item as={Link} to="/main/manage-menu">메뉴 관리</NavDropdown.Item>
+                        <NavDropdown.Item as={Link} to="/main/manage-role">권한 관리</NavDropdown.Item>
+                        <NavDropdown.Item as={Link} to="/main/manage-user">사용자 관리</NavDropdown.Item>
+                        <NavDropdown.Item as={Link} to="/main/manage-email">이메일 관리</NavDropdown.Item>
+                        <NavDropdown.Item as={Link} to="/main/manage-schedule">스케줄 관리</NavDropdown.Item>
+                      </NavDropdown>
+                  )
               }
             </Nav>
           </Navbar.Collapse>
