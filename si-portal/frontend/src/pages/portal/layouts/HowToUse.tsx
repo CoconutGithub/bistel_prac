@@ -119,6 +119,10 @@ const HowToUse: React.FC = () => {
                     <ExamButton />
                 </Col>
                 <Col>
+                    <h1>Admin 개념</h1>
+                    <p>시스템의 모든 권한을 가진사람. 모든 메뉴 다 보임. 모든 버튼 다 사용 가능</p>
+                    <p>P_ROLE 에 ROLE_NAME 이 'ADMIN 인게 사람이 ADMIN 이 아니고'</p>
+                    <p>P_ROLE 에 IS_MIGHTY 컬럼 값이 Y 가 ADMIN 이다.'</p>
                 </Col>
             </Row>
         </Container>
