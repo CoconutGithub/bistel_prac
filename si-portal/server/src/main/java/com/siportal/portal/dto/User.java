@@ -13,6 +13,7 @@ public class User {
     private String phoneNumber;
     private String roleId;
     private String roleName;
+    private String isMighty;
 
     private String footerYN;
     private String headerColor;
