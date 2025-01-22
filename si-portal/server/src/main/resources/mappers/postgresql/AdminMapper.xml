@@ -104,7 +104,20 @@
         WHERE USER_ID = #{userId}
     </update>
 
+    <select id="existUser" parameterType="String" resultType="int">
+        SELECT COUNT(*)
+        FROM P_USER
+        WHERE USER_ID = #{userId}
+    </select>
 
+    <insert id="registerUser">
+        INSERT INTO P_USER (USER_ID, USER_NAME, PASSWORD, EMAIL,PHONE_NUMBER, STATUS)
+        VALUES (#{userId}, #{userName}, #{password}, #{email},#{phoneNumber}, #{status})
+    </insert>
+    <insert id="registerUserRole">
+        INSERT INTO P_USER_ROLE (USER_ID, ROLE_ID)
+        VALUES (#{userId}, #{roleId})
+    </insert>
 
     <update id="deleteUserInfo">
         DO $$

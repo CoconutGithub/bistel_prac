@@ -238,6 +238,70 @@ public class AdminService {
         }
     }
 
+    @PostMapping("/api/exist-user")
+    public ResponseEntity<?> existUser(@RequestBody Map<String, Object> requestData) {
+
+        try {
+            String userId = (String) requestData.get("userId");
+            int dataCount = adminMapper.existUser(userId);
+
+            Map<String, Object> response = new HashMap<>();
+
+            if (dataCount == 0) {
+                response.put("success", true);
+                response.put("message", "User ID is available for creation.");
+            } else {
+                response.put("success", false);
+                response.put("message", "User ID is not available for creation.");
+            }
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/api/register-user")
+    public ResponseEntity<?> registerUser(@RequestBody Map<String, Object> requestData) {
+
+        try {
+            Map<String, Object> user = new HashMap<>();
+
+            String userId = (String) requestData.get("userId");
+            String userName = (String) requestData.get("userName");
+            String phoneNumber = (String) requestData.get("phoneNumber");
+            String status = (String) requestData.get("status");
+            String password = (String) requestData.get("password");
+            String email = (String) requestData.get("email");
+            user.put("userId", userId);
+            user.put("userName", userName);
+            user.put("phoneNumber", phoneNumber);
+            user.put("status", status);
+            user.put("password", password);
+            user.put("email", email);
+            adminMapper.registerUser(user);
+
+            Map<String, Object> userRoleObject = new HashMap<>();
+            Integer userRole = (Integer) requestData.get("userRole");
+            userRoleObject.put("userId", userId);
+            userRoleObject.put("roleId", userRole);
+            adminMapper.registerUserRole(userRoleObject);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "User has been successfully registered.");
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
+
+
     @GetMapping("/api/get-email-history")
     public ResponseEntity<?> getEmailHistory(@RequestParam String sendUser) {
 
