@@ -25,14 +25,11 @@ public interface AdminMapper {
     List<ComResultMap> getAllRoles(@Param("roleName") String roleName);
     List<ComResultMap> getRoleList();
 
-    int updatePermission(Map<String, Object> permission);
-    int deletePermission(@Param("permissionId") Integer permissionId);
+    int insertRole(Map<String, Object> role); // 수정: ComResultMap 대신 Map<String, Object> 사용
 
-    void updateRole(ComResultMap role);
+    int updateRole(Map<String, Object> role);
 
-    void insertRole(ComResultMap role);
-
-    void deleteRole(@Param("roleId") String roleId);
+    int deleteRoles(@Param("list") List<Integer> roleIds);
 
     void deleteUserInfo(@Param("userId") String userId);
 

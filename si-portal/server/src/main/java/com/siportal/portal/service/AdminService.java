@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:9090")
@@ -237,41 +238,6 @@ public class AdminService {
         }
     }
 
-    @PostMapping("/api/update-permission")
-    public ResponseEntity<?> updateUserRole(@RequestBody Map<String, Object> requestData) {
-
-        try {
-            // 데이터 파싱
-            List<Map<String, Object>> updateList = (List<Map<String, Object>>) requestData.get("updateList");
-            List<Map<String, Object>> deleteList = (List<Map<String, Object>>) requestData.get("deleteList");
-
-            int updatedCount = 0; // 업데이트된 행 갯수
-            int deletedCount = 0; // 삭제된 행 갯수
-
-            // Update 처리
-            for (Map<String, Object> permission : updateList) {
-                adminMapper.updatePermission(permission);
-            }
-
-            // Delete 처리
-            for (Map<String, Object> permissionId : deleteList) {
-                adminMapper.deletePermission((Integer)permissionId.get("permissionId"));
-            }
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("messageCode", "success");
-            response.put("message", "모든 작업이 성공적으로 처리되었습니다.");
-//            response.put("updatedUsersCnt", updatedCount);
-//            response.put("deletedUsersCnt", deletedCount);
-
-            return ResponseEntity.ok(null);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
-                    .body("Error occurred: " + e.getMessage());
-        }
-    }
-
     @GetMapping("/api/get-email-history")
     public ResponseEntity<?> getEmailHistory(@RequestParam String sendUser) {
 
@@ -322,15 +288,15 @@ public class AdminService {
         }
     }
 
-    @PostMapping("/api/save-role")
-    public ResponseEntity<?> saveRole(@RequestBody Map<String, String> roleData) {
-        String roleName = roleData.get("roleName");
-        String status = roleData.get("status");
-        String userName = roleData.get("userName");
-
-        saveRoleList(roleName, status, userName);
-        return ResponseEntity.ok("Email sent successfully.");
-    }
+//    @PostMapping("/api/save-role")
+//    public ResponseEntity<?> saveRole(@RequestBody Map<String, String> roleData) {
+//        String roleName = roleData.get("roleName");
+//        String status = roleData.get("status");
+//        String userName = roleData.get("userName");
+//
+//        saveRoleList(roleName, status, userName);
+//        return ResponseEntity.ok("Email sent successfully.");
+//    }
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -374,36 +340,95 @@ public class AdminService {
     }
 
     @PostMapping("/api/save-roles")
-    public ResponseEntity<?> saveRoles(@RequestBody List<ComResultMap> roles) {
-
+    public ResponseEntity<?> saveRoles(@RequestBody Map<String, Object> payload) {
         try {
-            for (ComResultMap role : roles) {
+            log.info("Payload: {}", payload);
 
-                if (role.get("roleId") != null) {
-                    adminMapper.updateRole(role); // 역할 업데이트
-                } else {
-                    adminMapper.insertRole(role); // 역할 삽입
+            int updatedCount = 0; // 업데이트된 행 갯수
+            int insertedCount = 0; // 삽입된 행 갯수
+            int deletedCount = 0; // 삭제된 행 갯수
+
+            // 1. 삭제 처리
+            List<?> deleteListObj  = (List<?>) payload.get("deleteList");
+
+            if (deleteListObj != null && !deleteListObj.isEmpty()) {
+                List<Integer> roleIds = deleteListObj.stream()
+                        .filter(obj -> obj instanceof Number)
+                        .map(obj -> ((Number) obj).intValue())
+                        .collect(Collectors.toList());
+                log.info("Role IDs to delete: {}", roleIds);
+                deletedCount = adminMapper.deleteRoles(roleIds); // 다중 삭제
+                log.info("Deleted rows count: {}", deletedCount);
+            }
+
+            // 2. 업데이트 및 삽입 처리
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> updateList = (List<Map<String, Object>>) payload.get("updateList");
+            if (updateList != null && !updateList.isEmpty()) {
+                for (Map<String, Object> item : updateList) {
+                    Object roleIdObj = item.get("roleId");
+                    Integer roleId = null;
+                    if (roleIdObj != null) {
+                        if (roleIdObj instanceof Number) {
+                            roleId = ((Number) roleIdObj).intValue();
+                        } else if (roleIdObj instanceof String) {
+                            try {
+                                roleId = Integer.parseInt((String) roleIdObj);
+                            } catch (NumberFormatException e) {
+                                roleId = null;
+                            }
+                        }
+                    }
+                    String roleName = item.get("roleName").toString();
+                    String status = item.get("status").toString();
+
+                    if (roleId != null) {
+                        // 기존 역할 업데이트
+                        Map<String, Object> roleMap = new HashMap<>();
+                        roleMap.put("roleId", roleId);
+                        roleMap.put("roleName", roleName);
+                        roleMap.put("status", status);
+
+                        int updated = adminMapper.updateRole(roleMap);
+                        if (updated > 0) {
+                            updatedCount += updated;
+                            log.info("Successfully updated role with ID: {}", roleId);
+                        } else {
+                            // 업데이트 실패 시 처리 (옵션)
+                            log.warn("Failed to update role with ID: " + roleId);
+                        }
+                    } else {
+                        // 새 역할 삽입
+                        Map<String, Object> roleMap = new HashMap<>();
+                        roleMap.put("roleName", roleName);
+                        roleMap.put("status", status);
+
+                        int inserted = adminMapper.insertRole(roleMap);
+                        if (inserted > 0) {
+                            insertedCount += inserted;
+                            log.info("Successfully inserted new role: {}", roleName);
+                        } else {
+                            log.warn("Failed to insert new role: {}", roleName);
+                        }
+                    }
                 }
             }
-            return ResponseEntity.ok("Roles saved successfully");
+
+            // 3. 응답 데이터 생성
+            Map<String, Object> response = new HashMap<>();
+            response.put("messageCode", "success");
+            response.put("message", "모든 작업이 성공적으로 처리되었습니다.");
+            response.put("updatedUsersCnt", updatedCount);
+            response.put("insertedUsersCnt", insertedCount);
+            response.put("deletedUsersCnt", deletedCount);
+
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
-                    .body("Error occurred: " + e.getMessage());
+                    .body("Error occurred while saving roles: " + e.getMessage());
         }
     }
 
-    @DeleteMapping("/api/delete-roles")
-    public ResponseEntity<?> deleteRoles(@RequestBody List<String> roleIds) {
-
-        try {
-            for (String roleId : roleIds) {
-                adminMapper.deleteRole(roleId);
-            }
-            return ResponseEntity.ok("Roles deleted successfully");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
-                    .body("Error occurred: " + e.getMessage());
-        }
-    }
 
 }
