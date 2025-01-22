@@ -145,7 +145,7 @@ const ManageUser: React.FC = () => {
             return col; // 반드시 반환
           });
 
-          console.log("DBSearch Role 기준정보: ", res.data);
+          // console.log("DBSearch Role 기준정보: ", res.data);
           roleKind = res.data;
           setDynamicColumnDefs(updatedColumnDefs); // 상태 업데이트
         }
@@ -162,11 +162,9 @@ const ManageUser: React.FC = () => {
     };
 
     getRoleList();
-    console.log("getRoleList 리렌더링");
   }, []);
 
   const handleSearch = () => {
-    console.log("handleSearch 리렌더링");
     comAPIContext.showProgressBar();
     axios
       .get("http://localhost:8080/admin/api/get-user", {
@@ -192,13 +190,10 @@ const ManageUser: React.FC = () => {
   const openPopup = useCallback(() => {
     if (userRegisterRef.current) {
       userRegisterRef.current.openModalPopup();
-
-      console.log("openPopup 리렌더링");
     }
   }, []);
 
   const refreshData = useCallback(() => {
-    console.log("refreshData 리렌더링");
     if (userRegisterRef.current) {
       handleSearch();
     }
@@ -206,8 +201,7 @@ const ManageUser: React.FC = () => {
 
   const handleSave = useCallback(
     async (lists: { deleteList: any[]; updateList: any[] }) => {
-      console.log("--------->", roleKind);
-      console.log("handleSave 리렌더링");
+      // console.log("--------->", roleKind);
 
       if (!gridRef.current) return;
 
@@ -218,8 +212,8 @@ const ManageUser: React.FC = () => {
 
       try {
         comAPIContext.showProgressBar();
-        console.log("1.update 행들:", lists);
-        console.log("2.delete 행들:", lists);
+        // console.log("1.update 행들:", lists);
+        // console.log("2.delete 행들:", lists);
 
         if (lists.updateList.length !== 0) {
           if (roleKind !== null) {
@@ -260,7 +254,6 @@ const ManageUser: React.FC = () => {
   );
 
   const registerButton = useMemo(() => {
-    console.log("registerButton 리렌더링");
     return (
       <>
         <ComButton
@@ -274,13 +267,6 @@ const ManageUser: React.FC = () => {
       </>
     );
   }, []);
-
-  // useEffect(() => {
-  //   if (isRegistered) {
-  //     handleSearch();
-  //     setIsRegistered(false);
-  //   }
-  // }, [isRegistered]);
 
   return (
     <Container fluid>
@@ -325,7 +311,7 @@ const ManageUser: React.FC = () => {
           </AgGridWrapper>
         </Col>
       </Row>
-      {/* <UserRegistPopup onResearchUser={refreshData} ref={userRegisterRef} />) */}
+      <UserRegistPopup onResearchUser={refreshData} ref={userRegisterRef} />
     </Container>
   );
 };
