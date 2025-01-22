@@ -196,6 +196,30 @@
         </foreach>
     </delete>
 
+    <select id="getMenuIdSeq">
+        SELECT NEXTVAL('SEQ_P_MENU') AS MENU_ID
+    </select>
 
+    <insert id="insertMenu" parameterType="map">
+        INSERT INTO dev.p_menu
+        (menu_id, menu_name, parent_menu_id, "depth", "path", "position", child_yn, status, create_date)
+        VALUES
+            (#{menuId}, #{menuName}, #{parentMenuId}, #{depth}, #{path}, #{position}, #{childYn}, #{status}, CURRENT_TIMESTAMP);
+    </insert>
+
+    <delete id="deleteMenu" parameterType="map">
+        DELETE FROM P_MENU WHERE MENU_ID = #{menuId} or PARENT_MENU_ID = #{menuId};
+    </delete>
+
+    <update id="updateMenuContent" parameterType="map">
+        UPDATE p_menu SET
+                          MENU_NAME = #{menuName},
+                          PATH = #{path},
+                          POSITION = #{position},
+                          STATUS = #{status},
+                          UPDATE_DATE = CURRENT_TIMESTAMP,
+                          UPDATE_BY = #{userId}
+        WHERE MENU_ID = #{menuId}
+    </update>
 
 </mapper>

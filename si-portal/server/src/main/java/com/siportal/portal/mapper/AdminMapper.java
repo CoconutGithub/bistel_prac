@@ -16,6 +16,12 @@ public interface AdminMapper {
     List<ComResultMap> getUserByUserName(@Param("userName") String userName);
     List<ComResultMap> getEmailHistory(@Param("sendUser") String sendUser);
 
+    List<Map<String, Object>> getMenuIdSeq();
+    void insertMenu(Map<String, Object> data);
+    void deleteMenu(Map<String, Object> data);
+
+    void updateMenuContent(Map<String, Object> data);
+
     int updateUser(Map<String, Object> user);
     int updateUserRole(Map<String, Object> user);
 

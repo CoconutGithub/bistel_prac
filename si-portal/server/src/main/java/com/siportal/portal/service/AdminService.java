@@ -298,6 +298,62 @@ public class AdminService {
 //        return ResponseEntity.ok("Email sent successfully.");
 //    }
 
+    @PostMapping("/api/insert-menu")
+    public ResponseEntity<?> insertMenu(@RequestBody Map<String, Object> result) {
+        try {
+            // List<Map<String, Object>> 형태로 반환된다고 가정
+            List<Map<String, Object>> menuIdList = this.adminMapper.getMenuIdSeq();
+
+            if (!menuIdList.isEmpty()) {
+                // 첫 번째 요소의 menuId 값 추출
+                Object menuId = menuIdList.get(0).get("menu_id");
+                result.put("menuId", menuId);
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Error: menuId list is empty.");
+            }
+
+            adminMapper.insertMenu(result);
+
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/api/delete-menu")
+    public ResponseEntity<?> deleteMenu(@RequestBody Map<String, Object> result) {
+        try {
+            adminMapper.deleteMenu(result);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/api/update-menu-content")
+    public ResponseEntity<?> updateMenuContent(@RequestBody Map<String, Object> result) {
+        try {
+            // position 값이 있을 경우 이를 integer로 변환
+            if (result.containsKey("position")) {
+                Object positionObj = result.get("position");
+                if (positionObj instanceof String) {
+                    // position이 문자열인 경우 Integer로 변환
+                    int position = Integer.parseInt((String) positionObj);
+                    result.put("position", position); // 변환된 값을 다시 result에 설정
+                }
+            }
+
+            adminMapper.updateMenuContent(result);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
+
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
