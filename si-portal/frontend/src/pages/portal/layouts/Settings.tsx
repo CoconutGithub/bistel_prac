@@ -2,7 +2,7 @@ import React, {useContext, useRef, useState} from 'react';
 import {Container, Row, Col, Form, Button} from 'react-bootstrap';
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "~store/Store";
-import {setHeaderColor, setTitle, toggleFooter} from "~store/AuthSlice";
+import {setHeaderColor, toggleFooter} from "~store/AuthSlice";
 import { SketchPicker } from 'react-color';
 import ComButton from '~pages/portal/buttons/ComButton';
 import axios from 'axios';

@@ -12,6 +12,12 @@ export interface AuthState {
         isShowFooter: boolean;
         headerColor: string;
     };
+    pageButtonAuth: {
+        canCreate: boolean,
+        canDelete: boolean,
+        canUpdate: boolean,
+        canRead: boolean,
+    },
     error: string | null;
     title: string;
 }

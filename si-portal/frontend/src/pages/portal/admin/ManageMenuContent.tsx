@@ -75,9 +75,6 @@ const ManageMenuContent: React.FC<ManageMenuContentProps> = ({ chooseMenuData })
     const gridRef = useRef<AgGridWrapperHandle>(null);
 
     useEffect(() => {
-
-        console.log("====>", chooseMenuData)
-
         chooseMenuData?.status === 'ACTIVE' ? setIsActive(true) : setIsActive(false);
 
     }, [chooseMenuData]);

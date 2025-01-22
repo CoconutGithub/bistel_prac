@@ -20,19 +20,27 @@ const initialState: AuthState = {
         headerColor: '#f8f9fa',
         email: '',
     },
+    pageButtonAuth: {
+      canCreate: false,
+      canDelete: false,
+      canUpdate: false,
+      canRead: false,
+    },
     error: null,
     title: '',
 };
 
 // refreshToken 정의
-export const refreshToken = createAsyncThunk<
-    string,
-    void,
-    {
-        state: { auth: AuthState };
-        rejectValue: string;
-    }
->(
+export const refreshToken = createAsyncThunk
+    <
+        string,
+        void,
+        {
+            state: { auth: AuthState };
+            rejectValue: string;
+        }
+    >
+(
     "auth/refreshToken",
     async (_, { getState, rejectWithValue }) => {
         const state = getState();
@@ -115,8 +123,7 @@ const authSlice = createSlice({
             headerColor: string
             email: string
             }>
-        )
-        {
+        ){
             console.log('setLoginToekn:',action.payload.token);
             console.log('setLoginToekn-UserId:',action.payload.userId);
 
@@ -156,9 +163,21 @@ const authSlice = createSlice({
         setHeaderColor: (state, action: PayloadAction<string>) => {
             state.user.headerColor = action.payload;
         },
-        setTitle: (state, action: PayloadAction<string>) => {
-            state.title = action.payload;
+        setPageButtonAuth: (state, action: PayloadAction<{
+                canCreate : boolean;
+                canDelete: boolean;
+                canUpdate: boolean;
+                canRead: boolean;
+            }>
+        ) => {
+            const { canCreate, canDelete, canUpdate, canRead } = action.payload;
+            state.pageButtonAuth.canCreate = canCreate;
+            state.pageButtonAuth.canDelete = canDelete;
+            state.pageButtonAuth.canUpdate = canUpdate;
+            state.pageButtonAuth.canRead = canRead;
         },
+
+
     },
     extraReducers: (builder) => {
         builder
@@ -189,5 +208,5 @@ const authSlice = createSlice({
     },
 });
 
-export const { setLoginToken, removeLoginToken, toggleFooter, setHeaderColor, setTitle } = authSlice.actions;
+export const { setLoginToken, removeLoginToken, toggleFooter, setHeaderColor, setPageButtonAuth} = authSlice.actions;
 export default authSlice.reducer;
