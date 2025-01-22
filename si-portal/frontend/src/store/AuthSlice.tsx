@@ -15,24 +15,34 @@ const initialState: AuthState = {
         userName: '',
         roleId: '',
         roleName: '',
+        isMighty: 'N',
         phoneNumber: '',
         isShowFooter: true, // 기본값 설정
         headerColor: '#f8f9fa',
         email: '',
+
+    },
+    pageButtonAuth: {
+      canCreate: false,
+      canDelete: false,
+      canUpdate: false,
+      canRead: false,
     },
     error: null,
     title: '',
 };
 
 // refreshToken 정의
-export const refreshToken = createAsyncThunk<
-    string,
-    void,
-    {
-        state: { auth: AuthState };
-        rejectValue: string;
-    }
->(
+export const refreshToken = createAsyncThunk
+    <
+        string,
+        void,
+        {
+            state: { auth: AuthState },
+            rejectValue: string,
+        }
+    >
+(
     "auth/refreshToken",
     async (_, { getState, rejectWithValue }) => {
         const state = getState();
@@ -110,13 +120,13 @@ const authSlice = createSlice({
             userName: string,
             roleId: string,
             roleName: string,
+            isMighty: string,
             phoneNumber: string,
             footerYN: string // footer_yn 값 (Y/N)
             headerColor: string
             email: string
             }>
-        )
-        {
+        ){
             console.log('setLoginToekn:',action.payload.token);
             console.log('setLoginToekn-UserId:',action.payload.userId);
 
@@ -128,6 +138,7 @@ const authSlice = createSlice({
                 'userName': action.payload.userName,
                 'roleId': action.payload.roleId,
                 'roleName': action.payload.roleName,
+                'isMighty': action.payload.isMighty,
                 'phoneNumber': action.payload.phoneNumber,
                 'isShowFooter': action.payload.footerYN === 'Y', // string → boolean 변환
                 'headerColor': action.payload.headerColor,
@@ -142,6 +153,7 @@ const authSlice = createSlice({
                 userName: '',
                 roleId: '',
                 roleName: '',
+                isMighty: 'N',
                 phoneNumber: '',
                 email: '',
                 isShowFooter: true,
@@ -156,9 +168,21 @@ const authSlice = createSlice({
         setHeaderColor: (state, action: PayloadAction<string>) => {
             state.user.headerColor = action.payload;
         },
-        setTitle: (state, action: PayloadAction<string>) => {
-            state.title = action.payload;
+        setPageButtonAuth: (state, action: PayloadAction<{
+                canCreate : boolean;
+                canDelete: boolean;
+                canUpdate: boolean;
+                canRead: boolean;
+            }>
+        ) => {
+            const { canCreate, canDelete, canUpdate, canRead } = action.payload;
+            state.pageButtonAuth.canCreate = canCreate;
+            state.pageButtonAuth.canDelete = canDelete;
+            state.pageButtonAuth.canUpdate = canUpdate;
+            state.pageButtonAuth.canRead = canRead;
         },
+
+
     },
     extraReducers: (builder) => {
         builder
@@ -179,6 +203,7 @@ const authSlice = createSlice({
                     userName: '',
                     roleId: '',
                     roleName: '',
+                    isMighty: 'N',
                     phoneNumber: '',
                     email: '',
                     isShowFooter: true,
@@ -189,5 +214,5 @@ const authSlice = createSlice({
     },
 });
 
-export const { setLoginToken, removeLoginToken, toggleFooter, setHeaderColor, setTitle } = authSlice.actions;
+export const { setLoginToken, removeLoginToken, toggleFooter, setHeaderColor, setPageButtonAuth} = authSlice.actions;
 export default authSlice.reducer;

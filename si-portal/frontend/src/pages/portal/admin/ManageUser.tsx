@@ -138,9 +138,6 @@ const ManageUser: React.FC = () => {
 
   const handleSave = useCallback(async (lists: { deleteList: any[]; updateList: any[] }) => {
 
-    console.log('--------->', roleKind);
-
-
     if (!gridRef.current) return;
 
     if (lists.deleteList.length === 0 && lists.updateList.length === 0) {

@@ -3,8 +3,7 @@ import ReactDOM from "react-dom";
 import ToastContainer from "react-bootstrap/ToastContainer";
 import Toast from "react-bootstrap/Toast";
 import ProgressBar from "react-bootstrap/ProgressBar";
-import {useLocation, useNavigate} from "react-router-dom";
-import axios from "axios";
+import {useLocation} from "react-router-dom";
 import {useSelector} from "react-redux";
 import {RootState} from "~store/Store";
 
@@ -20,7 +19,6 @@ interface ComAPIContextType {
     showToast: (message: string, variant?: "success" | "danger" | "warning" | "info" | "dark") => void;
     showProgressBar: () => void;
     hideProgressBar: () => void;
-    pageAuth: PageAuth | null; // 타입 선언
 }
 
 // 초기 컨텍스트 값 정의
@@ -28,7 +26,6 @@ const defaultContextValue: ComAPIContextType = {
     showToast: () => {},
     showProgressBar: () => {},
     hideProgressBar: () => {},
-    pageAuth: null,
 };
 
 // 컨텍스트 생성
@@ -38,84 +35,13 @@ interface ComAPIProviderProps {
     children: ReactNode;
 }
 
-// 권한 타입 정의
-interface PageAuth {
-    canCreate: boolean;
-    canDelete: boolean;
-    canUpdate: boolean;
-    canRead: boolean;
-}
-
 export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
     const state = useSelector((state: RootState) => state.auth);
     const [toasts, setToasts] = useState<ToastType[]>([]);
     const [progressBarVisible, setProgressBarVisible] = useState<boolean>(false);
-    const [pageAuth, setPageAuth] = useState<PageAuth | null>(null);
-    const navigate = useNavigate();
 
     // 공통 로직: 최초 페이지 마운트 시 실행
     const location = useLocation();
-
-    // useEffect(() => {
-    //     // 이 함수에 공통 로직 추가
-    //     const getPageAuth = async() => {
-    //         console.log("Page mounted:", location.pathname);
-    //
-    //         // if (location.pathname === '/login' || location.pathname === '/main'
-    //         //     || location.pathname === '/main'
-    //         //     || location.pathname === '/quick-start'
-    //         // ) {
-    //         //     return;
-    //         // }
-    //
-    //         //XXX-우선 어찌 쓰는지 보여주기 위해 잠시 멈추게 함.
-    //         // await new Promise((resolve) => setTimeout(resolve, 2000))
-    //
-    //         axios
-    //             .get("http://localhost:8080/page-auth", {
-    //              headers: { Authorization: `Bearer ${state.authToken}` },
-    //              params: { roleId: state.user.roleId, path: location.pathname },
-    //             })
-    //             .then((res) =>{
-    //                 if (res && res.data.length === 1) {
-    //
-    //                     console.log('pageLocation:', location.pathname
-    //                         , 'canWrite', res.data[0].canWrite
-    //                         , 'canUpdate', res.data[0].canUpdate
-    //                         , 'canDelete', res.data[0].canDelete
-    //                         , 'canRead', res.data[0].canRead
-    //                     );
-    //
-    //                     setPageAuth(
-    //                         {
-    //                             'canCreate' : res.data[0].canCreate === 'Y' ? true : false,
-    //                             'canDelete' : res.data[0].canDelete === 'Y' ? true : false,
-    //                             'canUpdate' : res.data[0].canUpdate === 'Y' ? true : false,
-    //                             'canRead' : res.data[0].canRead === 'Y' ? true : false,
-    //                     });
-    //                 } else {
-    //
-    //                     setPageAuth(
-    //                         {
-    //                             'canCreate' : false,
-    //                             'canDelete' : false,
-    //                             'canUpdate' : false,
-    //                             'canRead' : false,
-    //                         });
-    //                     navigate('/main');
-    //                 }
-    //             })
-    //             .catch((err) =>{
-    //                 const error = err as Error;
-    //                 console.error('Error page-auth:', error);
-    //             })
-    //
-    //         // showToast(`Welcome to ${location.pathname}`, "info");
-    //
-    //     };
-    //
-    //     getPageAuth();
-    // }, [location]);
 
     // Toast 관리 메서드
     const showToast = useCallback(
@@ -146,9 +72,8 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
             showToast,
             showProgressBar,
             hideProgressBar,
-            pageAuth,
         }),
-        [showToast, showProgressBar, hideProgressBar, pageAuth]
+        [showToast, showProgressBar, hideProgressBar]
     );
 
     // Portal을 통한 ToastContainer 렌더링
