@@ -27,31 +27,33 @@ const UserRegistPopup = forwardRef(
     const [email, setEmail] = useState<string>("");
     const [phoneNumber, setPhoneNumber] = useState<string>("");
     const [roles, setRoles] = useState<any[]>([]);
-    const [userRole, setUserRoles] = useState<number>();
+    const [userRole, setUserRoles] = useState<any>();
     const [status, setStatus] = useState<string>("ACTIVE");
     const [isTested, setIsTested] = useState<boolean>(false);
     const [isAvailableId, setIsAvailableId] = useState<boolean>(false);
     const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(true);
 
-    // const resetForm = () => {
-    //   setUserId("");
-    //   setUserName("");
-    //   setPhoneNumber("");
-    //   setPassword("");
-    //   setEmail("");
-    //   setStatus("ACTIVE");
-    //   setIsTested(false);
-    //   setIsAvailableId(false);
-    //   setIsButtonDisabled(true);
-    // };
+    const resetForm = () => {
+      setUserId("");
+      setUserName("");
+      setPhoneNumber("");
+      setPassword("");
+      setEmail("");
+      setStatus("ACTIVE");
+      setIsTested(false);
+      setIsAvailableId(false);
+      setIsButtonDisabled(true);
+    };
 
     useImperativeHandle(ref, () => ({
       openModalPopup: () => setIsVisible(true),
-      closeModalPopup: () => {
-        setIsVisible(false);
-        // resetForm();
-      },
+      closeModalPopup: () => setIsVisible(false),
     }));
+
+    const handleModalClose = () => {
+      setIsVisible(false);
+      resetForm();
+    };
 
     const handleUserId = (e: any) => {
       setUserId(e.target.value);
@@ -92,6 +94,7 @@ const UserRegistPopup = forwardRef(
           }
         );
         setRoles(response.data);
+        console.log("roles", response.data);
         return response.data;
       } catch (error) {
         console.error("Error occurred:", error);
@@ -132,7 +135,7 @@ const UserRegistPopup = forwardRef(
           password: password,
           email: email,
           phoneNumber: phoneNumber,
-          userRole: userRole,
+          userRole: parseInt(userRole, 10),
           status: status,
         };
         const response = await axios.post(
@@ -143,13 +146,15 @@ const UserRegistPopup = forwardRef(
           }
         );
 
-        if (ref.current) {
-          ref.current.onResearchUser();
+        console.log("response", response);
+
+        if (ref.current && onResearchUser) {
+          console.log("Calling ref.current.refreshData");
+          onResearchUser();
         }
         setIsVisible(false);
-        if (ref.current) {
-          ref.current.refreshData(); // 부모에서 제공한 메서드 호출
-        }
+
+        return "";
       } catch (error) {
         console.error("Error occurred:", error);
         alert("Failed to register user. Please try again.");
@@ -182,7 +187,7 @@ const UserRegistPopup = forwardRef(
     }, []);
 
     return (
-      <Modal show={isVisible} onHide={() => setIsVisible(false)}>
+      <Modal show={isVisible} onHide={() => handleModalClose()}>
         <Modal.Header closeButton>
           <Modal.Title>사용자 등록</Modal.Title>
         </Modal.Header>
@@ -224,7 +229,7 @@ const UserRegistPopup = forwardRef(
                   </ComButton>
                 </InputGroup>
               </Col>
-              {userId && isTested && !isAvailableId && (
+              {!isAvailableId && userId && isTested && (
                 <Col
                   sm={9}
                   style={{
@@ -319,7 +324,7 @@ const UserRegistPopup = forwardRef(
           >
             등록
           </ComButton>
-          <ComButton variant="secondary" onClick={() => setIsVisible(false)}>
+          <ComButton variant="secondary" onClick={() => handleModalClose()}>
             Close
           </ComButton>
         </Modal.Footer>
