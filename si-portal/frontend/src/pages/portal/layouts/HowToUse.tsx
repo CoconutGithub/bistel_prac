@@ -28,14 +28,21 @@ const HowToUse: React.FC = () => {
     
         //option -> dark" | "success" | "danger" | "warning" | "info" | "success" 
         comAPIContext.showToast("write message in here" , "danger");
-    `
+    `;
 
     const examCodeButtion = `
         import ComButton from "~pages/portal/buttons/ComButton";
         <ComButton size="sm" className="me-2" variant="primary">
               등록
         </ComButton>    
-    `
+    `;
+
+    const examAdminDesc = `
+        P_ROLE 에 ROLE_NAME 이 'ADMIN 인게 ADMIN 이 아니고
+        P_ROLE 에 IS_MIGHTY 컬럼 값이 Y 가 ADMIN 이다.
+        ADMIN 이란 ROLE_NAME 은 SITE 마다 다 다를수 있기 때문에. (예: Administrator)
+        IS_MIGHTY 가 'Y' 인 ROLE 은 P_PERMISSION 에 메뉴설정을 하지 않아도 된다.
+       `;
 
     const handleRunProgress = () => {
         //Toast message 를 보여줌
@@ -121,8 +128,21 @@ const HowToUse: React.FC = () => {
                 <Col>
                     <h1>Admin 개념</h1>
                     <p>시스템의 모든 권한을 가진사람. 모든 메뉴 다 보임. 모든 버튼 다 사용 가능</p>
-                    <p>P_ROLE 에 ROLE_NAME 이 'ADMIN 인게 사람이 ADMIN 이 아니고'</p>
-                    <p>P_ROLE 에 IS_MIGHTY 컬럼 값이 Y 가 ADMIN 이다.'</p>
+                    <pre
+                        style={{
+                            backgroundColor: '#f8f9fa',
+                            padding: '10px',
+                            border: '1px solid #ddd',
+                            borderRadius: '5px',
+                            textAlign: 'left',
+                            overflowX: 'auto',
+                        }}
+                    >
+                         <code>
+                            {examAdminDesc}
+                        </code>
+                    </pre>
+
                 </Col>
             </Row>
         </Container>

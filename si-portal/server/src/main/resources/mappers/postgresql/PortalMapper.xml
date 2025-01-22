@@ -13,20 +13,21 @@
     </select>
 
 
-    <select id="getMenuTreeList" parameterType="String" resultType="com.siportal.portal.dto.PMenuDTO">
-<!--        SELECT-->
-<!--            A.MENU_ID-->
-<!--            , A.MENU_NAME AS TITLE-->
-<!--            , A.PATH-->
-<!--            , A.COMPONENT_PATH-->
-<!--            , A.PARENT_MENU_ID-->
-<!--            , A.DEPTH-->
-<!--            , A.CHILD_YN-->
-<!--        FROM P_MENU A-->
-<!--        WHERE A.STATUS = 'ACTIVE'-->
-<!--        AND A.-->
-<!--        ORDER BY A.DEPTH, A.POSITION-->
+    <select id="getAllMenuTreeList" resultType="com.siportal.portal.dto.PMenuDTO">
+        SELECT
+            A.MENU_ID
+            , A.MENU_NAME AS TITLE
+            , A.PATH
+            , A.COMPONENT_PATH
+            , A.PARENT_MENU_ID
+            , A.DEPTH
+            , A.CHILD_YN
+        FROM P_MENU A
+        WHERE A.STATUS = 'ACTIVE'
+        ORDER BY A.DEPTH, A.POSITION
+    </select>
 
+    <select id="getMyMenuTreeList" parameterType="String" resultType="com.siportal.portal.dto.PMenuDTO">
         SELECT
             A.MENU_ID
             , A.MENU_NAME AS TITLE
