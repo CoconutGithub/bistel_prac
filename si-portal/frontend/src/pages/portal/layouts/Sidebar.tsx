@@ -3,7 +3,7 @@ import { Nav } from 'react-bootstrap';
 import {removeLoginToken} from "~store/AuthSlice";
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "~store/Store";
-import {useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 
 const Sidebar = () => {
 
@@ -15,15 +15,15 @@ const Sidebar = () => {
         console.log("Logging out...");
         dispatch(removeLoginToken())
         // 로그아웃 처리 로직
-        navigate('/main');
+        navigate('/');
     };
 
     return (
         <Nav style={{backgroundColor}} className="flex-column h-100">
-            <Nav.Link href="/main/quick-start">Quick start</Nav.Link>
-            <Nav.Link href="/main/dashboard">Dashboard</Nav.Link>
-            <Nav.Link href="/main/profile">Profile</Nav.Link>
-            <Nav.Link href="/main/settings">Settings</Nav.Link>
+            <Nav.Link as={Link} to="/main/quick-start">Quick start</Nav.Link>
+            <Nav.Link as={Link} to="/main/dashboard">Dashboard</Nav.Link>
+            <Nav.Link as={Link} to="/main/profile">Profile</Nav.Link>
+            <Nav.Link as={Link} to="/main/settings">Settings</Nav.Link>
             <Nav.Link onClick={handleLogout}>Logout</Nav.Link>
         </Nav>
     );
