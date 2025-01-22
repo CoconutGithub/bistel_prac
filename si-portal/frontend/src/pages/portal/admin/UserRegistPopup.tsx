@@ -1,5 +1,5 @@
 import React from 'react';
-import {Modal, Button, Form, Col, Row, InputGroup} from 'react-bootstrap';
+import {Modal, Form, Col, Row, InputGroup} from 'react-bootstrap';
 import ComButton from '../buttons/ComButton';
 
 interface UserRegistPopup {
