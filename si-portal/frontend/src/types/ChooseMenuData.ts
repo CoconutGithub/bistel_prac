@@ -7,4 +7,5 @@ export interface  ChooseMenuData {
     path: string;
     isAdd: boolean;
     isDelete: boolean;
+    position: number;
 }

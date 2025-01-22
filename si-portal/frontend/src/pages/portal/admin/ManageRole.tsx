@@ -10,19 +10,57 @@ import {AgGridWrapperHandle} from "~types/GlobalTypes"; // 팝업 컴포넌트 �
 import ComButton from '../buttons/ComButton';
 
 const columnDefs = [
-    { field: 'gridRowId', headerName: 'gridRowId', editable: false, hide: true },
+    { field: 'gridRowId', headerName: 'gridRowId', editable: false, hide: true, sortable: false, filter: false },
     { field: 'roleId', headerName: '권한 ID', sortable: true, filter: true, editable: false, width: 100 },
-    { field: 'roleName', headerName: '권한 이름', sortable: true, filter: true, editable: false, width: 150 },
+    {
+        field: 'roleName',
+        headerName: '권한 이름',
+        sortable: true,
+        filter: true,
+        editable: true,
+        width: 150,
+        cellEditor: 'agSelectCellEditor',
+        cellEditorParams: { values: [] },
+    },
+    {
+        field: 'status',
+        headerName: '상태',
+        sortable: true,
+        filter: true,
+        editable: true,
+        width: 100,
+        cellEditor: 'agSelectCellEditor',
+        cellEditorParams: {
+            values: ['ACTIVE', 'INACTIVE'], // 상태 값 목록
+        },
+    },
     { field: 'createDate', headerName: '생성일', sortable: true, filter: true, editable: false, width: 200 },
     { field: 'createBy', headerName: '생성자', sortable: true, filter: true, editable: false, width: 100 },
     { field: 'updateDate', headerName: '업데이트일', sortable: true, filter: false, width: 200 },
     { field: 'updateBy', headerName: '수정자', sortable: true, filter: true, editable: false, width: 100 },
 ];
 
+
 interface Role {
-    roleId: number;
+    roleId: number | null;
     roleName: string;
+    status: string;
 }
+
+interface SaveRolesPayload {
+    updateList: Role[];
+    deleteList: number[];
+}
+
+interface SaveRolesResponse {
+    messageCode: string;
+    message: string;
+    updatedUsersCnt: number;
+    insertedUsersCnt: number;
+    deletedUsersCnt: number;
+}
+
+// let roleKind : any = null;
 
 const ManageRole: React.FC = () => {
     const state = useSelector((state: RootState) => state.auth);
@@ -30,124 +68,139 @@ const ManageRole: React.FC = () => {
     const gridRef = useRef<AgGridWrapperHandle>(null);
 
     const [roleList, setRoleList] = useState<Role[]>([]);
+    const [dynamicColumnDefs, setDynamicColumnDefs] = useState(columnDefs); // 컬럼 정보
     const [showPopup, setShowPopup] = useState(false);
-
-    let selectedRoleName = '';
+    const [selectedRoleId, setSelectedRoleId] = useState<number | "">("");
 
     console.log('ManageRole create.......')
 
     useEffect(() => {
-        fetchData();
+        const getRoleList = async () => {
+            try {
+                comAPIContext.showProgressBar();
+
+                // API 호출
+                const res = await axios.get("http://localhost:8080/admin/api/get-roles-list", {
+                    headers: {
+                        Authorization: `Bearer ${state.authToken}`,
+                    },
+                });
+
+                if (res && res.data) {
+                    // columnDefs 업데이트
+                    console.log("Fetched Role List:", res.data);
+                    setRoleList(res.data); // 상태 업데이트
+
+                    const updatedColumnDefs: any = columnDefs.map((col) => {
+                        if (col.field === 'roleName') {
+                            return {
+                                ...col,
+                                cellEditorParams: { values: res.data.map((item: Role) => item.roleName) },
+                            };
+                        }
+                        return col;
+                    });
+
+                    setDynamicColumnDefs(updatedColumnDefs); // 상태 업데이트
+                }
+            } catch (err: any) {
+                console.error("Error fetching roles:", err);
+                comAPIContext.showToast("Error fetching roles: " + err.message, "danger");
+            } finally {
+                comAPIContext.hideProgressBar();
+            }
+        };
+
+        getRoleList();
     }, []);
 
-    const fetchData = async () => {
-        try {
-            comAPIContext.showProgressBar();
-            const res = await axios.get<Role[]>("http://localhost:8080/admin/api/get-roles-list", {
-                headers: {
-                    Authorization: `Bearer ${state.authToken}`,
-                }
-            });
-            setRoleList(res.data); // 역할 목록 상태 업데이트
-        } catch (error: any) {
-            console.error("Error fetching roles:", error);
-            const errorMessage = error.response?.data || error.message || "Unknown error";
-            comAPIContext.showToast("Error fetching roles: " + errorMessage, "danger");
-        } finally {
-            comAPIContext.hideProgressBar();
-        }
-    };
-    
-
     const handleRoleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-
-        //[old]
-        // const selectedRoleId = parseInt(event.target.value, 10);
-        // const selectedRole = roleList.find(role => role.roleId === selectedRoleId);
-        // if (selectedRole) {
-        //     setRoleRef(selectedRole.roleName); // 선택된 role을 roleRef에 저장
-        //     console.log('Selected Role:', selectedRole.roleName); // 선택된 role을 확인
-        // }
-        //[new]
-        const selectedRoleId = parseInt(event.target.value, 10);
-        const selectedRole = roleList.find(role => role.roleId === selectedRoleId);
-        if (selectedRole) {
-            selectedRoleName = selectedRole.roleName;
-        }
-
-
-
+        const selectedId = event.target.value === "" ? "" : parseInt(event.target.value, 10);
+        setSelectedRoleId(selectedId);
     };
 
     const handleSearch = async () => {
         comAPIContext.showProgressBar();
         try {
-            console.log('selectedRoleName:', selectedRoleName);
+            if (!roleList) {
+                comAPIContext.showToast("로딩중입니다.", "warning");
+                return;
+            }
+
+            const selectedRole = roleList.find((role: Role) => role.roleId === selectedRoleId);
+            const roleName = selectedRole ? selectedRole.roleName : "";
+
             const response = await axios.get("http://localhost:8080/admin/api/get-roles", {
-                headers: {
-                    Authorization: `Bearer ${state.authToken}`,
-                },
-                params: { 'roleName': selectedRoleName },
+                headers: { Authorization: `Bearer ${state.authToken}` },
+                params: { roleName: roleName },
             });
 
-            console.log(response)
             if (gridRef.current) {
                 gridRef.current.setRowData(response.data);
             }
+
             comAPIContext.showToast("조회가 완료되었습니다.", "success");
         } catch (error: any) {
             console.error("Error fetching roles:", error);
-            const errorMessage = error.response?.data || error.message || "Unknown error";
-            comAPIContext.showToast("Error fetching roles: " + errorMessage, "danger");
+            comAPIContext.showToast("조회 중 오류가 발생했습니다.", "danger");
         } finally {
             comAPIContext.hideProgressBar();
         }
-    }
-
-    const handleSave = useCallback(async (lists: { deleteList: any[]; updateList: any[] }) => {
-
-        if (!gridRef.current) return;
-    
-        if (lists.deleteList.length === 0 && lists.updateList.length === 0) {
-          comAPIContext.showToast('저장할 데이터가 없습니다.', 'dark');
-          return;
-        }
-    
-    
-        try {
-          comAPIContext.showProgressBar();
-          console.log('1.update 행들:', lists);
-          console.log('2.delete 행들:', lists);
-    
-          // 전송 데이터 구성
-          const payload = {
-            updateList: lists.updateList,
-            deleteList: lists.deleteList,
-          };
-    
-          await axios.post('http://localhost:8080/admin/api/update-permission', payload, {
-            headers: { Authorization: `Bearer ${state.authToken}` },
-          });
-    
-          comAPIContext.showToast('저장되었습니다.', 'success');
-          handleSearch(); // 저장 후 최신 데이터 조회
-        } catch (err) {
-          console.error('Error saving data:', err);
-          comAPIContext.showToast('저장 중 오류가 발생했습니다.', 'danger');
-          handleSearch();
-        } finally {
-          comAPIContext.hideProgressBar();
-        }
-      }, []);
-
-    const handleDelete = (selectedRows: any[]) => {
-        // 삭제 처리
-        console.log("Deleting rows", selectedRows);
     };
 
     const handleRegist = useCallback(() => {
         setShowPopup(true);
     },[]);
+
+    const registerButton = useMemo(() => (
+        <>
+            <ComButton size="sm" className="me-2" variant="primary" onClick={handleRegist}>
+                등록
+            </ComButton>
+        </>
+    ), []);
+
+    const handleSave = useCallback(async (lists: { deleteList: any[]; updateList: any[] }) => {
+        if (!gridRef.current) return;
+
+        if (lists.deleteList.length === 0 && lists.updateList.length === 0) {
+            comAPIContext.showToast('저장할 데이터가 없습니다.', 'dark');
+            return;
+        }
+
+        try {
+            comAPIContext.showProgressBar();
+
+            const payload: SaveRolesPayload = {
+                updateList: lists.updateList.map(item => ({
+                    roleId: item.roleId,
+                    roleName: item.roleName,
+                    status: item.status,
+                })),
+                deleteList: lists.deleteList.map(item => item.roleId),
+            };
+
+            console.log('-----------------------:', payload);
+
+            const response = await axios.post<SaveRolesResponse>('http://localhost:8080/admin/api/save-roles', payload, {
+                headers: { Authorization: `Bearer ${state.authToken}` },
+            });
+
+            console.log('Save response:', response); // 응답 확인
+
+            comAPIContext.showToast('저장되었습니다.', 'success');
+            handleSearch();
+        } catch (err) {
+            console.error('Error saving data:', err);
+            comAPIContext.showToast('저장 중 오류가 발생했습니다.', 'danger');
+        } finally {
+            comAPIContext.hideProgressBar();
+        }
+    }, []);
+
+    const handleDelete = (selectedRows: any[]) => {
+
+    };
 
     const roleRegistButton = useMemo(() => (
         <ComButton className="me-2" onClick={handleRegist} >권한 추가</ComButton>
@@ -163,26 +216,41 @@ const ManageRole: React.FC = () => {
 
         try {
             comAPIContext.showProgressBar();
-            const response = await axios.post('http://localhost:8080/admin/api/save-role',
-            {
-                userName: state.user?.userName,
-                roleName: roleName,
-                status: status,
-            }
-            ,{
-              headers: { Authorization: `Bearer ${state.authToken}` },
+            const payload: SaveRolesPayload = {
+                updateList: [{
+                    roleId: null, // 새 역할 생성 시 roleId는 null 또는 서버에서 생성
+                    roleName: roleName,
+                    status: status,
+                }],
+                deleteList: [],
+            };
+
+            console.log('Prepared payload for savePopup:', payload); // 로그 확인
+
+            const response = await axios.post<SaveRolesResponse>('http://localhost:8080/admin/api/save-roles', payload, {
+                headers: { Authorization: `Bearer ${state.authToken}` },
             });
-      
-            console.log(response);
+
+            console.log('SavePopup response:', response); // 응답 확인
+
+            if (response.data.messageCode === 'success') {
+                const { updatedUsersCnt, insertedUsersCnt, deletedUsersCnt } = response.data;
+                comAPIContext.showToast(`저장되었습니다. 업데이트된 수: ${updatedUsersCnt}, 삽입된 수: ${insertedUsersCnt}, 삭제된 수: ${deletedUsersCnt}`, 'success');
+            } else {
+                comAPIContext.showToast('저장 중 오류가 발생했습니다.', 'danger');
+            }
+
             comAPIContext.hideProgressBar();
-            alert('Save successfully!');
-            fetchData();
-        } catch (error) {
-            console.error('Error sending email:', error);
-            alert('Failed to send email');
+            handleSearch();
+            setShowPopup(false); // 팝업 닫기
+        } catch (error: any) {
+            console.error('Error saving role:', error);
+            comAPIContext.showToast('저장 중 오류가 발생했습니다.', 'danger');
+            comAPIContext.hideProgressBar();
         }
 
     }
+
     if(roleList === null) {
         return (
         <Container fluid>
@@ -204,10 +272,10 @@ const ManageRole: React.FC = () => {
                                 권한 선택
                             </Form.Label>
                             <Col sm={2}>
-                                <Form.Select onChange={handleRoleChange}>
-                                    <option value="">Select an option</option>
-                                    {roleList.map((role) => (
-                                        <option key={role.roleId} value={role.roleId}>
+                                <Form.Select onChange={handleRoleChange} value={selectedRoleId}>
+                                    <option value="">옵션 선택</option>
+                                    {roleList.map((role: Role) => (
+                                        <option key={role.roleId ?? `new-${role.roleName}`} value={role.roleId ?? ""}>
                                             {role.roleName}
                                         </option>
                                     ))}
@@ -221,24 +289,24 @@ const ManageRole: React.FC = () => {
                         </ComButton>
                     </Col>
                 </Row>
-                <div style={{ borderTop: '1px solid black', margin: '15px 0' }}></div>
                 <Row>
                     <Col>
                         <AgGridWrapper
-                            ref={gridRef}
+                            ref={gridRef} // forwardRef를 통해 연결된 ref
                             showButtonArea={true}
-                            columnDefs={columnDefs}
+                            showAddButton={false}
+                            columnDefs={dynamicColumnDefs}
                             enableCheckbox={true}
-                            onSave={handleSave}
+                            onSave={handleSave} // 저장 버튼 동작`
                         >
-                        { roleRegistButton }
+                        { registerButton }
                         </AgGridWrapper>
                     </Col>
                 </Row>
                 <RoleRegistPopup
                     show={showPopup}
                     onClose={handleClosePopup}
-                    onSave={handleSavePopup}
+                    onSave={handleSavePopup} // onSave 속성 추가
                 />
             </Container>
         );
