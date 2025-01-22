@@ -33,38 +33,47 @@ const ProtectedRoute = ({element, fallback}: ProtectedRouteProps) => {
             return;
         }
 
-        axios
-            .get("http://localhost:8080/page-auth", {
-                headers: {Authorization: `Bearer ${state.authToken}`},
-                params: {roleId: state.user.roleId, path: location.pathname},
-            })
-            .then((res) => {
-                if (res && res.data.length === 1) {
+        if(state.user.isMighty === 'Y') {
+            dispatch(setPageButtonAuth({
+                'canCreate': true,
+                'canDelete': true,
+                'canUpdate': true,
+                'canRead': true,
+            }));
+        } else {
+            axios
+                .get("http://localhost:8080/page-auth", {
+                    headers: {Authorization: `Bearer ${state.authToken}`},
+                    params: {roleId: state.user.roleId, path: location.pathname},
+                })
+                .then((res) => {
+                    if (res && res.data.length === 1) {
 
-                    console.log('pageLocation:', location.pathname
-                        , 'canWrite', res.data[0].canWrite
-                        , 'canUpdate', res.data[0].canUpdate
-                        , 'canDelete', res.data[0].canDelete
-                        , 'canRead', res.data[0].canRead
-                    );
+                        console.log('pageLocation:', location.pathname
+                            , 'canWrite', res.data[0].canWrite
+                            , 'canUpdate', res.data[0].canUpdate
+                            , 'canDelete', res.data[0].canDelete
+                            , 'canRead', res.data[0].canRead
+                        );
 
-                    dispatch(setPageButtonAuth(
-                        {
-                            'canCreate': res.data[0].canCreate === 'Y' ? true : false,
-                            'canDelete': res.data[0].canDelete === 'Y' ? true : false,
-                            'canUpdate': res.data[0].canUpdate === 'Y' ? true : false,
-                            'canRead': res.data[0].canRead === 'Y' ? true : false,
-                        }));
-                } else {
-                    console.log("dddddddddddddddddddddddddddddd");
-                    //XXX-우선주석으로 막고 시작한다.
-                    //navigate('/main');
-                }
-            })
-            .catch((err) => {
-                const error = err as Error;
-                console.error('Error page-auth:', error);
-            })
+                        dispatch(setPageButtonAuth(
+                            {
+                                'canCreate': res.data[0].canCreate === 'Y' ? true : false,
+                                'canDelete': res.data[0].canDelete === 'Y' ? true : false,
+                                'canUpdate': res.data[0].canUpdate === 'Y' ? true : false,
+                                'canRead': res.data[0].canRead === 'Y' ? true : false,
+                            }));
+                    } else {
+                        console.log("dddddddddddddddddddddddddddddd");
+                        //XXX-우선주석으로 막고 시작한다.
+                        //navigate('/main');
+                    }
+                })
+                .catch((err) => {
+                    const error = err as Error;
+                    console.error('Error page-auth:', error);
+                })
+        }
 
     }, [location.pathname])
 

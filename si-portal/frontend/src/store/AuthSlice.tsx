@@ -15,10 +15,12 @@ const initialState: AuthState = {
         userName: '',
         roleId: '',
         roleName: '',
+        isMighty: 'N',
         phoneNumber: '',
         isShowFooter: true, // 기본값 설정
         headerColor: '#f8f9fa',
         email: '',
+
     },
     pageButtonAuth: {
       canCreate: false,
@@ -36,8 +38,8 @@ export const refreshToken = createAsyncThunk
         string,
         void,
         {
-            state: { auth: AuthState };
-            rejectValue: string;
+            state: { auth: AuthState },
+            rejectValue: string,
         }
     >
 (
@@ -118,6 +120,7 @@ const authSlice = createSlice({
             userName: string,
             roleId: string,
             roleName: string,
+            isMighty: string,
             phoneNumber: string,
             footerYN: string // footer_yn 값 (Y/N)
             headerColor: string
@@ -135,6 +138,7 @@ const authSlice = createSlice({
                 'userName': action.payload.userName,
                 'roleId': action.payload.roleId,
                 'roleName': action.payload.roleName,
+                'isMighty': action.payload.isMighty,
                 'phoneNumber': action.payload.phoneNumber,
                 'isShowFooter': action.payload.footerYN === 'Y', // string → boolean 변환
                 'headerColor': action.payload.headerColor,
@@ -149,6 +153,7 @@ const authSlice = createSlice({
                 userName: '',
                 roleId: '',
                 roleName: '',
+                isMighty: 'N',
                 phoneNumber: '',
                 email: '',
                 isShowFooter: true,
@@ -198,6 +203,7 @@ const authSlice = createSlice({
                     userName: '',
                     roleId: '',
                     roleName: '',
+                    isMighty: 'N',
                     phoneNumber: '',
                     email: '',
                     isShowFooter: true,

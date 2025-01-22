@@ -7,6 +7,7 @@ export interface AuthState {
         userName: string;
         roleId: string;
         roleName: string;
+        isMighty: string;
         phoneNumber: string;
         email: string;
         isShowFooter: boolean;
