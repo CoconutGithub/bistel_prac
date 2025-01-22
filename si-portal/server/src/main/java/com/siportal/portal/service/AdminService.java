@@ -301,40 +301,6 @@ public class AdminService {
         }
     }
 
-    @PostMapping("/api/update-permission")
-    public ResponseEntity<?> updateUserRole(@RequestBody Map<String, Object> requestData) {
-
-        try {
-            // 데이터 파싱
-            List<Map<String, Object>> updateList = (List<Map<String, Object>>) requestData.get("updateList");
-            List<Map<String, Object>> deleteList = (List<Map<String, Object>>) requestData.get("deleteList");
-
-            int updatedCount = 0; // 업데이트된 행 갯수
-            int deletedCount = 0; // 삭제된 행 갯수
-
-            // Update 처리
-            for (Map<String, Object> permission : updateList) {
-                adminMapper.updatePermission(permission);
-            }
-
-            // Delete 처리
-            for (Map<String, Object> permissionId : deleteList) {
-                adminMapper.deletePermission((Integer)permissionId.get("permissionId"));
-            }
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("messageCode", "success");
-            response.put("message", "모든 작업이 성공적으로 처리되었습니다.");
-//            response.put("updatedUsersCnt", updatedCount);
-//            response.put("deletedUsersCnt", deletedCount);
-
-            return ResponseEntity.ok(null);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
-                    .body("Error occurred: " + e.getMessage());
-        }
-    }
 
     @GetMapping("/api/get-email-history")
     public ResponseEntity<?> getEmailHistory(@RequestParam String sendUser) {

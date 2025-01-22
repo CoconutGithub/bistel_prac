@@ -4,7 +4,6 @@ import com.siportal.portal.com.result.ComResultMap;
 import com.siportal.portal.dto.SchedulDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.security.core.parameters.P;
 
 import java.util.List;
 import java.util.Map;
