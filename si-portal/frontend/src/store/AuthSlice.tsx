@@ -13,6 +13,7 @@ const initialState: AuthState = {
     user: {
         userId: '',
         userName: '',
+        roleId: '',
         roleName: '',
         phoneNumber: '',
         isShowFooter: true, // 기본값 설정
@@ -107,6 +108,7 @@ const authSlice = createSlice({
             title: string,
             userId: string,
             userName: string,
+            roleId: string,
             roleName: string,
             phoneNumber: string,
             footerYN: string // footer_yn 값 (Y/N)
@@ -124,6 +126,7 @@ const authSlice = createSlice({
             state.user = {
                 'userId': action.payload.userId,
                 'userName': action.payload.userName,
+                'roleId': action.payload.roleId,
                 'roleName': action.payload.roleName,
                 'phoneNumber': action.payload.phoneNumber,
                 'isShowFooter': action.payload.footerYN === 'Y', // string → boolean 변환
@@ -137,6 +140,7 @@ const authSlice = createSlice({
             state.user = {
                 userId: '',
                 userName: '',
+                roleId: '',
                 roleName: '',
                 phoneNumber: '',
                 email: '',
@@ -173,6 +177,7 @@ const authSlice = createSlice({
                 state.user = {
                     userId: '',
                     userName: '',
+                    roleId: '',
                     roleName: '',
                     phoneNumber: '',
                     email: '',

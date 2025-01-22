@@ -13,9 +13,10 @@ import java.util.Map;
 
 @Mapper
 public interface PortalMapper {
+    List<ComResultMap> getPageAuth(@Param("roleId") String roleId, @Param("path") String path);
     User getUserByUserId(@Param("userId") String userPassword, @Param("password") String password);
     List<ComResultMap> getUserByUserName(@Param("userName") String userName);
-    List<PMenuDTO> getMenuTreeList();
+    List<PMenuDTO> getMenuTreeList(@Param("roleId") String roleId);
 
     void updateUserSettings(@Param("userId") String userId,
                             @Param("footerYn") String footerYn,

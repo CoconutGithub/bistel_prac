@@ -5,6 +5,7 @@ export interface AuthState {
     user: {
         userId: string;
         userName: string;
+        roleId: string;
         roleName: string;
         phoneNumber: string;
         email: string;

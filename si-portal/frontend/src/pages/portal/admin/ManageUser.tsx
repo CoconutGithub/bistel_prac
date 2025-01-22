@@ -171,8 +171,6 @@ const ManageUser: React.FC = () => {
 
   const handleSearch = async () => {
     comAPIContext.showProgressBar();
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
     axios
       .get("http://localhost:8080/admin/api/get-user", {
         headers: { Authorization: `Bearer ${state.authToken}` },
