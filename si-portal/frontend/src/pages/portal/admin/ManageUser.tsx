@@ -110,12 +110,11 @@ const ManageUser: React.FC = () => {
   const comAPIContext = useContext(ComAPIContext);
   //==end: 여기는 무조건 공통으로 받는다고 생각하자
 
-  const [isRegistered, setIsRegistered] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const gridRef = useRef<AgGridWrapperHandle>(null);
+  const userRegisterRef = useRef<any>(null);
 
   const [dynamicColumnDefs, setDynamicColumnDefs] = useState(columnDefs); // 컬럼 정보
-  const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
     const getRoleList = async () => {
@@ -163,13 +162,11 @@ const ManageUser: React.FC = () => {
     };
 
     getRoleList();
-  }, []);
-
-  const handleRegist = useCallback(() => {
-    setShowPopup(true);
+    console.log("getRoleList 리렌더링");
   }, []);
 
   const handleSearch = () => {
+    console.log("handleSearch 리렌더링");
     comAPIContext.showProgressBar();
     axios
       .get("http://localhost:8080/admin/api/get-user", {
@@ -192,13 +189,25 @@ const ManageUser: React.FC = () => {
       });
   };
 
-  const handleClosePopup = () => {
-    setShowPopup(false);
-  };
+  const openPopup = useCallback(() => {
+    if (userRegisterRef.current) {
+      userRegisterRef.current.openModalPopup();
+
+      console.log("openPopup 리렌더링");
+    }
+  }, []);
+
+  const refreshData = useCallback(() => {
+    console.log("refreshData 리렌더링");
+    if (userRegisterRef.current) {
+      handleSearch();
+    }
+  }, []);
 
   const handleSave = useCallback(
     async (lists: { deleteList: any[]; updateList: any[] }) => {
       console.log("--------->", roleKind);
+      console.log("handleSave 리렌더링");
 
       if (!gridRef.current) return;
 
@@ -250,28 +259,28 @@ const ManageUser: React.FC = () => {
     []
   );
 
-  const registerButton = useMemo(
-    () => (
+  const registerButton = useMemo(() => {
+    console.log("registerButton 리렌더링");
+    return (
       <>
         <ComButton
           size="sm"
           className="me-2"
           variant="primary"
-          onClick={handleRegist}
+          onClick={openPopup}
         >
           등록
         </ComButton>
       </>
-    ),
-    []
-  );
+    );
+  }, []);
 
-  useEffect(() => {
-    if (isRegistered) {
-      handleSearch();
-      setIsRegistered(false);
-    }
-  }, [isRegistered]);
+  // useEffect(() => {
+  //   if (isRegistered) {
+  //     handleSearch();
+  //     setIsRegistered(false);
+  //   }
+  // }, [isRegistered]);
 
   return (
     <Container fluid>
@@ -316,12 +325,7 @@ const ManageUser: React.FC = () => {
           </AgGridWrapper>
         </Col>
       </Row>
-      {/* 팝업 컴포넌트 */}
-      <UserRegistPopup
-        show={showPopup}
-        onClose={handleClosePopup}
-        onRegister={() => setIsRegistered(true)}
-      />
+      {/* <UserRegistPopup onResearchUser={refreshData} ref={userRegisterRef} />) */}
     </Container>
   );
 };
