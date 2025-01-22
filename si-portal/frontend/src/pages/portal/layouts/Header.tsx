@@ -21,7 +21,7 @@ const Header = () => {
       axios
           .get('http://localhost:8080/menu', {
             headers: { Authorization: `Bearer ${state.authToken}` },
-            params: { roleId: state.user.roleId },
+            params: { roleId: state.user.roleId, isMighty: state.user.isMighty },
           })
           .then((res) => {
             if (res.data) {
