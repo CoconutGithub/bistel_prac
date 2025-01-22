@@ -1,9 +1,9 @@
-import {Navigate, useLocation} from 'react-router-dom';
+import {Navigate, useLocation, useNavigate} from 'react-router-dom';
 import {ProtectedRouteProps} from '~types/RouteTypes';
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "~store/Store";
 import {chkLoginToken, setPageButtonAuth} from "~store/AuthSlice";
-import {useCallback, useEffect, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import axios from "axios";
 
 
@@ -14,6 +14,10 @@ const ProtectedRoute = ({element, fallback}: ProtectedRouteProps) => {
     const dispatch = useDispatch<AppDispatch>();
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
     const location = useLocation();
+    const navigate = useNavigate();
+
+    //최초 로그인 후 시스텀에 들어오자 마자 locatoin이 바뀌어서 다시 session을 체크 하는 로직을 막기위해 추가한 flag
+    const isFirstRender = useRef(true);
 
     /*
     한번 생기고 안에 내용은 어떻것에 의해 변경이 이루어지지 않아서
@@ -22,16 +26,6 @@ const ProtectedRoute = ({element, fallback}: ProtectedRouteProps) => {
     재랜더링이 될수도 있기 때문이다.
      */
     const getPageAuth = useCallback(() => {
-
-        console.log(location.pathname);
-
-        if (location.pathname === '/login' || location.pathname === '/main'
-            || location.pathname === '/quick-start'
-            || location.pathname === '/quick-start'
-            || location.pathname.includes("admin")
-        ) {
-            return;
-        }
 
         if(state.user.isMighty === 'Y') {
             dispatch(setPageButtonAuth({
@@ -64,9 +58,8 @@ const ProtectedRoute = ({element, fallback}: ProtectedRouteProps) => {
                                 'canRead': res.data[0].canRead === 'Y' ? true : false,
                             }));
                     } else {
-                        console.log("dddddddddddddddddddddddddddddd");
-                        //XXX-우선주석으로 막고 시작한다.
-                        //navigate('/main');
+                        console.log("여기 들어오는 경우.............메뉴의 보는 권한이 있다가 없어진 경우임.");
+                        navigate('/main');
                     }
                 })
                 .catch((err) => {
@@ -77,34 +70,46 @@ const ProtectedRoute = ({element, fallback}: ProtectedRouteProps) => {
 
     }, [location.pathname])
 
-    useEffect(() => {
+
+
+    const chkAuth = () => {
+        console.log('1.location-Chang/chkAuth:', location.pathname);
+
         // 비동기 작업 실행
         const checkSessionTime = async () => {
             try {
                 const result = await dispatch(chkLoginToken()).unwrap();
-                console.log('chkLoginToken결과:', result);
+                //console.log('chkLoginToken결과:', result);
                 setIsAuthenticated(result); // 인증 결과 저장
 
+                //버튼의 권한을 조회해옴
                 getPageAuth();
             } catch (error) {
                 console.error("Authentication check failed:", error);
                 setIsAuthenticated(false); // 인증 결과 저장
             }
-
-
         };
 
         checkSessionTime();
-    });
+    };
+
+    useEffect(() => {
+        if (isFirstRender.current) {
+            setIsAuthenticated(true);
+            console.log('Skipping chkAuth for first navigation after login');
+            isFirstRender.current = false;
+            return;
+        }
+
+        chkAuth();
+    }, [location.pathname]);
 
 
     if (isAuthenticated === null) {
         return <div>Loading...</div>; // 로딩 상태 표시
     }
 
-    console.log('11111111111==========>', location.pathname);
-
-    console.log('locationPath: ' + location.pathname, 'isAuthenticated: ' + isAuthenticated);
+    console.log('>>> locationPath: ' + location.pathname, 'isAuthenticated: ' + isAuthenticated);
     return isAuthenticated ? <>{element}</> : fallback ? fallback :
         <Navigate to="/login" state={{redirect: location.pathname}} replace/>;
 

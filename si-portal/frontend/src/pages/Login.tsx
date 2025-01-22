@@ -28,7 +28,6 @@ const Login = () => {
         password: password,
       });
 
-      console.log('# handleSubmit:', response);
       dispatch(setLoginToken({
         token: response.data.token,      //JWT token
         title: response.data.title,      //portal 제목
@@ -43,7 +42,7 @@ const Login = () => {
         email: response.data.email,      //email
       }));
 
-      navigate('/main', { replace: true });
+      navigate('/', { replace: true });
 
       } catch (error) {
         console.log('response->', error);
