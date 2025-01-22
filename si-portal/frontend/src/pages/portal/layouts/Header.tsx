@@ -19,26 +19,22 @@ const Header = () => {
   const title = useSelector((state: RootState) => state.auth.title);
 
   useEffect(() => {
-    const fetchMenuData = async () => {
-      try {
-        await axios
-          .get("http://localhost:8080/menu", {
-            headers: { Authorization: `Bearer ${state.authToken}` },
-            params: { roleId: state.user.roleId },
-          })
-          .then((res) => {
-            if (res.data) {
-              console.log("fetchMenuData/menuInfo: ", res.data.menuInfo);
-              console.log("fetchMenuData/routeInfo: ", res.data.routeInfo);
-              setMenuItems(res.data.menuInfo);
-            }
-          })
-          .catch((error) => {
-            console.error("Error fetching menus:", error);
-          });
-      } catch (error) {
-        console.error("Error fetching menus:", error);
-      }
+    const fetchMenuData = () => {
+      axios
+        .get("http://localhost:8080/menu", {
+          headers: { Authorization: `Bearer ${state.authToken}` },
+          params: { roleId: state.user.roleId },
+        })
+        .then((res) => {
+          if (res.data) {
+            console.log("fetchMenuData/menuInfo: ", res.data.menuInfo);
+            console.log("fetchMenuData/routeInfo: ", res.data.routeInfo);
+            setMenuItems(res.data.menuInfo);
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching menus:", error);
+        });
     };
 
     fetchMenuData();

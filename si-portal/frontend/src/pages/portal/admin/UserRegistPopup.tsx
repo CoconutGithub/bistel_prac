@@ -9,7 +9,7 @@ import { useSelector } from "react-redux";
 interface UserRegistPopup {
   show: boolean; // 팝업 표시 여부
   onClose: () => void; // 팝업 닫기 핸들러
-  onRegister: () => void;
+  onRegister?: () => void;
 }
 
 const UserRegistPopup: React.FC<UserRegistPopup> = ({
@@ -133,7 +133,9 @@ const UserRegistPopup: React.FC<UserRegistPopup> = ({
         }
       );
 
-      onRegister();
+      if (onRegister) {
+        onRegister();
+      }
       handleClose();
     } catch (error) {
       console.error("Error occurred:", error);

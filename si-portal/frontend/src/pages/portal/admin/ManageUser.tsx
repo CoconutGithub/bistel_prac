@@ -169,7 +169,7 @@ const ManageUser: React.FC = () => {
     setShowPopup(true);
   }, []);
 
-  const handleSearch = async () => {
+  const handleSearch = () => {
     comAPIContext.showProgressBar();
     axios
       .get("http://localhost:8080/admin/api/get-user", {
