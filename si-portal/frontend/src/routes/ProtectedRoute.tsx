@@ -1,4 +1,4 @@
-import {Navigate, useLocation} from 'react-router-dom';
+import {Navigate, useLocation, useNavigate} from 'react-router-dom';
 import {ProtectedRouteProps} from '~types/RouteTypes';
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "~store/Store";
@@ -14,6 +14,7 @@ const ProtectedRoute = ({element, fallback}: ProtectedRouteProps) => {
     const dispatch = useDispatch<AppDispatch>();
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
     const location = useLocation();
+    const navigate = useNavigate();
 
     /*
     한번 생기고 안에 내용은 어떻것에 의해 변경이 이루어지지 않아서
@@ -66,7 +67,7 @@ const ProtectedRoute = ({element, fallback}: ProtectedRouteProps) => {
                     } else {
                         console.log("dddddddddddddddddddddddddddddd");
                         //XXX-우선주석으로 막고 시작한다.
-                        //navigate('/main');
+                        navigate('/main');
                     }
                 })
                 .catch((err) => {
