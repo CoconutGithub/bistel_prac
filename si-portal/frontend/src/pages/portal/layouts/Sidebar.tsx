@@ -19,13 +19,6 @@ const Sidebar = () => {
     navigate("/main");
   };
 
-  const handleLogout = () => {
-    console.log("Logging out...");
-    dispatch(removeLoginToken());
-    // 로그아웃 처리 로직
-    navigate("/main");
-  };
-
   return (
     <Nav style={{ backgroundColor }} className="flex-column h-100">
       <Nav.Link href="/main/quick-start">Quick start</Nav.Link>
