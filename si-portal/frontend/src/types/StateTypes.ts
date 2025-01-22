@@ -7,11 +7,18 @@ export interface AuthState {
         userName: string;
         roleId: string;
         roleName: string;
+        isMighty: string;
         phoneNumber: string;
         email: string;
         isShowFooter: boolean;
         headerColor: string;
     };
+    pageButtonAuth: {
+        canCreate: boolean,
+        canDelete: boolean,
+        canUpdate: boolean,
+        canRead: boolean,
+    },
     error: string | null;
     title: string;
 }

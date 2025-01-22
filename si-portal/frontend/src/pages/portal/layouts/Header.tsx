@@ -23,7 +23,7 @@ const Header = () => {
       axios
         .get("http://localhost:8080/menu", {
           headers: { Authorization: `Bearer ${state.authToken}` },
-          params: { roleId: state.user.roleId },
+          params: { roleId: state.user.roleId, isMighty: state.user.isMighty },
         })
         .then((res) => {
           if (res.data) {
@@ -59,7 +59,7 @@ const Header = () => {
             ))}
           </Nav>
           <Nav style={{ flex: "0 0 10%" }} className="ms-auto">
-            {state.user!.roleName === "ADMIN" && (
+            {state.user.isMighty === "Y" && (
               <NavDropdown
                 title="Admin"
                 id="basic-nav-dropdown"

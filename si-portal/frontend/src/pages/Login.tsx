@@ -28,7 +28,6 @@ const Login = () => {
         password: password,
       });
 
-      console.log("# handleSubmit:", response);
       dispatch(
         setLoginToken({
           token: response.data.token, //JWT token
@@ -37,6 +36,7 @@ const Login = () => {
           userName: response.data.userName, //userName
           roleId: response.data.roleId,
           roleName: response.data.roleName,
+          isMighty: response.data.isMighty,
           phoneNumber: response.data.phoneNumber,
           footerYN: response.data.footerYN,
           headerColor: response.data.headerColor,
@@ -44,7 +44,7 @@ const Login = () => {
         })
       );
 
-      navigate("/main", { replace: true });
+      navigate("/", { replace: true });
     } catch (error) {
       console.log("response->", error);
       comAPIContext.showToast(

@@ -91,11 +91,11 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                 "\", \"userName\": \"" + user.getUserName() +
                 "\", \"roleId\": \"" + user.getRoleId() +
                 "\", \"roleName\": \"" + user.getRoleName() +
+                "\", \"isMighty\": \"" + user.getIsMighty() +
                 "\", \"phoneNumber\": \"" + user.getPhoneNumber() +
 
                 "\", \"footerYN\": \"" + user.getFooterYN() +
                 "\", \"headerColor\": \"" + user.getHeaderColor() +
-
                 "\", \"email\": \"" + user.getEmail() + "\"}");
 
     }

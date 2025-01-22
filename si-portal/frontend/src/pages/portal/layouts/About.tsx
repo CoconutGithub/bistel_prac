@@ -2,15 +2,12 @@ import { Container, Row, Col } from 'react-bootstrap';
 import ComButton from "~pages/portal/buttons/ComButton";
 import {useContext, useEffect} from "react";
 import {ComAPIContext} from "~components/ComAPIContext";
+import {useSelector} from "react-redux";
+import {RootState} from "~store/Store";
 
 const About = () => {
 
-    const { pageAuth } = useContext(ComAPIContext);
-
-    useEffect(() => {
-
-
-    }, [pageAuth]);
+    const state = useSelector((state: RootState) => state.auth);
 
     const addClick = () => {
         alert("추가버튼 눌러짐")
@@ -28,18 +25,14 @@ const About = () => {
         alert("조회버튼 눌러짐")
     };
 
-    if (!pageAuth) {
-        return <p>Loading page auth......</p>;
-    }
-
     return (
         <Container>
           <Row>
               <div>
-                  <ComButton size="sm" className="me-2" disabled={!pageAuth?.canCreate}    onClick={addClick}>추가</ComButton>
-                  <ComButton size="sm" className="me-2" disabled={!pageAuth?.canDelete}   onClick={delClick}>삭제</ComButton>
-                  <ComButton size="sm" className="me-2" disabled={!pageAuth?.canUpdate}   onClick={updateClick}>수정</ComButton>
-                  <ComButton size="sm" className="me-2" disabled={!pageAuth?.canRead}     onClick={searchClick}>조회</ComButton>
+                  <ComButton size="sm" className="me-2" disabled={!state.pageButtonAuth.canCreate}    onClick={addClick}>추가</ComButton>
+                  <ComButton size="sm" className="me-2" disabled={!state.pageButtonAuth.canDelete}   onClick={delClick}>삭제</ComButton>
+                  <ComButton size="sm" className="me-2" disabled={!state.pageButtonAuth.canUpdate}   onClick={updateClick}>수정</ComButton>
+                  <ComButton size="sm" className="me-2" disabled={!state.pageButtonAuth.canRead}     onClick={searchClick}>조회</ComButton>
               </div>
           </Row>
           <Row>

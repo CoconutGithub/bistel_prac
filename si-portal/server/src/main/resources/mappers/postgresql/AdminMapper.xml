@@ -150,6 +150,7 @@
             ROW_NUMBER() over () AS GRID_ROW_ID
             ,A.ROLE_ID
             ,A.ROLE_NAME
+            ,A.STATUS
             ,TO_CHAR(A.CREATE_DATE, 'YYYY-MM-DD HH24:MI:SS') AS CREATE_DATE
             ,A.CREATE_BY
             ,TO_CHAR(A.UPDATE_DATE, 'YYYY-MM-DD HH24:MI:SS') AS UPDATE_DATE
@@ -169,44 +170,69 @@
         FROM P_ROLE
     </select>
 
-    <update id="updateRole">
-        UPDATE P_ROLE
-        SET
-        ROLE_NAME = #{roleName},
-        STATUS = #{status},
-        CAN_CREATE = #{canCreate},
-        CAN_READ = #{canRead},
-        CAN_UPDATE = #{canUpdate},
-        CAN_DELETE = #{canDelete},
-        MENU = #{menu}
-        WHERE ROLE_ID = #{roleId}
-    </update>
+<!--    <update id="updateRole">-->
+<!--        UPDATE P_ROLE-->
+<!--        SET-->
+<!--        ROLE_NAME = #{roleName},-->
+<!--        STATUS = #{status},-->
+<!--        CAN_CREATE = #{canCreate},-->
+<!--        CAN_READ = #{canRead},-->
+<!--        CAN_UPDATE = #{canUpdate},-->
+<!--        CAN_DELETE = #{canDelete},-->
+<!--        MENU = #{menu}-->
+<!--        WHERE ROLE_ID = #{roleId}-->
+<!--    </update>-->
 
-    <insert id="insertRole">
-        INSERT INTO P_ROLE (ROLE_ID, ROLE_NAME, STATUS, CAN_CREATE, CAN_READ, CAN_UPDATE, CAN_DELETE, MENU)
-        VALUES (#{roleId}, #{roleName}, #{status}, #{canCreate}, #{canRead}, #{canUpdate}, #{canDelete}, #{menu})
+    <insert id="insertRole" parameterType="map">
+        INSERT INTO p_role (ROLE_NAME, STATUS, update_date, CREATE_BY, UPDATE_BY)
+        VALUES (#{roleName}, #{status}, CURRENT_TIMESTAMP, 'SYSTEM', 'SYSTEM')
     </insert>
 
     <delete id="deleteRole">
         DELETE FROM P_ROLE WHERE ROLE_ID = #{roleId}
     </delete>
 
-    <update id="updatePermission">
-        UPDATE p_permission
-        SET can_create = #{canCreate}
-          , can_read = #{canRead}
-          , can_update = #{canUpdate}
-          , can_delete = #{canDelete}
-          , create_date = CURRENT_TIMESTAMP
-          , UPDATE_BY = 'ADMIN'
-        WHERE permission_id = #{permissionId}
+    <update id="updateRole" parameterType="map">
+            UPDATE p_role
+               SET ROLE_NAME = #{roleName},
+                   STATUS = #{status},
+                   update_date = CURRENT_TIMESTAMP,
+                   CREATE_BY = 'SYSTEM',
+                   UPDATE_BY = 'SYSTEM'
+             WHERE ROLE_ID = #{roleId}
     </update>
 
-    <delete id="deletePermission" >
-        DELETE FROM p_permission
-        WHERE permission_id = #{permissionId}
+    <delete id="deleteRoles" parameterType="list">
+        DELETE FROM P_ROLE WHERE ROLE_ID IN
+        <foreach item="roleId" collection="list" open="(" separator="," close=")">
+            #{roleId}
+        </foreach>
     </delete>
 
+    <select id="getMenuIdSeq">
+        SELECT NEXTVAL('SEQ_P_MENU') AS MENU_ID
+    </select>
 
+    <insert id="insertMenu" parameterType="map">
+        INSERT INTO dev.p_menu
+        (menu_id, menu_name, parent_menu_id, "depth", "path", "position", child_yn, status, create_date)
+        VALUES
+            (#{menuId}, #{menuName}, #{parentMenuId}, #{depth}, #{path}, #{position}, #{childYn}, #{status}, CURRENT_TIMESTAMP);
+    </insert>
+
+    <delete id="deleteMenu" parameterType="map">
+        DELETE FROM P_MENU WHERE MENU_ID = #{menuId} or PARENT_MENU_ID = #{menuId};
+    </delete>
+
+    <update id="updateMenuContent" parameterType="map">
+        UPDATE p_menu SET
+                          MENU_NAME = #{menuName},
+                          PATH = #{path},
+                          POSITION = #{position},
+                          STATUS = #{status},
+                          UPDATE_DATE = CURRENT_TIMESTAMP,
+                          UPDATE_BY = #{userId}
+        WHERE MENU_ID = #{menuId}
+    </update>
 
 </mapper>
