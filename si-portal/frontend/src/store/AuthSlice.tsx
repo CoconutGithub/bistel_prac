@@ -94,7 +94,7 @@ export const chkLoginToken = createAsyncThunk<
             dispatch(removeLoginToken());
             return false;
         } else {
-            await dispatch(refreshToken());
+            //await dispatch(refreshToken());
             return true;
         }
     } catch (error) {
