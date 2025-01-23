@@ -5,6 +5,7 @@ import {RootState} from "~store/Store";
 import {ComAPIContext} from "~components/ComAPIContext";
 import {Container, Dropdown, Form, Button, Modal} from "react-bootstrap";
 import ComButton from "~pages/portal/buttons/ComButton";
+import { cachedAuthToken } from "~store/AuthSlice";
 
 // 컴포넌트 Props 타입 정의
 interface ManageMenuTreeProps {
@@ -30,7 +31,6 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
     console.log("ManageMenuTree 생성됨.");
 
     //==start: 여기는 무조건 공통으로 받는다고 생각하자
-    const state = useSelector((state: RootState) => state.auth);
     const comAPIContext = useContext(ComAPIContext);
     //==end: 여기는 무조건 공통으로 받는다고 생각하자
 
@@ -59,7 +59,7 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
                 comAPIContext.showProgressBar();
                 const res = await axios.get("http://localhost:8080/admin/api/get-menu-tree", {
                     headers: {
-                        Authorization: `Bearer ${state.authToken}`,
+                        Authorization: `Bearer ${cachedAuthToken}`,
                     },
                 });
 
@@ -145,7 +145,7 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
         console.log('추가전 updatedMenuDatau :', updatedMenuData)
         const res = await axios.get("http://localhost:8080/admin/api/get-menu-id", {
             headers: {
-                Authorization: `Bearer ${state.authToken}`,
+                Authorization: `Bearer ${cachedAuthToken}`,
             },
         });
 
@@ -274,7 +274,7 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
             };
             console.log('payload :', payload);
             const response = await axios.post('http://localhost:8080/admin/api/delete-menu', payload, {
-                headers: { Authorization: `Bearer ${state.authToken}` },
+                headers: { Authorization: `Bearer ${cachedAuthToken}` },
             });
             console.log('response:', response);
             if (response.data.messageCode === 'success') {
