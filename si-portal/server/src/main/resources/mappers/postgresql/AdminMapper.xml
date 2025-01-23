@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.siportal.portal.mapper.AdminMapper">
+    <select id= "getMenuId" resultType="INTEGER">
+        SELECT NEXTVAL('SEQ_P_MENU');
+    </select>
+    <insert id="createMenu">
+        INSERT INTO P_MENU (MENU_ID, MENU_NAME, PARENT_MENU_ID, PATH, POSITION, CHILD_YN, STATUS, DEPTH, CREATE_DATE, CREATE_BY)
+        VALUES (#{menuId}, #{menuName}, #{parentMenuId}, #{path}, #{position}, #{childYn}, #{status}, #{depth}, NOW(), #{createBy})
+    </insert>
+    <delete id="deleteMenu">
+        DELETE FROM P_MENU
+        WHERE MENU_ID = #{menuId}
+    </delete>
     <update id="updateSchedule">
         UPDATE P_SCHEDULER
         SET
@@ -220,9 +231,9 @@
             (#{menuId}, #{menuName}, #{parentMenuId}, #{depth}, #{path}, #{position}, #{childYn}, #{status}, CURRENT_TIMESTAMP);
     </insert>
 
-    <delete id="deleteMenu" parameterType="map">
-        DELETE FROM P_MENU WHERE MENU_ID = #{menuId} or PARENT_MENU_ID = #{menuId};
-    </delete>
+<!--    <delete id="deleteMenu" parameterType="map">-->
+<!--        DELETE FROM P_MENU WHERE MENU_ID = #{menuId} or PARENT_MENU_ID = #{menuId};-->
+<!--    </delete>-->
 
     <update id="updateMenuContent" parameterType="map">
         UPDATE p_menu SET
