@@ -9,6 +9,7 @@ import { RootState } from "~store/Store";
 import { useSelector } from "react-redux";
 import { ComAPIContext } from "~components/ComAPIContext";
 import axios from "axios";
+import { cachedAuthToken } from "~store/AuthSlice";
 
 interface ManageMenuContentProps {
     chooseMenuData : ChooseMenuData | null;
@@ -110,7 +111,7 @@ const ManageMenuContent: React.FC<ManageMenuContentProps> = ({ chooseMenuData })
             comAPIContext.showProgressBar();
             const res = await axios.get<Role[]>("http://localhost:8080/admin/api/get-roles-list", {
                 headers: {
-                    Authorization: `Bearer ${state.authToken}`,
+                    Authorization: `Bearer ${cachedAuthToken}`,
                 }
             });
 
@@ -160,7 +161,7 @@ const ManageMenuContent: React.FC<ManageMenuContentProps> = ({ chooseMenuData })
         try {
             comAPIContext.showProgressBar();
             const res = await axios.post('http://localhost:8080/admin/api/update-menu-content', data ,{
-              headers: { Authorization: `Bearer ${state.authToken}` },
+              headers: { Authorization: `Bearer ${cachedAuthToken}` },
             });
       
             console.log(res);
@@ -208,7 +209,7 @@ const ManageMenuContent: React.FC<ManageMenuContentProps> = ({ chooseMenuData })
                 status: status,
             }
             ,{
-              headers: { Authorization: `Bearer ${state.authToken}` },
+              headers: { Authorization: `Bearer ${cachedAuthToken}` },
             });
       
             console.log(response);

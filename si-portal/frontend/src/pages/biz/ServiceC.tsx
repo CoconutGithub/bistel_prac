@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from "~store/Store";
 import axios from 'axios';
 import ComButton from '../portal/buttons/ComButton';
+import {cachedAuthToken} from "~store/AuthSlice";
 
 function ServiceC() {
   const state = useSelector((state: RootState) => state.auth);
@@ -39,7 +40,7 @@ function ServiceC() {
     try {
       comAPIContext.showProgressBar();
       const response = await axios.post('http://localhost:8080/admin/api/send-email', emailData, {
-        headers: { Authorization: `Bearer ${state.authToken}` },
+        headers: { Authorization: `Bearer ${cachedAuthToken}` },
       });
 
       console.log(response);

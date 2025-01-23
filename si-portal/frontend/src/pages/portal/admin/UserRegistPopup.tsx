@@ -11,6 +11,7 @@ import ComButton from "../buttons/ComButton";
 import axios from "axios";
 import { RootState } from "@/store/Store";
 import { useSelector } from "react-redux";
+import { cachedAuthToken } from "~store/AuthSlice";
 
 interface IUserRegistPopup {
   onResearchUser?: () => void;
@@ -89,7 +90,7 @@ const UserRegistPopup = forwardRef(
           "http://localhost:8080/admin/api/get-roles-list",
           {
             headers: {
-              Authorization: `Bearer ${state.authToken}`,
+              Authorization: `Bearer ${cachedAuthToken}`,
             },
           }
         );
@@ -110,7 +111,7 @@ const UserRegistPopup = forwardRef(
           "http://localhost:8080/admin/api/exist-user",
           { userId },
           {
-            headers: { Authorization: `Bearer ${state.authToken}` },
+            headers: { Authorization: `Bearer ${cachedAuthToken}` },
           }
         );
 
@@ -142,7 +143,7 @@ const UserRegistPopup = forwardRef(
           "http://localhost:8080/admin/api/register-user",
           userInfo,
           {
-            headers: { Authorization: `Bearer ${state.authToken}` },
+            headers: { Authorization: `Bearer ${cachedAuthToken}` },
           }
         );
 

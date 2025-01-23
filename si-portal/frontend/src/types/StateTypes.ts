@@ -1,6 +1,5 @@
 // AuthState 타입 정의
 export interface AuthState {
-    authToken: string | null;
     isAuthenticated: boolean;
     user: {
         userId: string;

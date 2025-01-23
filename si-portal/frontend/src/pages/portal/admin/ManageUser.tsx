@@ -16,6 +16,7 @@ import { RootState } from "~store/Store";
 import UserRegistPopup from "~pages/portal/admin/UserRegistPopup";
 import { AgGridWrapperHandle } from "~types/GlobalTypes";
 import ComButton from "~pages/portal/buttons/ComButton"; // 팝업 컴포넌트 가져오기
+import { cachedAuthToken } from "~store/AuthSlice";
 
 // 컬럼 정의
 const columnDefs = [
@@ -106,7 +107,6 @@ const ManageUser: React.FC = () => {
   console.log("ManageUser 생성됨.");
 
   //==start: 여기는 무조건 공통으로 받는다고 생각하자
-  const strAuthToken = useSelector((state: RootState) => state.auth.authToken);
   const comAPIContext = useContext(ComAPIContext);
   //==end: 여기는 무조건 공통으로 받는다고 생각하자
 
@@ -126,7 +126,7 @@ const ManageUser: React.FC = () => {
             "http://localhost:8080/admin/api/get-roles-list",
             {
               headers: {
-                Authorization: `Bearer ${strAuthToken}`,
+                Authorization: `Bearer ${cachedAuthToken}`,
               },
             }
         );
@@ -168,7 +168,7 @@ const ManageUser: React.FC = () => {
     comAPIContext.showProgressBar();
     axios
         .get("http://localhost:8080/admin/api/get-user", {
-          headers: { Authorization: `Bearer ${strAuthToken}` },
+          headers: { Authorization: `Bearer ${cachedAuthToken}` },
           params: { userName: inputRef.current?.value || "" },
         })
         .then((res) => {
@@ -236,7 +236,7 @@ const ManageUser: React.FC = () => {
               "http://localhost:8080/admin/api/update-user",
               payload,
               {
-                headers: { Authorization: `Bearer ${strAuthToken}` },
+                headers: { Authorization: `Bearer ${cachedAuthToken}` },
               }
           );
 

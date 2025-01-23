@@ -5,7 +5,7 @@ import {AppDispatch, RootState} from "~store/Store";
 import {chkLoginToken, setPageButtonAuth} from "~store/AuthSlice";
 import {useCallback, useEffect, useRef, useState} from "react";
 import axios from "axios";
-
+import { cachedAuthToken } from "~store/AuthSlice";
 
 // route guard
 const ProtectedRoute = ({element, fallback}: ProtectedRouteProps) => {
@@ -37,7 +37,7 @@ const ProtectedRoute = ({element, fallback}: ProtectedRouteProps) => {
         } else {
             axios
                 .get("http://localhost:8080/page-auth", {
-                    headers: {Authorization: `Bearer ${state.authToken}`},
+                    headers: {Authorization: `Bearer ${cachedAuthToken}`},
                     params: {roleId: state.user.roleId, path: location.pathname},
                 })
                 .then((res) => {
