@@ -26,8 +26,7 @@ interface MenuItem {
     status: string;
 }
 
-const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
-
+const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ onMenuClick, refreshTree }) => {
     console.log("ManageMenuTree 생성됨.");
 
     //==start: 여기는 무조건 공통으로 받는다고 생각하자
@@ -82,7 +81,7 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
         };
 
         fetchData();
-    }, []);
+    }, [refreshTree]);
 
     //################### 메소드 영역-start ####################
     const buildTreeWithRoot = (data: MenuItem[]): MenuItem[] => {

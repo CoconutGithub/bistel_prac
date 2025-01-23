@@ -1,8 +1,8 @@
-import React, {useEffect, useMemo, useRef, useState, useContext} from "react";
-import {Col, Container, Form, Row} from "react-bootstrap";
+import React, { useEffect, useMemo, useRef, useState, useContext, useCallback } from "react";
+import { Col, Container, Form, Row } from "react-bootstrap";
 import { ChooseMenuData } from "~types/ChooseMenuData";
 import AgGridWrapper from "~components/AgGridWrapper";
-import { AgGridWrapperHandle } from "~types/GlobalTypes"
+import { AgGridWrapperHandle } from "~types/GlobalTypes";
 import ComButton from "~pages/portal/buttons/ComButton";
 import RoleRegistPopup from "~pages/portal/admin/RoleRegistPopup";
 import { RootState } from "~store/Store";
@@ -12,7 +12,7 @@ import axios from "axios";
 import { cachedAuthToken } from "~store/AuthSlice";
 
 interface ManageMenuContentProps {
-    chooseMenuData : ChooseMenuData | null;
+    chooseMenuData: ChooseMenuData | null;
 }
 
 interface Role {
@@ -20,7 +20,25 @@ interface Role {
     roleName: string;
 }
 
-let columnDefs = [
+interface ColumnDef {
+    field: string;
+    headerName: string;
+    cellEditor?: string;
+    sortable: boolean;
+    filter: boolean;
+    editable: boolean;
+    width: number;
+    cellDataType?: string;
+    valueGetter?: (params: any) => boolean;
+    valueSetter?: (params: any) => boolean;
+    cellEditorParams?: {
+        values: string[];
+    };
+}
+
+let roleKind: any = null;
+
+let columnDefs: ColumnDef[] = [
     { field: 'roleName', headerName: '권한 이름', cellEditor: 'agSelectCellEditor', sortable: true, filter: true, editable: true, width: 150 },
     { field: 'canCreate', headerName: '생성 권한',
         cellDataType: 'boolean',
@@ -74,56 +92,107 @@ let columnDefs = [
         sortable: true, filter: true, editable: true, width: 150 },
     { field: 'createDate', headerName: '생성일', sortable: true, filter: true, editable: false, width: 150 },
     { field: 'createBy', headerName: '생성자', sortable: true, filter: true, editable: false, width: 100 },
-    { field: 'updateDate', headerName: '업데이트일', sortable: true, filter: false, width: 150 },
+    { field: 'updateDate', headerName: '업데이트일', sortable: true, filter: false, editable: false, width: 150 },
     { field: 'updateBy', headerName: '수정자', sortable: true, filter: true, editable: false, width: 100 },
 ];
 
-const ManageMenuContent: React.FC<ManageMenuContentProps> = ({ chooseMenuData }) => {
-
+const ManageMenuContent: React.FC<{ chooseMenuData: ChooseMenuData | null; onSave: () => void }> = ({ chooseMenuData, onSave }) => {
     console.log("ManageMenuContent 생성됨.");
 
     const [isActive, setIsActive] = useState<string>('INACTIVE');
     const gridRef = useRef<AgGridWrapperHandle>(null);
     const [showPopup, setShowPopup] = useState(false);
-    const [position, setPosition] = useState<number|any>(chooseMenuData?.position);
-    const [path, setPath] = useState<string|any>(chooseMenuData?.path);
-    const [menuName, setMenuName] = useState<string|any>(chooseMenuData?.menuName);
+    const [position, setPosition] = useState<number | any>(chooseMenuData?.position);
+    const [path, setPath] = useState<string | any>(chooseMenuData?.path);
+    const [menuName, setMenuName] = useState<string | any>(chooseMenuData?.menuName); // menuName state 관리
     const state = useSelector((state: RootState) => state.auth);
     const comAPIContext = useContext(ComAPIContext);
     const pathRef = useRef<HTMLInputElement>(null);
     const menuNameRef = useRef<HTMLInputElement>(null);
-    
+
+    console.log(chooseMenuData)
+
+    // chooseMenuData가 변경될 때마다 상태를 업데이트합니다.
     useEffect(() => {
-        
-        console.log("====>", chooseMenuData)
-        
-        setPosition(Number(chooseMenuData?.position));
-        setPath(chooseMenuData?.path);
-        setMenuName(chooseMenuData?.menuName);
-        setIsActive(chooseMenuData?.status ?? 'INACTIVE');
-        
-        fetchData();
+        if (chooseMenuData) {
+            setPosition(Number(chooseMenuData?.position));
+            setPath(chooseMenuData?.path);
+            setMenuName(chooseMenuData?.menuName); // menuName 업데이트
+            setIsActive(chooseMenuData?.status ?? 'INACTIVE');
+            fetchData()
+        }
+    }, [chooseMenuData]); // chooseMenuData가 변경될 때마다 호출됩니다.
 
-    }, [chooseMenuData]);
+    useEffect(() => {
+        getRoleListData()
+    }, [])
 
-    const fetchData = async () => {
+    const getRoleListData = async () => {
         try {
             comAPIContext.showProgressBar();
             const res = await axios.get<Role[]>("http://localhost:8080/admin/api/get-roles-list", {
                 headers: {
                     Authorization: `Bearer ${cachedAuthToken}`,
-                }
+                },
             });
+    
+            const roleList = res.data;
 
+            roleKind = res.data;
+    
+            console.log('roleList ============================>', roleList);
+    
             columnDefs = columnDefs.map((col) => {
                 if (col.field === 'roleName') {
-                  return {
-                    ...col,
-                    cellEditorParams: { values: res.data.map((item:any) => item.roleName) },
-                  };
+                    return {
+                        ...col,
+                        cellEditorParams: {
+                            values: roleList.map((role: Role) => role.roleName), // 권한 이름만 추가
+                        },
+                        valueSetter: (params: any) => {
+                            const newRoleName = params.newValue;
+                            const selectedRole = roleList.find((role) => role.roleName === newRoleName);
+    
+                            if (selectedRole) {
+                                params.data.roleId = selectedRole.roleId; // roleId를 매핑
+                                params.data.roleName = selectedRole.roleName;
+                                return true;
+                            }
+                            return false;
+                        },
+                    };
                 }
-                return col; // 반드시 반환
-              });
+                return col;
+            });
+        } catch (error: any) {
+            console.error("Error fetching roles:", error);
+            const errorMessage = error.response?.data || error.message || "Unknown error";
+            comAPIContext.showToast("Error fetching roles: " + errorMessage, "danger");
+        } finally {
+            comAPIContext.hideProgressBar();
+        }
+    };
+    
+
+    const fetchData = async () => {
+        try {
+            comAPIContext.showProgressBar();
+            if (chooseMenuData !== null) {
+                const response = await axios.get("http://localhost:8080/admin/api/get-menu-role", {
+                    headers: {
+                        Authorization: `Bearer ${cachedAuthToken}`,
+                    },
+                    params: {
+                        menuIdStr: chooseMenuData?.menuId
+                    }
+                });
+
+                if (gridRef.current && response.data !== "조회된 데이터가 없습니다") {
+                    gridRef.current.setRowData(response.data);
+                } else {
+                    gridRef?.current?.setRowData([]);
+                }
+            }
         } catch (error: any) {
             console.error("Error fetching roles:", error);
             const errorMessage = error.response?.data || error.message || "Unknown error";
@@ -133,19 +202,15 @@ const ManageMenuContent: React.FC<ManageMenuContentProps> = ({ chooseMenuData })
         }
     };
 
+    const onchangeMenuName = () => {
+
+    }
+
     const handleSave = async () => {
-        console.log('추가된 메뉴 저장') // 화면 랜더링 필요 메뉴 해더, 메뉴, 
-        console.log(chooseMenuData)
+        console.log('추가된 메뉴 저장');
 
         const pathValue = pathRef?.current?.value;  // ref로 저장된 값을 가져옴
-        console.log('저장된 메뉴 경로:', pathValue);
-
         const menuNameValue = menuNameRef?.current?.value;
-        console.log('변경된 이름:', menuNameValue)
-
-        console.log(pathRef)
-
-        console.log(state.user?.userId)
 
         const data = {
             menuName: menuNameValue,
@@ -154,9 +219,7 @@ const ManageMenuContent: React.FC<ManageMenuContentProps> = ({ chooseMenuData })
             status: isActive,
             userId: state.user?.userId,
             menuId: chooseMenuData?.menuId,
-        }
-
-        console.log(data)
+        } 
 
         try {
             comAPIContext.showProgressBar();
@@ -167,63 +230,75 @@ const ManageMenuContent: React.FC<ManageMenuContentProps> = ({ chooseMenuData })
             console.log(res);
             comAPIContext.hideProgressBar();
             alert('Save successfully!');
+            onSave();
         } catch (error) {
-            console.error('Error sending email:', error);
+            console.error('Error saving menu:', error);
             comAPIContext.hideProgressBar();
-            alert('Failed to send email');
+            alert('Failed to save menu');
         }
-
     };
 
-    const handleGridSave = () => {
-
-    };
-
-    const handleMenuName = () => {
-
-    };
-
-    const handleMenuPath = () => {
-        
-    };
-
-    const handleRegist = () => {
-        console.log('Role 추가 Button:', )
-        setShowPopup(true);
-    };
-
-    const handleClosePopup = () => {
-        setShowPopup(false);
-    }
-
-    const handleSavePopup = async(roleName: string, status: string) => {
-        console.log('savePopup')
-        console.log(state.user?.userName)
-
-        try {
+    const handleGridSave = async (lists: { deleteList: any[]; updateList: any[], createList: any[] }) => {
+            console.log(chooseMenuData)
+          if (!gridRef.current) return;
+  
+          if (lists.deleteList.length === 0 && lists.updateList.length === 0 && lists.createList.length === 0) {
+            comAPIContext.showToast("저장할 데이터가 없습니다.", "dark");
+            return;
+          }
+  
+          try {
             comAPIContext.showProgressBar();
-            const response = await axios.post('http://localhost:8080/admin/api/save-role',
-            {
-                userName: state.user?.userName,
-                roleName: roleName,
-                status: status,
-            }
-            ,{
-              headers: { Authorization: `Bearer ${cachedAuthToken}` },
-            });
-      
-            console.log(response);
-            comAPIContext.hideProgressBar();
-            alert('Save successfully!');
-        } catch (error) {
-            console.error('Error sending email:', error);
-            alert('Failed to send email');
-        }
 
-    }
+            lists.createList.map(r => {
+                r.menuId = chooseMenuData?.menuId
+                r.userId = state.user?.userId
+            })
+
+            lists.updateList.map(r => {
+                r.menuId = chooseMenuData?.menuId
+                r.userId = state.user?.userId
+                const roleData: any = roleKind.find(
+                    (e: any) => e.roleName === r.roleName
+                );
+                r.roleId = roleData.roleId
+            })
+
+            lists.createList.map(r => {
+                r.menuId = chooseMenuData?.menuId
+                r.userId = state.user?.userId
+            })
+
+            console.log(lists)
+
+            // 전송 데이터 구성
+            const payload = {
+              updateList: lists.updateList,
+              deleteList: lists.deleteList,
+              createList: lists.createList
+            };
+  
+            await axios.post(
+                "http://localhost:8080/admin/api/update-menu-role",
+                payload,
+                {
+                  headers: { Authorization: `Bearer ${cachedAuthToken}` },
+                }
+            );
+  
+            comAPIContext.showToast("저장되었습니다.", "success");
+            fetchData(); // 저장 후 최신 데이터 조회
+          } catch (err) {
+            console.error("Error saving data:", err);
+            comAPIContext.showToast("저장 중 오류가 발생했습니다.", "danger");
+            fetchData();
+          } finally {
+            comAPIContext.hideProgressBar();
+          }
+        };
 
     const roleRegistButton = useMemo(() => (
-        <ComButton className="me-3" onClick={handleRegist} >Role추가</ComButton>
+        <ComButton className="me-3" onClick={() => setShowPopup(true)}>Role추가</ComButton>
     ), []);
 
     return (
@@ -271,9 +346,9 @@ const ManageMenuContent: React.FC<ManageMenuContentProps> = ({ chooseMenuData })
                                 <Form.Control
                                     type="number"
                                     value={position || 0}
-                                    onChange={(e) => setPosition(e.target.value)} 
                                     max={9999}
                                     size="sm"
+                                    onChange={(e) => setPosition(e.target.value)} 
                                 />
                             </Col>
                         </Form.Group>
@@ -287,12 +362,12 @@ const ManageMenuContent: React.FC<ManageMenuContentProps> = ({ chooseMenuData })
                                 <Form.Control
                                     type="text"
                                     ref={menuNameRef}  // ref로 직접 접근
-                                    defaultValue={menuName || ''}
+                                    value={menuName || ''}  // menuName 상태값 사용
                                     size="sm"
                                     style={{
                                         backgroundColor: "#f0f8ff", // 연한 파란색
                                     }}
-                                    onChange={handleMenuName}
+                                    onChange={onchangeMenuName}  // 변경시 menuName 상태 업데이트
                                 />
                             </Col>
                         </Form.Group>
@@ -306,11 +381,12 @@ const ManageMenuContent: React.FC<ManageMenuContentProps> = ({ chooseMenuData })
                             <Form.Control
                                 type="text"
                                 ref={pathRef}  // ref로 직접 접근
-                                defaultValue={path || ''}  // ref를 사용해 입력값을 관리
+                                value={path || ''}  // path 상태값 사용
                                 size="sm"
                                 style={{
                                     backgroundColor: "#f0f8ff", // 연한 파란색
                                 }}
+                                onChange={(e) => (e.target.value)}  // 변경시 menuName 상태 업데이트
                             />
                             </Col>
                         </Form.Group>
@@ -364,9 +440,9 @@ const ManageMenuContent: React.FC<ManageMenuContentProps> = ({ chooseMenuData })
             )}
             <RoleRegistPopup
                 show={showPopup}
-                onClose={handleClosePopup}
-                onSave={handleSavePopup}
-                />
+                onClose={() => setShowPopup(false)}
+                onSave={() => setShowPopup(false)}
+            />
         </Container>
     );
 };

@@ -504,6 +504,57 @@ public class AdminService {
         }
     }
 
+    @GetMapping("/api/get-menu-role")
+    public ResponseEntity<?> getMenuRole(@RequestParam String menuIdStr) {
+        try {
+            Integer menuId = Integer.parseInt(menuIdStr);
+            List<ComResultMap> roles = adminMapper.getMenuRole(menuId); // 모든 권한 조회 메서드
+            if (roles.isEmpty()) {
+                return ResponseEntity.ok("조회된 데이터가 없습니다");
+            }
+            return ResponseEntity.ok(roles);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/api/update-menu-role")
+    public ResponseEntity<?> updateMenuRole(@RequestBody Map<String, Object> requestData) {
+        try {
+            // 데이터 파싱
+            List<Map<String, Object>> updateList = (List<Map<String, Object>>) requestData.get("updateList");
+            List<Map<String, Object>> deleteList = (List<Map<String, Object>>) requestData.get("deleteList");
+            List<Map<String, Object>> createList = (List<Map<String, Object>>) requestData.get("createList");
+
+            for (Map<String, Object> role : createList) {
+                System.out.println(role);
+                adminMapper.createMenuRole(role);
+            }
+
+            // Update 처리
+            for (Map<String, Object> role : updateList) {
+                System.out.println(role);
+                adminMapper.updateMenuRole(role);
+            }
+
+            // Delete 처리
+            for (Map<String, Object> role : deleteList) {
+                System.out.println(role);
+                adminMapper.deleteMenuRole(role);
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("messageCode", "success");
+            response.put("message", "모든 작업이 성공적으로 처리되었습니다.");
+            return ResponseEntity.ok(null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
+
     @GetMapping("/api/get-roles-list")
     public ResponseEntity<?> getRoleList() {
         try {
