@@ -4,7 +4,7 @@ import { AuthState } from '~types/StateTypes';
 
 
 // 전역 변수로 authToken 캐싱
-export let cachedAuthToken: string | null = null;
+export let cachedAuthToken: string | null = sessionStorage.getItem('authToken');
 
 interface DecodedToken {
     exp: number; // 만료 시간 (Unix Timestamp)
@@ -67,7 +67,11 @@ export const refreshToken = createAsyncThunk<
         }
 
         const data = await response.json();
+
         cachedAuthToken = data.token; // 새로운 토큰을 전역 변수에 저장
+        sessionStorage.setItem('authToken', cachedAuthToken!);
+
+
         return data.token;//xxx-여기필요한가
     } catch (error) {
         return rejectWithValue((error as Error).message);
@@ -96,7 +100,9 @@ export const chkLoginToken = createAsyncThunk<
 
         if (now >= expiration) {
             dispatch(removeLoginToken());
-            cachedAuthToken = null; // 전역 토큰 초기화
+            // cachedAuthToken = null; // 전역 토큰 초기화
+            // sessionStorage.removeItem('authToken');
+
             return false;
         } else {
             await dispatch(refreshToken());
@@ -104,7 +110,9 @@ export const chkLoginToken = createAsyncThunk<
         }
     } catch (error) {
         dispatch(removeLoginToken());
-        cachedAuthToken = null; // 토큰 초기화
+        // cachedAuthToken = null; // 토큰 초기화
+        // sessionStorage.removeItem('authToken');
+
         console.error('Invalid token:', error);
         return false;
     }
@@ -134,7 +142,11 @@ const authSlice = createSlice({
             console.log('setLoginToken-UserId:', action.payload.userId);
 
             state.title = action.payload.title;
+
             cachedAuthToken = action.payload.token; // 전역 변수에 토큰 저장
+            sessionStorage.setItem('authToken', action.payload.token); // sessionStorage에 저장
+
+
             state.isAuthenticated = true;
             state.user = {
                 userId: action.payload.userId,
@@ -150,6 +162,8 @@ const authSlice = createSlice({
         },
         removeLoginToken(state) {
             cachedAuthToken = null; // 전역 변수 초기화
+            sessionStorage.removeItem('authToken');
+
             state.isAuthenticated = false;
             state.user = {
                 userId: '',
@@ -195,12 +209,16 @@ const authSlice = createSlice({
                 refreshToken.rejected,
                 (state, action: PayloadAction<string | undefined>) => {
                     cachedAuthToken = null;  //전역 토근 초기화
+                    sessionStorage.removeItem('authToken');
+
                     state.isAuthenticated = false;
                     state.error = action.payload || 'Unknown error';
                 }
             )
             .addCase(chkLoginToken.rejected, (state) => {
                 cachedAuthToken = null;
+                sessionStorage.removeItem('authToken');
+
                 state.isAuthenticated = false;
                 state.user = {
                     userId: '',
