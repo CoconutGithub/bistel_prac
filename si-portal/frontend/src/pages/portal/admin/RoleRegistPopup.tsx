@@ -1,6 +1,5 @@
-// RoleRegistPopup.tsx
-import React, { useState } from 'react';
-import { Modal, Button, Form, Col, Row } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Modal, Form, Col, Row } from 'react-bootstrap';
 import ComButton from "~pages/portal/buttons/ComButton";
 
 interface RoleRegistPopupProps {
@@ -13,8 +12,14 @@ const RoleRegistPopup: React.FC<RoleRegistPopupProps> = ({ show, onClose, onSave
     const [roleName, setRoleName] = useState('');
     const [status, setStatus] = useState('ACTIVE'); // 기본값 'ACTIVE'
 
+    useEffect(() => {
+        if (!show) {
+            setRoleName(''); // 팝업이 닫힐 때 roleName 초기화
+        }
+    }, [show]);
+
     const handleSave = () => {
-        onSave(roleName, status);  // 부모 컴포넌트로 roleName과 status 전달
+        onSave(roleName, status); // 부모 컴포넌트로 roleName과 status 전달
         onClose(); // 팝업 닫기
     };
 
@@ -36,7 +41,7 @@ const RoleRegistPopup: React.FC<RoleRegistPopupProps> = ({ show, onClose, onSave
                                 type="text"
                                 placeholder="Input Name"
                                 value={roleName}
-                                onChange={(e) => setRoleName(e.target.value)}  // Role Name 변경
+                                onChange={(e) => setRoleName(e.target.value)} // Role Name 변경
                             />
                         </Col>
                     </Form.Group>
@@ -46,7 +51,7 @@ const RoleRegistPopup: React.FC<RoleRegistPopupProps> = ({ show, onClose, onSave
                         <Col sm={9}>
                             <Form.Select
                                 value={status}
-                                onChange={(e) => setStatus(e.target.value)}  // 상태 변경
+                                onChange={(e) => setStatus(e.target.value)} // 상태 변경
                             >
                                 <option value="ACTIVE">Active</option>
                                 <option value="INACTIVE">InActive</option>
@@ -59,7 +64,10 @@ const RoleRegistPopup: React.FC<RoleRegistPopupProps> = ({ show, onClose, onSave
                 <ComButton variant="secondary" onClick={handleSave}>
                     Save
                 </ComButton>
-                <ComButton variant="secondary" onClick={onClose}>
+                <ComButton variant="secondary" onClick={() => { 
+                    setRoleName(''); // Close 버튼 클릭 시 roleName 초기화
+                    onClose();
+                }}>
                     Close
                 </ComButton>
             </Modal.Footer>
