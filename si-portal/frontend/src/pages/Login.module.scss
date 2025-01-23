@@ -48,6 +48,11 @@
         .input {
           padding: 0;
           border: 0px;
+          &:-webkit-autofill {
+            background-color: transparent !important;
+            transition: none;
+            -webkit-box-shadow: 0 0 0 1000px white inset !important;
+          }
           &:focus {
             outline: none;
             box-shadow: none;
