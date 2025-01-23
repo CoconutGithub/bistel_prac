@@ -8,6 +8,8 @@ import { setLoginToken } from "~store/AuthSlice";
 import ComButton from "~pages/portal/buttons/ComButton";
 import axios from "axios";
 
+import styles from "./Login.module.scss";
+
 const Login = () => {
   console.log("Login 객체생성");
   const comAPIContext = useContext(ComAPIContext);
