@@ -1,5 +1,5 @@
 import { Container, Form, Button } from "react-bootstrap";
-import React, { useRef, useContext } from "react";
+import React, { useRef, useContext, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ComAPIContext } from "~components/ComAPIContext";
 import { useDispatch } from "react-redux";
@@ -12,15 +12,16 @@ import SiLockIcon from "~components/icons/SiLockIcon";
 import axios from "axios";
 
 import styles from "./Login.module.scss";
+import UserRegistPopup from "~pages/portal/admin/UserRegistPopup";
 
 const Login = () => {
-  console.log("Login 객체생성");
   const comAPIContext = useContext(ComAPIContext);
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
   const userIdRef = useRef<HTMLInputElement>(null); // useRef로 사용자 ID 참조
   const passwordRef = useRef<HTMLInputElement>(null); // useRef로 비밀번호 참조
+  const userSignupRef = useRef<any>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,6 +59,12 @@ const Login = () => {
       );
     }
   };
+
+  const openPopup = useCallback(() => {
+    if (userSignupRef.current) {
+      userSignupRef.current.openModalPopup();
+    }
+  }, []);
 
   return (
     <div className={styles.start}>
@@ -99,9 +106,14 @@ const Login = () => {
           >
             Log in
           </Button>
-          <Button variant="link" className={styles.register_button}>
+          <Button
+            variant="link"
+            className={styles.register_button}
+            onClick={openPopup}
+          >
             Don’t have an account?
           </Button>
+          <UserRegistPopup ref={userSignupRef} mode="signup" />
         </Form>
       </Container>
     </div>
