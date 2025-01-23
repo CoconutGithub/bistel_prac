@@ -12,6 +12,7 @@ import axios from "axios";
 import { RootState } from "@/store/Store";
 import { useSelector } from "react-redux";
 import { cachedAuthToken } from "~store/AuthSlice";
+import Toast from "react-bootstrap/Toast";
 
 interface IUserRegistPopup {
   onResearchUser?: () => void;
@@ -33,6 +34,7 @@ const UserRegistPopup = forwardRef(
     const [isTested, setIsTested] = useState<boolean>(false);
     const [isAvailableId, setIsAvailableId] = useState<boolean>(false);
     const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(true);
+    const [toastShow, setToastShow] = useState(false);
 
     const resetForm = () => {
       setUserId("");
@@ -44,6 +46,7 @@ const UserRegistPopup = forwardRef(
       setIsTested(false);
       setIsAvailableId(false);
       setIsButtonDisabled(true);
+      setToastShow(false);
     };
 
     useImperativeHandle(ref, () => ({
@@ -165,12 +168,15 @@ const UserRegistPopup = forwardRef(
           );
         }
 
-        comAPIContext.showToast(
-          mode === "register"
-            ? "회원 등록이 정상적으로 되었습니다."
-            : "회원가입이 정상적으로 되었습니다.",
-          "success"
-        );
+        if (mode === "register") {
+          comAPIContext.showToast(
+            "회원 등록이 정상적으로 되었습니다.",
+            "success"
+          );
+        } else {
+          setToastShow(true);
+        }
+
         if (ref.current && onResearchUser) {
           onResearchUser();
         }
@@ -213,205 +219,223 @@ const UserRegistPopup = forwardRef(
     }, []);
 
     return (
-      <Modal show={isVisible} onHide={() => handleModalClose()}>
-        <Modal.Header closeButton>
-          <Modal.Title>사용자 등록</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group as={Row} className="mb-3" controlId="name">
-              <Form.Label column sm={3}>
-                <strong>이름</strong>
-              </Form.Label>
-              <Col sm={9}>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter Name"
-                  value={userName}
-                  onChange={handleUserName}
-                />
-              </Col>
-            </Form.Group>
-
-            <Form.Group
-              as={Row}
-              className="mb-3"
-              controlId="id"
-              style={{ position: "relative" }}
-            >
-              <Form.Label column sm={3}>
-                <strong>ID</strong>
-              </Form.Label>
-              <Col sm={9}>
-                <InputGroup>
+      <>
+        <Modal show={isVisible} onHide={() => handleModalClose()}>
+          <Modal.Header closeButton>
+            <Modal.Title>사용자 등록</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form>
+              <Form.Group as={Row} className="mb-3" controlId="name">
+                <Form.Label column sm={3}>
+                  <strong>이름</strong>
+                </Form.Label>
+                <Col sm={9}>
                   <Form.Control
                     type="text"
-                    placeholder="Enter ID"
-                    value={userId}
-                    onChange={handleUserId}
+                    placeholder="Enter Name"
+                    value={userName}
+                    onChange={handleUserName}
                   />
-                  {mode === "register" ? (
-                    <ComButton className="ms-3" onClick={searchId}>
-                      검색
-                    </ComButton>
-                  ) : (
-                    <Button className="ms-3" onClick={searchId}>
-                      검색
-                    </Button>
-                  )}
-                </InputGroup>
-              </Col>
-              {!isAvailableId && isTested && (
-                <Col
-                  sm={9}
-                  style={{
-                    position: "absolute",
-                    bottom: "-16px",
-                    right: "0px",
-                    fontSize: "12px",
-                    paddingLeft: "24px",
-                    boxSizing: "border-box",
-                    color: "#ff4d4f",
-                  }}
-                >
-                  이미 존재하는 ID입니다.
                 </Col>
-              )}
-              {isAvailableId && isTested && (
-                <Col
-                  sm={9}
-                  style={{
-                    position: "absolute",
-                    bottom: "-16px",
-                    right: "0px",
-                    fontSize: "12px",
-                    paddingLeft: "24px",
-                    boxSizing: "border-box",
-                    color: "#1677ff",
-                  }}
-                >
-                  사용할 수 있는 ID입니다.
-                </Col>
-              )}
-            </Form.Group>
-            <Form.Group as={Row} className="mb-3" controlId="password">
-              <Form.Label column sm={3}>
-                <strong>패스워드</strong>
-              </Form.Label>
-              <Col sm={9}>
-                <Form.Control
-                  type="password"
-                  placeholder="Enter password"
-                  value={password}
-                  onChange={handlePassword}
-                />
-              </Col>
-            </Form.Group>
-            <Form.Group as={Row} className="mb-3" controlId="email">
-              <Form.Label column sm={3}>
-                <strong>이메일</strong>
-              </Form.Label>
-              <Col sm={9}>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter email"
-                  value={email}
-                  onChange={handleEmail}
-                />
-              </Col>
-            </Form.Group>
-            <Form.Group as={Row} className="mb-3" controlId="phone">
-              <Form.Label column sm={3}>
-                <strong>전화번호</strong>
-              </Form.Label>
-              <Col sm={9}>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter Phone Number"
-                  value={phoneNumber}
-                  onChange={handlePhoneNumber}
-                />
-              </Col>
-            </Form.Group>
+              </Form.Group>
 
-            {mode === "register" && (
+              <Form.Group
+                as={Row}
+                className="mb-3"
+                controlId="id"
+                style={{ position: "relative" }}
+              >
+                <Form.Label column sm={3}>
+                  <strong>ID</strong>
+                </Form.Label>
+                <Col sm={9}>
+                  <InputGroup>
+                    <Form.Control
+                      type="text"
+                      placeholder="Enter ID"
+                      value={userId}
+                      onChange={handleUserId}
+                    />
+                    {mode === "register" ? (
+                      <ComButton className="ms-3" onClick={searchId}>
+                        검색
+                      </ComButton>
+                    ) : (
+                      <Button className="ms-3" onClick={searchId}>
+                        검색
+                      </Button>
+                    )}
+                  </InputGroup>
+                </Col>
+                {!isAvailableId && isTested && (
+                  <Col
+                    sm={9}
+                    style={{
+                      position: "absolute",
+                      bottom: "-16px",
+                      right: "0px",
+                      fontSize: "12px",
+                      paddingLeft: "24px",
+                      boxSizing: "border-box",
+                      color: "#ff4d4f",
+                    }}
+                  >
+                    이미 존재하는 ID입니다.
+                  </Col>
+                )}
+                {isAvailableId && isTested && (
+                  <Col
+                    sm={9}
+                    style={{
+                      position: "absolute",
+                      bottom: "-16px",
+                      right: "0px",
+                      fontSize: "12px",
+                      paddingLeft: "24px",
+                      boxSizing: "border-box",
+                      color: "#1677ff",
+                    }}
+                  >
+                    사용할 수 있는 ID입니다.
+                  </Col>
+                )}
+              </Form.Group>
+              <Form.Group as={Row} className="mb-3" controlId="password">
+                <Form.Label column sm={3}>
+                  <strong>패스워드</strong>
+                </Form.Label>
+                <Col sm={9}>
+                  <Form.Control
+                    type="password"
+                    placeholder="Enter password"
+                    value={password}
+                    onChange={handlePassword}
+                  />
+                </Col>
+              </Form.Group>
+              <Form.Group as={Row} className="mb-3" controlId="email">
+                <Form.Label column sm={3}>
+                  <strong>이메일</strong>
+                </Form.Label>
+                <Col sm={9}>
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter email"
+                    value={email}
+                    onChange={handleEmail}
+                  />
+                </Col>
+              </Form.Group>
+              <Form.Group as={Row} className="mb-3" controlId="phone">
+                <Form.Label column sm={3}>
+                  <strong>전화번호</strong>
+                </Form.Label>
+                <Col sm={9}>
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter Phone Number"
+                    value={phoneNumber}
+                    onChange={handlePhoneNumber}
+                  />
+                </Col>
+              </Form.Group>
+
+              {mode === "register" && (
+                <>
+                  <Form.Group as={Row} className="mb-3" controlId="role">
+                    <Form.Label column sm={3}>
+                      <strong>권한</strong>
+                    </Form.Label>
+                    <Col sm={9}>
+                      <Form.Select value={userRole} onChange={handleUserRole}>
+                        {roles.map((item) => {
+                          return (
+                            <option key={item.roleId} value={item.roleId}>
+                              {item.roleName}
+                            </option>
+                          );
+                        })}
+                      </Form.Select>
+                    </Col>
+                  </Form.Group>
+
+                  <Form.Group as={Row} className="mb-3" controlId="status">
+                    <Form.Label column sm={3}>
+                      <strong>상태</strong>
+                    </Form.Label>
+                    <Col sm={9}>
+                      <Form.Select value={status} onChange={handleStatus}>
+                        <option value="ACTIVE">ACTIVE</option>
+                        <option value="INACTIVE">INACTIVE</option>
+                      </Form.Select>
+                    </Col>
+                  </Form.Group>
+                </>
+              )}
+              {mode === "signup" && (
+                <>
+                  <Form.Group as={Row} className="mb-3" controlId="status">
+                    <Form.Label column sm={3}>
+                      <strong>상태</strong>
+                    </Form.Label>
+                    <Col sm={9}>
+                      <Form.Select value={status} onChange={handleStatus}>
+                        <option value="INACTIVE">INACTIVE</option>
+                      </Form.Select>
+                    </Col>
+                  </Form.Group>
+                </>
+              )}
+            </Form>
+          </Modal.Body>
+          <Modal.Footer>
+            {mode === "register" ? (
               <>
-                <Form.Group as={Row} className="mb-3" controlId="role">
-                  <Form.Label column sm={3}>
-                    <strong>권한</strong>
-                  </Form.Label>
-                  <Col sm={9}>
-                    <Form.Select value={userRole} onChange={handleUserRole}>
-                      {roles.map((item) => {
-                        return (
-                          <option key={item.roleId} value={item.roleId}>
-                            {item.roleName}
-                          </option>
-                        );
-                      })}
-                    </Form.Select>
-                  </Col>
-                </Form.Group>
-
-                <Form.Group as={Row} className="mb-3" controlId="status">
-                  <Form.Label column sm={3}>
-                    <strong>상태</strong>
-                  </Form.Label>
-                  <Col sm={9}>
-                    <Form.Select value={status} onChange={handleStatus}>
-                      <option value="ACTIVE">ACTIVE</option>
-                      <option value="INACTIVE">INACTIVE</option>
-                    </Form.Select>
-                  </Col>
-                </Form.Group>
+                <ComButton
+                  variant="primary"
+                  onClick={handleSave}
+                  disabled={isButtonDisabled}
+                >
+                  등록
+                </ComButton>
+                <ComButton
+                  variant="secondary"
+                  onClick={() => handleModalClose()}
+                >
+                  Close
+                </ComButton>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="primary"
+                  onClick={handleSave}
+                  disabled={isButtonDisabled}
+                >
+                  등록
+                </Button>
+                <Button variant="secondary" onClick={() => handleModalClose()}>
+                  Close
+                </Button>
               </>
             )}
-            {mode === "signup" && (
-              <>
-                <Form.Group as={Row} className="mb-3" controlId="status">
-                  <Form.Label column sm={3}>
-                    <strong>상태</strong>
-                  </Form.Label>
-                  <Col sm={9}>
-                    <Form.Select value={status} onChange={handleStatus}>
-                      <option value="INACTIVE">INACTIVE</option>
-                    </Form.Select>
-                  </Col>
-                </Form.Group>
-              </>
-            )}
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          {mode === "register" ? (
-            <>
-              <ComButton
-                variant="primary"
-                onClick={handleSave}
-                disabled={isButtonDisabled}
-              >
-                등록
-              </ComButton>
-              <ComButton variant="secondary" onClick={() => handleModalClose()}>
-                Close
-              </ComButton>
-            </>
-          ) : (
-            <>
-              <Button
-                variant="primary"
-                onClick={handleSave}
-                disabled={isButtonDisabled}
-              >
-                등록
-              </Button>
-              <Button variant="secondary" onClick={() => handleModalClose()}>
-                Close
-              </Button>
-            </>
-          )}
-        </Modal.Footer>
-      </Modal>
+          </Modal.Footer>
+        </Modal>
+        {mode === "signup" && (
+          <Toast
+            onClose={() => setToastShow(false)}
+            show={toastShow}
+            delay={1500}
+            autohide
+            bg="success"
+          >
+            <Toast.Body style={{ color: "#fff" }}>
+              회원가입이 정상적으로 되었습니다.
+            </Toast.Body>
+          </Toast>
+        )}
+      </>
     );
   }
 );
