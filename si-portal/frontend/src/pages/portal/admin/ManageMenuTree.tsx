@@ -200,7 +200,7 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
     const renderTree = (nodes :  MenuItem[], level : number = 0) => {
         return (
             <Container>
-                <ul className="list-unstyled mb-3">
+                <ul className="list-unstyled-item" style={{ marginBottom: 0 }}>
                     {nodes.map((node) => (
                         <li
                             key={node.menuId}
