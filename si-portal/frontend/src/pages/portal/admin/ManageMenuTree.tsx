@@ -204,7 +204,8 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
                     {nodes.map((node) => (
                         <li
                             key={node.menuId}
-                            className="list-group-item mb-3"
+                            className="list-group-item"  // mb-3를 제거
+                            style={{ marginBottom: 0 }}  // 인라인 스타일로 margin-bottom: 0 설정
                             onContextMenu={(e) => handleRightClick(e, node)}
                         >
                             <div
