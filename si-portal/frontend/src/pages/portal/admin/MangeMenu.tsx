@@ -7,6 +7,11 @@ import { ChooseMenuData } from "~types/ChooseMenuData";
 
 const ManageMenu: React.FC = () => {
     const [chooseMenuData, setChooseMenuData] = useState<ChooseMenuData | null>(null);
+    const [refreshTree, setRefreshTree] = useState(false);
+
+    const handleRefreshTree = () => {
+        setRefreshTree(prev => !prev); // 상태를 토글하여 트리 새로고침 트리거
+    };
 
     return (
         <Container fluid className="h-100">
@@ -19,12 +24,12 @@ const ManageMenu: React.FC = () => {
             <Row className="h-100">
                 {/* 좌측 메뉴 */}
                 <Col style={{flex: '0 0 25%'}} className="border-end h-100">
-                    <ManageMenuTree onMenuClick={setChooseMenuData} />
+                    <ManageMenuTree onMenuClick={setChooseMenuData} refreshTree={refreshTree} />
                 </Col>
 
                 {/* 우측 콘텐츠 */}
                 <Col style={{flex: '0 0 75%'}} className="h-100">
-                    <ManageMenuContent chooseMenuData={chooseMenuData} />
+                    <ManageMenuContent chooseMenuData={chooseMenuData} onSave={handleRefreshTree}/>
                 </Col>
             </Row>
         </Container>

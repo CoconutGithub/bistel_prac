@@ -33,8 +33,14 @@ public interface AdminMapper {
     int deleteUser(@Param("userId") String userId);
     int deleteUserRole(@Param("userId") String userId);
 
+    int createMenuRole(Map<String, Object> user);
+    int updateMenuRole(Map<String, Object> user);
+    int deleteMenuRole(Map<String, Object> user);
+
+
     List<ComResultMap> getAllRoles(@Param("roleName") String roleName);
     List<ComResultMap> getRoleList();
+    List<ComResultMap> getMenuRole(@Param("menuId") Integer menuIdStr);
 
     int insertRole(Map<String, Object> role); // 수정: ComResultMap 대신 Map<String, Object> 사용
 
