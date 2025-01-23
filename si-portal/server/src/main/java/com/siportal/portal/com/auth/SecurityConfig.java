@@ -29,6 +29,8 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login").permitAll() // 인증 없이 허용
+                        .requestMatchers("/admin/api/exist-user").permitAll() // 인증 없이 허용
+                        .requestMatchers("/admin/api/register-user").permitAll() // 인증 없이 허용
                         .anyRequest().authenticated()
                 )
                 .addFilter(new LoginFilter(authenticationManager, portalMapper, title))
