@@ -1,16 +1,26 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import React, {useEffect, useMemo, useRef, useState, useContext} from "react";
 import {Col, Container, Form, Row} from "react-bootstrap";
 import { ChooseMenuData } from "~types/ChooseMenuData";
 import AgGridWrapper from "~components/AgGridWrapper";
 import { AgGridWrapperHandle } from "~types/GlobalTypes"
 import ComButton from "~pages/portal/buttons/ComButton";
+import RoleRegistPopup from "~pages/portal/admin/RoleRegistPopup";
+import { RootState } from "~store/Store";
+import { useSelector } from "react-redux";
+import { ComAPIContext } from "~components/ComAPIContext";
+import axios from "axios";
 
 interface ManageMenuContentProps {
     chooseMenuData : ChooseMenuData | null;
 }
 
-const columnDefs = [
-    { field: 'roleName', headerName: '권한 이름', sortable: true, filter: true, editable: false, width: 150 },
+interface Role {
+    roleId: number;
+    roleName: string;
+}
+
+let columnDefs = [
+    { field: 'roleName', headerName: '권한 이름', cellEditor: 'agSelectCellEditor', sortable: true, filter: true, editable: true, width: 150 },
     { field: 'canCreate', headerName: '생성 권한',
         cellDataType: 'boolean',
         valueGetter: (params: any) => {
@@ -71,18 +81,96 @@ const ManageMenuContent: React.FC<ManageMenuContentProps> = ({ chooseMenuData })
 
     console.log("ManageMenuContent 생성됨.");
 
-    const [isActive, setIsActive] = useState<boolean>(true);
+    const [isActive, setIsActive] = useState<string>('INACTIVE');
     const gridRef = useRef<AgGridWrapperHandle>(null);
-
+    const [showPopup, setShowPopup] = useState(false);
+    const [position, setPosition] = useState<number|any>(chooseMenuData?.position);
+    const [path, setPath] = useState<string|any>(chooseMenuData?.path);
+    const [menuName, setMenuName] = useState<string|any>(chooseMenuData?.menuName);
+    const state = useSelector((state: RootState) => state.auth);
+    const comAPIContext = useContext(ComAPIContext);
+    const pathRef = useRef<HTMLInputElement>(null);
+    const menuNameRef = useRef<HTMLInputElement>(null);
+    
     useEffect(() => {
-
+        
         console.log("====>", chooseMenuData)
-
-        chooseMenuData?.status === 'ACTIVE' ? setIsActive(true) : setIsActive(false);
+        
+        setPosition(Number(chooseMenuData?.position));
+        setPath(chooseMenuData?.path);
+        setMenuName(chooseMenuData?.menuName);
+        setIsActive(chooseMenuData?.status ?? 'INACTIVE');
+        
+        fetchData();
 
     }, [chooseMenuData]);
 
-    const handleSave = () => {
+    const fetchData = async () => {
+        try {
+            comAPIContext.showProgressBar();
+            const res = await axios.get<Role[]>("http://localhost:8080/admin/api/get-roles-list", {
+                headers: {
+                    Authorization: `Bearer ${state.authToken}`,
+                }
+            });
+
+            columnDefs = columnDefs.map((col) => {
+                if (col.field === 'roleName') {
+                  return {
+                    ...col,
+                    cellEditorParams: { values: res.data.map((item:any) => item.roleName) },
+                  };
+                }
+                return col; // 반드시 반환
+              });
+        } catch (error: any) {
+            console.error("Error fetching roles:", error);
+            const errorMessage = error.response?.data || error.message || "Unknown error";
+            comAPIContext.showToast("Error fetching roles: " + errorMessage, "danger");
+        } finally {
+            comAPIContext.hideProgressBar();
+        }
+    };
+
+    const handleSave = async () => {
+        console.log('추가된 메뉴 저장') // 화면 랜더링 필요 메뉴 해더, 메뉴, 
+        console.log(chooseMenuData)
+
+        const pathValue = pathRef?.current?.value;  // ref로 저장된 값을 가져옴
+        console.log('저장된 메뉴 경로:', pathValue);
+
+        const menuNameValue = menuNameRef?.current?.value;
+        console.log('변경된 이름:', menuNameValue)
+
+        console.log(pathRef)
+
+        console.log(state.user?.userId)
+
+        const data = {
+            menuName: menuNameValue,
+            path: pathValue,  
+            position: position,
+            status: isActive,
+            userId: state.user?.userId,
+            menuId: chooseMenuData?.menuId,
+        }
+
+        console.log(data)
+
+        try {
+            comAPIContext.showProgressBar();
+            const res = await axios.post('http://localhost:8080/admin/api/update-menu-content', data ,{
+              headers: { Authorization: `Bearer ${state.authToken}` },
+            });
+      
+            console.log(res);
+            comAPIContext.hideProgressBar();
+            alert('Save successfully!');
+        } catch (error) {
+            console.error('Error sending email:', error);
+            comAPIContext.hideProgressBar();
+            alert('Failed to send email');
+        }
 
     };
 
@@ -95,11 +183,43 @@ const ManageMenuContent: React.FC<ManageMenuContentProps> = ({ chooseMenuData })
     };
 
     const handleMenuPath = () => {
-
+        
     };
 
     const handleRegist = () => {
+        console.log('Role 추가 Button:', )
+        setShowPopup(true);
     };
+
+    const handleClosePopup = () => {
+        setShowPopup(false);
+    }
+
+    const handleSavePopup = async(roleName: string, status: string) => {
+        console.log('savePopup')
+        console.log(state.user?.userName)
+
+        try {
+            comAPIContext.showProgressBar();
+            const response = await axios.post('http://localhost:8080/admin/api/save-role',
+            {
+                userName: state.user?.userName,
+                roleName: roleName,
+                status: status,
+            }
+            ,{
+              headers: { Authorization: `Bearer ${state.authToken}` },
+            });
+      
+            console.log(response);
+            comAPIContext.hideProgressBar();
+            alert('Save successfully!');
+        } catch (error) {
+            console.error('Error sending email:', error);
+            alert('Failed to send email');
+        }
+
+    }
 
     const roleRegistButton = useMemo(() => (
         <ComButton className="me-3" onClick={handleRegist} >Role추가</ComButton>
@@ -121,6 +241,7 @@ const ManageMenuContent: React.FC<ManageMenuContentProps> = ({ chooseMenuData })
                                     type="text"
                                     value={chooseMenuData.menuId}
                                     size="sm"
+                                    disabled
                                     readOnly
                                 />
                             </Col>
@@ -135,7 +256,23 @@ const ManageMenuContent: React.FC<ManageMenuContentProps> = ({ chooseMenuData })
                                     type="text"
                                     value={chooseMenuData.parentMenuId}
                                     size="sm"
+                                    disabled
                                     readOnly
+                                />
+                            </Col>
+                        </Form.Group>
+
+                        <Form.Group as={Row} className="align-items-center mb-2">
+                            <Form.Label column sm={2}>
+                                Position:
+                            </Form.Label>
+                            <Col sm={4}>
+                                <Form.Control
+                                    type="number"
+                                    value={position || 0}
+                                    onChange={(e) => setPosition(e.target.value)} 
+                                    max={9999}
+                                    size="sm"
                                 />
                             </Col>
                         </Form.Group>
@@ -148,7 +285,8 @@ const ManageMenuContent: React.FC<ManageMenuContentProps> = ({ chooseMenuData })
                             <Col sm={4}>
                                 <Form.Control
                                     type="text"
-                                    value={chooseMenuData.menuName}
+                                    ref={menuNameRef}  // ref로 직접 접근
+                                    defaultValue={menuName || ''}
                                     size="sm"
                                     style={{
                                         backgroundColor: "#f0f8ff", // 연한 파란색
@@ -164,15 +302,15 @@ const ManageMenuContent: React.FC<ManageMenuContentProps> = ({ chooseMenuData })
                                 Menu Path:
                             </Form.Label>
                             <Col sm={4}>
-                                <Form.Control
-                                    type="text"
-                                    value={chooseMenuData.path}
-                                    size="sm"
-                                    style={{
-                                        backgroundColor: "#f0f8ff", // 연한 파란색
-                                    }}
-                                    onChange={handleMenuPath}
-                                />
+                            <Form.Control
+                                type="text"
+                                ref={pathRef}  // ref로 직접 접근
+                                defaultValue={path || ''}  // ref를 사용해 입력값을 관리
+                                size="sm"
+                                style={{
+                                    backgroundColor: "#f0f8ff", // 연한 파란색
+                                }}
+                            />
                             </Col>
                         </Form.Group>
 
@@ -187,8 +325,12 @@ const ManageMenuContent: React.FC<ManageMenuContentProps> = ({ chooseMenuData })
                                         type="switch"
                                         id="custom-switch"
                                         label={isActive ? 'Active ON' : 'Active OFF'}
-                                        checked={isActive}
-                                        onChange={() => setIsActive(!isActive)}
+                                        checked={isActive === 'INACTIVE' ? false : true}
+                                        onChange={() => {
+                                            const newValue = isActive === 'INACTIVE' ? true : false;
+                                            const status = newValue ? 'ACTIVE' : 'INACTIVE';
+                                            setIsActive(status);
+                                        }}
                                     />
                                 </div>
                             </Col>
@@ -219,6 +361,11 @@ const ManageMenuContent: React.FC<ManageMenuContentProps> = ({ chooseMenuData })
                     <p>Please select a menu to see the details.</p>
                 </div>
             )}
+            <RoleRegistPopup
+                show={showPopup}
+                onClose={handleClosePopup}
+                onSave={handleSavePopup}
+                />
         </Container>
     );
 };

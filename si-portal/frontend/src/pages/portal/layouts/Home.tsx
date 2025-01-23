@@ -16,9 +16,9 @@ const Home: React.FC = () => {
             <ul>
                 <li>1. Progress bar 지원됨</li>
                 <li>2. Toast message 지원됨</li>
-                <li>3. Route 이동시 session 체크 기능 지원함</li>
-                <li>4. Button 클릭시 session 체크 기능 지원함 (ComButton 사용해야만 지원)</li>
-                <li>5. Grid는 Ag grid 사용함. ( Ag grid 사용시 AgGridWrapper 를 사용하면됨. / 무료이므로 EXCEL 관련 지원 안함)</li>
+                <li>3. Route 이동시 session 체크 기능 지원함 (다른설정 없이 Portal 이 지원함)</li>
+                <li>4. Button 클릭시 session 체크 기능 지원함 (ComButton 을 꼭 사용해야만 지원함)</li>
+                <li>5. Grid는 Ag grid 사용함. ( Ag grid 사용시 AgGridWrapper 를 사용하면됨. 무료이므로 EXCEL 관련 지원 안함)</li>
                 <li>6. 메뉴의 depth 는 3 LEVLE 까지 가능함.</li>
             </ul>
         </Col>

@@ -6,7 +6,6 @@ import {ComAPIContext} from "~components/ComAPIContext";
 import {Container, Dropdown, Form, Button, Modal} from "react-bootstrap";
 import ComButton from "~pages/portal/buttons/ComButton";
 
-// 컴포넌트 Props 타입 정의
 interface ManageMenuTreeProps {
     onMenuClick: ({}: any) => void;
 }
@@ -15,6 +14,8 @@ interface MenuItem {
     childYn: string;
     parentMenuId: number;
     menuId: number;
+    depth: number;
+    path: string;
     parentMenuName: string;
     menuName: string;
     children?: MenuItem[];
@@ -26,15 +27,9 @@ interface MenuItem {
 }
 
 const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
-
-    console.log("ManageMenuTree 생성됨.");
-
-    //==start: 여기는 무조건 공통으로 받는다고 생각하자
     const state = useSelector((state: RootState) => state.auth);
     const comAPIContext = useContext(ComAPIContext);
-    //==end: 여기는 무조건 공통으로 받는다고 생각하자
 
-    //########## State 정의-시작 #############
     const [menuData, setMenuData] = useState<MenuItem[]>([]);
     const [selectedMenuId, setSelectedMenuId] = useState<number>(-1); // 선택된 메뉴 ID
     const [visibleMenuIds, setVisibleMenuIds] = useState<number[]>([]); // 열려 있는 메뉴 ID들
@@ -55,6 +50,19 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
         // 실제로는 axios 등을 사용해 데이터를 가져옵니다.
         const fetchData = async () => {
 
+    const [inputText, setInputText] = useState<string>(""); // 텍스트 입력 상태
+    const [isAdding, setIsAdding] = useState<boolean>(false); // 텍스트 입력 상태 여부
+
+    // 각 메뉴 항목의 화면 위치를 저장하기 위한 ref
+    const nodePositions = useRef<Map<number, DOMRect>>(new Map());
+    const inputRef = useRef<HTMLInputElement | null>(null); // Add a ref for the input element
+    const contextMenuRef = useRef<HTMLDivElement | null>(null); // Add a ref for the context menu
+
+    console.log('render---------------------------------')
+
+
+    useEffect(() => {
+        const fetchData = async () => {
             try {
                 comAPIContext.showProgressBar();
                 const res = await axios.get("http://localhost:8080/admin/api/get-menu-tree", {
@@ -64,27 +72,41 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
                 });
 
                 if (res && res.data) {
-                    console.log(res.data)
                     setMenuData(res.data);
+                    console.log(res)
                 }
-
             } catch (err) {
-                const error = err as Error; // 타입 단언
+                const error = err as Error;
                 console.error("Error fetching data:", err);
                 comAPIContext.showToast("Error fetching roles: " + error.message, "danger");
             } finally {
                 comAPIContext.hideProgressBar();
             }
-
-
-
-
         };
 
         fetchData();
     }, []);
 
-    //################### 메소드 영역-start ####################
+    useEffect(() => {
+        if (isAdding && inputRef.current) {
+            inputRef.current.focus();
+        }
+    }, [isAdding]);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (contextMenuRef.current && !contextMenuRef.current.contains(event.target as Node)) {
+                setContextMenu({ visible: false, x: 0, y: 0, node: null });
+            }
+        };
+
+        document.addEventListener("click", handleClickOutside);
+
+        return () => {
+            document.removeEventListener("click", handleClickOutside);
+        };
+    }, []);
+
     const buildTreeWithRoot = (data: MenuItem[]): MenuItem[] => {
         const treeData = buildTree(data, 0); // 기존 트리 데이터 빌드
         console.log('생성 treeData :', treeData)
@@ -189,15 +211,170 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
         }
     };
 
-    const handleMenuClick = (node: MenuItem) => {
+    const handleMenuClick = useCallback((node: MenuItem) => {
+        if (selectedMenuId !== node.menuId) {
+            setSelectedMenuId(node.menuId);
+            onMenuClick({ ...node, isAdd: false, isDelete: false });
+        }
+    }, [selectedMenuId, onMenuClick]);
 
-        console.log('node-data :', node)
-
-        setSelectedMenuId(node.menuId); // 선택된 메뉴 ID 설정
-        onMenuClick({...node, 'isAdd': false, 'isDelete': false});
+    const findClosestMenu = (event: React.MouseEvent) => {
+        const { clientX, clientY } = event;
+        let closestNode: MenuItem | null = null;
+        let closestDistance = Infinity;
+    
+        nodePositions.current.forEach((rect, menuId) => {
+            const centerX = rect.left + rect.width * 2/3;
+            const centerY = rect.top + rect.height * 0.5;
+            const distance = Math.sqrt(
+                Math.pow(clientX - centerX, 2) + Math.pow(clientY - centerY, 2)
+            );
+    
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                closestNode = menuData.find((node) => node.menuId === menuId) || null;
+            }
+        });
+    
+        return closestNode;
     };
 
-    const renderTree = (nodes :  MenuItem[], level : number = 0) => {
+    const handleContextMenu = (event: React.MouseEvent, node: MenuItem) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const menuWidth = 150;
+        const menuHeight = 100;
+        const adjustedX = Math.max(event.clientX - menuWidth*2/3, 0);
+        const adjustedY = Math.max(event.clientY - menuHeight*0.5, 0);
+
+        const closestNode = findClosestMenu(event);
+        console.log(closestNode)
+        setContextMenu({
+            visible: true,
+            x: adjustedX,
+            y: adjustedY,
+            node: closestNode,
+        });
+    };
+
+    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setInputText(event.target.value);
+    };
+
+    const handleDeleteMenu = async () => { // 자식 노드까지 다 삭제 alert Y, N
+        console.log(contextMenu)
+        if (contextMenu.node) {
+            try {
+
+                const data = {
+                    menuId: contextMenu.node.menuId
+                };
+
+                const res = await axios.post("http://localhost:8080/admin/api/delete-menu", data, {
+                    headers: {
+                        Authorization: `Bearer ${state.authToken}`,
+                    },
+                });
+
+                if (res.status === 200) {
+                    console.log(res)
+                    console.log("Menu deleted successfully");
+                    setContextMenu({ ...contextMenu, visible: false })
+                    try {
+                        comAPIContext.showProgressBar();
+                        const res = await axios.get("http://localhost:8080/admin/api/get-menu-tree", {
+                            headers: {
+                                Authorization: `Bearer ${state.authToken}`,
+                            },
+                        });
+        
+                        if (res && res.data) {
+                            setMenuData(res.data);
+                        }
+                    } catch (err) {
+                        const error = err as Error;
+                        console.error("Error fetching data:", err);
+                        comAPIContext.showToast("Error fetching roles: " + error.message, "danger");
+                    } finally {
+                        comAPIContext.hideProgressBar();
+                    }
+                }
+            } catch (err) {
+                console.error("Error deleting menu:", err);
+            }
+        }
+    };
+
+    const handleBlur = async () => {
+        if(inputText.length === 0) {
+            setIsAdding(false);
+        } else {
+            console.log('db insert')
+            console.log(contextMenu.node)
+
+                const childData = contextMenu.node
+
+                const data = {
+                    menuName: inputText,
+                    parentMenuId: childData?.menuId,
+                    depth: (childData?.depth ?? 0) + 1,
+                    path: childData?.path,
+                    position: 1,
+                    childYn: 'N',
+                    status: 'INACTIVE'
+                };
+          
+
+            try {
+                comAPIContext.showProgressBar();
+                const res = await axios.post('http://localhost:8080/admin/api/insert-menu', data, {
+                    headers: {
+                        Authorization: `Bearer ${state.authToken}`,
+                    },
+                });
+
+                console.log(res)
+                comAPIContext.hideProgressBar();
+
+                if(res.status === 200) {
+                    setIsAdding(false);
+                    setInputText('');
+                    try {
+                        comAPIContext.showProgressBar();
+                        const res = await axios.get("http://localhost:8080/admin/api/get-menu-tree", {
+                            headers: {
+                                Authorization: `Bearer ${state.authToken}`,
+                            },
+                        });
+        
+                        if (res && res.data) {
+                            setMenuData(res.data);
+                            console.log(res)
+                        }
+                    } catch (err) {
+                        const error = err as Error;
+                        console.error("Error fetching data:", err);
+                        comAPIContext.showToast("Error fetching roles: " + error.message, "danger");
+                    } finally {
+                        comAPIContext.hideProgressBar();
+                    }
+                }
+
+            } catch (err) {
+                console.error("Error deleting menu:", err);
+            }
+
+        }
+    };
+
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if(event.code === 'Enter') {
+            handleBlur();
+        }
+    }
+
+    const renderTree = (nodes: MenuItem[], level: number = 0) => {
         return (
             <Container>
                 <ul className="list-unstyled mb-3">
@@ -208,6 +385,12 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
                             onContextMenu={(e) => handleRightClick(e, node)}
                         >
                             <div
+                                ref={(el) => {
+                                    if (el) {
+                                        const rect = el.getBoundingClientRect();
+                                        nodePositions.current.set(node.menuId, rect);
+                                    }
+                                }}
                                 style={{
                                     display: "flex",
                                     alignItems: "center",
@@ -217,7 +400,7 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
                                     color:
                                         selectedMenuId !== null && node.menuId === selectedMenuId
                                             ? "blue"
-                                            : "black", // 선택된 메뉴는 파란색
+                                            : "black",
                                 }}
                             >
                                 {node.children?.length! > 0 && (
@@ -231,16 +414,31 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
                                         {visibleMenuIds.includes(node.menuId) ? "▼" : "▶"}
                                     </span>
                                 )}
-                                    <span
-                                        onClick={() => handleMenuClick(node)}
-                                        style={{flex: 1}}
-                                    >
-                                        {node.menuName}
-                                    </span>
+                                <span
+                                    onClick={() => handleMenuClick(node)}
+                                    style={{ flex: 1 }}
+                                >
+                                    {node.menuName}
+                                </span>
                             </div>
                             {visibleMenuIds.includes(node.menuId) &&
                                 node.children?.length! > 0 &&
                                 renderTree(node.children!, level + 1)}
+
+                            {isAdding && contextMenu.node?.menuId === node.menuId && (
+                                <div style={{ marginTop: "10px", marginLeft: "40px" }}>
+                                    <input
+                                        ref={inputRef}
+                                        type="text"
+                                        value={inputText}
+                                        onChange={handleInputChange}
+                                        onKeyDown={handleKeyDown}
+                                        onBlur={handleBlur}
+                                        placeholder="메뉴 이름을 입력하세요"
+                                        style={{ width: "100%"}}
+                                    />
+                                </div>
+                            )}
                         </li>
                     ))}
                 </ul>
@@ -248,7 +446,6 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
         );
     };
 
-    // const treeData = buildTree(menuData, 0);
     const treeData = buildTreeWithRoot(menuData);
 
     // 삭제 불가 메뉴인지 확인하는 함수

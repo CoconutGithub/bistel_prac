@@ -1,7 +1,11 @@
-import React, { createContext, useState, useCallback, ReactNode, useMemo } from "react";
+import React, {createContext, useState, useCallback, ReactNode, useMemo, useEffect} from "react";
+import ReactDOM from "react-dom";
 import ToastContainer from "react-bootstrap/ToastContainer";
 import Toast from "react-bootstrap/Toast";
 import ProgressBar from "react-bootstrap/ProgressBar";
+import {useLocation} from "react-router-dom";
+import {useSelector} from "react-redux";
+import {RootState} from "~store/Store";
 
 // Toast 타입 정의
 interface ToastType {
@@ -32,8 +36,12 @@ interface ComAPIProviderProps {
 }
 
 export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
+    const state = useSelector((state: RootState) => state.auth);
     const [toasts, setToasts] = useState<ToastType[]>([]);
     const [progressBarVisible, setProgressBarVisible] = useState<boolean>(false);
+
+    // 공통 로직: 최초 페이지 마운트 시 실행
+    const location = useLocation();
 
     // Toast 관리 메서드
     const showToast = useCallback(
@@ -68,12 +76,23 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
         [showToast, showProgressBar, hideProgressBar]
     );
 
-    return (
-        <ComAPIContext.Provider value={contextValue}>
-            {children}
+    // Portal을 통한 ToastContainer 렌더링
+    const renderToastContainer = () => {
+        const mainContentRoot = document.getElementById("main-content-root");
+        if (!mainContentRoot) return null;
 
-            {/* Toast UI */}
-            <ToastContainer className="p-3" position="bottom-center" style={{ zIndex: 1 }}>
+        return ReactDOM.createPortal(
+            <ToastContainer
+                className="p-3"
+                position="bottom-center"
+                style={{
+                    zIndex: 1050,
+                    position: "absolute", // Content 영역 내에서의 위치 조정
+                    bottom: 0, // Content 하단에 고정
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                }}
+            >
                 {toasts.map((toast) => (
                     <Toast
                         key={toast.id}
@@ -86,7 +105,17 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
                         <Toast.Body className="text-white">{toast.message}</Toast.Body>
                     </Toast>
                 ))}
-            </ToastContainer>
+            </ToastContainer>,
+            mainContentRoot
+        );
+    };
+
+    return (
+        <ComAPIContext.Provider value={contextValue}>
+            {children}
+
+            {/* Toast Portal */}
+            {renderToastContainer()}
 
             {/* ProgressBar UI */}
             {progressBarVisible && (

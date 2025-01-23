@@ -9,11 +9,11 @@ function App() {
     return (
         <Provider store={store}>
             <PersistGate loading={null} persistor={persistor}>
-                <ComAPIProvider>
-                    <Router>
+                <Router>
+                    <ComAPIProvider>
                         <AppRoutes />
-                    </Router>
-                </ComAPIProvider>
+                    </ComAPIProvider>
+                </Router>
             </PersistGate>
         </Provider>
   );

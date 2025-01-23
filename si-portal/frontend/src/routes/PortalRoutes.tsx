@@ -4,6 +4,7 @@ import ProtectedRoute from '~routes/ProtectedRoute';
 import { RouteConfig } from '~types/RouteTypes';
 
 const routes: RouteConfig[] = [
+  { path: '/main/quick-start', component: React.lazy(() => import('~pages/portal/layouts/HowToUse')) },
   { path: '/main/about', component: React.lazy(() => import('~pages/portal/layouts/About')) },
   { path: '/main/dashboard', component: React.lazy(() => import('~pages/portal/layouts/Dashboard')) },
   { path: '/main/settings', component: React.lazy(() => import('~pages/portal/layouts/Settings')) },

@@ -89,12 +89,13 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                 "\", \"title\": \"" + title +
                 "\", \"userId\": \"" + user.getUserId() +
                 "\", \"userName\": \"" + user.getUserName() +
+                "\", \"roleId\": \"" + user.getRoleId() +
                 "\", \"roleName\": \"" + user.getRoleName() +
+                "\", \"isMighty\": \"" + user.getIsMighty() +
                 "\", \"phoneNumber\": \"" + user.getPhoneNumber() +
 
                 "\", \"footerYN\": \"" + user.getFooterYN() +
                 "\", \"headerColor\": \"" + user.getHeaderColor() +
-
                 "\", \"email\": \"" + user.getEmail() + "\"}");
 
     }
