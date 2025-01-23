@@ -7,7 +7,11 @@ import {RootState} from "~store/Store";
 
 const About = () => {
 
-    const state = useSelector((state: RootState) => state.auth);
+    const canCreate = useSelector((state: RootState) => state.auth.pageButtonAuth.canCreate);
+    const canDelete = useSelector((state: RootState) => state.auth.pageButtonAuth.canCreate);
+    const canUpdate = useSelector((state: RootState) => state.auth.pageButtonAuth.canCreate);
+    const canRead = useSelector((state: RootState) => state.auth.pageButtonAuth.canCreate);
+
 
     const addClick = () => {
         alert("추가버튼 눌러짐")
@@ -29,10 +33,10 @@ const About = () => {
         <Container>
           <Row>
               <div>
-                  <ComButton size="sm" className="me-2" disabled={!state.pageButtonAuth.canCreate}    onClick={addClick}>추가</ComButton>
-                  <ComButton size="sm" className="me-2" disabled={!state.pageButtonAuth.canDelete}   onClick={delClick}>삭제</ComButton>
-                  <ComButton size="sm" className="me-2" disabled={!state.pageButtonAuth.canUpdate}   onClick={updateClick}>수정</ComButton>
-                  <ComButton size="sm" className="me-2" disabled={!state.pageButtonAuth.canRead}     onClick={searchClick}>조회</ComButton>
+                  <ComButton size="sm" className="me-2" disabled={!canCreate}    onClick={addClick}>추가</ComButton>
+                  <ComButton size="sm" className="me-2" disabled={!canDelete}   onClick={delClick}>삭제</ComButton>
+                  <ComButton size="sm" className="me-2" disabled={!canUpdate}   onClick={updateClick}>수정</ComButton>
+                  <ComButton size="sm" className="me-2" disabled={!canRead}     onClick={searchClick}>조회</ComButton>
               </div>
           </Row>
           <Row>
