@@ -8,6 +8,7 @@ import { RootState } from "~store/Store";
 import RoleRegistPopup from "~pages/portal/admin/RoleRegistPopup";
 import {AgGridWrapperHandle} from "~types/GlobalTypes"; // 팝업 컴포넌트 가져오기
 import ComButton from '../buttons/ComButton';
+import { cachedAuthToken } from "~store/AuthSlice";
 
 const columnDefs = [
     { field: 'gridRowId', headerName: 'gridRowId', editable: false, hide: true, sortable: false, filter: false },
@@ -82,7 +83,7 @@ const ManageRole: React.FC = () => {
                 // API 호출
                 const res = await axios.get("http://localhost:8080/admin/api/get-roles-list", {
                     headers: {
-                        Authorization: `Bearer ${state.authToken}`,
+                        Authorization: `Bearer ${cachedAuthToken}`,
                     },
                 });
 
@@ -131,7 +132,7 @@ const ManageRole: React.FC = () => {
             const roleName = selectedRole ? selectedRole.roleName : "";
 
             const response = await axios.get("http://localhost:8080/admin/api/get-roles", {
-                headers: { Authorization: `Bearer ${state.authToken}` },
+                headers: { Authorization: `Bearer ${cachedAuthToken}` },
                 params: { roleName: roleName },
             });
 
@@ -183,7 +184,7 @@ const ManageRole: React.FC = () => {
             console.log('-----------------------:', payload);
 
             const response = await axios.post<SaveRolesResponse>('http://localhost:8080/admin/api/save-roles', payload, {
-                headers: { Authorization: `Bearer ${state.authToken}` },
+                headers: { Authorization: `Bearer ${cachedAuthToken}` },
             });
 
             console.log('Save response:', response); // 응답 확인
@@ -228,7 +229,7 @@ const ManageRole: React.FC = () => {
             console.log('Prepared payload for savePopup:', payload); // 로그 확인
 
             const response = await axios.post<SaveRolesResponse>('http://localhost:8080/admin/api/save-roles', payload, {
-                headers: { Authorization: `Bearer ${state.authToken}` },
+                headers: { Authorization: `Bearer ${cachedAuthToken}` },
             });
 
             console.log('SavePopup response:', response); // 응답 확인

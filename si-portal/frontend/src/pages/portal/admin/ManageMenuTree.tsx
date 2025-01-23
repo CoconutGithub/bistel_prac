@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "~store/Store";
 import { ComAPIContext } from "~components/ComAPIContext";
 import { Container } from "react-bootstrap";
+import { cachedAuthToken } from "~store/AuthSlice";
 
 interface ManageMenuTreeProps {
     onMenuClick: ({}: any) => void;
@@ -57,7 +58,7 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
                 comAPIContext.showProgressBar();
                 const res = await axios.get("http://localhost:8080/admin/api/get-menu-tree", {
                     headers: {
-                        Authorization: `Bearer ${state.authToken}`,
+                        Authorization: `Bearer ${cachedAuthToken}`,
                     },
                 });
 
@@ -193,7 +194,7 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
 
                 const res = await axios.post("http://localhost:8080/admin/api/delete-menu", data, {
                     headers: {
-                        Authorization: `Bearer ${state.authToken}`,
+                        Authorization: `Bearer ${cachedAuthToken}`,
                     },
                 });
 
@@ -205,7 +206,7 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
                         comAPIContext.showProgressBar();
                         const res = await axios.get("http://localhost:8080/admin/api/get-menu-tree", {
                             headers: {
-                                Authorization: `Bearer ${state.authToken}`,
+                                Authorization: `Bearer ${cachedAuthToken}`,
                             },
                         });
         
@@ -250,7 +251,7 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
                 comAPIContext.showProgressBar();
                 const res = await axios.post('http://localhost:8080/admin/api/insert-menu', data, {
                     headers: {
-                        Authorization: `Bearer ${state.authToken}`,
+                        Authorization: `Bearer ${cachedAuthToken}`,
                     },
                 });
 
@@ -264,7 +265,7 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
                         comAPIContext.showProgressBar();
                         const res = await axios.get("http://localhost:8080/admin/api/get-menu-tree", {
                             headers: {
-                                Authorization: `Bearer ${state.authToken}`,
+                                Authorization: `Bearer ${cachedAuthToken}`,
                             },
                         });
         

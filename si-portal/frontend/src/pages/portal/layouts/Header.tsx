@@ -7,10 +7,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "~store/Store";
 import { removeLoginToken } from "~store/AuthSlice";
+import { cachedAuthToken } from "~store/AuthSlice";
 
 const Header = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-  const state = useSelector((state: RootState) => state.auth);
+  const isMighty = useSelector((state: RootState) => state.auth.user.isMighty);
+  const roleId = useSelector((state: RootState) => state.auth.user.roleId);
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const headerColor = useSelector(
@@ -22,8 +24,8 @@ const Header = () => {
     const fetchMenuData = () => {
       axios
         .get("http://localhost:8080/menu", {
-          headers: { Authorization: `Bearer ${state.authToken}` },
-          params: { roleId: state.user.roleId, isMighty: state.user.isMighty },
+          headers: { Authorization: `Bearer ${cachedAuthToken}` },
+          params: { roleId: roleId, isMighty: isMighty },
         })
         .then((res) => {
           if (res.data) {
@@ -59,7 +61,7 @@ const Header = () => {
             ))}
           </Nav>
           <Nav style={{ flex: "0 0 10%" }} className="ms-auto">
-            {state.user.isMighty === "Y" && (
+            {isMighty === "Y" && (
               <NavDropdown
                 title="Admin"
                 id="basic-nav-dropdown"

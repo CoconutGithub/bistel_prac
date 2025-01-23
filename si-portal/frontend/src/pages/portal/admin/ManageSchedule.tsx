@@ -7,6 +7,7 @@ import axios from "axios";
 import {RootState} from "~store/Store";
 import {AgGridWrapperHandle} from "~types/GlobalTypes";
 import ComButton from "~pages/portal/buttons/ComButton";
+import { cachedAuthToken } from "~store/AuthSlice";
 
 // 컬럼 정의
 const columnDefs = [
@@ -51,7 +52,7 @@ const ManageSchedule: React.FC = () => {
   
       axios.get("http://localhost:8080/admin/api/get-schedule",
       {
-        headers: { Authorization: `Bearer ${state.authToken}` },
+        headers: { Authorization: `Bearer ${cachedAuthToken}` },
         params: { 'jobName' : inputRef.current?.value || '', 'status' : ''},
       })
       .then((res) => {
@@ -154,7 +155,7 @@ const ManageSchedule: React.FC = () => {
             console.log('realUpdateList:', realUpdateList);
             
             const response = await axios.post('http://localhost:8080/admin/api/update-schedule', payload, {
-                headers: { Authorization: `Bearer ${state.authToken}` },
+                headers: { Authorization: `Bearer ${cachedAuthToken}` },
             });
             console.log('response:', response);
             
