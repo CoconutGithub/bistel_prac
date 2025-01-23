@@ -2,13 +2,16 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { jwtDecode } from 'jwt-decode';
 import { AuthState } from '~types/StateTypes';
 
+
+// 전역 변수로 authToken 캐싱
+export let cachedAuthToken: string | null = null;
+
 interface DecodedToken {
     exp: number; // 만료 시간 (Unix Timestamp)
     [key: string]: any; // JWT에 포함된 기타 정보
 }
 
 const initialState: AuthState = {
-    authToken: null,
     isAuthenticated: false,
     user: {
         userId: '',
@@ -36,12 +39,12 @@ export const refreshToken = createAsyncThunk<
     string,
     void,
     {
-        state: { auth: AuthState };
-        rejectValue: string;
+        state: { auth: AuthState },
+        rejectValue: string,
     }
 >('auth/refreshToken', async (_, { getState, rejectWithValue }) => {
     const state = getState();
-    const token = state.auth.authToken;
+    const token = cachedAuthToken; // 전역 변수에서 토큰 사용
 
     if (!state.auth.user) {
         return rejectWithValue('User information is missing');
@@ -64,7 +67,8 @@ export const refreshToken = createAsyncThunk<
         }
 
         const data = await response.json();
-        return data.token;
+        cachedAuthToken = data.token; // 새로운 토큰을 전역 변수에 저장
+        return data.token;//xxx-여기필요한가
     } catch (error) {
         return rejectWithValue((error as Error).message);
     }
@@ -76,15 +80,15 @@ export const chkLoginToken = createAsyncThunk<
     void,
     { state: { auth: AuthState } }
 >('auth/chkLoginToken', async (_, { getState, dispatch }) => {
-    const { authToken } = getState().auth;
+    const token = cachedAuthToken;
 
-    if (!authToken) {
+    if (!token) {
         dispatch(removeLoginToken());
         return false;
     }
 
     try {
-        const decoded: DecodedToken = jwtDecode(authToken);
+        const decoded: DecodedToken = jwtDecode(token);
         const now = new Date();
         const expiration = new Date(decoded.exp * 1000);
 
@@ -92,12 +96,15 @@ export const chkLoginToken = createAsyncThunk<
 
         if (now >= expiration) {
             dispatch(removeLoginToken());
+            cachedAuthToken = null; // 전역 토큰 초기화
             return false;
         } else {
-            //await dispatch(refreshToken());
+            await dispatch(refreshToken());
             return true;
         }
     } catch (error) {
+        dispatch(removeLoginToken());
+        cachedAuthToken = null; // 토큰 초기화
         console.error('Invalid token:', error);
         return false;
     }
@@ -127,7 +134,7 @@ const authSlice = createSlice({
             console.log('setLoginToken-UserId:', action.payload.userId);
 
             state.title = action.payload.title;
-            state.authToken = action.payload.token;
+            cachedAuthToken = action.payload.token; // 전역 변수에 토큰 저장
             state.isAuthenticated = true;
             state.user = {
                 userId: action.payload.userId,
@@ -142,7 +149,7 @@ const authSlice = createSlice({
             };
         },
         removeLoginToken(state) {
-            state.authToken = null;
+            cachedAuthToken = null; // 전역 변수 초기화
             state.isAuthenticated = false;
             state.user = {
                 userId: '',
@@ -182,19 +189,18 @@ const authSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(refreshToken.fulfilled, (state, action: PayloadAction<string>) => {
-                state.authToken = action.payload;
                 state.isAuthenticated = true;
             })
             .addCase(
                 refreshToken.rejected,
                 (state, action: PayloadAction<string | undefined>) => {
-                    state.authToken = null;
+                    cachedAuthToken = null;  //전역 토근 초기화
                     state.isAuthenticated = false;
                     state.error = action.payload || 'Unknown error';
                 }
             )
             .addCase(chkLoginToken.rejected, (state) => {
-                state.authToken = null;
+                cachedAuthToken = null;
                 state.isAuthenticated = false;
                 state.user = {
                     userId: '',

@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from "~store/Store";
 import {AgGridWrapperHandle} from "~types/GlobalTypes";
 import ComButton from "~pages/portal/buttons/ComButton";
+import {cachedAuthToken} from "~store/AuthSlice";
 
 interface User {
   userId: string;
@@ -43,7 +44,7 @@ const ManageEmail: React.FC = () => {
     await new Promise((resolve) => setTimeout(resolve, 500))
 
     axios.get("http://localhost:8080/admin/api/get-email-history", {
-      headers: { Authorization: `Bearer ${state.authToken}` },
+      headers: { Authorization: `Bearer ${cachedAuthToken}` },
       params: { 'sendUser': inputRef.current?.value || '' },
     })
       .then((res) => {

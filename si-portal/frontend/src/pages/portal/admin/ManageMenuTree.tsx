@@ -5,6 +5,7 @@ import {RootState} from "~store/Store";
 import {ComAPIContext} from "~components/ComAPIContext";
 import {Container, Dropdown, Form, Button, Modal} from "react-bootstrap";
 import ComButton from "~pages/portal/buttons/ComButton";
+import { cachedAuthToken } from "~store/AuthSlice";
 
 // 컴포넌트 Props 타입 정의
 interface ManageMenuTreeProps {
@@ -30,7 +31,6 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
     console.log("ManageMenuTree 생성됨.");
 
     //==start: 여기는 무조건 공통으로 받는다고 생각하자
-    const state = useSelector((state: RootState) => state.auth);
     const comAPIContext = useContext(ComAPIContext);
     //==end: 여기는 무조건 공통으로 받는다고 생각하자
 
@@ -48,8 +48,8 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         console.log('handleInputChange event :', event.target.value);
         newChildLabelRef.current = event.target.value;
-      };
-    
+    };
+
     // 메뉴 데이터를 가져오기 (useEffect에서 마운트 시 실행)
     useEffect(() => {
         // 실제로는 axios 등을 사용해 데이터를 가져옵니다.
@@ -59,7 +59,7 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
                 comAPIContext.showProgressBar();
                 const res = await axios.get("http://localhost:8080/admin/api/get-menu-tree", {
                     headers: {
-                        Authorization: `Bearer ${state.authToken}`,
+                        Authorization: `Bearer ${cachedAuthToken}`,
                     },
                 });
 
@@ -145,7 +145,7 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
         console.log('추가전 updatedMenuDatau :', updatedMenuData)
         const res = await axios.get("http://localhost:8080/admin/api/get-menu-id", {
             headers: {
-                Authorization: `Bearer ${state.authToken}`,
+                Authorization: `Bearer ${cachedAuthToken}`,
             },
         });
 
@@ -154,7 +154,7 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
             const childNode = {childYn: "N",
                 menuId: res.data,
                 menuName: label,
-                parentMenuId: parentId,            
+                parentMenuId: parentId,
                 parentMenuName: updatedMenuData.find((item) => item.menuId === parentMenuId)?.menuName??'',
                 path: '',
                 position: 0,
@@ -162,13 +162,13 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
                 isAdd: true,
                 isDelete: false,}
             updatedMenuData.push(childNode);
- 
+
             console.log('자식 추가후 updatedMenuData : ', updatedMenuData)
             setMenuData(updatedMenuData);
             setSelectedMenuId(res.data); // 선택된 메뉴 ID 설정
             onMenuClick({...childNode, 'isAdd': false, 'isDelete': false});
         }
-        
+
     };
 
     // 트리 구조를 만들기
@@ -231,10 +231,10 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
                                         {visibleMenuIds.includes(node.menuId) ? "▼" : "▶"}
                                     </span>
                                 )}
-                                    <span
-                                        onClick={() => handleMenuClick(node)}
-                                        style={{flex: 1}}
-                                    >
+                                <span
+                                    onClick={() => handleMenuClick(node)}
+                                    style={{flex: 1}}
+                                >
                                         {node.menuName}
                                     </span>
                             </div>
@@ -274,7 +274,7 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
             };
             console.log('payload :', payload);
             const response = await axios.post('http://localhost:8080/admin/api/delete-menu', payload, {
-                headers: { Authorization: `Bearer ${state.authToken}` },
+                headers: { Authorization: `Bearer ${cachedAuthToken}` },
             });
             console.log('response:', response);
             if (response.data.messageCode === 'success') {
@@ -285,16 +285,16 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
             // confirmAction();
             console.log('삭제 전 menuData :', menuData);
             const updatedMenuData = menuData.filter((item) => !descendantMenuIds?.includes(item.menuId));
-            console.log('삭제 후 menuData : ', updatedMenuData)   ;     
+            console.log('삭제 후 menuData : ', updatedMenuData)   ;
             setMenuData(updatedMenuData);
-            setShowModal(false); // 모달 닫기            
-          });
-          
+            setShowModal(false); // 모달 닫기
+        });
+
     }
-     
+
     // 삭제 모달에서 확인 버튼 클릭 시
     const handleConfirmDelete =async () => {
-        confirmAction();    
+        confirmAction();
         setShowModal(false); // 모달 닫기
         setShowAddChildMenu(false); // 컨텍스트 창 숨기기
         console.log('menuData :', menuData);
@@ -347,70 +347,70 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
             </div> */}
             <div className="mt-3"></div>
             {renderTree(treeData)}
-        
-        {/* 컨텍스트 메뉴 팝업 */}
-        {showAddChildMenu && (
-            <Dropdown.Menu show
-                style={{
-                    position: "absolute", // 절대 위치로 설정
-                    top: `${menuPosition.top}px`, // 마우스 Y 좌표
-                    left: `${menuPosition.left}px`, // 마우스 X 좌표
-                    zIndex: 1050, // 컨텍스트 메뉴가 다른 요소 위에 오도록 설정
-                }}
-            >
-                <Dropdown.Header>
-                    {menuData.find((item) => item.menuId === parentMenuId)?.menuName}
-                </Dropdown.Header>
-                <Dropdown.Item>
-                    <Button size="sm" variant="primary" onClick={handleDeleteMenu}>
-                        삭제
-                    </Button>
-                </Dropdown.Item>
-                <Dropdown.Item>
-                    <Form.Control
-                        type="text"
-                        // value={newChildLabel}
-                        onChange={handleInputChange}
-                        placeholder="자식 노드 이름"
-                    />
-                </Dropdown.Item>
-                <Dropdown.Item>
-                    <Button size="sm" variant="primary" onClick={handleAddChildNode}>
-                        추가
-                    </Button>
-                    <Button size="sm" variant="secondary" onClick={() => setShowAddChildMenu(false)}>
+
+            {/* 컨텍스트 메뉴 팝업 */}
+            {showAddChildMenu && (
+                <Dropdown.Menu show
+                               style={{
+                                   position: "absolute", // 절대 위치로 설정
+                                   top: `${menuPosition.top}px`, // 마우스 Y 좌표
+                                   left: `${menuPosition.left}px`, // 마우스 X 좌표
+                                   zIndex: 1050, // 컨텍스트 메뉴가 다른 요소 위에 오도록 설정
+                               }}
+                >
+                    <Dropdown.Header>
+                        {menuData.find((item) => item.menuId === parentMenuId)?.menuName}
+                    </Dropdown.Header>
+                    <Dropdown.Item>
+                        <Button size="sm" variant="primary" onClick={handleDeleteMenu}>
+                            삭제
+                        </Button>
+                    </Dropdown.Item>
+                    <Dropdown.Item>
+                        <Form.Control
+                            type="text"
+                            // value={newChildLabel}
+                            onChange={handleInputChange}
+                            placeholder="자식 노드 이름"
+                        />
+                    </Dropdown.Item>
+                    <Dropdown.Item>
+                        <Button size="sm" variant="primary" onClick={handleAddChildNode}>
+                            추가
+                        </Button>
+                        <Button size="sm" variant="secondary" onClick={() => setShowAddChildMenu(false)}>
+                            취소
+                        </Button>
+                    </Dropdown.Item>
+                </Dropdown.Menu>
+            )}
+            {/* 모달 창 */}
+            <Modal show={showModal} onHide={() => setShowModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>삭제 확인</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {isDeletable(selectedMenuId) ? (
+                        "하위 메뉴까지 모두 삭제됩니다. 정말로 삭제하시겠습니까?"
+                    ) : (
+                        "Root 메뉴는 삭제할 수 없습니다."
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowModal(false)}>
                         취소
                     </Button>
-                </Dropdown.Item>
-            </Dropdown.Menu>
-        )}
-        {/* 모달 창 */}
-        <Modal show={showModal} onHide={() => setShowModal(false)}>
-            <Modal.Header closeButton>
-            <Modal.Title>삭제 확인</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-            {isDeletable(selectedMenuId) ? (
-                "하위 메뉴까지 모두 삭제됩니다. 정말로 삭제하시겠습니까?"
-            ) : (
-                "Root 메뉴는 삭제할 수 없습니다."
-            )}
-            </Modal.Body>
-            <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowModal(false)}>
-                취소
-            </Button>
-            {isDeletable(selectedMenuId) ? (
-                <Button variant="danger" onClick={handleConfirmDelete}>
-                삭제
-                </Button>
-            ) : (
-                <Button variant="danger" disabled>
-                삭제
-                </Button>
-            )}
-            </Modal.Footer>
-        </Modal>
+                    {isDeletable(selectedMenuId) ? (
+                        <Button variant="danger" onClick={handleConfirmDelete}>
+                            삭제
+                        </Button>
+                    ) : (
+                        <Button variant="danger" disabled>
+                            삭제
+                        </Button>
+                    )}
+                </Modal.Footer>
+            </Modal>
         </div>
     );
 };

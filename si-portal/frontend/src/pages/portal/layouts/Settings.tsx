@@ -7,6 +7,7 @@ import { SketchPicker } from 'react-color';
 import ComButton from '~pages/portal/buttons/ComButton';
 import axios from 'axios';
 import {ComAPIContext} from "~components/ComAPIContext";
+import { cachedAuthToken } from "~store/AuthSlice";
 
 const Settings: React.FC = () => {
 
@@ -40,7 +41,7 @@ const Settings: React.FC = () => {
                     headerColor: headerColor ?? '#f8f9fa',
                 },
                 {
-                    headers: { Authorization: `Bearer ${state.authToken}` },
+                    headers: { Authorization: `Bearer ${cachedAuthToken}` },
                 }
             ).then(() => {
                 comAPIContext.showToast("저장되었습니다.", "dark");
