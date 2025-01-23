@@ -442,16 +442,16 @@ public class AdminService {
         }
     }
 
-    @PostMapping("/api/delete-menu")
-    public ResponseEntity<?> deleteMenu(@RequestBody Map<String, Object> result) {
-        try {
-            adminMapper.deleteMenu(result);
-            return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
-                    .body("Error occurred: " + e.getMessage());
-        }
-    }
+//    @PostMapping("/api/delete-menu")
+//    public ResponseEntity<?> deleteMenu(@RequestBody Map<String, Object> result) {
+//        try {
+//            adminMapper.deleteMenu(result);
+//            return ResponseEntity.ok(result);
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+//                    .body("Error occurred: " + e.getMessage());
+//        }
+//    }
 
     @PostMapping("/api/update-menu-content")
     public ResponseEntity<?> updateMenuContent(@RequestBody Map<String, Object> result) {
