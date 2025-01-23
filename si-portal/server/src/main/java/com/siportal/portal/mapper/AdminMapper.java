@@ -10,7 +10,9 @@ import java.util.Map;
 
 @Mapper
 public interface AdminMapper {
-
+    int getMenuId();
+    int createMenu(@Param("menuId") int menuId, @Param("menuName") String menuName, @Param("menuUrl") String menuUrl,  @Param("menuParent") int menuParent);
+    int deleteMenu(@Param("menuId") int menuId);
     List<ComResultMap> getMenuTree();
 
     List<ComResultMap> getUserByUserName(@Param("userName") String userName);
