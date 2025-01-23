@@ -247,7 +247,7 @@ const UserRegistPopup = forwardRef(
                 </Col>
               )}
             </Form.Group>
-            <Form.Group as={Row} className="mb-3" controlId="name">
+            <Form.Group as={Row} className="mb-3" controlId="password">
               <Form.Label column sm={3}>
                 <strong>패스워드</strong>
               </Form.Label>
@@ -260,7 +260,7 @@ const UserRegistPopup = forwardRef(
                 />
               </Col>
             </Form.Group>
-            <Form.Group as={Row} className="mb-3" controlId="name">
+            <Form.Group as={Row} className="mb-3" controlId="email">
               <Form.Label column sm={3}>
                 <strong>이메일</strong>
               </Form.Label>
