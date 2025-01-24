@@ -195,8 +195,8 @@
 <!--    </update>-->
 
     <insert id="insertRole" parameterType="map">
-        INSERT INTO p_role (ROLE_NAME, STATUS, update_date, CREATE_BY, UPDATE_BY)
-        VALUES (#{roleName}, #{status}, CURRENT_TIMESTAMP, 'SYSTEM', 'SYSTEM')
+        INSERT INTO p_role (ROLE_ID, ROLE_NAME, STATUS, update_date, CREATE_BY)
+        VALUES (NEXTVAL('SEQ_P_ROLE'), #{roleName}, #{status}, CURRENT_TIMESTAMP, 'SYSTEM')
     </insert>
 
     <delete id="deleteRole">

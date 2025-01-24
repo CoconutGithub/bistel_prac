@@ -106,9 +106,14 @@ let roleKind: any = null;
 const ManageUser: React.FC = () => {
   console.log("ManageUser 생성됨.");
 
-  //==start: 여기는 무조건 공통으로 받는다고 생각하자
+  //=== 설정된 값 및 버튼 정보, 공통함수 가져옴-start ===
   const comAPIContext = useContext(ComAPIContext);
-  //==end: 여기는 무조건 공통으로 받는다고 생각하자
+  const canCreate = useSelector((state: RootState) => state.auth.pageButtonAuth.canCreate);
+  const canDelete = useSelector((state: RootState) => state.auth.pageButtonAuth.canDelete);
+  const canUpdate = useSelector((state: RootState) => state.auth.pageButtonAuth.canUpdate);
+  const canRead = useSelector((state: RootState) => state.auth.pageButtonAuth.canRead);
+  //=== 설정된 값 및 버튼 정보, 공통함수 가져옴-end ===
+
 
   const inputRef = useRef<HTMLInputElement>(null);
   const gridRef = useRef<AgGridWrapperHandle>(null);
@@ -176,7 +181,7 @@ const ManageUser: React.FC = () => {
             gridRef.current.setRowData(res.data); // 데이터를 AgGridWrapper에 설정
           }
           comAPIContext.hideProgressBar();
-          comAPIContext.showToast("조회가 완료됐습니다.", "dark");
+          comAPIContext.showToast("조회가 완료됐습니다.", "success");
         })
         .catch((err) => {
           console.error("Error fetching data:", err);
@@ -261,8 +266,9 @@ const ManageUser: React.FC = () => {
               className="me-2"
               variant="primary"
               onClick={openPopup}
+              disabled={!canCreate}
           >
-            등록
+            사용자 등록
           </ComButton>
         </>
     );
@@ -302,7 +308,11 @@ const ManageUser: React.FC = () => {
             <AgGridWrapper
                 ref={gridRef} // forwardRef를 통해 연결된 ref
                 showButtonArea={true}
-                showAddButton={false}
+
+                canCreate={false}
+                canDelete={canDelete}
+                canUpdate={canUpdate}
+
                 columnDefs={dynamicColumnDefs}
                 enableCheckbox={true}
                 onSave={handleSave} // 저장 버튼 동작z`

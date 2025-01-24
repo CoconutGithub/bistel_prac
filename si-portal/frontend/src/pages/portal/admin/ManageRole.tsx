@@ -65,6 +65,11 @@ interface SaveRolesResponse {
 
 const ManageRole: React.FC = () => {
     const state = useSelector((state: RootState) => state.auth);
+
+    const canCreate = useSelector((state: RootState) => state.auth.pageButtonAuth.canCreate);
+    const canDelete = useSelector((state: RootState) => state.auth.pageButtonAuth.canDelete);
+    const canUpdate = useSelector((state: RootState) => state.auth.pageButtonAuth.canUpdate);
+
     const comAPIContext = useContext(ComAPIContext);
     const gridRef = useRef<AgGridWrapperHandle>(null);
 
@@ -155,8 +160,13 @@ const ManageRole: React.FC = () => {
 
     const registerButton = useMemo(() => (
         <>
-            <ComButton size="sm" className="me-2" variant="primary" onClick={handleRegist}>
-                등록
+            <ComButton size="sm"
+                className="me-2"
+                variant="primary"
+                onClick={handleRegist}
+                disabled={!canCreate}
+            >
+                권한 등록
             </ComButton>
         </>
     ), []);
@@ -295,7 +305,9 @@ const ManageRole: React.FC = () => {
                         <AgGridWrapper
                             ref={gridRef} // forwardRef를 통해 연결된 ref
                             showButtonArea={true}
-                            showAddButton={false}
+                            canCreate={false}
+                            canDelete={canDelete}
+                            canUpdate={canUpdate}
                             columnDefs={dynamicColumnDefs}
                             enableCheckbox={true}
                             onSave={handleSave} // 저장 버튼 동작`

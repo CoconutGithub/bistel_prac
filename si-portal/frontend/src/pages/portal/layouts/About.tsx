@@ -1,11 +1,8 @@
 import { Container, Row, Col } from 'react-bootstrap';
 import ComButton from "~pages/portal/buttons/ComButton";
-import {useContext, useEffect} from "react";
-import {ComAPIContext} from "~components/ComAPIContext";
+import {useEffect} from "react";
 import {useSelector} from "react-redux";
 import {RootState} from "~store/Store";
-import axios from "axios";
-import {cachedAuthToken} from "~store/AuthSlice";
 
 const About = () => {
 

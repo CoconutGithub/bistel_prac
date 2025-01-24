@@ -3,7 +3,8 @@ import React, {
     useRef,
     useImperativeHandle,
     forwardRef,
-    useCallback, useContext,
+    useCallback,
+    useContext,
 } from 'react';
 import { AgGridReact } from '@ag-grid-community/react';
 import { ClientSideRowModelModule } from '@ag-grid-community/client-side-row-model';
@@ -21,9 +22,11 @@ import ComButton from '~pages/portal/buttons/ComButton';
 // Props 타입 정의
 interface AgGridWrapperProps {
     showButtonArea?: boolean;
-    showAddButton?: boolean;
-    showSaveButton?: boolean;
-    showDeleteButton?: boolean;
+
+    canCreate?: boolean;
+    canDelete?: boolean;
+    canUpdate?: boolean;
+
     children?: React.ReactNode;
     columnDefs: ColDef[];
     enableCheckbox?: boolean;
@@ -43,19 +46,41 @@ const rowClassRules = {
     'ag-row-updated': (params: any) => params.data?.isUpdated === true, // isUpdated가 true인 경우
 };
 
+
+const defaultSettings = {
+    showButtonArea: true,
+
+    canCreate: false,
+    canDelete: false,
+    canUpdate: false,
+
+    enableCheckbox: false,
+    columnDefs: [],
+    onDelete: () => {},
+    onSave: () => {},
+    onCellEditingStopped: () => {},
+    onCellValueChanged: () => {},
+    onCellEditingStarted: () => {},
+    rowHeight:40
+}
+
 const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
-    ({  showButtonArea = true
-        , showAddButton = true
-        , showSaveButton = true
-        , showDeleteButton = true
-        , children = null
-        , columnDefs
-        , enableCheckbox = false
-        , onDelete
-        , onSave
-        , onCellEditingStopped
-        , onCellValueChanged
-        , onCellEditingStarted }, ref) => {
+    (props, ref) => {
+        const settings = {...defaultSettings, ...props};
+        const {
+            showButtonArea,
+            canCreate,
+            canDelete,
+            canUpdate,
+            children,
+            columnDefs,
+            enableCheckbox,
+            onDelete,
+            onSave,
+            onCellEditingStopped,
+            onCellValueChanged,
+            onCellEditingStarted,
+        } = settings;
 
         console.log("======create AgGridWrapper======");
         const comAPIContext = useContext(ComAPIContext);
@@ -90,13 +115,6 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
             return baseColumnDefs.map((colDef) => ({
                 ...colDef,
                 cellClass: (params: CellClassParams) => {
-                    // if (params.data?.isDeleted) {
-                    //     return 'ag-row-deleted'
-                    // } else if(params.data?.isUpdated) {
-                    //     return '.ag-row-updated'
-                    // } else {
-                    //     return 'ag-row-default'
-                    // }
                     return 'ag-row-default'
                 }
 
@@ -212,24 +230,15 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
                     {showButtonArea && (
                         <Col className="d-flex justify-content-end">
                             {children}
-                            {showAddButton && (
-                                <ComButton size="sm" className="me-2" variant="primary" onClick={handleAddRow}>
-                                    추가
-                                </ComButton>
-                                // <AddButton onClick={handleAddRow}></AddButton>
-                            )}
-                            {showSaveButton && (
-                                <ComButton size="sm" className="me-2" variant="primary" onClick={handleSave}>
-                                    저장
-                                </ComButton>
-                                // <SaveButton onClick={handleSave}></SaveButton>
-                            )}
-                            {showDeleteButton && (
-                                <ComButton size="sm" className="me-2" variant="danger" onClick={handleDelete}>
-                                    삭제
-                                </ComButton>
-                                // <DeleteButton onClick={handleDelete}></DeleteButton>
-                            )}
+                            <ComButton size="sm" disabled={!canCreate} className="me-2" variant="primary" onClick={handleAddRow}>
+                                행추가
+                            </ComButton>
+                            <ComButton size="sm" disabled={!canUpdate} className="me-2" variant="primary" onClick={handleSave}>
+                                행저장
+                            </ComButton>
+                            <ComButton size="sm" disabled={!canDelete} className="me-2" variant="danger" onClick={handleDelete}>
+                                행삭제
+                            </ComButton>
                         </Col>
                     )}
                     </Row>
@@ -238,6 +247,10 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
                         <div className="ag-theme-alpine" style={{ height: 600, width: '100%' }}>
                             <AgGridReact
                                 ref={gridRef}
+                                rowHeight={40}
+
+                                paginationPageSize={5} // 한 페이지에 표시할 행 개수
+
                                 rowData={rowData}
                                 rowSelection="multiple"
                                 columnDefs={getColumnDefs()}

@@ -10,7 +10,8 @@ import { cachedAuthToken } from "~store/AuthSlice";
 // route guard
 const ProtectedRoute = ({element, fallback}: ProtectedRouteProps) => {
 
-    const state = useSelector((state: RootState) => state.auth);
+    const roleId = useSelector((state: RootState) => state.auth.user.roleId);
+    const isMighty = useSelector((state: RootState) => state.auth.user.isMighty);
     const dispatch = useDispatch<AppDispatch>();
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
     const location = useLocation();
@@ -27,7 +28,7 @@ const ProtectedRoute = ({element, fallback}: ProtectedRouteProps) => {
      */
     const getPageAuth = () => {
 
-        if(state.user.isMighty === 'Y' || ["/main/how-to-use", "/main/settings", "/main/profile", "/main/dashboard"].includes(location.pathname)) {
+        if(isMighty === 'Y' || ["/main/how-to-use", "/main/settings", "/main/profile", "/main/dashboard"].includes(location.pathname)) {
             dispatch(setPageButtonAuth({
                 'canCreate': true,
                 'canDelete': true,
@@ -38,7 +39,7 @@ const ProtectedRoute = ({element, fallback}: ProtectedRouteProps) => {
             axios
                 .get("http://localhost:8080/page-auth", {
                     headers: {Authorization: `Bearer ${cachedAuthToken}`},
-                    params: {roleId: state.user.roleId, path: location.pathname},
+                    params: {roleId, path: location.pathname},
                 })
                 .then((res) => {
                     if (res && res.data.length === 1) {
