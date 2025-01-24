@@ -246,4 +246,65 @@
         WHERE MENU_ID = #{menuId}
     </update>
 
+    <select id="getMenuRole" resultType="com.siportal.portal.com.result.ComResultMap">
+        select ROW_NUMBER() OVER () as GRID_ROW_ID
+             ,B.permission_id
+             ,C.role_name
+             ,B.can_create
+             ,B.can_read
+             ,B.can_update
+             ,B.can_delete
+             ,TO_CHAR(B.create_date, 'YYYY-MM-DD HH24:MI:SS') AS create_date
+             ,B.create_by
+             ,TO_CHAR(B.update_date, 'YYYY-MM-DD HH24:MI:SS') AS update_date
+             ,B.update_by
+        from p_menu A, p_permission B, p_role C
+        where  A.menu_id = B.menu_id
+          and B.role_id = C.role_id
+          and B.menu_id = #{menuId}
+    </select>
+
+    <insert id="createMenuRole">
+        INSERT INTO P_PERMISSION (PERMISSION_ID, ROLE_ID, MENU_ID, CREATE_DATE, CREATE_BY, CAN_CREATE, CAN_READ, CAN_UPDATE, CAN_DELETE)
+        VALUES (nextval('seq_p_permission'), #{roleId}, #{menuId}, CURRENT_TIMESTAMP, 'ADMIN',
+        <choose>
+            <when test="canCreate != null">#{canCreate}</when>
+            <otherwise>'N'</otherwise>
+        </choose>,
+        <choose>
+            <when test="canRead != null">#{canRead}</when>
+            <otherwise>'N'</otherwise>
+        </choose>,
+        <choose>
+            <when test="canUpdate != null">#{canUpdate}</when>
+            <otherwise>'N'</otherwise>
+        </choose>,
+        <choose>
+            <when test="canDelete != null">#{canDelete}</when>
+            <otherwise>'N'</otherwise>
+        </choose>
+        )
+    </insert>
+
+
+    <update id="updateMenuRole">
+        UPDATE P_PERMISSION
+        SET CAN_CREATE = #{canCreate}
+          , CAN_READ = #{canRead}
+          , CAN_UPDATE = #{canUpdate}
+          , CAN_DELETE = #{canDelete}
+          , UPDATE_DATE = NOW()
+          , UPDATE_BY = 'ADMIN'
+        WHERE PERMISSION_ID = #{permissionId}
+          AND ROLE_ID = #{roleId}
+          AND MENU_ID = #{menuId}
+    </update>
+
+    <delete id="deleteMenuRole">
+        DELETE FROM P_PERMISSION
+        WHERE PERMISSION_ID = #{permissionId}
+            AND ROLE_ID = #{roleId}
+            AND MENU_ID = #{menuId}
+    </delete>
+
 </mapper>

@@ -26,8 +26,7 @@ interface MenuItem {
     status: string;
 }
 
-const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
-
+const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ onMenuClick, refreshTree }) => {
     console.log("ManageMenuTree 생성됨.");
 
     //==start: 여기는 무조건 공통으로 받는다고 생각하자
@@ -82,7 +81,7 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
         };
 
         fetchData();
-    }, []);
+    }, [refreshTree]);
 
     //################### 메소드 영역-start ####################
     const buildTreeWithRoot = (data: MenuItem[]): MenuItem[] => {
@@ -200,11 +199,12 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick }) => {
     const renderTree = (nodes :  MenuItem[], level : number = 0) => {
         return (
             <Container>
-                <ul className="list-unstyled mb-3">
+                <ul className="list-unstyled-item" style={{ marginBottom: 0 }}>
                     {nodes.map((node) => (
                         <li
                             key={node.menuId}
-                            className="list-group-item mb-3"
+                            className="list-group-item"  // mb-3를 제거
+                            style={{ marginBottom: 0 }}  // 인라인 스타일로 margin-bottom: 0 설정
                             onContextMenu={(e) => handleRightClick(e, node)}
                         >
                             <div
