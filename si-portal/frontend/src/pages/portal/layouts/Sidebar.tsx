@@ -21,7 +21,7 @@ const Sidebar = () => {
 
   return (
     <Nav style={{ backgroundColor }} className="flex-column h-100">
-      <Nav.Link as={Link} to="/main/quick-start">
+      <Nav.Link as={Link} to="/main/how-to-use">
         How to use
       </Nav.Link>
       <Nav.Link as={Link} to="/main/dashboard">
