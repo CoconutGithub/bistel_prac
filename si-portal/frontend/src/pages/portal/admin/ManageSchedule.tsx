@@ -34,6 +34,10 @@ const ManageSchedule: React.FC = () => {
   
     //==start: 여기는 무조건 공통으로 받는다고 생각하자
     const state = useSelector((state: RootState) => state.auth);
+    const canCreate = useSelector((state: RootState) => state.auth.pageButtonAuth.canCreate);
+    const canDelete = useSelector((state: RootState) => state.auth.pageButtonAuth.canDelete);
+    const canUpdate = useSelector((state: RootState) => state.auth.pageButtonAuth.canUpdate);
+    const canRead = useSelector((state: RootState) => state.auth.pageButtonAuth.canRead);
     const comAPIContext = useContext(ComAPIContext);
     //==end: 여기는 무조건 공통으로 받는다고 생각하자
     console.log('stat', state);
@@ -64,7 +68,7 @@ const ManageSchedule: React.FC = () => {
 //             console.log('scheduleData.current:', scheduleData.current);
           }
           comAPIContext.hideProgressBar();
-          comAPIContext.showToast('조회가 완료됐습니다.','dark');
+          comAPIContext.showToast('조회가 완료됐습니다.','success');
       })
       .catch((err) => {
           console.error("Error fetching data:", err);
@@ -234,6 +238,9 @@ const ManageSchedule: React.FC = () => {
               <AgGridWrapper
                   ref={gridRef} // forwardRef를 통해 연결된 ref
                   showButtonArea={true}
+                  canCreate={canCreate}
+                  canDelete={canDelete}
+                  canUpdate={canUpdate}
                   columnDefs={columnDefs}
                   enableCheckbox={true}
                   onSave={handleSave} // 저장 버튼 동작

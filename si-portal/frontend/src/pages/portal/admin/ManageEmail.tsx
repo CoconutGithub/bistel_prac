@@ -36,7 +36,6 @@ const ManageEmail: React.FC = () => {
 
 
   useEffect(() => {
-    comAPIContext.showToast('ManageEmail.', 'dark');
   }, []);
 
   const handleSearch = async () => {
@@ -52,7 +51,7 @@ const ManageEmail: React.FC = () => {
           gridRef.current.setRowData(res.data); // 데이터를 AgGridWrapper에 설정
         }
         comAPIContext.hideProgressBar();
-        comAPIContext.showToast('조회가 완료됐습니다.', 'dark');
+        comAPIContext.showToast('조회가 완료됐습니다.', 'success');
       })
       .catch((err) => {
         console.error("Error fetching data:", err);

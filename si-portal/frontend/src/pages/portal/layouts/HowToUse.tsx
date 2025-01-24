@@ -5,6 +5,8 @@ import ExamButton from "~pages/portal/example/ExamButton";
 import AgGridWrapper from "~components/AgGridWrapper";
 import FileCellRenderer from "~components/FileCellRenderer";
 import {AgGridWrapperHandle} from "~types/GlobalTypes";
+import {useSelector} from "react-redux";
+import {RootState} from "~store/Store";
 
 const columnDefs = [
     { filed: 'gridRowId', field: 'h1', headerName: 'Header1', editable: true },
@@ -58,6 +60,40 @@ const HowToUse: React.FC = () => {
         ADMIN 이란 ROLE_NAME 은 SITE 마다 다 다를수 있기 때문에. (예: Administrator)
         IS_MIGHTY 가 'Y' 인 ROLE 은 P_PERMISSION 에 메뉴설정을 하지 않아도 된다.
        `;
+
+    const examAgGrid = `
+        //Import 추가    
+        import AgGridWrapper from "~components/AgGridWrapper";
+        
+        //화면별 생성,삭제, 수정, 조회 버튼 권한 불러옴 
+        const canCreate = useSelector((state: RootState) => state.auth.pageButtonAuth.canCreate);
+        const canDelete = useSelector((state: RootState) => state.auth.pageButtonAuth.canDelete);
+        const canUpdate = useSelector((state: RootState) => state.auth.pageButtonAuth.canUpdate);
+        const canRead = useSelector((state: RootState) => state.auth.pageButtonAuth.canRead);
+        
+        const columnDefs = [
+            { filed: 'gridRowId', field: 'h1', headerName: 'Header1', editable: true },
+            { filed: 'gridRowId', field: 'h2', headerName: 'Headeer2', editable: true },
+            {
+                filed: 'gridRowId',
+                field: 'attachFile',
+                headerName: 'File',
+                cellRenderer: FileCellRenderer,
+                editable: false
+            }
+        ]
+        
+        <AgGridWrapper
+            ref={gridRef} // forwardRef를 통해 연결된 ref
+            enableCheckbox={true}
+            showButtonArea={true}
+            canCreate={canCreate}
+            canDelete={canDelete}
+            canUpdate={canUpdate}
+            columnDefs={columnDefs}
+        >
+        </AgGridWrapper>        
+        `;
 
     const handleRunProgress = () => {
         //Toast message 를 보여줌
@@ -173,6 +209,20 @@ const HowToUse: React.FC = () => {
                 <Col>
                     <h1>Ag Grid 기본 생성법 && File 첨부 방법</h1>
                     <p>Ag Grid 에서 컬럼에 파일 추가하는 예제 입니다.</p>
+                    <pre
+                        style={{
+                            backgroundColor: '#f8f9fa',
+                            padding: '10px',
+                            border: '1px solid #ddd',
+                            borderRadius: '5px',
+                            textAlign: 'left',
+                            overflowX: 'auto',
+                        }}
+                    >
+                         <code>
+                            {examAgGrid}
+                        </code>
+                    </pre>
                     <Container className="d-flex">
                         <Button size="sm" className="ms-auto mb-3" variant="primary"
                                 onClick={searchGrid}>
@@ -184,6 +234,9 @@ const HowToUse: React.FC = () => {
                             ref={gridRef} // forwardRef를 통해 연결된 ref
                             enableCheckbox={true}
                             showButtonArea={true}
+                            canCreate={true}
+                            canDelete={true}
+                            canUpdate={true}
                             columnDefs={columnDefs}
                         >
                         </AgGridWrapper>

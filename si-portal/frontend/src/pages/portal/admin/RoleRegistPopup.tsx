@@ -30,7 +30,7 @@ const RoleRegistPopup: React.FC<RoleRegistPopupProps> = ({ show, onClose, onSave
             centered
         >
             <Modal.Header closeButton>
-                <Modal.Title>사용자 등록</Modal.Title>
+                <Modal.Title>권한 등록</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <Form>
@@ -61,7 +61,7 @@ const RoleRegistPopup: React.FC<RoleRegistPopupProps> = ({ show, onClose, onSave
                 </Form>
             </Modal.Body>
             <Modal.Footer>
-                <ComButton variant="secondary" onClick={handleSave}>
+                <ComButton variant="primary" onClick={handleSave}>
                     Save
                 </ComButton>
                 <ComButton variant="secondary" onClick={() => { 
