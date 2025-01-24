@@ -21,15 +21,20 @@ import ComButton from '~pages/portal/buttons/ComButton';
 //##################### type 지정-start #######################
 // Props 타입 정의
 interface AgGridWrapperProps {
-    showButtonArea?: boolean;
+    children?: React.ReactNode;
 
+    showButtonArea?: boolean;
     canCreate?: boolean;
     canDelete?: boolean;
     canUpdate?: boolean;
-
-    children?: React.ReactNode;
     columnDefs: ColDef[];
     enableCheckbox?: boolean;
+    rowNumberColumn?: boolean;
+    rowSelection?: "multiple" | "single"; // 타입 제한 적용
+    rowHeight?: number,
+    pagination?: boolean,
+    paginationPageSize?: number
+
     onDelete?: (selectedRows: any[]) => void;
     onSave?: (lists: { deleteList: any[]; updateList: any[]; createList: any[]; }) => void;
     onCellEditingStopped?: (event: any) => void;
@@ -48,33 +53,41 @@ const rowClassRules = {
 
 
 const defaultSettings = {
+    children: null,
     showButtonArea: true,
-
     canCreate: false,
     canDelete: false,
     canUpdate: false,
-
-    enableCheckbox: false,
     columnDefs: [],
+    enableCheckbox: false,
+    rowSelection: "multiple" as "multiple",
+    rowHeight:40,
+    pagination: true,
+    paginationPageSize : 10,
+
     onDelete: () => {},
     onSave: () => {},
     onCellEditingStopped: () => {},
     onCellValueChanged: () => {},
     onCellEditingStarted: () => {},
-    rowHeight:40
 }
 
 const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
     (props, ref) => {
         const settings = {...defaultSettings, ...props};
         const {
+            children,
             showButtonArea,
             canCreate,
             canDelete,
             canUpdate,
-            children,
             columnDefs,
             enableCheckbox,
+            rowHeight,
+            rowSelection,
+            pagination,
+            paginationPageSize,
+
             onDelete,
             onSave,
             onCellEditingStopped,
@@ -101,7 +114,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
 
         // 컬럼 정의 생성
         const getColumnDefs = (): ColDef[] => {
-            const baseColumnDefs = enableCheckbox
+            let baseColumnDefs = enableCheckbox
                 ? [
                     {
                         headerCheckboxSelection: true,
@@ -111,6 +124,16 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
                     ...columnDefs,
                 ]
                 : columnDefs;
+
+            // 행 번호 컬럼 추가
+            baseColumnDefs.unshift({
+                headerName: "No",
+                valueGetter: "node.rowIndex + 1",
+                width: 90,
+                suppressSizeToFit: true,
+            })
+
+
 
             return baseColumnDefs.map((colDef) => ({
                 ...colDef,
@@ -247,12 +270,11 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
                         <div className="ag-theme-alpine" style={{ height: 600, width: '100%' }}>
                             <AgGridReact
                                 ref={gridRef}
-                                rowHeight={40}
-
-                                paginationPageSize={5} // 한 페이지에 표시할 행 개수
-
+                                rowSelection={rowSelection}
+                                rowHeight={rowHeight}
                                 rowData={rowData}
-                                rowSelection="multiple"
+                                pagination={pagination}
+                                paginationPageSize={paginationPageSize} // 한 페이지에 표시할 행 개수
                                 columnDefs={getColumnDefs()}
                                 defaultColDef={defaultColDef}
                                 modules={[ClientSideRowModelModule]}
