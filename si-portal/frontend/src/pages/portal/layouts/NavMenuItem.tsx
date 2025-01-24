@@ -69,7 +69,8 @@ const NavMenuItem = ({ item }: NavMenuItemProps) => {
   // 단일 메뉴인 경우
   return (
       <Nav.Item>
-        <Nav.Link as={Link} to={item.path || '/'} className="p-2" onClick={() => item.path && navigate(item.path)}>
+        {/*<Nav.Link as={Link} to={item.path || '/'} className="p-2" onClick={() => item.path && navigate(item.path)}>*/}
+        <Nav.Link as={Link} to={item.path || '/'} className="p-2" >
           {item.title}
         </Nav.Link>
       </Nav.Item>

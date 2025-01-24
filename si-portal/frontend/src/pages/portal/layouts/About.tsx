@@ -4,13 +4,22 @@ import {useContext, useEffect} from "react";
 import {ComAPIContext} from "~components/ComAPIContext";
 import {useSelector} from "react-redux";
 import {RootState} from "~store/Store";
+import axios from "axios";
+import {cachedAuthToken} from "~store/AuthSlice";
 
 const About = () => {
 
+    console.log('About created............');
+
     const canCreate = useSelector((state: RootState) => state.auth.pageButtonAuth.canCreate);
-    const canDelete = useSelector((state: RootState) => state.auth.pageButtonAuth.canCreate);
-    const canUpdate = useSelector((state: RootState) => state.auth.pageButtonAuth.canCreate);
-    const canRead = useSelector((state: RootState) => state.auth.pageButtonAuth.canCreate);
+    const canDelete = useSelector((state: RootState) => state.auth.pageButtonAuth.canDelete);
+    const canUpdate = useSelector((state: RootState) => state.auth.pageButtonAuth.canUpdate);
+    const canRead = useSelector((state: RootState) => state.auth.pageButtonAuth.canRead);
+
+    console.log('canCreate', canCreate);
+    console.log('canDelete', canDelete);
+    console.log('canUpdate', canUpdate);
+    console.log('canRead', canRead);
 
 
     const addClick = () => {
@@ -28,6 +37,17 @@ const About = () => {
     const searchClick = () => {
         alert("조회버튼 눌러짐")
     };
+
+    useEffect(() => {
+
+        console.log('About useEffect');
+        console.log('useEffect-canCreate', canCreate);
+        console.log('useEffect-canDelete', canDelete);
+        console.log('useEffect-canUpdate', canUpdate);
+        console.log('useEffect-canRead', canRead);
+
+
+    }, [canCreate, canDelete, canUpdate, canRead]);
 
     return (
         <Container>

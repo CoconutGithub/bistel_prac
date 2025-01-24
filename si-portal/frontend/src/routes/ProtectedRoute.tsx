@@ -25,9 +25,9 @@ const ProtectedRoute = ({element, fallback}: ProtectedRouteProps) => {
     이유는 ProtectedRoute 가 page routing 될때마다 session의 유효시간을 체크 하므로
     재랜더링이 될수도 있기 때문이다.
      */
-    const getPageAuth = useCallback(() => {
+    const getPageAuth = () => {
 
-        if(state.user.isMighty === 'Y') {
+        if(state.user.isMighty === 'Y' || ["/main/how-to-use", "/main/settings", "/main/profile", "/main/dashboard"].includes(location.pathname)) {
             dispatch(setPageButtonAuth({
                 'canCreate': true,
                 'canDelete': true,
@@ -68,7 +68,7 @@ const ProtectedRoute = ({element, fallback}: ProtectedRouteProps) => {
                 })
         }
 
-    }, [location.pathname])
+    };
 
 
 
@@ -79,11 +79,12 @@ const ProtectedRoute = ({element, fallback}: ProtectedRouteProps) => {
         const checkSessionTime = async () => {
             try {
                 const result = await dispatch(chkLoginToken()).unwrap();
+                //버튼의 권한을 조회해옴
+                getPageAuth();
+
                 //console.log('chkLoginToken결과:', result);
                 setIsAuthenticated(result); // 인증 결과 저장
 
-                //버튼의 권한을 조회해옴
-                getPageAuth();
             } catch (error) {
                 console.error("Authentication check failed:", error);
                 setIsAuthenticated(false); // 인증 결과 저장

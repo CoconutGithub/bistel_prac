@@ -1,8 +1,23 @@
-﻿import React, {useContext, useState} from 'react';
+﻿import React, {useContext, useRef, useState} from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import { ComAPIContext } from "~components/ComAPIContext";
-import ComButton from "~pages/portal/buttons/ComButton";
 import ExamButton from "~pages/portal/example/ExamButton";
+import AgGridWrapper from "~components/AgGridWrapper";
+import FileCellRenderer from "~components/FileCellRenderer";
+import {AgGridWrapperHandle} from "~types/GlobalTypes";
+
+const columnDefs = [
+    { filed: 'gridRowId', field: 'h1', headerName: 'Header1', editable: true },
+    { filed: 'gridRowId', field: 'h2', headerName: 'Headeer2', editable: true },
+    {
+        filed: 'gridRowId',
+        field: 'attachFile',
+        headerName: 'File',
+        cellRenderer: FileCellRenderer,
+        editable: false
+    }
+]
+
 
 const HowToUse: React.FC = () => {
     const comAPIContext = useContext(ComAPIContext); // ComAPIContext 사용
@@ -55,7 +70,6 @@ const HowToUse: React.FC = () => {
         comAPIContext.showToast("write message in here" , "danger");
     };
 
-
     const handleRunButton = () => {
         setShowExamButton(true); // ExamButton 팝업 표시
     };
@@ -63,6 +77,16 @@ const HowToUse: React.FC = () => {
     const handleCloseButton = () => {
         setShowExamButton(false); // ExamButton 팝업 숨김
     };
+
+
+    const gridRef = useRef<AgGridWrapperHandle>(null);
+    const searchGrid = () =>{
+        gridRef.current!.setRowData([
+            {'gridRowId': '1', 'h1':'aaa', 'h2': 'bbb'},
+            {'gridRowId': '2', 'h1':'aaa', 'h2': 'bbb'},
+            {'gridRowId': '3', 'h1':'aaa', 'h2': 'bbb'}
+        ]);
+    }
 
 
     return (
@@ -143,6 +167,27 @@ const HowToUse: React.FC = () => {
                         </code>
                     </pre>
 
+                </Col>
+            </Row>
+            <Row className="text-center" style={{ marginTop: '50px' }}>
+                <Col>
+                    <h1>Ag Grid 기본 생성법 && File 첨부 방법</h1>
+                    <p>Ag Grid 에서 컬럼에 파일 추가하는 예제 입니다.</p>
+                    <Container className="d-flex">
+                        <Button size="sm" className="ms-auto mb-3" variant="primary"
+                                onClick={searchGrid}>
+                            조회
+                        </Button>
+                    </Container>
+                    <div>
+                        <AgGridWrapper
+                            ref={gridRef} // forwardRef를 통해 연결된 ref
+                            enableCheckbox={true}
+                            showButtonArea={true}
+                            columnDefs={columnDefs}
+                        >
+                        </AgGridWrapper>
+                    </div>
                 </Col>
             </Row>
         </Container>
