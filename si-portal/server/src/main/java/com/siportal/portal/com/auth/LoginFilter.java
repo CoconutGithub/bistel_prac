@@ -53,8 +53,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
             // Oracle DB에서 사용자 확인
             User user = validateUserFromDB(userId, password);
-            if (validateUserFromDB(userId, password) == null) {
-                throw new BadCredentialsException("Invalid userid or password");
+            if (user == null) {
+                throw new BadCredentialsException("Invalid userId or password");
             }
 
             // 인증 객체 생성
@@ -66,6 +66,15 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
             return authenticationToken;
 
+        } catch (BadCredentialsException e) {
+            try {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"error\": \"" + e.getMessage() + "\"}");
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+            return null;
         } catch (Exception e) {
             throw new RuntimeException("Authentication failed");
         }

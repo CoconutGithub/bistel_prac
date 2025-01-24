@@ -1,5 +1,11 @@
 import { Container, Form, Button } from "react-bootstrap";
-import React, { useRef, useContext, useCallback, useEffect } from "react";
+import React, {
+  useRef,
+  useContext,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import { ComAPIContext } from "~components/ComAPIContext";
 import { useDispatch } from "react-redux";
@@ -8,6 +14,7 @@ import { setLoginToken } from "~store/AuthSlice";
 import ComButton from "~pages/portal/buttons/ComButton";
 import SiUserIcon from "~components/icons/SiUserIcon";
 import SiLockIcon from "~components/icons/SiLockIcon";
+import Toast from "react-bootstrap/Toast";
 
 import axios from "axios";
 
@@ -15,6 +22,9 @@ import styles from "./Login.module.scss";
 import UserRegistPopup from "~pages/portal/admin/UserRegistPopup";
 
 const Login = () => {
+  const [toastShow, setToastShow] = useState(false);
+  const [userErrorStatus, setUserErrorStatus] =
+    useState<string>("unauthorized");
   const comAPIContext = useContext(ComAPIContext);
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
@@ -52,11 +62,19 @@ const Login = () => {
 
       navigate("/", { replace: true });
     } catch (error) {
-      console.log("response->", error);
-      comAPIContext.showToast(
-        "Login fail. there is no user information",
-        "dark"
-      );
+      if (axios.isAxiosError(error)) {
+        const status = error.response?.status;
+
+        if (status === 401) {
+          setUserErrorStatus("unauthorized");
+        } else {
+          setUserErrorStatus("etc");
+        }
+        setToastShow(true);
+      } else {
+        setUserErrorStatus("etc");
+        setToastShow(true);
+      }
     }
   };
 
@@ -68,6 +86,20 @@ const Login = () => {
 
   return (
     <div className={styles.start}>
+      <Toast
+        onClose={() => setToastShow(false)}
+        show={toastShow}
+        delay={1500}
+        autohide
+        bg="danger"
+        className={styles.toast}
+      >
+        <Toast.Body style={{ color: "#fff" }}>
+          {userErrorStatus === "unauthorized"
+            ? "존재하지 않는 회원입니다."
+            : "로그인에 실패했습니다. 관리자에게 문의하십시오."}
+        </Toast.Body>
+      </Toast>
       <Container className={styles.container}>
         <div className={styles.title_area}>
           <img
