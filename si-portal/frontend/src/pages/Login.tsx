@@ -11,7 +11,6 @@ import { ComAPIContext } from "~components/ComAPIContext";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "~store/Store";
 import { setLoginToken } from "~store/AuthSlice";
-import ComButton from "~pages/portal/buttons/ComButton";
 import SiUserIcon from "~components/icons/SiUserIcon";
 import SiLockIcon from "~components/icons/SiLockIcon";
 import Toast from "react-bootstrap/Toast";
@@ -25,18 +24,16 @@ const Login = () => {
   const [toastShow, setToastShow] = useState(false);
   const [userErrorStatus, setUserErrorStatus] =
     useState<string>("unauthorized");
-  const comAPIContext = useContext(ComAPIContext);
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const [loginButtonDisable, setLoginButtonDisable] = useState<boolean>(false);
+  const [userId, setUserId] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
 
-  const userIdRef = useRef<HTMLInputElement>(null); // useRef로 사용자 ID 참조
-  const passwordRef = useRef<HTMLInputElement>(null); // useRef로 비밀번호 참조
   const userSignupRef = useRef<any>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const userId = userIdRef.current?.value;
-    const password = passwordRef.current?.value;
 
     try {
       const response = await axios.post("http://localhost:8080/login", {
@@ -84,6 +81,19 @@ const Login = () => {
     }
   }, []);
 
+  const handleUserId = (e: any) => {
+    setUserId(e.target.value);
+  };
+
+  const handlePassword = (e: any) => {
+    setPassword(e.target.value);
+  };
+
+  useEffect(() => {
+    if (userId && password) setLoginButtonDisable(false);
+    else setLoginButtonDisable(true);
+  }, [userId, password]);
+
   return (
     <div className={styles.start}>
       <Toast
@@ -115,8 +125,9 @@ const Login = () => {
             <Form.Control
               type="text"
               placeholder="User Name"
-              ref={userIdRef}
+              value={userId}
               className={styles.input}
+              onChange={handleUserId}
             />
           </Form.Group>
           <Form.Group
@@ -127,7 +138,8 @@ const Login = () => {
             <Form.Control
               type="password"
               placeholder="Password"
-              ref={passwordRef}
+              value={password}
+              onChange={handlePassword}
               className={styles.input}
             />
           </Form.Group>
@@ -135,6 +147,7 @@ const Login = () => {
             variant="primary"
             type="submit"
             className={styles.login_button}
+            disabled={loginButtonDisable}
           >
             Log in
           </Button>
