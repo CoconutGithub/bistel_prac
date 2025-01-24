@@ -3,13 +3,16 @@ import { Navbar, Nav, Container, NavDropdown } from "react-bootstrap";
 import NavMenuItem from "~pages/portal/layouts/NavMenuItem";
 import { MenuItem } from "~types/LayoutTypes";
 import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "~store/Store";
 import { removeLoginToken } from "~store/AuthSlice";
 import { cachedAuthToken } from "~store/AuthSlice";
+import SiUserIcon from "~components/icons/SiUserIcon";
 
-const Header = () => {
+import styles from "./GlobalNavbar.module.scss";
+
+const GlobalNavbar = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const isMighty = useSelector((state: RootState) => state.auth.user.isMighty);
   const roleId = useSelector((state: RootState) => state.auth.user.roleId);
@@ -45,25 +48,62 @@ const Header = () => {
   const handleLogout = () => {
     console.log("Logging out...");
     dispatch(removeLoginToken());
-    // 로그아웃 처리 로직
-    navigate("/main");
+    navigate("/");
   };
 
   return (
-    <Navbar style={{ backgroundColor: headerColor }} expand="lg">
-      <Container fluid>
-        <Navbar.Brand href="/">{title}</Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto">
+    <Navbar className={styles.start} expand="lg">
+      <Navbar.Brand href="/" className={styles.title}>
+        <img
+          alt="기업 로고"
+          src={`${process.env.REACT_APP_PUBLIC_URL}/assets/images/bistelligence_logo.png`}
+          className={styles.logo}
+        />
+      </Navbar.Brand>
+      <Navbar.Toggle aria-controls="basic-navbar-nav" />
+      <Navbar.Collapse id="basic-navbar-nav" className={styles.nav_container}>
+        <div className={styles.nav_wrap}>
+          <Nav className={styles.nav}>
             {menuItems.map((item) => (
-              <NavMenuItem key={item.menuId} item={item} depth={1} />
+              <NavMenuItem
+                key={item.menuId}
+                item={item}
+                depth={1}
+                as={NavLink}
+              />
             ))}
           </Nav>
+          <Nav className={styles.nav}>
+            <Nav.Link as={NavLink} to="/main/how-to-use">
+              How to use
+            </Nav.Link>
+            <Nav.Link as={NavLink} to="/main/dashboard">
+              Dashboard
+            </Nav.Link>
+            <Nav.Link as={NavLink} to="/main/profile">
+              Profile
+            </Nav.Link>
+            <Nav.Link as={NavLink} to="/main/settings">
+              Settings
+            </Nav.Link>
+            <Nav.Link onClick={handleLogout}>Logout</Nav.Link>
+          </Nav>
+        </div>
+
+        <div className={styles.user_area}>
+          <div className={styles.user_info_wrap}>
+            <div className={styles.icon}>
+              <SiUserIcon fillColor="#fff" width={20} height={20} />
+            </div>
+            <div>
+              <p className={styles.status}>Administrator</p>
+              <p className={styles.userid}>kim_minsu</p>
+            </div>
+          </div>
           <Nav style={{ flex: "0 0 10%" }} className="ms-auto">
             {isMighty === "Y" && (
               <NavDropdown
-                title="Admin"
+                title={<div>dddd</div>}
                 id="basic-nav-dropdown"
                 menuVariant="dark"
               >
@@ -85,10 +125,10 @@ const Header = () => {
               </NavDropdown>
             )}
           </Nav>
-        </Navbar.Collapse>
-      </Container>
+        </div>
+      </Navbar.Collapse>
     </Navbar>
   );
 };
 
-export default Header;
+export default GlobalNavbar;
