@@ -1,0 +1,116 @@
+.start {
+  width: 240px;
+  height: 100%;
+  background-color: #fff;
+  border-right: 1px solid #d9d9d9;
+  padding: 0;
+
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+
+  .title {
+    padding: 20px 24px;
+    margin: 0 0 4px 0;
+    width: 100%;
+    .logo {
+      max-width: 100%;
+      height: 26px;
+    }
+  }
+  .nav_container {
+    width: 100%;
+    height: calc(100% - 71px);
+    background-color: #fff;
+    flex-grow: unset;
+    flex-direction: column;
+    justify-content: space-between;
+    .nav_wrap {
+      width: 100%;
+      height: calc(100% - 90px);
+      padding: 0 4px;
+      & > .nav {
+        flex-direction: column;
+        gap: 4px;
+        &:first-child {
+          margin-bottom: 4px;
+        }
+        .nav_link {
+          background-color: #fff;
+          display: flex;
+          align-items: center;
+          width: 100%;
+          padding: 10px 16px 10px 24px !important;
+          border-radius: 8px;
+          font-size: 14px;
+          color: #000000e0;
+          &:global(.active) {
+            font-weight: 600;
+            color: #1677ff;
+            background-color: #e6f4ff;
+          }
+        }
+        & > :global(.nav-item.dropdown) {
+          & > :global(.nav-link) {
+            background-color: #fff;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 10px 16px 10px 24px !important;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #000000e0;
+            position: relative;
+            &::after {
+              margin-left: auto;
+            }
+            & + :global(.dropdown-menu) {
+              width: 100%;
+            }
+          }
+        }
+      }
+    }
+
+    .user_area {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 12px 12px 12px 24px;
+      .user_info_wrap {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        .icon {
+          width: 32px;
+          height: 32px;
+          background-color: rgba(0, 0, 0, 0.25);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .status {
+          margin: 0;
+          font-size: 14px;
+          color: #000;
+          font-weight: 600;
+        }
+        .userid {
+          margin: 0;
+          color: #000;
+          color: #000000e0;
+          font-size: 14px;
+        }
+      }
+      .navDropdown {
+        & > a {
+          &::after {
+            display: none;
+          }
+        }
+      }
+    }
+  }
+}
