@@ -3,5 +3,8 @@
   height: 100vh;
   display: flex;
   .main {
+    width: calc(100% - 240px);
+    height: 100%;
+    overflow-y: auto;
   }
 }

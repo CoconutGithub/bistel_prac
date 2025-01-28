@@ -11,6 +11,7 @@ import { cachedAuthToken } from "~store/AuthSlice";
 import SiUserIcon from "~components/icons/SiUserIcon";
 
 import styles from "./GlobalNavbar.module.scss";
+import SiVerticalDot from "~components/icons/SiVerticalDot";
 
 const GlobalNavbar = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -70,23 +71,40 @@ const GlobalNavbar = () => {
                 item={item}
                 depth={1}
                 as={NavLink}
+                navLinkClass={styles.nav_link}
               />
             ))}
           </Nav>
           <Nav className={styles.nav}>
-            <Nav.Link as={NavLink} to="/main/how-to-use">
+            <Nav.Link
+              as={NavLink}
+              to="/main/how-to-use"
+              className={styles.nav_link}
+            >
               How to use
             </Nav.Link>
-            <Nav.Link as={NavLink} to="/main/dashboard">
+            <Nav.Link
+              as={NavLink}
+              to="/main/dashboard"
+              className={styles.nav_link}
+            >
               Dashboard
             </Nav.Link>
-            <Nav.Link as={NavLink} to="/main/profile">
+            <Nav.Link
+              as={NavLink}
+              to="/main/profile"
+              className={styles.nav_link}
+            >
               Profile
             </Nav.Link>
-            <Nav.Link as={NavLink} to="/main/settings">
+            <Nav.Link
+              as={NavLink}
+              to="/main/settings"
+              className={styles.nav_link}
+            >
               Settings
             </Nav.Link>
-            <Nav.Link onClick={handleLogout}>Logout</Nav.Link>
+            {/* <Nav.Link onClick={handleLogout}>Logout</Nav.Link> */}
           </Nav>
         </div>
 
@@ -100,30 +118,36 @@ const GlobalNavbar = () => {
               <p className={styles.userid}>kim_minsu</p>
             </div>
           </div>
-          <Nav style={{ flex: "0 0 10%" }} className="ms-auto">
-            {isMighty === "Y" && (
-              <NavDropdown
-                title={<div>dddd</div>}
-                id="basic-nav-dropdown"
-                menuVariant="dark"
-              >
-                <NavDropdown.Item as={Link} to="/main/manage-menu">
-                  메뉴 관리
-                </NavDropdown.Item>
-                <NavDropdown.Item as={Link} to="/main/manage-role">
-                  권한 관리
-                </NavDropdown.Item>
-                <NavDropdown.Item as={Link} to="/main/manage-user">
-                  사용자 관리
-                </NavDropdown.Item>
-                <NavDropdown.Item as={Link} to="/main/manage-email">
-                  이메일 관리
-                </NavDropdown.Item>
-                <NavDropdown.Item as={Link} to="/main/manage-schedule">
-                  스케줄 관리
-                </NavDropdown.Item>
-              </NavDropdown>
-            )}
+          <Nav>
+            <NavDropdown
+              title={<SiVerticalDot fillColor="#00000073" />}
+              id="basic-nav-dropdown"
+              drop="up"
+              className={styles.navDropdown}
+            >
+              {isMighty === "Y" && (
+                <>
+                  <NavDropdown.Item as={Link} to="/main/manage-menu">
+                    메뉴 관리
+                  </NavDropdown.Item>
+                  <NavDropdown.Item as={Link} to="/main/manage-role">
+                    권한 관리
+                  </NavDropdown.Item>
+                  <NavDropdown.Item as={Link} to="/main/manage-user">
+                    사용자 관리
+                  </NavDropdown.Item>
+                  <NavDropdown.Item as={Link} to="/main/manage-email">
+                    이메일 관리
+                  </NavDropdown.Item>
+                  <NavDropdown.Item as={Link} to="/main/manage-schedule">
+                    스케줄 관리
+                  </NavDropdown.Item>
+                  <NavDropdown.Item onClick={handleLogout}>
+                    Logout
+                  </NavDropdown.Item>
+                </>
+              )}
+            </NavDropdown>
           </Nav>
         </div>
       </Navbar.Collapse>
