@@ -523,9 +523,9 @@ public class AdminService {
     public ResponseEntity<?> updateMenuRole(@RequestBody Map<String, Object> requestData) {
         try {
             // 데이터 파싱
+            List<Map<String, Object>> createList = (List<Map<String, Object>>) requestData.get("createList");
             List<Map<String, Object>> updateList = (List<Map<String, Object>>) requestData.get("updateList");
             List<Map<String, Object>> deleteList = (List<Map<String, Object>>) requestData.get("deleteList");
-            List<Map<String, Object>> createList = (List<Map<String, Object>>) requestData.get("createList");
 
             for (Map<String, Object> role : createList) {
                 System.out.println(role);
