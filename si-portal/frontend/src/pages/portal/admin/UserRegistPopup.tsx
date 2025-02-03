@@ -13,6 +13,7 @@ import {RootState} from "@/store/Store";
 import {useSelector} from "react-redux";
 import {cachedAuthToken} from "~store/AuthSlice";
 import Toast from "react-bootstrap/Toast";
+import * as bcrypt from "bcryptjs";
 
 interface IUserRegistPopup {
     onResearchUser?: () => void;
@@ -204,10 +205,13 @@ const UserRegistPopup = forwardRef(
                     formData.append("image", ""); // 기본값 처리 (빈 문자열을 서버에서 기본 이미지로 처리)
                 }
 
+                const salt = await bcrypt.genSalt(10);
+                const hashedPassword = await bcrypt.hash(password, salt);
+
                 //사용자 정보 추가
                 formData.append("userId", userId);
                 formData.append("userName", userName);
-                formData.append("password", password);
+                formData.append("password", hashedPassword);  // 비크립트
                 formData.append("email", email);
                 formData.append("phoneNumber", phoneNumber);
                 formData.append("userRole", mode === "register" ? String(parseInt(userRole, 10)) : "4");

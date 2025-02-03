@@ -14,7 +14,7 @@ import java.util.Map;
 @Mapper
 public interface PortalMapper {
     List<ComResultMap> getPageAuth(@Param("roleId") String roleId, @Param("path") String path);
-    User getUserByUserId(@Param("userId") String userPassword, @Param("password") String password);
+    User getUserByUserId(@Param("userId") String userId);
     List<ComResultMap> getUserByUserName(@Param("userName") String userName);
     List<PMenuDTO> getMyMenuTreeList(@Param("roleId") String roleId);
     List<PMenuDTO> getAllMenuTreeList();
