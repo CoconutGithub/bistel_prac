@@ -3,7 +3,6 @@ import React, {
   useRef,
   useContext,
   useCallback,
-  useEffect,
   useState,
 } from "react";
 import { useNavigate } from "react-router-dom";
@@ -35,44 +34,42 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    try {
-      const response = await axios.post("http://localhost:8080/login", {
-        userId: userId,
-        password: password,
-      });
+    axios.post("http://localhost:8080/login", {
+      userId: userId,
+      password: password,
 
-      dispatch(
-        setLoginToken({
-          token: response.data.token, //JWT token
-          title: response.data.title, //portal 제목
-          userId: response.data.userId, //userId
-          userName: response.data.userName, //userName
-          roleId: response.data.roleId,
-          roleName: response.data.roleName,
-          isMighty: response.data.isMighty,
-          phoneNumber: response.data.phoneNumber,
-          footerYN: response.data.footerYN,
-          headerColor: response.data.headerColor,
-          email: response.data.email, //email
-        })
-      );
+    }).then((response) => {
 
-      navigate("/", { replace: true });
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const status = error.response?.status;
+      console.log("Login 시도 결과:", response.status);
+      if (response.status === 200) {
+        dispatch(
+            setLoginToken({
+              token: response.data.token, //JWT token
+              title: response.data.title, //portal 제목
+              userId: response.data.userId, //userId
+              userName: response.data.userName, //userName
+              roleId: response.data.roleId,
+              roleName: response.data.roleName,
+              isMighty: response.data.isMighty,
+              phoneNumber: response.data.phoneNumber,
+              footerYN: response.data.footerYN,
+              headerColor: response.data.headerColor,
+              email: response.data.email, //email
+            })
+        );
 
-        if (status === 401) {
-          setUserErrorStatus("unauthorized");
-        } else {
-          setUserErrorStatus("etc");
-        }
-        setToastShow(true);
+        navigate("/main", { replace: true });
+      }
+
+    }).catch((error) => {
+      if (error.status === 401) {
+        setUserErrorStatus("unauthorized");
       } else {
         setUserErrorStatus("etc");
-        setToastShow(true);
       }
-    }
+      setToastShow(true);
+    });
+
   };
 
   const openPopup = useCallback(() => {

@@ -1,6 +1,6 @@
 export interface ProtectedRouteProps {
   element: React.ReactElement;
-  fallback?: React.ReactElement;
+  pagePath: string;
 }
 
 export interface RouteConfig {

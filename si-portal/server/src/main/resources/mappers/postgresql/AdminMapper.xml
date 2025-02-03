@@ -122,9 +122,22 @@
     </select>
 
     <insert id="registerUser">
-        INSERT INTO P_USER (USER_ID, USER_NAME, PASSWORD, EMAIL,PHONE_NUMBER, STATUS)
-        VALUES (#{userId}, #{userName}, #{password}, #{email},#{phoneNumber}, #{status})
+        INSERT INTO P_USER (USER_ID, USER_NAME, PASSWORD, EMAIL, PHONE_NUMBER, STATUS, PROFILE_IMAGE)
+        VALUES (#{userId}, #{userName}, #{password}, #{email}, #{phoneNumber}, #{status}, #{profileImage})
     </insert>
+
+    <update id="updateProfileImage">
+        UPDATE P_USER SET PROFILE_IMAGE = #{profileImage}
+        WHERE USER_ID = #{userId}
+    </update>
+
+
+    <select id="getUserProfileImage" resultType="map">
+        SELECT COALESCE(PROFILE_IMAGE,'') AS PROFILE_IMAGE
+        FROM P_USER
+        WHERE USER_ID = #{userId}
+    </select>
+
     <insert id="registerUserRole">
         INSERT INTO P_USER_ROLE (USER_ID, ROLE_ID)
         VALUES (#{userId}, #{roleId})

@@ -14,10 +14,13 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import lombok.extern.slf4j.Slf4j;
+import java.util.Base64;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -319,28 +322,138 @@ public class AdminService {
         }
     }
 
+//    @PostMapping("/api/register-user")
+//    public ResponseEntity<?> registerUser(@RequestBody Map<String, Object> requestData) {
+//
+//        try {
+//            Map<String, Object> user = new HashMap<>();
+//
+//            String userId = (String) requestData.get("userId");
+//            String userName = (String) requestData.get("userName");
+//            String phoneNumber = (String) requestData.get("phoneNumber");
+//            String status = (String) requestData.get("status");
+//            String password = (String) requestData.get("password");
+//            String email = (String) requestData.get("email");
+//            user.put("userId", userId);
+//            user.put("userName", userName);
+//            user.put("phoneNumber", phoneNumber);
+//            user.put("status", status);
+//            user.put("password", password);
+//            user.put("email", email);
+//            adminMapper.registerUser(user);
+//
+//            Map<String, Object> userRoleObject = new HashMap<>();
+//            Integer userRole = (Integer) requestData.get("userRole");
+//            userRoleObject.put("userId", userId);
+//            userRoleObject.put("roleId", userRole);
+//            adminMapper.registerUserRole(userRoleObject);
+//
+//            Map<String, Object> response = new HashMap<>();
+//            response.put("success", true);
+//            response.put("message", "User has been successfully registered.");
+//
+//            return ResponseEntity.ok(response);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+//                    .body("Error occurred: " + e.getMessage());
+//        }
+//    }
+
+    @GetMapping("/api/user-profile-image")
+    public ResponseEntity<?> getUserProfileImage(@RequestParam("userId") String userId) {
+        try {
+            // DB에서 사용자 정보 조회
+            Map<String, Object> user = adminMapper.getUserProfileImage(userId);
+
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            }
+
+            // 프로필 이미지가 있는 경우 Base64 인코딩
+            if (user.get("profileImage") != null) {
+                byte[] imageBytes = (byte[]) user.get("profileImage");
+                String base64Image = Base64.getEncoder().encodeToString(imageBytes);
+                user.put("profileImage", base64Image);
+            }
+
+            return ResponseEntity.ok(user);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred");
+        }
+    }
+
+    @PostMapping("/api/update-profile-image")
+    public ResponseEntity<?> updateProfileImage(
+            @RequestParam(value = "userId", required = false) String userId,
+            @RequestParam(value = "image", required = false) MultipartFile image
+    ) {
+        try {
+            Map<String, Object> user = new HashMap<>();
+            user.put("userId", userId);
+
+            // 파일을 DB의 bytea 컬럼에 저장
+            if (image != null && !image.isEmpty()) {
+                byte[] imageBytes = image.getBytes(); // 파일을 byte[]로 변환
+                user.put("profileImage", imageBytes);
+            } else {
+                user.put("profileImage", null); // 이미지가 없으면 null 저장
+            }
+
+            // 사용자 정보 저장
+            adminMapper.updateProfileImage(user);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "User profile is successfully updated.");
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
+
+
+
     @PostMapping("/api/register-user")
-    public ResponseEntity<?> registerUser(@RequestBody Map<String, Object> requestData) {
+    public ResponseEntity<?> registerUser(
+            @RequestParam("userId") String userId,
+            @RequestParam("userName") String userName,
+            @RequestParam("phoneNumber") String phoneNumber,
+            @RequestParam("status") String status,
+            @RequestParam("password") String password,
+            @RequestParam("email") String email,
+            @RequestParam("userRole") Integer userRole,
+            @RequestParam(value = "image", required = false) MultipartFile image // 파일 처리
+    ) {
 
         try {
             Map<String, Object> user = new HashMap<>();
 
-            String userId = (String) requestData.get("userId");
-            String userName = (String) requestData.get("userName");
-            String phoneNumber = (String) requestData.get("phoneNumber");
-            String status = (String) requestData.get("status");
-            String password = (String) requestData.get("password");
-            String email = (String) requestData.get("email");
             user.put("userId", userId);
             user.put("userName", userName);
             user.put("phoneNumber", phoneNumber);
             user.put("status", status);
             user.put("password", password);
             user.put("email", email);
+
+            // 파일을 DB의 bytea 컬럼에 저장
+            if (image != null && !image.isEmpty()) {
+                byte[] imageBytes = image.getBytes(); // 파일을 byte[]로 변환
+                user.put("profileImage", imageBytes);
+            } else {
+                user.put("profileImage", null); // 이미지가 없으면 null 저장
+            }
+
+            // 사용자 정보 저장
             adminMapper.registerUser(user);
 
+            // 사용자 역할 저장
             Map<String, Object> userRoleObject = new HashMap<>();
-            Integer userRole = (Integer) requestData.get("userRole");
             userRoleObject.put("userId", userId);
             userRoleObject.put("roleId", userRole);
             adminMapper.registerUserRole(userRoleObject);
@@ -356,6 +469,8 @@ public class AdminService {
                     .body("Error occurred: " + e.getMessage());
         }
     }
+
+
 
 
     @GetMapping("/api/get-email-history")

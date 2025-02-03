@@ -28,6 +28,9 @@ const columnDefs = [
 ];
 
 const ManageEmail: React.FC = () => {
+
+    console.log("ManageEmail.tsx 수행됨.....");
+
   const comAPIContext = useContext(ComAPIContext);
   const state = useSelector((state: RootState) => state.auth);
   const inputRef = useRef<HTMLInputElement>(null);

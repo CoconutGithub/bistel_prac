@@ -145,7 +145,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
         };
 
         const onGridReady = useCallback(() => {
-            console.log('Grid is ready');
+            //console.log('Grid is ready');
         }, []);
 
         const handleCellValueChange = (event: any) => {
@@ -280,7 +280,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
                                 modules={[ClientSideRowModelModule]}
                                 onCellValueChanged={handleCellValueChange}
                                 rowClassRules={rowClassRules} // 행 스타일 규칙 적용
-                                getRowId={(params) => String(params.data.gridRowId || params.data.id)} // GRID 에서 행별로 유일한 고유 ID 설정
+                                getRowId={(params) => String(params.data.gridRowId || 'id')} // GRID 에서 행별로 유일한 고유 ID 설정
                                 onGridReady={onGridReady}
                                 onCellEditingStopped={handleCellEditingStopped}
                                 onCellEditingStarted={handleCellEditingStarted}
