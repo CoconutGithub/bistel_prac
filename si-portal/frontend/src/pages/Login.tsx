@@ -25,15 +25,14 @@ const Login = () => {
     useState<string>("unauthorized");
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const [loginButtonDisable, setLoginButtonDisable] = useState<boolean>(false);
+  const [userId, setUserId] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
 
-  const userIdRef = useRef<HTMLInputElement>(null); // useRef로 사용자 ID 참조
-  const passwordRef = useRef<HTMLInputElement>(null); // useRef로 비밀번호 참조
   const userSignupRef = useRef<any>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const userId = userIdRef.current?.value;
-    const password = passwordRef.current?.value;
 
     axios.post("http://localhost:8080/login", {
       userId: userId,
@@ -79,6 +78,19 @@ const Login = () => {
     }
   }, []);
 
+  const handleUserId = (e: any) => {
+    setUserId(e.target.value);
+  };
+
+  const handlePassword = (e: any) => {
+    setPassword(e.target.value);
+  };
+
+  useEffect(() => {
+    if (userId && password) setLoginButtonDisable(false);
+    else setLoginButtonDisable(true);
+  }, [userId, password]);
+
   return (
     <div className={styles.start}>
       <Toast
@@ -110,8 +122,9 @@ const Login = () => {
             <Form.Control
               type="text"
               placeholder="User Name"
-              ref={userIdRef}
+              value={userId}
               className={styles.input}
+              onChange={handleUserId}
             />
           </Form.Group>
           <Form.Group
@@ -122,7 +135,8 @@ const Login = () => {
             <Form.Control
               type="password"
               placeholder="Password"
-              ref={passwordRef}
+              value={password}
+              onChange={handlePassword}
               className={styles.input}
             />
           </Form.Group>
@@ -130,6 +144,7 @@ const Login = () => {
             variant="primary"
             type="submit"
             className={styles.login_button}
+            disabled={loginButtonDisable}
           >
             Log in
           </Button>

@@ -199,7 +199,7 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
     const renderTree = (nodes :  MenuItem[], level : number = 0) => {
         return (
             <Container>
-                <ul className="list-unstyled-item" style={{ marginBottom: 0 }}>
+                <ul className="list-unstyled-item" style={{ marginBottom: 0, marginLeft: "-40px" }}>
                     {nodes.map((node) => (
                         <li
                             key={node.menuId}
@@ -212,7 +212,7 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
                                     display: "flex",
                                     alignItems: "center",
                                     cursor: "pointer",
-                                    marginLeft: `${level * 15}px`,
+                                    marginLeft: `${level * 20}px`,
                                     fontWeight: "bold",
                                     color:
                                         selectedMenuId !== null && node.menuId === selectedMenuId

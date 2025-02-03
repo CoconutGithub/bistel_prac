@@ -264,12 +264,13 @@ const ManageMenuContent: React.FC<{ chooseMenuData: ChooseMenuData | null; onSav
                 r.roleId = roleData.roleId
             })
 
-            lists.createList.map(r => {
+            lists.deleteList.map(r => {
                 r.menuId = chooseMenuData?.menuId
-                r.userId = state.user?.userId
+                const roleData: any = roleKind.find(
+                    (e: any) => e.roleName === r.roleName
+                );
+                r.roleId = roleData.roleId
             })
-
-            console.log(lists)
 
             // 전송 데이터 구성
             const payload = {
@@ -426,6 +427,9 @@ const ManageMenuContent: React.FC<{ chooseMenuData: ChooseMenuData | null; onSav
                             showButtonArea={true}
                             columnDefs={columnDefs}
                             enableCheckbox={true}
+                            canCreate={true}
+                            canDelete={true}
+                            canUpdate={true}
                             onSave={handleGridSave}
                         >
                             {roleRegistButton}
