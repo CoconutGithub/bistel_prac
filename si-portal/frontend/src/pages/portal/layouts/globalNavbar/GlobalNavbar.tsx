@@ -22,7 +22,8 @@ const GlobalNavbar = () => {
   const headerColor = useSelector(
     (state: RootState) => state.auth.user.headerColor
   );
-  const title = useSelector((state: RootState) => state.auth.title);
+  const userName = useSelector((state: RootState) => state.auth.user.userName);
+  const roleName = useSelector((state: RootState) => state.auth.user.roleName);
 
   useEffect(() => {
     const fetchMenuData = () => {
@@ -117,8 +118,8 @@ const GlobalNavbar = () => {
               <SiUserIcon fillColor="#fff" width={20} height={20} />
             </div>
             <div>
-              <p className={styles.status}>Administrator</p>
-              <p className={styles.userid}>kim_minsu</p>
+              <p className={styles.status}>{roleName}</p>
+              <p className={styles.userid}>{userName}</p>
             </div>
           </div>
           <Nav>
