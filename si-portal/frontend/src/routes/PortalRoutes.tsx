@@ -3,7 +3,6 @@ import React from 'react';
 import { checkBtnAuthLoader } from '~routes/Loader';
 
 const HowToUse = React.lazy(() => import('~pages/portal/layouts/HowToUse'));
-const About = React.lazy(() => import('~pages/portal/layouts/About'));
 const Dashboard = React.lazy(() => import('~pages/portal/layouts/Dashboard'));
 const Settings = React.lazy(() => import('~pages/portal/layouts/Settings'));
 const Profile = React.lazy(() => import('~pages/portal/layouts/Profile'));
@@ -22,15 +21,6 @@ export default function PortalRoutes(): RouteObject[] {
             <HowToUse />
           </React.Suspense>
       ),
-    },
-    {
-      path: '/main/about',
-      element: (
-          <React.Suspense fallback={<div>Loading...</div>}>
-            <About />
-          </React.Suspense>
-      ),
-      loader: checkBtnAuthLoader,
     },
     {
       path: '/main/dashboard',

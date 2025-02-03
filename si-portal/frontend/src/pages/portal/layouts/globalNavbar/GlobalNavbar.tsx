@@ -55,7 +55,7 @@ const GlobalNavbar = () => {
 
   return (
     <Navbar className={styles.start} expand="lg">
-      <Navbar.Brand href="/" className={styles.title}>
+      <Navbar.Brand href="/main/home" className={styles.title}>
         <img
           alt="기업 로고"
           src={`${process.env.REACT_APP_PUBLIC_URL}/assets/images/bistelligence_logo.png`}
