@@ -10,8 +10,8 @@ const ManageMenu = React.lazy(() => import("~pages/portal/admin/MangeMenu"));
 const ManageRole = React.lazy(() => import("~pages/portal/admin/ManageRole"));
 const ManageEmail = React.lazy(() => import("~pages/portal/admin/ManageEmail"));
 const ManageUser = React.lazy(() => import("~pages/portal/admin/ManageUser"));
-const RecordEdit = React.lazy(
-  () => import("~pages/portal/layouts/recordEdit/RecordEdit")
+const ExpenseManagement = React.lazy(
+  () => import("~pages/portal/layouts/expenseManagement/ExpenseManagement")
 );
 const ManageSchedule = React.lazy(
   () => import("~pages/portal/admin/ManageSchedule")
@@ -44,10 +44,10 @@ export default function PortalRoutes(): RouteObject[] {
       ),
     },
     {
-      path: "/main/record-edit",
+      path: "/main/expense-management",
       element: (
         <React.Suspense fallback={<div>Loading...</div>}>
-          <RecordEdit />
+          <ExpenseManagement />
         </React.Suspense>
       ),
     },

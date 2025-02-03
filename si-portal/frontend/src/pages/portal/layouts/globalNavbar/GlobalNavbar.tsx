@@ -110,10 +110,10 @@ const GlobalNavbar = () => {
             </Nav.Link>
             <Nav.Link
               as={NavLink}
-              to="/main/record-edit"
+              to="/main/expense-management"
               className={styles.nav_link}
             >
-              Editable table page
+              Expense management
             </Nav.Link>
             {/* <Nav.Link onClick={handleLogout}>Logout</Nav.Link> */}
           </Nav>
