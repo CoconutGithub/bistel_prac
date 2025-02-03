@@ -194,9 +194,14 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
             const selectedRows = selectedNodes ? selectedNodes.map((node) => node.data) : [];
 
             // 선택된 행에 isDeleted 플래그 추가
-            selectedRows.forEach((row) => {
-                row.isDeleted = true; // 플래그 설정
-                deleteList.current.set(row.gridRowId || row.id, row); // 고유 ID를 키로 사용
+            selectedRows.forEach((row, index) => {
+                if(row.add === 'add') {
+                    gridRef.current?.api.applyTransaction({ remove: [row] })!;
+                    selectedRows.splice(index, 1)
+                } else {
+                    row.isDeleted = true; // 플래그 설정
+                    deleteList.current.set(row.gridRowId || row.id, row); // 고유 ID를 키로 사용
+                }
             });
             
             console.log('deleteList:', deleteList.current);
@@ -215,7 +220,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
         };
 
         const handleAddRow = () => {
-            const newRow = {'isCreated': true, 'gridRowId': new Date().getTime() + Math.random().toString(36)}; // 신규 행 데이터
+            const newRow = {'isCreated': true, 'gridRowId': new Date().getTime() + Math.random().toString(36), 'add': 'add'}; // 신규 행 데이터
             const gridApi = gridRef.current?.api;
 
             if (gridApi) {

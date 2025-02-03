@@ -351,12 +351,12 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
             {/* 컨텍스트 메뉴 팝업 */}
             {showAddChildMenu && (
                 <Dropdown.Menu show
-                               style={{
-                                   position: "absolute", // 절대 위치로 설정
-                                   top: `${menuPosition.top}px`, // 마우스 Y 좌표
-                                   left: `${menuPosition.left}px`, // 마우스 X 좌표
-                                   zIndex: 1050, // 컨텍스트 메뉴가 다른 요소 위에 오도록 설정
-                               }}
+                    style={{
+                        position: "absolute", // 절대 위치로 설정
+                        top: `${menuPosition.top}px`, // 마우스 Y 좌표
+                        left: `${menuPosition.left}px`, // 마우스 X 좌표
+                        zIndex: 1050, // 컨텍스트 메뉴가 다른 요소 위에 오도록 설정
+                    }}
                 >
                     <Dropdown.Header>
                         {menuData.find((item) => item.menuId === parentMenuId)?.menuName}

@@ -239,7 +239,6 @@ const ManageMenuContent: React.FC<{ chooseMenuData: ChooseMenuData | null; onSav
     };
 
     const handleGridSave = async (lists: { deleteList: any[]; updateList: any[], createList: any[] }) => {
-            console.log(chooseMenuData)
           if (!gridRef.current) return;
   
           if (lists.deleteList.length === 0 && lists.updateList.length === 0 && lists.createList.length === 0) {
@@ -249,6 +248,15 @@ const ManageMenuContent: React.FC<{ chooseMenuData: ChooseMenuData | null; onSav
   
           try {
             comAPIContext.showProgressBar();
+
+            if(lists.createList?.length > 0) {
+                for(const obj of lists.createList){
+                    if(obj.roleName === undefined){
+                        comAPIContext.showToast('권한 이름을 선택해주세요.', 'dark');
+                        return;
+                    }
+                }
+            }
 
             lists.createList.map(r => {
                 r.menuId = chooseMenuData?.menuId
