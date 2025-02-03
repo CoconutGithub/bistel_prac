@@ -14,6 +14,7 @@ const Profile: React.FC = () => {
     const roleName = useSelector((state: RootState) => state.auth.user.roleName);
     const phoneNumber = useSelector((state: RootState) => state.auth.user.phoneNumber);
     const [profileImage, setProfileImage] = useState<string | null>(null);
+    const [newPassword, setNewPassword] = useState("");
 
     const [preview, setPreview] = useState<string | null>(null); // string | null 타입 명시 // 이미지 미리보기
     const [file, setFile] = useState<File | null>(null); // File | null 타입 명시
@@ -37,9 +38,21 @@ const Profile: React.FC = () => {
 
 
     const changePassword = () => {
+        if (!newPassword) {
+            comAPIContext.showToast("새 비밀번호를 입력하세요.", "danger");
+            return;
+        }
 
-        alert("해당기능 개발해야함. 현재 password 자체가 암호와 안되어 있음.\n" +
-            "UserRegistPopup 자체에서 넣을때 암호화 시켜서 넣어야함.");
+        axios.post("http://localhost:8080/admin/api/change-password",
+            { userId, newPassword },
+            { headers: { Authorization: `Bearer ${cachedAuthToken}` } })
+            .then(() => {
+                comAPIContext.showToast("비밀번호가 변경되었습니다.", "success");
+            })
+            .catch((error) => {
+                console.error("Error changing password:", error);
+                comAPIContext.showToast("비밀번호 변경 실패", "danger");
+            });
     }
 
 
@@ -118,6 +131,12 @@ const Profile: React.FC = () => {
                     </p>
                     <p>
                         <strong>비밀번호 변경: </strong>
+                        <input
+                            type="password"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            placeholder="새 비밀번호 입력"
+                        />
                         <ComButton size="sm" variant="primary" onClick={changePassword}>
                             변경
                         </ComButton>

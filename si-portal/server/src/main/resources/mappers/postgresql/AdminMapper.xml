@@ -320,4 +320,10 @@
             AND MENU_ID = #{menuId}
     </delete>
 
+    <update id="updateUserPassword">
+        UPDATE P_USER
+        SET PASSWORD = #{password}, UPDATE_DATE = NOW()
+        WHERE USER_ID = #{userId}
+    </update>
+
 </mapper>
