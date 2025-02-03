@@ -1,7 +1,14 @@
-import React, { useEffect, useMemo, useRef, useState, useContext, useCallback } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useContext,
+  useCallback,
+} from "react";
 import { Col, Container, Form, Row } from "react-bootstrap";
 import { ChooseMenuData } from "~types/ChooseMenuData";
-import AgGridWrapper from "~components/AgGridWrapper";
+import AgGridWrapper from "~components/agGridWrapper/AgGridWrapper";
 import { AgGridWrapperHandle } from "~types/GlobalTypes";
 import ComButton from "~pages/portal/buttons/ComButton";
 import RoleRegistPopup from "~pages/portal/admin/RoleRegistPopup";
@@ -12,451 +19,544 @@ import axios from "axios";
 import { cachedAuthToken } from "~store/AuthSlice";
 
 interface ManageMenuContentProps {
-    chooseMenuData: ChooseMenuData | null;
+  chooseMenuData: ChooseMenuData | null;
 }
 
 interface Role {
-    roleId: number;
-    roleName: string;
+  roleId: number;
+  roleName: string;
 }
 
 interface ColumnDef {
-    field: string;
-    headerName: string;
-    cellEditor?: string;
-    sortable: boolean;
-    filter: boolean;
-    editable: boolean;
-    width: number;
-    cellDataType?: string;
-    valueGetter?: (params: any) => boolean;
-    valueSetter?: (params: any) => boolean;
-    cellEditorParams?: {
-        values: string[];
-    };
+  field: string;
+  headerName: string;
+  cellEditor?: string;
+  sortable: boolean;
+  filter: boolean;
+  editable: boolean;
+  width: number;
+  cellDataType?: string;
+  valueGetter?: (params: any) => boolean;
+  valueSetter?: (params: any) => boolean;
+  cellEditorParams?: {
+    values: string[];
+  };
 }
 
 let roleKind: any = null;
 
 let columnDefs: ColumnDef[] = [
-    { field: 'roleName', headerName: '권한 이름', cellEditor: 'agSelectCellEditor', sortable: true, filter: true, editable: true, width: 150 },
-    { field: 'canCreate', headerName: '생성 권한',
-        cellDataType: 'boolean',
-        valueGetter: (params: any) => {
-            return params.data.canCreate === 'Y' ? true : false;
-        },
-        valueSetter: (params: any) => {
-            const newValue: boolean = params.newValue;
-            params.data.canCreate = newValue ? 'Y' : 'N';
-            return true;
-        },
-        sortable: true, filter: true, editable: true, width: 150 },
-    {
-        field: 'canRead',
-        headerName: '읽기 권한',
-        cellDataType: 'boolean',
-        valueGetter: (params: any) => {
-            return params.data.canRead === 'Y' ? true : false;
-        },
-        valueSetter: (params: any) => {
-            const newValue: boolean = params.newValue;
-            params.data.canRead = newValue ? 'Y' : 'N';
-            return true;
-        },
-        sortable: true,
-        filter: true,
-        editable: true,
-        width: 150
+  {
+    field: "roleName",
+    headerName: "권한 이름",
+    cellEditor: "agSelectCellEditor",
+    sortable: true,
+    filter: true,
+    editable: true,
+    width: 150,
+  },
+  {
+    field: "canCreate",
+    headerName: "생성 권한",
+    cellDataType: "boolean",
+    valueGetter: (params: any) => {
+      return params.data.canCreate === "Y" ? true : false;
     },
-    { field: 'canUpdate', headerName: '업데이트 권한',
-        cellDataType: 'boolean',
-        valueGetter: (params: any) => {
-            return params.data.canUpdate === 'Y' ? true : false;
-        },
-        valueSetter: (params: any) => {
-            const newValue: boolean = params.newValue;
-            params.data.canUpdate = newValue ? 'Y' : 'N';
-            return true;
-        },
-        sortable: true, filter: true, editable: true, width: 150 },
-    { field: 'canDelete', headerName: '삭제 권한',
-        cellDataType: 'boolean',
-        valueGetter: (params: any) => {
-            return params.data.canDelete === 'Y' ? true : false;
-        },
-        valueSetter: (params: any) => {
-            const newValue: boolean = params.newValue;
-            params.data.canDelete = newValue ? 'Y' : 'N';
-            return true;
-        },
-        sortable: true, filter: true, editable: true, width: 150 },
-    { field: 'createDate', headerName: '생성일', sortable: true, filter: true, editable: false, width: 150 },
-    { field: 'createBy', headerName: '생성자', sortable: true, filter: true, editable: false, width: 100 },
-    { field: 'updateDate', headerName: '업데이트일', sortable: true, filter: false, editable: false, width: 150 },
-    { field: 'updateBy', headerName: '수정자', sortable: true, filter: true, editable: false, width: 100 },
+    valueSetter: (params: any) => {
+      const newValue: boolean = params.newValue;
+      params.data.canCreate = newValue ? "Y" : "N";
+      return true;
+    },
+    sortable: true,
+    filter: true,
+    editable: true,
+    width: 150,
+  },
+  {
+    field: "canRead",
+    headerName: "읽기 권한",
+    cellDataType: "boolean",
+    valueGetter: (params: any) => {
+      return params.data.canRead === "Y" ? true : false;
+    },
+    valueSetter: (params: any) => {
+      const newValue: boolean = params.newValue;
+      params.data.canRead = newValue ? "Y" : "N";
+      return true;
+    },
+    sortable: true,
+    filter: true,
+    editable: true,
+    width: 150,
+  },
+  {
+    field: "canUpdate",
+    headerName: "업데이트 권한",
+    cellDataType: "boolean",
+    valueGetter: (params: any) => {
+      return params.data.canUpdate === "Y" ? true : false;
+    },
+    valueSetter: (params: any) => {
+      const newValue: boolean = params.newValue;
+      params.data.canUpdate = newValue ? "Y" : "N";
+      return true;
+    },
+    sortable: true,
+    filter: true,
+    editable: true,
+    width: 150,
+  },
+  {
+    field: "canDelete",
+    headerName: "삭제 권한",
+    cellDataType: "boolean",
+    valueGetter: (params: any) => {
+      return params.data.canDelete === "Y" ? true : false;
+    },
+    valueSetter: (params: any) => {
+      const newValue: boolean = params.newValue;
+      params.data.canDelete = newValue ? "Y" : "N";
+      return true;
+    },
+    sortable: true,
+    filter: true,
+    editable: true,
+    width: 150,
+  },
+  {
+    field: "createDate",
+    headerName: "생성일",
+    sortable: true,
+    filter: true,
+    editable: false,
+    width: 150,
+  },
+  {
+    field: "createBy",
+    headerName: "생성자",
+    sortable: true,
+    filter: true,
+    editable: false,
+    width: 100,
+  },
+  {
+    field: "updateDate",
+    headerName: "업데이트일",
+    sortable: true,
+    filter: false,
+    editable: false,
+    width: 150,
+  },
+  {
+    field: "updateBy",
+    headerName: "수정자",
+    sortable: true,
+    filter: true,
+    editable: false,
+    width: 100,
+  },
 ];
 
-const ManageMenuContent: React.FC<{ chooseMenuData: ChooseMenuData | null; onSave: () => void }> = ({ chooseMenuData, onSave }) => {
-    console.log("ManageMenuContent 생성됨.");
+const ManageMenuContent: React.FC<{
+  chooseMenuData: ChooseMenuData | null;
+  onSave: () => void;
+}> = ({ chooseMenuData, onSave }) => {
+  console.log("ManageMenuContent 생성됨.");
 
-    const [isActive, setIsActive] = useState<string>('INACTIVE');
-    const gridRef = useRef<AgGridWrapperHandle>(null);
-    const [showPopup, setShowPopup] = useState(false);
-    const [position, setPosition] = useState<number | any>(chooseMenuData?.position);
-    const [path, setPath] = useState<string | any>(chooseMenuData?.path);
-    const [menuName, setMenuName] = useState<string | any>(chooseMenuData?.menuName); // menuName state 관리
-    const state = useSelector((state: RootState) => state.auth);
-    const comAPIContext = useContext(ComAPIContext);
-    const pathRef = useRef<HTMLInputElement>(null);
-    const menuNameRef = useRef<HTMLInputElement>(null);
+  const [isActive, setIsActive] = useState<string>("INACTIVE");
+  const gridRef = useRef<AgGridWrapperHandle>(null);
+  const [showPopup, setShowPopup] = useState(false);
+  const [position, setPosition] = useState<number | any>(
+    chooseMenuData?.position
+  );
+  const [path, setPath] = useState<string | any>(chooseMenuData?.path);
+  const [menuName, setMenuName] = useState<string | any>(
+    chooseMenuData?.menuName
+  ); // menuName state 관리
+  const state = useSelector((state: RootState) => state.auth);
+  const comAPIContext = useContext(ComAPIContext);
+  const pathRef = useRef<HTMLInputElement>(null);
+  const menuNameRef = useRef<HTMLInputElement>(null);
 
-    console.log(chooseMenuData)
+  console.log(chooseMenuData);
 
-    // chooseMenuData가 변경될 때마다 상태를 업데이트합니다.
-    useEffect(() => {
-        if (chooseMenuData) {
-            setPosition(Number(chooseMenuData?.position));
-            setPath(chooseMenuData?.path);
-            setMenuName(chooseMenuData?.menuName); // menuName 업데이트
-            setIsActive(chooseMenuData?.status ?? 'INACTIVE');
-            fetchData()
+  // chooseMenuData가 변경될 때마다 상태를 업데이트합니다.
+  useEffect(() => {
+    if (chooseMenuData) {
+      setPosition(Number(chooseMenuData?.position));
+      setPath(chooseMenuData?.path);
+      setMenuName(chooseMenuData?.menuName); // menuName 업데이트
+      setIsActive(chooseMenuData?.status ?? "INACTIVE");
+      fetchData();
+    }
+  }, [chooseMenuData]); // chooseMenuData가 변경될 때마다 호출됩니다.
+
+  useEffect(() => {
+    getRoleListData();
+  }, []);
+
+  const getRoleListData = async () => {
+    try {
+      comAPIContext.showProgressBar();
+      const res = await axios.get<Role[]>(
+        "http://localhost:8080/admin/api/get-roles-list",
+        {
+          headers: {
+            Authorization: `Bearer ${cachedAuthToken}`,
+          },
         }
-    }, [chooseMenuData]); // chooseMenuData가 변경될 때마다 호출됩니다.
+      );
 
-    useEffect(() => {
-        getRoleListData()
-    }, [])
+      const roleList = res.data;
 
-    const getRoleListData = async () => {
-        try {
-            comAPIContext.showProgressBar();
-            const res = await axios.get<Role[]>("http://localhost:8080/admin/api/get-roles-list", {
-                headers: {
-                    Authorization: `Bearer ${cachedAuthToken}`,
-                },
-            });
-    
-            const roleList = res.data;
+      roleKind = res.data;
 
-            roleKind = res.data;
-    
-            console.log('roleList ============================>', roleList);
-    
-            columnDefs = columnDefs.map((col) => {
-                if (col.field === 'roleName') {
-                    return {
-                        ...col,
-                        cellEditorParams: {
-                            values: roleList.map((role: Role) => role.roleName), // 권한 이름만 추가
-                        },
-                        valueSetter: (params: any) => {
-                            const newRoleName = params.newValue;
-                            const selectedRole = roleList.find((role) => role.roleName === newRoleName);
-    
-                            if (selectedRole) {
-                                params.data.roleId = selectedRole.roleId; // roleId를 매핑
-                                params.data.roleName = selectedRole.roleName;
-                                return true;
-                            }
-                            return false;
-                        },
-                    };
-                }
-                return col;
-            });
-        } catch (error: any) {
-            console.error("Error fetching roles:", error);
-            const errorMessage = error.response?.data || error.message || "Unknown error";
-            comAPIContext.showToast("Error fetching roles: " + errorMessage, "danger");
-        } finally {
-            comAPIContext.hideProgressBar();
+      console.log("roleList ============================>", roleList);
+
+      columnDefs = columnDefs.map((col) => {
+        if (col.field === "roleName") {
+          return {
+            ...col,
+            cellEditorParams: {
+              values: roleList.map((role: Role) => role.roleName), // 권한 이름만 추가
+            },
+            valueSetter: (params: any) => {
+              const newRoleName = params.newValue;
+              const selectedRole = roleList.find(
+                (role) => role.roleName === newRoleName
+              );
+
+              if (selectedRole) {
+                params.data.roleId = selectedRole.roleId; // roleId를 매핑
+                params.data.roleName = selectedRole.roleName;
+                return true;
+              }
+              return false;
+            },
+          };
         }
+        return col;
+      });
+    } catch (error: any) {
+      console.error("Error fetching roles:", error);
+      const errorMessage =
+        error.response?.data || error.message || "Unknown error";
+      comAPIContext.showToast(
+        "Error fetching roles: " + errorMessage,
+        "danger"
+      );
+    } finally {
+      comAPIContext.hideProgressBar();
+    }
+  };
+
+  const fetchData = async () => {
+    try {
+      comAPIContext.showProgressBar();
+      if (chooseMenuData !== null) {
+        const response = await axios.get(
+          "http://localhost:8080/admin/api/get-menu-role",
+          {
+            headers: {
+              Authorization: `Bearer ${cachedAuthToken}`,
+            },
+            params: {
+              menuIdStr: chooseMenuData?.menuId,
+            },
+          }
+        );
+
+        if (gridRef.current && response.data !== "조회된 데이터가 없습니다") {
+          gridRef.current.setRowData(response.data);
+        } else {
+          gridRef?.current?.setRowData([]);
+        }
+      }
+    } catch (error: any) {
+      console.error("Error fetching roles:", error);
+      const errorMessage =
+        error.response?.data || error.message || "Unknown error";
+      comAPIContext.showToast(
+        "Error fetching roles: " + errorMessage,
+        "danger"
+      );
+    } finally {
+      comAPIContext.hideProgressBar();
+    }
+  };
+
+  const onchangeMenuName = () => {};
+
+  const handleSave = async () => {
+    console.log("추가된 메뉴 저장");
+
+    const pathValue = pathRef?.current?.value; // ref로 저장된 값을 가져옴
+    const menuNameValue = menuNameRef?.current?.value;
+
+    const data = {
+      menuName: menuNameValue,
+      path: pathValue,
+      position: position,
+      status: isActive,
+      userId: state.user?.userId,
+      menuId: chooseMenuData?.menuId,
     };
-    
 
-    const fetchData = async () => {
-        try {
-            comAPIContext.showProgressBar();
-            if (chooseMenuData !== null) {
-                const response = await axios.get("http://localhost:8080/admin/api/get-menu-role", {
-                    headers: {
-                        Authorization: `Bearer ${cachedAuthToken}`,
-                    },
-                    params: {
-                        menuIdStr: chooseMenuData?.menuId
-                    }
-                });
-
-                if (gridRef.current && response.data !== "조회된 데이터가 없습니다") {
-                    gridRef.current.setRowData(response.data);
-                } else {
-                    gridRef?.current?.setRowData([]);
-                }
-            }
-        } catch (error: any) {
-            console.error("Error fetching roles:", error);
-            const errorMessage = error.response?.data || error.message || "Unknown error";
-            comAPIContext.showToast("Error fetching roles: " + errorMessage, "danger");
-        } finally {
-            comAPIContext.hideProgressBar();
+    try {
+      comAPIContext.showProgressBar();
+      const res = await axios.post(
+        "http://localhost:8080/admin/api/update-menu-content",
+        data,
+        {
+          headers: { Authorization: `Bearer ${cachedAuthToken}` },
         }
-    };
+      );
 
-    const onchangeMenuName = () => {
+      console.log(res);
+      comAPIContext.hideProgressBar();
+      alert("Save successfully!");
+      onSave();
+    } catch (error) {
+      console.error("Error saving menu:", error);
+      comAPIContext.hideProgressBar();
+      alert("Failed to save menu");
+    }
+  };
 
+  const handleGridSave = async (lists: {
+    deleteList: any[];
+    updateList: any[];
+    createList: any[];
+  }) => {
+    if (!gridRef.current) return;
+
+    if (
+      lists.deleteList.length === 0 &&
+      lists.updateList.length === 0 &&
+      lists.createList.length === 0
+    ) {
+      comAPIContext.showToast("저장할 데이터가 없습니다.", "dark");
+      return;
     }
 
-    const handleSave = async () => {
-        console.log('추가된 메뉴 저장');
+    try {
+      comAPIContext.showProgressBar();
 
-        const pathValue = pathRef?.current?.value;  // ref로 저장된 값을 가져옴
-        const menuNameValue = menuNameRef?.current?.value;
-
-        const data = {
-            menuName: menuNameValue,
-            path: pathValue,  
-            position: position,
-            status: isActive,
-            userId: state.user?.userId,
-            menuId: chooseMenuData?.menuId,
-        } 
-
-        try {
-            comAPIContext.showProgressBar();
-            const res = await axios.post('http://localhost:8080/admin/api/update-menu-content', data ,{
-              headers: { Authorization: `Bearer ${cachedAuthToken}` },
-            });
-      
-            console.log(res);
-            comAPIContext.hideProgressBar();
-            alert('Save successfully!');
-            onSave();
-        } catch (error) {
-            console.error('Error saving menu:', error);
-            comAPIContext.hideProgressBar();
-            alert('Failed to save menu');
-        }
-    };
-
-    const handleGridSave = async (lists: { deleteList: any[]; updateList: any[], createList: any[] }) => {
-          if (!gridRef.current) return;
-  
-          if (lists.deleteList.length === 0 && lists.updateList.length === 0 && lists.createList.length === 0) {
-            comAPIContext.showToast("저장할 데이터가 없습니다.", "dark");
+      if (lists.createList?.length > 0) {
+        for (const obj of lists.createList) {
+          if (obj.roleName === undefined) {
+            comAPIContext.showToast("권한 이름을 선택해주세요.", "dark");
             return;
           }
-  
-          try {
-            comAPIContext.showProgressBar();
+        }
+      }
 
-            if(lists.createList?.length > 0) {
-                for(const obj of lists.createList){
-                    if(obj.roleName === undefined){
-                        comAPIContext.showToast('권한 이름을 선택해주세요.', 'dark');
-                        return;
-                    }
-                }
-            }
+      lists.createList.map((r) => {
+        r.menuId = chooseMenuData?.menuId;
+        r.userId = state.user?.userId;
+      });
 
-            lists.createList.map(r => {
-                r.menuId = chooseMenuData?.menuId
-                r.userId = state.user?.userId
-            })
+      lists.updateList.map((r) => {
+        r.menuId = chooseMenuData?.menuId;
+        r.userId = state.user?.userId;
+        const roleData: any = roleKind.find(
+          (e: any) => e.roleName === r.roleName
+        );
+        r.roleId = roleData.roleId;
+      });
 
-            lists.updateList.map(r => {
-                r.menuId = chooseMenuData?.menuId
-                r.userId = state.user?.userId
-                const roleData: any = roleKind.find(
-                    (e: any) => e.roleName === r.roleName
-                );
-                r.roleId = roleData.roleId
-            })
+      lists.deleteList.map((r) => {
+        r.menuId = chooseMenuData?.menuId;
+        const roleData: any = roleKind.find(
+          (e: any) => e.roleName === r.roleName
+        );
+        r.roleId = roleData.roleId;
+      });
 
-            lists.deleteList.map(r => {
-                r.menuId = chooseMenuData?.menuId
-                const roleData: any = roleKind.find(
-                    (e: any) => e.roleName === r.roleName
-                );
-                r.roleId = roleData.roleId
-            })
+      // 전송 데이터 구성
+      const payload = {
+        updateList: lists.updateList,
+        deleteList: lists.deleteList,
+        createList: lists.createList,
+      };
 
-            // 전송 데이터 구성
-            const payload = {
-              updateList: lists.updateList,
-              deleteList: lists.deleteList,
-              createList: lists.createList
-            };
-  
-            await axios.post(
-                "http://localhost:8080/admin/api/update-menu-role",
-                payload,
-                {
-                  headers: { Authorization: `Bearer ${cachedAuthToken}` },
-                }
-            );
-  
-            comAPIContext.showToast("저장되었습니다.", "success");
-            fetchData(); // 저장 후 최신 데이터 조회
-          } catch (err) {
-            console.error("Error saving data:", err);
-            comAPIContext.showToast("저장 중 오류가 발생했습니다.", "danger");
-            fetchData();
-          } finally {
-            comAPIContext.hideProgressBar();
-          }
-        };
+      await axios.post(
+        "http://localhost:8080/admin/api/update-menu-role",
+        payload,
+        {
+          headers: { Authorization: `Bearer ${cachedAuthToken}` },
+        }
+      );
 
-    const roleRegistButton = useMemo(() => (
-        <ComButton className="me-3" onClick={() => setShowPopup(true)}>Role추가</ComButton>
-    ), []);
+      comAPIContext.showToast("저장되었습니다.", "success");
+      fetchData(); // 저장 후 최신 데이터 조회
+    } catch (err) {
+      console.error("Error saving data:", err);
+      comAPIContext.showToast("저장 중 오류가 발생했습니다.", "danger");
+      fetchData();
+    } finally {
+      comAPIContext.hideProgressBar();
+    }
+  };
 
-    return (
-        <Container fluid className="p-4">
-            {chooseMenuData && chooseMenuData.menuName !== 'Root' ? (
-                <>
-                    <h4 className="mb-4">{chooseMenuData.isAdd === true ? 'Add Menu' : 'Selected Menu'}</h4>
-                    <Form>
-                        {/* Menu ID */}
-                        <Form.Group as={Row} className="align-items-center mb-2">
-                            <Form.Label column sm={2}>
-                                Menu ID:
-                            </Form.Label>
-                            <Col sm={4}>
-                                <Form.Control
-                                    type="text"
-                                    value={chooseMenuData.menuId}
-                                    size="sm"
-                                    disabled
-                                    readOnly
-                                />
-                            </Col>
-                        </Form.Group>
-                        {/* Parent Menu ID */}
-                        <Form.Group as={Row} className="align-items-center mb-2">
-                            <Form.Label column sm={2}>
-                                Parent Menu ID:
-                            </Form.Label>
-                            <Col sm={4}>
-                                <Form.Control
-                                    type="text"
-                                    value={chooseMenuData.parentMenuId}
-                                    size="sm"
-                                    disabled
-                                    readOnly
-                                />
-                            </Col>
-                        </Form.Group>
+  const roleRegistButton = useMemo(
+    () => (
+      <ComButton className="me-3" onClick={() => setShowPopup(true)}>
+        Role추가
+      </ComButton>
+    ),
+    []
+  );
 
-                        <Form.Group as={Row} className="align-items-center mb-2">
-                            <Form.Label column sm={2}>
-                                Position:
-                            </Form.Label>
-                            <Col sm={4}>
-                                <Form.Control
-                                    type="number"
-                                    value={position || 0}
-                                    max={9999}
-                                    size="sm"
-                                    onChange={(e) => setPosition(e.target.value)} 
-                                />
-                            </Col>
-                        </Form.Group>
+  return (
+    <Container fluid className="p-4">
+      {chooseMenuData && chooseMenuData.menuName !== "Root" ? (
+        <>
+          <h4 className="mb-4">
+            {chooseMenuData.isAdd === true ? "Add Menu" : "Selected Menu"}
+          </h4>
+          <Form>
+            {/* Menu ID */}
+            <Form.Group as={Row} className="align-items-center mb-2">
+              <Form.Label column sm={2}>
+                Menu ID:
+              </Form.Label>
+              <Col sm={4}>
+                <Form.Control
+                  type="text"
+                  value={chooseMenuData.menuId}
+                  size="sm"
+                  disabled
+                  readOnly
+                />
+              </Col>
+            </Form.Group>
+            {/* Parent Menu ID */}
+            <Form.Group as={Row} className="align-items-center mb-2">
+              <Form.Label column sm={2}>
+                Parent Menu ID:
+              </Form.Label>
+              <Col sm={4}>
+                <Form.Control
+                  type="text"
+                  value={chooseMenuData.parentMenuId}
+                  size="sm"
+                  disabled
+                  readOnly
+                />
+              </Col>
+            </Form.Group>
 
-                        {/* Menu Name */}
-                        <Form.Group as={Row} className="align-items-center mb-2">
-                            <Form.Label column sm={2}>
-                                Menu Name:
-                            </Form.Label>
-                            <Col sm={4}>
-                                <Form.Control
-                                    type="text"
-                                    ref={menuNameRef}  // ref로 직접 접근
-                                    value={menuName || ''}  // menuName 상태값 사용
-                                    size="sm"
-                                    style={{
-                                        backgroundColor: "#f0f8ff", // 연한 파란색
-                                    }}
-                                    onChange={onchangeMenuName}  // 변경시 menuName 상태 업데이트
-                                />
-                            </Col>
-                        </Form.Group>
+            <Form.Group as={Row} className="align-items-center mb-2">
+              <Form.Label column sm={2}>
+                Position:
+              </Form.Label>
+              <Col sm={4}>
+                <Form.Control
+                  type="number"
+                  value={position || 0}
+                  max={9999}
+                  size="sm"
+                  onChange={(e) => setPosition(e.target.value)}
+                />
+              </Col>
+            </Form.Group>
 
-                        {/* Menu Path */}
-                        <Form.Group as={Row} className="align-items-center mb-2">
-                            <Form.Label column sm={2}>
-                                Menu Path:
-                            </Form.Label>
-                            <Col sm={4}>
-                            <Form.Control
-                                type="text"
-                                ref={pathRef}  // ref로 직접 접근
-                                value={path || ''}  // path 상태값 사용
-                                size="sm"
-                                style={{
-                                    backgroundColor: "#f0f8ff", // 연한 파란색
-                                }}
-                                onChange={(e) => (e.target.value)}  // 변경시 menuName 상태 업데이트
-                            />
-                            </Col>
-                        </Form.Group>
+            {/* Menu Name */}
+            <Form.Group as={Row} className="align-items-center mb-2">
+              <Form.Label column sm={2}>
+                Menu Name:
+              </Form.Label>
+              <Col sm={4}>
+                <Form.Control
+                  type="text"
+                  ref={menuNameRef} // ref로 직접 접근
+                  value={menuName || ""} // menuName 상태값 사용
+                  size="sm"
+                  style={{
+                    backgroundColor: "#f0f8ff", // 연한 파란색
+                  }}
+                  onChange={onchangeMenuName} // 변경시 menuName 상태 업데이트
+                />
+              </Col>
+            </Form.Group>
 
-                        {/* Status */}
-                        <Form.Group as={Row} className="align-items-center mb-2">
-                            <Form.Label column sm={2}>
-                                Status:
-                            </Form.Label>
-                            <Col sm={4}>
-                                <div>
-                                    <Form.Check
-                                        type="switch"
-                                        id="custom-switch"
-                                        label={isActive ? 'Active ON' : 'Active OFF'}
-                                        checked={isActive === 'INACTIVE' ? false : true}
-                                        onChange={() => {
-                                            const newValue = isActive === 'INACTIVE' ? true : false;
-                                            const status = newValue ? 'ACTIVE' : 'INACTIVE';
-                                            setIsActive(status);
-                                        }}
-                                    />
-                                </div>
-                            </Col>
-                        </Form.Group>
-                        {/* 저장 버튼 */}
-                        <Form.Group as={Row} className="mt-4">
-                            <Col sm={{span: 4, offset: 2}}>
-                                <ComButton onClick={handleSave}>저장</ComButton>
-                            </Col>
-                        </Form.Group>
-                    </Form>
-                    <h4 className="mt-4">Role</h4>
-                    <div>
-                        <AgGridWrapper
-                            ref={gridRef}
-                            showButtonArea={true}
-                            columnDefs={columnDefs}
-                            enableCheckbox={true}
-                            canCreate={true}
-                            canDelete={true}
-                            canUpdate={true}
-                            onSave={handleGridSave}
-                        >
-                            {roleRegistButton}
-                        </AgGridWrapper>
-                    </div>
-                </>
-            ) : (
+            {/* Menu Path */}
+            <Form.Group as={Row} className="align-items-center mb-2">
+              <Form.Label column sm={2}>
+                Menu Path:
+              </Form.Label>
+              <Col sm={4}>
+                <Form.Control
+                  type="text"
+                  ref={pathRef} // ref로 직접 접근
+                  value={path || ""} // path 상태값 사용
+                  size="sm"
+                  style={{
+                    backgroundColor: "#f0f8ff", // 연한 파란색
+                  }}
+                  onChange={(e) => e.target.value} // 변경시 menuName 상태 업데이트
+                />
+              </Col>
+            </Form.Group>
+
+            {/* Status */}
+            <Form.Group as={Row} className="align-items-center mb-2">
+              <Form.Label column sm={2}>
+                Status:
+              </Form.Label>
+              <Col sm={4}>
                 <div>
-                    <h5>No Menu Selected</h5>
-                    <p>Please select a menu to see the details.</p>
+                  <Form.Check
+                    type="switch"
+                    id="custom-switch"
+                    label={isActive ? "Active ON" : "Active OFF"}
+                    checked={isActive === "INACTIVE" ? false : true}
+                    onChange={() => {
+                      const newValue = isActive === "INACTIVE" ? true : false;
+                      const status = newValue ? "ACTIVE" : "INACTIVE";
+                      setIsActive(status);
+                    }}
+                  />
                 </div>
-            )}
-            <RoleRegistPopup
-                show={showPopup}
-                onClose={() => setShowPopup(false)}
-                onSave={() => setShowPopup(false)}
-            />
-        </Container>
-    );
+              </Col>
+            </Form.Group>
+            {/* 저장 버튼 */}
+            <Form.Group as={Row} className="mt-4">
+              <Col sm={{ span: 4, offset: 2 }}>
+                <ComButton onClick={handleSave}>저장</ComButton>
+              </Col>
+            </Form.Group>
+          </Form>
+          <h4 className="mt-4">Role</h4>
+          <div>
+            <AgGridWrapper
+              ref={gridRef}
+              showButtonArea={true}
+              columnDefs={columnDefs}
+              enableCheckbox={true}
+              canCreate={true}
+              canDelete={true}
+              canUpdate={true}
+              onSave={handleGridSave}
+            >
+              {roleRegistButton}
+            </AgGridWrapper>
+          </div>
+        </>
+      ) : (
+        <div>
+          <h5>No Menu Selected</h5>
+          <p>Please select a menu to see the details.</p>
+        </div>
+      )}
+      <RoleRegistPopup
+        show={showPopup}
+        onClose={() => setShowPopup(false)}
+        onSave={() => setShowPopup(false)}
+      />
+    </Container>
+  );
 };
 
 export default ManageMenuContent;

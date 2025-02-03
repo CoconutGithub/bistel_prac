@@ -8,7 +8,7 @@ import React, {
 } from "react";
 import { Container, Row, Col, Form, Button } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
-import AgGridWrapper from "~components/AgGridWrapper";
+import AgGridWrapper from "~components/agGridWrapper/AgGridWrapper";
 import { useSelector } from "react-redux";
 import { ComAPIContext } from "~components/ComAPIContext";
 import axios from "axios";
@@ -108,12 +108,19 @@ const ManageUser: React.FC = () => {
 
   //=== 설정된 값 및 버튼 정보, 공통함수 가져옴-start ===
   const comAPIContext = useContext(ComAPIContext);
-  const canCreate = useSelector((state: RootState) => state.auth.pageButtonAuth.canCreate);
-  const canDelete = useSelector((state: RootState) => state.auth.pageButtonAuth.canDelete);
-  const canUpdate = useSelector((state: RootState) => state.auth.pageButtonAuth.canUpdate);
-  const canRead = useSelector((state: RootState) => state.auth.pageButtonAuth.canRead);
+  const canCreate = useSelector(
+    (state: RootState) => state.auth.pageButtonAuth.canCreate
+  );
+  const canDelete = useSelector(
+    (state: RootState) => state.auth.pageButtonAuth.canDelete
+  );
+  const canUpdate = useSelector(
+    (state: RootState) => state.auth.pageButtonAuth.canUpdate
+  );
+  const canRead = useSelector(
+    (state: RootState) => state.auth.pageButtonAuth.canRead
+  );
   //=== 설정된 값 및 버튼 정보, 공통함수 가져옴-end ===
-
 
   const inputRef = useRef<HTMLInputElement>(null);
   const gridRef = useRef<AgGridWrapperHandle>(null);
@@ -128,12 +135,12 @@ const ManageUser: React.FC = () => {
 
         // API 호출
         const res = await axios.get(
-            "http://localhost:8080/admin/api/get-roles-list",
-            {
-              headers: {
-                Authorization: `Bearer ${cachedAuthToken}`,
-              },
-            }
+          "http://localhost:8080/admin/api/get-roles-list",
+          {
+            headers: {
+              Authorization: `Bearer ${cachedAuthToken}`,
+            },
+          }
         );
 
         if (res && res.data) {
@@ -158,8 +165,8 @@ const ManageUser: React.FC = () => {
         const error = err as Error; // 타입 단언
         console.error("Error fetching data:", err);
         comAPIContext.showToast(
-            "Error fetching roles: " + error.message,
-            "danger"
+          "Error fetching roles: " + error.message,
+          "danger"
         );
       } finally {
         comAPIContext.hideProgressBar();
@@ -172,24 +179,24 @@ const ManageUser: React.FC = () => {
   const handleSearch = () => {
     comAPIContext.showProgressBar();
     axios
-        .get("http://localhost:8080/admin/api/get-user", {
-          headers: { Authorization: `Bearer ${cachedAuthToken}` },
-          params: { userName: inputRef.current?.value || "" },
-        })
-        .then((res) => {
-          if (gridRef.current) {
-            gridRef.current.setRowData(res.data); // 데이터를 AgGridWrapper에 설정
-          }
-          comAPIContext.hideProgressBar();
-          comAPIContext.showToast("조회가 완료됐습니다.", "success");
-        })
-        .catch((err) => {
-          console.error("Error fetching data:", err);
-          comAPIContext.showToast("Error User Search: " + err, "danger");
-        })
-        .finally(() => {
-          comAPIContext.hideProgressBar();
-        });
+      .get("http://localhost:8080/admin/api/get-user", {
+        headers: { Authorization: `Bearer ${cachedAuthToken}` },
+        params: { userName: inputRef.current?.value || "" },
+      })
+      .then((res) => {
+        if (gridRef.current) {
+          gridRef.current.setRowData(res.data); // 데이터를 AgGridWrapper에 설정
+        }
+        comAPIContext.hideProgressBar();
+        comAPIContext.showToast("조회가 완료됐습니다.", "success");
+      })
+      .catch((err) => {
+        console.error("Error fetching data:", err);
+        comAPIContext.showToast("Error User Search: " + err, "danger");
+      })
+      .finally(() => {
+        comAPIContext.hideProgressBar();
+      });
   };
 
   const openPopup = useCallback(() => {
@@ -205,124 +212,122 @@ const ManageUser: React.FC = () => {
   }, []);
 
   const handleSave = useCallback(
-      async (lists: { deleteList: any[]; updateList: any[] }) => {
-        console.log("--------->", roleKind);
+    async (lists: { deleteList: any[]; updateList: any[] }) => {
+      console.log("--------->", roleKind);
 
-        if (!gridRef.current) return;
+      if (!gridRef.current) return;
 
-        if (lists.deleteList.length === 0 && lists.updateList.length === 0) {
-          comAPIContext.showToast("저장할 데이터가 없습니다.", "dark");
-          return;
-        }
+      if (lists.deleteList.length === 0 && lists.updateList.length === 0) {
+        comAPIContext.showToast("저장할 데이터가 없습니다.", "dark");
+        return;
+      }
 
-        try {
-          comAPIContext.showProgressBar();
-          // console.log("1.update 행들:", lists);
-          // console.log("2.delete 행들:", lists);
+      try {
+        comAPIContext.showProgressBar();
+        // console.log("1.update 행들:", lists);
+        // console.log("2.delete 행들:", lists);
 
-          if (lists.updateList.length !== 0) {
-            if (roleKind !== null) {
-              lists.updateList.forEach((e) => {
-                const roleData: any = roleKind.find(
-                    (r: any) => r.roleName === e.roleName
-                );
-                e.roleId = roleData.roleId;
-              });
-            }
+        if (lists.updateList.length !== 0) {
+          if (roleKind !== null) {
+            lists.updateList.forEach((e) => {
+              const roleData: any = roleKind.find(
+                (r: any) => r.roleName === e.roleName
+              );
+              e.roleId = roleData.roleId;
+            });
           }
-
-          // 전송 데이터 구성
-          const payload = {
-            updateList: lists.updateList,
-            deleteList: lists.deleteList,
-          };
-
-          await axios.post(
-              "http://localhost:8080/admin/api/update-user",
-              payload,
-              {
-                headers: { Authorization: `Bearer ${cachedAuthToken}` },
-              }
-          );
-
-          comAPIContext.showToast("저장되었습니다.", "success");
-          handleSearch(); // 저장 후 최신 데이터 조회
-        } catch (err) {
-          console.error("Error saving data:", err);
-          comAPIContext.showToast("저장 중 오류가 발생했습니다.", "danger");
-          handleSearch();
-        } finally {
-          comAPIContext.hideProgressBar();
         }
-      },
-      []
+
+        // 전송 데이터 구성
+        const payload = {
+          updateList: lists.updateList,
+          deleteList: lists.deleteList,
+        };
+
+        await axios.post(
+          "http://localhost:8080/admin/api/update-user",
+          payload,
+          {
+            headers: { Authorization: `Bearer ${cachedAuthToken}` },
+          }
+        );
+
+        comAPIContext.showToast("저장되었습니다.", "success");
+        handleSearch(); // 저장 후 최신 데이터 조회
+      } catch (err) {
+        console.error("Error saving data:", err);
+        comAPIContext.showToast("저장 중 오류가 발생했습니다.", "danger");
+        handleSearch();
+      } finally {
+        comAPIContext.hideProgressBar();
+      }
+    },
+    []
   );
 
   const registerButton = useCallback(() => {
     return (
-        <>
-          <ComButton
-              size="sm"
-              className="me-2"
-              variant="primary"
-              onClick={openPopup}
-              disabled={!canCreate}
-          >
-            사용자 등록
-          </ComButton>
-        </>
+      <>
+        <ComButton
+          size="sm"
+          className="me-2"
+          variant="primary"
+          onClick={openPopup}
+          disabled={!canCreate}
+        >
+          사용자 등록
+        </ComButton>
+      </>
     );
   }, [openPopup, canCreate]);
 
   return (
-      <Container fluid>
-        <Row className="mb-3">
-          <Col>
-            <h2>사용자 관리</h2>
-          </Col>
-        </Row>
-        <Row className="mb-3">
-          <Col lg={9}>
-            <Form.Group as={Row}>
-              <Form.Label column sm={1} className="text-center">
-                사용자 이름
-              </Form.Label>
-              <Col sm={2}>
-                <Form.Control
-                    ref={inputRef}
-                    type="text"
-                    placeholder="사용자 이름 입력"
-                />
-              </Col>
-            </Form.Group>
-          </Col>
-          <Col lg={3} className="d-flex justify-content-end">
-            <ComButton size="sm" variant="primary" onClick={handleSearch}>
-              검색
-            </ComButton>
-          </Col>
-        </Row>
-        <div style={{ borderTop: "1px solid black", margin: "15px 0" }}></div>
-        <Row>
-          <Col>
-            <AgGridWrapper
-                ref={gridRef} // forwardRef를 통해 연결된 ref
-                showButtonArea={true}
-
-                canCreate={false}
-                canDelete={canDelete}
-                canUpdate={canUpdate}
-
-                columnDefs={dynamicColumnDefs}
-                enableCheckbox={true}
-                onSave={handleSave} // 저장 버튼 동작z`
-            >
-              {registerButton()}
-            </AgGridWrapper>
-          </Col>
-        </Row>
-        <UserRegistPopup onResearchUser={refreshData} ref={userRegisterRef} />
-      </Container>
+    <Container fluid>
+      <Row className="mb-3">
+        <Col>
+          <h2>사용자 관리</h2>
+        </Col>
+      </Row>
+      <Row className="mb-3">
+        <Col lg={9}>
+          <Form.Group as={Row}>
+            <Form.Label column sm={1} className="text-center">
+              사용자 이름
+            </Form.Label>
+            <Col sm={2}>
+              <Form.Control
+                ref={inputRef}
+                type="text"
+                placeholder="사용자 이름 입력"
+              />
+            </Col>
+          </Form.Group>
+        </Col>
+        <Col lg={3} className="d-flex justify-content-end">
+          <ComButton size="sm" variant="primary" onClick={handleSearch}>
+            검색
+          </ComButton>
+        </Col>
+      </Row>
+      <div style={{ borderTop: "1px solid black", margin: "15px 0" }}></div>
+      <Row>
+        <Col>
+          <AgGridWrapper
+            ref={gridRef} // forwardRef를 통해 연결된 ref
+            showButtonArea={true}
+            canCreate={false}
+            canDelete={canDelete}
+            canUpdate={canUpdate}
+            columnDefs={dynamicColumnDefs}
+            enableCheckbox={true}
+            onSave={handleSave} // 저장 버튼 동작z`
+          >
+            {registerButton()}
+          </AgGridWrapper>
+        </Col>
+      </Row>
+      <UserRegistPopup onResearchUser={refreshData} ref={userRegisterRef} />
+    </Container>
   );
 };
 

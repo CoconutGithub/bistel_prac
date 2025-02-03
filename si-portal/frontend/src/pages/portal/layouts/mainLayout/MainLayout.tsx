@@ -45,7 +45,7 @@ const MainLayout = () => {
     <div className={styles.start}>
       <GlobalNavbar />
       <main id="main-content-root" className={styles.main}>
-        <Container>
+        <Container className={styles.container}>
           <Outlet />
         </Container>
       </main>
