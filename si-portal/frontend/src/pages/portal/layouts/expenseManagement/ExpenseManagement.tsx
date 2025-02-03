@@ -8,22 +8,36 @@ import { useEffect, useRef } from "react";
 const columns = [
   {
     filed: "gridRowId",
-    field: "h1",
-    headerName: "Header1",
+    field: "user",
+    headerName: "User",
     editable: true,
     flex: 1,
   },
   {
     filed: "gridRowId",
-    field: "h2",
-    headerName: "Headeer2",
+    field: "category",
+    headerName: "Category",
     editable: true,
-    flex: 1,
+    flex: 2,
   },
   {
     filed: "gridRowId",
-    field: "attachFile",
-    headerName: "File",
+    field: "item",
+    headerName: "Item",
+    editable: true,
+    flex: 2,
+  },
+  {
+    filed: "gridRowId",
+    field: "price",
+    headerName: "Price",
+    editable: true,
+    flex: 2,
+  },
+  {
+    filed: "gridRowId",
+    field: "fileAttachment",
+    headerName: "File Attachment",
     cellRenderer: FileCellRenderer,
     editable: false,
     flex: 2,
@@ -34,9 +48,13 @@ const ExpenseManagement: React.FC = () => {
   const gridRef = useRef<AgGridWrapperHandle>(null);
   const searchGrid = () => {
     gridRef.current!.setRowData([
-      { gridRowId: "1", h1: "aaa", h2: "bbb" },
-      { gridRowId: "2", h1: "aaa", h2: "bbb" },
-      { gridRowId: "3", h1: "aaa", h2: "bbb" },
+      {
+        gridRowId: "1",
+        user: "김민수",
+        category: "사무용품",
+        item: "가위",
+        price: "10,000원",
+      },
     ]);
   };
 
