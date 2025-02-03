@@ -12,19 +12,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import lombok.extern.slf4j.Slf4j;
-import java.util.Base64;
+
+import java.util.*;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -417,7 +415,27 @@ public class AdminService {
         }
     }
 
+    @PostMapping("/api/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody Map<String, String> requestData) {
+        try {
+            String userId = requestData.get("userId");
+            String newPassword = requestData.get("newPassword");
 
+            // 비밀번호 암호화
+            BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+            String encodedPassword = passwordEncoder.encode(newPassword);
+
+            // DB 업데이트
+            Map<String, Object> userMap = new HashMap<>();
+            userMap.put("userId", userId);
+            userMap.put("password", encodedPassword);
+            adminMapper.updateUserPassword(userMap);
+
+            return ResponseEntity.ok(Collections.singletonMap("message", "비밀번호 변경이 완료되었습니다."));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("비밀번호 변경 중 오류 발생: " + e.getMessage());
+        }
+    }
 
     @PostMapping("/api/register-user")
     public ResponseEntity<?> registerUser(
