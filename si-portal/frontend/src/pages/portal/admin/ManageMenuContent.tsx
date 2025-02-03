@@ -1,6 +1,5 @@
 import React, {
   useEffect,
-  useMemo,
   useRef,
   useState,
   useContext,
@@ -399,15 +398,6 @@ const ManageMenuContent: React.FC<{
     }
   };
 
-  const roleRegistButton = useMemo(
-    () => (
-      <ComButton className="me-3" onClick={() => setShowPopup(true)}>
-        Role추가
-      </ComButton>
-    ),
-    []
-  );
-
   return (
     <Container fluid className="p-4">
       {chooseMenuData && chooseMenuData.menuName !== "Root" ? (
@@ -540,7 +530,6 @@ const ManageMenuContent: React.FC<{
               canUpdate={true}
               onSave={handleGridSave}
             >
-              {roleRegistButton}
             </AgGridWrapper>
           </div>
         </>

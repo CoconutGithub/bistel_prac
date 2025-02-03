@@ -79,28 +79,28 @@ public class AdminService {
         }
     }
 
-    @PostMapping("/api/delete-menu")
-    public ResponseEntity<?> deleteMenu(@RequestBody(required = false) Map<String, List<Integer>> requestData) {
-        try {
-            List<Integer> deleteList = (List<Integer>) requestData.get("deleteList");
-            int deletedMenusCnt = 0; // 삭제된 행 갯수
-
-            // Delete 처리
-            for (Integer menuId : deleteList) {
-                deletedMenusCnt += this.adminMapper.deleteMenu(menuId);
-            }
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("messageCode", "success");
-            response.put("message", "모든 작업이 성공적으로 처리되었습니다.");
-            response.put("deletedMenusCnt", deletedMenusCnt);
-
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
-                    .body("Error occurred: " + e.getMessage());
-        }
-    }
+//    @PostMapping("/api/delete-menu")
+//    public ResponseEntity<?> deleteMenu(@RequestBody(required = false) Map<String, List<Integer>> requestData) {
+//        try {
+//            List<Integer> deleteList = (List<Integer>) requestData.get("deleteList");
+//            int deletedMenusCnt = 0; // 삭제된 행 갯수
+//
+//            // Delete 처리
+//            for (Integer menuId : deleteList) {
+//                deletedMenusCnt += this.adminMapper.deleteMenu(menuId);
+//            }
+//
+//            Map<String, Object> response = new HashMap<>();
+//            response.put("messageCode", "success");
+//            response.put("message", "모든 작업이 성공적으로 처리되었습니다.");
+//            response.put("deletedMenusCnt", deletedMenusCnt);
+//
+//            return ResponseEntity.ok(response);
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+//                    .body("Error occurred: " + e.getMessage());
+//        }
+//    }
 
     @GetMapping("/api/get-menu-tree")
     public ResponseEntity<?> getMenuTree() {
@@ -557,16 +557,16 @@ public class AdminService {
         }
     }
 
-//    @PostMapping("/api/delete-menu")
-//    public ResponseEntity<?> deleteMenu(@RequestBody Map<String, Object> result) {
-//        try {
-//            adminMapper.deleteMenu(result);
-//            return ResponseEntity.ok(result);
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
-//                    .body("Error occurred: " + e.getMessage());
-//        }
-//    }
+    @PostMapping("/api/delete-menu")
+    public ResponseEntity<?> deleteMenu(@RequestBody Map<String, Object> result) {
+        try {
+            adminMapper.deleteMenu(result);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
 
     @PostMapping("/api/update-menu-content")
     public ResponseEntity<?> updateMenuContent(@RequestBody Map<String, Object> result) {

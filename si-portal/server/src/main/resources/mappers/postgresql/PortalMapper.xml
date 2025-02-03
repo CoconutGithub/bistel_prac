@@ -57,6 +57,7 @@
             , A.EMAIL
             , A.PHONE_NUMBER
             , A.STATUS
+            , A.PASSWORD
             , C.ROLE_NAME
             , A.FOOTER_YN
             , A.HEADER_COLOR
@@ -70,7 +71,6 @@
         AND A.USER_ID = B.USER_ID
         AND B.ROLE_ID = C.ROLE_ID
         AND A.USER_ID = #{userId}
-        AND A.PASSWORD = #{password}
     </select>
 
     <select id="getUserByUserName" resultType="com.siportal.portal.com.result.ComResultMap">
