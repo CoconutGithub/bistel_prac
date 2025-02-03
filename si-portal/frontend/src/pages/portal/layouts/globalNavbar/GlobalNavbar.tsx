@@ -128,6 +128,7 @@ const GlobalNavbar = () => {
               drop="up"
               className={styles.navDropdown}
             >
+              <NavDropdown.Item onClick={handleLogout}>Logout</NavDropdown.Item>
               {isMighty === "Y" && (
                 <>
                   <NavDropdown.Item as={Link} to="/main/manage-menu">
@@ -144,9 +145,6 @@ const GlobalNavbar = () => {
                   </NavDropdown.Item>
                   <NavDropdown.Item as={Link} to="/main/manage-schedule">
                     스케줄 관리
-                  </NavDropdown.Item>
-                  <NavDropdown.Item onClick={handleLogout}>
-                    Logout
                   </NavDropdown.Item>
                 </>
               )}
