@@ -1,5 +1,5 @@
 import SiTableIcon from "~components/icons/SiTableIcon";
-import styles from "./RecordEdit.module.scss";
+import styles from "./ExpenseManagement.module.scss";
 import AgGridWrapper from "~components/agGridWrapper/AgGridWrapper";
 import FileCellRenderer from "~components/FileCellRenderer";
 import { AgGridWrapperHandle } from "~types/GlobalTypes";
@@ -30,7 +30,7 @@ const columns = [
   },
 ];
 
-const RecordEdit: React.FC = () => {
+const ExpenseManagement: React.FC = () => {
   const gridRef = useRef<AgGridWrapperHandle>(null);
   const searchGrid = () => {
     gridRef.current!.setRowData([
@@ -55,7 +55,7 @@ const RecordEdit: React.FC = () => {
     <div className={styles.start}>
       <header className={styles.header}>
         <SiTableIcon width={12} height={12} fillColor="#00000073" />
-        <p className={styles.title}>Record Edit</p>
+        <p className={styles.title}>Expense Management</p>
       </header>
       <main className={styles.main}>
         <AgGridWrapper
@@ -73,4 +73,4 @@ const RecordEdit: React.FC = () => {
   );
 };
 
-export default RecordEdit;
+export default ExpenseManagement;
