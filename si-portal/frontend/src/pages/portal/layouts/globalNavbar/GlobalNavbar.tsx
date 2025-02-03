@@ -108,6 +108,13 @@ const GlobalNavbar = () => {
             >
               Settings
             </Nav.Link>
+            <Nav.Link
+              as={NavLink}
+              to="/main/record-edit"
+              className={styles.nav_link}
+            >
+              Editable table page
+            </Nav.Link>
             {/* <Nav.Link onClick={handleLogout}>Logout</Nav.Link> */}
           </Nav>
         </div>
