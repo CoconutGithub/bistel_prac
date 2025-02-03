@@ -3,7 +3,8 @@ import React, {
   useRef,
   useContext,
   useCallback,
-  useState, useEffect,
+  useState,
+  useEffect,
 } from "react";
 import { useNavigate } from "react-router-dom";
 import { ComAPIContext } from "~components/ComAPIContext";
@@ -34,15 +35,15 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    axios.post("http://localhost:8080/login", {
-      userId: userId,
-      password: password,
-
-    }).then((response) => {
-
-      console.log("Login 시도 결과:", response.status);
-      if (response.status === 200) {
-        dispatch(
+    axios
+      .post("http://localhost:8080/login", {
+        userId: userId,
+        password: password,
+      })
+      .then((response) => {
+        console.log("Login 시도 결과:", response.status);
+        if (response.status === 200) {
+          dispatch(
             setLoginToken({
               token: response.data.token, //JWT token
               title: response.data.title, //portal 제목
@@ -56,20 +57,19 @@ const Login = () => {
               headerColor: response.data.headerColor,
               email: response.data.email, //email
             })
-        );
+          );
 
-        navigate("/main", { replace: true });
-      }
-
-    }).catch((error) => {
-      if (error.status === 401) {
-        setUserErrorStatus("unauthorized");
-      } else {
-        setUserErrorStatus("etc");
-      }
-      setToastShow(true);
-    });
-
+          navigate("/main/home", { replace: true });
+        }
+      })
+      .catch((error) => {
+        if (error.status === 401) {
+          setUserErrorStatus("unauthorized");
+        } else {
+          setUserErrorStatus("etc");
+        }
+        setToastShow(true);
+      });
   };
 
   const openPopup = useCallback(() => {

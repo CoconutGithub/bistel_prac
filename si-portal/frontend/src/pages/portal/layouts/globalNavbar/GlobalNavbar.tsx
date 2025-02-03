@@ -65,7 +65,7 @@ const GlobalNavbar = () => {
       <Navbar.Collapse id="basic-navbar-nav" className={styles.nav_container}>
         <div className={styles.nav_wrap}>
           <Nav className={styles.nav}>
-            <Nav.Link as={NavLink} to="/" className={styles.nav_link}>
+            <Nav.Link as={NavLink} to="/main/home" className={styles.nav_link}>
               Home
             </Nav.Link>
             {menuItems.map((item) => (
