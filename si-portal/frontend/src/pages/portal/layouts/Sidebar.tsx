@@ -15,8 +15,7 @@ const Sidebar = () => {
   const handleLogout = () => {
     console.log("Logging out...");
     dispatch(removeLoginToken());
-    // 로그아웃 처리 로직
-    navigate("/");
+    navigate('/login'); // 로그인 페이지로 이동
   };
 
   return (

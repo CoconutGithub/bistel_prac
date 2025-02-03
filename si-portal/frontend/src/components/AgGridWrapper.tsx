@@ -145,7 +145,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps> (
         };
 
         const onGridReady = useCallback(() => {
-            console.log('Grid is ready');
+            //console.log('Grid is ready');
         }, []);
 
         const handleCellValueChange = (event: any) => {

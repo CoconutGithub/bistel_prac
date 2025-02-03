@@ -46,7 +46,7 @@ const Header = () => {
     console.log("Logging out...");
     dispatch(removeLoginToken());
     // 로그아웃 처리 로직
-    navigate("/main");
+    navigate("/");
   };
 
   return (

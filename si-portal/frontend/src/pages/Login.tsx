@@ -3,7 +3,6 @@ import React, {
   useRef,
   useContext,
   useCallback,
-  useEffect,
   useState,
 } from "react";
 import { useNavigate } from "react-router-dom";
@@ -11,7 +10,6 @@ import { ComAPIContext } from "~components/ComAPIContext";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "~store/Store";
 import { setLoginToken } from "~store/AuthSlice";
-import ComButton from "~pages/portal/buttons/ComButton";
 import SiUserIcon from "~components/icons/SiUserIcon";
 import SiLockIcon from "~components/icons/SiLockIcon";
 import Toast from "react-bootstrap/Toast";
@@ -25,7 +23,6 @@ const Login = () => {
   const [toastShow, setToastShow] = useState(false);
   const [userErrorStatus, setUserErrorStatus] =
     useState<string>("unauthorized");
-  const comAPIContext = useContext(ComAPIContext);
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
@@ -38,44 +35,42 @@ const Login = () => {
     const userId = userIdRef.current?.value;
     const password = passwordRef.current?.value;
 
-    try {
-      const response = await axios.post("http://localhost:8080/login", {
-        userId: userId,
-        password: password,
-      });
+    axios.post("http://localhost:8080/login", {
+      userId: userId,
+      password: password,
 
-      dispatch(
-        setLoginToken({
-          token: response.data.token, //JWT token
-          title: response.data.title, //portal 제목
-          userId: response.data.userId, //userId
-          userName: response.data.userName, //userName
-          roleId: response.data.roleId,
-          roleName: response.data.roleName,
-          isMighty: response.data.isMighty,
-          phoneNumber: response.data.phoneNumber,
-          footerYN: response.data.footerYN,
-          headerColor: response.data.headerColor,
-          email: response.data.email, //email
-        })
-      );
+    }).then((response) => {
 
-      navigate("/", { replace: true });
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const status = error.response?.status;
+      console.log("Login 시도 결과:", response.status);
+      if (response.status === 200) {
+        dispatch(
+            setLoginToken({
+              token: response.data.token, //JWT token
+              title: response.data.title, //portal 제목
+              userId: response.data.userId, //userId
+              userName: response.data.userName, //userName
+              roleId: response.data.roleId,
+              roleName: response.data.roleName,
+              isMighty: response.data.isMighty,
+              phoneNumber: response.data.phoneNumber,
+              footerYN: response.data.footerYN,
+              headerColor: response.data.headerColor,
+              email: response.data.email, //email
+            })
+        );
 
-        if (status === 401) {
-          setUserErrorStatus("unauthorized");
-        } else {
-          setUserErrorStatus("etc");
-        }
-        setToastShow(true);
+        navigate("/main", { replace: true });
+      }
+
+    }).catch((error) => {
+      if (error.status === 401) {
+        setUserErrorStatus("unauthorized");
       } else {
         setUserErrorStatus("etc");
-        setToastShow(true);
       }
-    }
+      setToastShow(true);
+    });
+
   };
 
   const openPopup = useCallback(() => {

@@ -206,7 +206,7 @@ const ManageUser: React.FC = () => {
 
   const handleSave = useCallback(
       async (lists: { deleteList: any[]; updateList: any[] }) => {
-        // console.log("--------->", roleKind);
+        console.log("--------->", roleKind);
 
         if (!gridRef.current) return;
 
@@ -258,7 +258,7 @@ const ManageUser: React.FC = () => {
       []
   );
 
-  const registerButton = useMemo(() => {
+  const registerButton = useCallback(() => {
     return (
         <>
           <ComButton
@@ -272,7 +272,7 @@ const ManageUser: React.FC = () => {
           </ComButton>
         </>
     );
-  }, []);
+  }, [openPopup, canCreate]);
 
   return (
       <Container fluid>
@@ -317,7 +317,7 @@ const ManageUser: React.FC = () => {
                 enableCheckbox={true}
                 onSave={handleSave} // 저장 버튼 동작z`
             >
-              {registerButton}
+              {registerButton()}
             </AgGridWrapper>
           </Col>
         </Row>

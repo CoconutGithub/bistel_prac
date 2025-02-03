@@ -3,9 +3,9 @@ import ReactDOM from "react-dom";
 import ToastContainer from "react-bootstrap/ToastContainer";
 import Toast from "react-bootstrap/Toast";
 import ProgressBar from "react-bootstrap/ProgressBar";
-import {useLocation} from "react-router-dom";
-import {useSelector} from "react-redux";
-import {RootState} from "~store/Store";
+import {useDispatch} from "react-redux";
+import {AppDispatch} from "~store/Store";
+import {chkLoginToken} from "~store/AuthSlice";
 
 // Toast 타입 정의
 interface ToastType {
@@ -36,12 +36,20 @@ interface ComAPIProviderProps {
 }
 
 export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
-    const state = useSelector((state: RootState) => state.auth);
     const [toasts, setToasts] = useState<ToastType[]>([]);
     const [progressBarVisible, setProgressBarVisible] = useState<boolean>(false);
 
-    // 공통 로직: 최초 페이지 마운트 시 실행
-    const location = useLocation();
+    const dispatch = useDispatch<AppDispatch>(); // 타입 지정 추가
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            dispatch(chkLoginToken());
+        }, 10 * 60 * 1000); // 10분마다 실행
+
+        return () => clearInterval(interval);
+    }, [dispatch]);
+
+
 
     // Toast 관리 메서드
     const showToast = useCallback(

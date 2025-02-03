@@ -20,6 +20,8 @@ public interface AdminMapper {
 
     int existUser(@Param("userId") String userId);
     void registerUser(Map<String, Object> user);
+    void updateProfileImage(Map<String, Object> user);
+    Map<String, Object> getUserProfileImage(String userId);
     void registerUserRole(Map<String, Object> userRoleObject);
     List<Map<String, Object>> getMenuIdSeq();
     void insertMenu(Map<String, Object> data);
