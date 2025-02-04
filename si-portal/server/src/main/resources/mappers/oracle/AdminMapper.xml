@@ -10,9 +10,8 @@
         VALUES (#{menuId}, #{menuName}, #{parentMenuId}, #{path}, #{position}, #{childYn}, #{status}, #{depth}, SYSDATE, #{createBy})
     </insert>
 
-    <delete id="deleteMenu">
-        DELETE FROM P_MENU
-        WHERE MENU_ID = #{menuId}
+    <delete id="deleteMenu" parameterType="map">
+        DELETE FROM P_MENU WHERE MENU_ID = #{menuId} or PARENT_MENU_ID = #{menuId}
     </delete>
 
     <update id="updateSchedule">
@@ -255,7 +254,7 @@
         </foreach>
     </delete>
 
-    <select id="getMenuIdSeq">
+    <select id="getMenuIdSeq" resultType="com.siportal.portal.com.result.ComResultMap">
         SELECT SEQ_P_MENU.NEXTVAL AS MENU_ID FROM DUAL
     </select>
 
@@ -263,12 +262,8 @@
         INSERT INTO dev.p_menu
         (menu_id, menu_name, parent_menu_id, depth, path, position, child_yn, status, create_date)
         VALUES
-            (seq_p_menu.nextval, #{menuName}, #{parentMenuId}, #{depth}, #{path}, #{position}, #{childYn}, #{status}, SYSDATE)
+            (#{menuId}, #{menuName}, #{parentMenuId}, #{depth}, #{path}, #{position}, #{childYn}, #{status}, SYSDATE)
     </insert>
-
-<!--    <delete id="deleteMenu" parameterType="map">-->
-<!--        DELETE FROM P_MENU WHERE MENU_ID = #{menuId} or PARENT_MENU_ID = #{menuId}-->
-<!--    </delete>-->
 
     <update id="updateMenuContent" parameterType="map">
         UPDATE p_menu SET
