@@ -147,7 +147,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("서버 오류가 발생했습니다.");
         }
-
+        portalMapper.updateLastLoginDate(user.getUserId()); // 로그인 성공 시 last_login_date 업데이트
         // 로그인 성공 시 user 객체 반환
         return ResponseEntity.ok(user);
     }
