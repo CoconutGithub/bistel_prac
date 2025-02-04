@@ -3,26 +3,15 @@ import { Container, Row, Col, Button } from "react-bootstrap";
 import { ComAPIContext } from "~components/ComAPIContext";
 import ExamButton from "~pages/portal/example/ExamButton";
 import AgGridWrapper from "~components/agGridWrapper/AgGridWrapper";
-import FileCellRenderer from "~components/FileCellRenderer";
+import FileCellRenderer from "~components/fileCellRenderer/FileCellRenderer";
 import { AgGridWrapperHandle } from "~types/GlobalTypes";
 import { useSelector } from "react-redux";
 import { RootState } from "~store/Store";
 
-const columnDefs = [
-  { filed: "gridRowId", field: "h1", headerName: "Header1", editable: true },
-  { filed: "gridRowId", field: "h2", headerName: "Headeer2", editable: true },
-  {
-    filed: "gridRowId",
-    field: "attachFile",
-    headerName: "File",
-    cellRenderer: FileCellRenderer,
-    editable: false,
-  },
-];
-
 const HowToUse: React.FC = () => {
   const comAPIContext = useContext(ComAPIContext); // ComAPIContext 사용
   const [showExamButton, setShowExamButton] = useState(false);
+  const [selectedFilesMap, setSelectedFilesMap] = useState<any>({});
 
   // 예제 코드 문자열
   const examCodeProgressbar = `
@@ -93,6 +82,49 @@ const HowToUse: React.FC = () => {
         >
         </AgGridWrapper>        
         `;
+
+  const columnDefs = [
+    {
+      filed: "gridRowId",
+      field: "h1",
+      headerName: "Header1",
+      editable: true,
+      flex: 1,
+      autoHeight: true,
+      wrapText: true,
+      cellStyle: { display: "flex", alignItems: "center" },
+    },
+    {
+      filed: "gridRowId",
+      field: "h2",
+      headerName: "Headeer2",
+      editable: true,
+      flex: 1,
+      autoHeight: true,
+      wrapText: true,
+      cellStyle: { display: "flex", alignItems: "center" },
+    },
+    {
+      filed: "gridRowId",
+      field: "attachFile",
+      headerName: "File",
+      cellRenderer: (params: any) => {
+        return (
+          <FileCellRenderer
+            {...params}
+            rowId={params.data?.gridRowId}
+            selectedFilesMap={selectedFilesMap}
+            setSelectedFilesMap={setSelectedFilesMap}
+          />
+        );
+      },
+      editable: false,
+      flex: 2,
+      autoHeight: true,
+      wrapText: true,
+      cellStyle: { display: "flex", alignItems: "center" },
+    },
+  ];
 
   const handleRunProgress = () => {
     //Toast message 를 보여줌

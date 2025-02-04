@@ -1,55 +1,104 @@
 import SiTableIcon from "~components/icons/SiTableIcon";
 import styles from "./ExpenseManagement.module.scss";
 import AgGridWrapper from "~components/agGridWrapper/AgGridWrapper";
-import FileCellRenderer from "~components/FileCellRenderer";
+import FileCellRenderer from "~components/fileCellRenderer/FileCellRenderer";
 import { AgGridWrapperHandle } from "~types/GlobalTypes";
-import { useEffect, useRef } from "react";
-
-const columns = [
-  {
-    filed: "gridRowId",
-    field: "h1",
-    headerName: "Header1",
-    editable: true,
-    flex: 1,
-  },
-  {
-    filed: "gridRowId",
-    field: "h2",
-    headerName: "Headeer2",
-    editable: true,
-    flex: 1,
-  },
-  {
-    filed: "gridRowId",
-    field: "attachFile",
-    headerName: "File",
-    cellRenderer: FileCellRenderer,
-    editable: false,
-    flex: 2,
-  },
-];
+import { useEffect, useRef, useState } from "react";
 
 const ExpenseManagement: React.FC = () => {
   const gridRef = useRef<AgGridWrapperHandle>(null);
+  const [selectedFilesMap, setSelectedFilesMap] = useState<any>({});
+
   const searchGrid = () => {
     gridRef.current!.setRowData([
-      { gridRowId: "1", h1: "aaa", h2: "bbb" },
-      { gridRowId: "2", h1: "aaa", h2: "bbb" },
-      { gridRowId: "3", h1: "aaa", h2: "bbb" },
+      {
+        gridRowId: "1",
+        user: "김민수",
+        category: "사무용품",
+        item: "가위",
+        price: "10,000원",
+      },
     ]);
   };
 
-  useEffect(() => {
-    const findGridInterval = setInterval(() => {
-      if (gridRef.current) {
-        searchGrid();
-        clearInterval(findGridInterval);
-      }
-    }, 100);
+  const handleSave = (props: any) => {
+    const { deleteList, updateList, createList } = props;
+    console.log(deleteList, updateList, createList);
+  };
 
-    return () => clearInterval(findGridInterval);
-  }, []);
+  const columns = [
+    {
+      filed: "gridRowId",
+      field: "user",
+      headerName: "User",
+      editable: true,
+      flex: 1,
+      autoHeight: true,
+      wrapText: true,
+      cellStyle: { display: "flex", alignItems: "center" },
+    },
+    {
+      filed: "gridRowId",
+      field: "category",
+      headerName: "Category",
+      editable: true,
+      autoHeight: true,
+      flex: 2,
+      wrapText: true,
+      cellStyle: { display: "flex", alignItems: "center" },
+    },
+    {
+      filed: "gridRowId",
+      field: "item",
+      headerName: "Item",
+      editable: true,
+      autoHeight: true,
+      flex: 2,
+      wrapText: true,
+      cellStyle: { display: "flex", alignItems: "center" },
+    },
+    {
+      filed: "gridRowId",
+      field: "price",
+      headerName: "Price",
+      editable: true,
+      autoHeight: true,
+      flex: 1,
+      wrapText: true,
+      cellStyle: { display: "flex", alignItems: "center" },
+    },
+    {
+      filed: "gridRowId",
+      field: "fileAttachment",
+      headerName: "File Attachment",
+      cellRenderer: (params: any) => {
+        return (
+          <FileCellRenderer
+            {...params}
+            rowId={params.data?.gridRowId}
+            selectedFilesMap={selectedFilesMap}
+            setSelectedFilesMap={setSelectedFilesMap}
+          />
+        );
+      },
+      editable: false,
+      autoHeight: true,
+      flex: 3,
+      wrapText: true,
+      cellStyle: { display: "flex", alignItems: "center" },
+    },
+  ];
+
+  // useEffect(() => {
+  //   const findGridInterval = setInterval(() => {
+  //     if (gridRef.current) {
+  //       searchGrid();
+  //       clearInterval(findGridInterval);
+  //     }
+  //   }, 100);
+
+  //   return () => clearInterval(findGridInterval);
+  // }, []);
 
   return (
     <div className={styles.start}>
@@ -67,6 +116,7 @@ const ExpenseManagement: React.FC = () => {
           canUpdate={true}
           columnDefs={columns}
           tableHeight={"calc(100% - 35px)"}
+          onSave={handleSave}
         />
       </main>
     </div>
