@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import {useSelector} from "react-redux";
 import {RootState} from "~store/Store";
@@ -14,10 +14,9 @@ const Profile: React.FC = () => {
     const roleName = useSelector((state: RootState) => state.auth.user.roleName);
     const [profileImage, setProfileImage] = useState<string | null>(null);
     const [newPassword, setNewPassword] = useState("");
-    const storedPhoneNumber = useSelector((state: RootState) => state.auth.user.phoneNumber);
-    const [phonePart1, setPhonePart1] = useState("");
-    const [phonePart2, setPhonePart2] = useState("");
-    const [phonePart3, setPhonePart3] = useState("");
+    const phoneNumberRef = useRef<string>("");
+
+    const [phoneParts, setPhoneParts] = useState<string[]>(["", "", ""]); //전화번호 파트를 배열로 관리
 
     const [preview, setPreview] = useState<string | null>(null); // string | null 타입 명시 // 이미지 미리보기
     const [file, setFile] = useState<File | null>(null); // File | null 타입 명시
@@ -39,10 +38,8 @@ const Profile: React.FC = () => {
             params: { userId: userId },
         }).then((res) => {
             if (res.data.phoneNumber) {
-                const parts = res.data.phoneNumber.split("-");
-                setPhonePart1(parts[0] || "");
-                setPhonePart2(parts[1] || "");
-                setPhonePart3(parts[2] || "");
+                phoneNumberRef.current = res.data.phoneNumber; //useRef에 저장
+                setPhoneParts(res.data.phoneNumber.split("-")); // 파트를 쪼개서 상태에 저장
             }
         }).catch(error => {
             console.error("Error fetching user phone number:", error);
@@ -129,31 +126,23 @@ const Profile: React.FC = () => {
     };
 
     const handlePhoneNumberChange = (index: number, value: string) => {
-        value = value.replace(/[^0-9]/g, ""); // 숫자만 입력 허용
+        const updatedParts = [...phoneParts];
+        updatedParts[index] = value.replace(/[^0-9]/g, ""); // 숫자만 허용
 
-        if (index === 1) {
-            if (value.length > 3) value = value.slice(0, 3);
-            setPhonePart1(value);
-        } else if (index === 2) {
-            if (value.length > 4) value = value.slice(0, 4);
-            setPhonePart2(value);
-        } else if (index === 3) {
-            if (value.length > 4) value = value.slice(0, 4);
-            setPhonePart3(value);
-        }
+        // 수정: 상태 및 useRef 동기화
+        phoneNumberRef.current = updatedParts.join("-");
+        setPhoneParts(updatedParts);
     };
 
     const handleUpdatePhoneNumber = () => {
-        const phoneNumber = `${phonePart1}-${phonePart2}-${phonePart3}`;
-
-        if (!phonePart1 || !phonePart2 || !phonePart3) {
+        if (!phoneNumberRef.current) {
             comAPIContext.showToast("전화번호를 올바르게 입력하세요!", "danger");
             return;
         }
 
         const formData = new FormData();
         formData.append("userId", userId);
-        formData.append("phoneNumber", phoneNumber);
+        formData.append("phoneNumber", phoneNumberRef.current);
 
         comAPIContext.showProgressBar();
 
@@ -169,8 +158,7 @@ const Profile: React.FC = () => {
         ).then((response) => {
             if (response.data.success) {
                 comAPIContext.showToast("전화번호가 업데이트되었습니다!", "success");
-
-                getUserPhoneNumber();
+                getUserPhoneNumber(); // 최신 전화번호 다시 로드
             }
         }).catch((error) => {
             console.error(error);
@@ -178,24 +166,7 @@ const Profile: React.FC = () => {
         }).finally(() => {
             comAPIContext.hideProgressBar();
         });
-
-        const fetchUserPhoneNumber = () => {
-            axios.get("http://localhost:8080/admin/api/get-user-phone", {
-                headers: { Authorization: `Bearer ${cachedAuthToken}` },
-                params: { userId: userId },
-            }).then((res) => {
-                if (res.data.phoneNumber) {
-                    const parts = res.data.phoneNumber.split("-");
-                    setPhonePart1(parts[0] || "");
-                    setPhonePart2(parts[1] || "");
-                    setPhonePart3(parts[2] || "");
-                }
-            }).catch(error => {
-                console.error("Error fetching updated phone number:", error);
-            });
-        };
     };
-
 
     return (
         <Container className="mt-4">
@@ -231,22 +202,22 @@ const Profile: React.FC = () => {
                         <strong>전화번호: </strong>
                         <input
                             type="text"
-                            value={phonePart1}
-                            onChange={(e) => handlePhoneNumberChange(1, e.target.value)}
+                            value={phoneParts[0]}
+                            onChange={(e) => handlePhoneNumberChange(0, e.target.value)}
                             maxLength={3}
                             style={{ width: "50px", textAlign: "center", marginRight: "5px" }}
                         />
                         <input
                             type="text"
-                            value={phonePart2}
-                            onChange={(e) => handlePhoneNumberChange(2, e.target.value)}
+                            value={phoneParts[1]}
+                            onChange={(e) => handlePhoneNumberChange(1, e.target.value)}
                             maxLength={4}
                             style={{ width: "50px", textAlign: "center", marginRight: "5px" }}
                         />
                         <input
                             type="text"
-                            value={phonePart3}
-                            onChange={(e) => handlePhoneNumberChange(3, e.target.value)}
+                            value={phoneParts[2]}
+                            onChange={(e) => handlePhoneNumberChange(2, e.target.value)}
                             maxLength={4}
                             style={{ width: "50px", textAlign: "center", marginRight: "5px" }}
                         />
