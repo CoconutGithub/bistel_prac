@@ -233,9 +233,10 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
     };
 
     const handleAddRow = () => {
+      const newRowId = new Date().getTime() + Math.random().toString(36);
       const newRow = {
         isCreated: true,
-        gridRowId: new Date().getTime() + Math.random().toString(36),
+        gridRowId: newRowId,
         add: "add",
       }; // 신규 행 데이터
       const gridApi = gridRef.current?.api;

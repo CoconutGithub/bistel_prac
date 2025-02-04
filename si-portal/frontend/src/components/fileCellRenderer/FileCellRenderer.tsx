@@ -18,7 +18,12 @@ interface FileCellRendererProps {
 const FileCellRenderer: React.FC<FileCellRendererProps> = (props) => {
   console.log("FileCellRender....재랜더링.");
   const { data, column, rowId, selectedFilesMap, setSelectedFilesMap } = props;
-  const selectedFiles = selectedFilesMap[rowId] || [];
+  let selectedFiles: any[] = [];
+  if (!rowId) {
+    selectedFiles = [];
+  } else {
+    selectedFiles = selectedFilesMap[rowId] || [];
+  }
 
   const handleFileChange = (event: any) => {
     if (!event.target.files || event.target.files.length < 1) return;

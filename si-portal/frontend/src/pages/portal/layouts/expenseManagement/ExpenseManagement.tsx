@@ -32,8 +32,8 @@ const ExpenseManagement: React.FC = () => {
       field: "user",
       headerName: "User",
       editable: true,
-      autoHeight: true,
       flex: 1,
+      autoHeight: true,
       wrapText: true,
       cellStyle: { display: "flex", alignItems: "center" },
     },
@@ -71,14 +71,16 @@ const ExpenseManagement: React.FC = () => {
       filed: "gridRowId",
       field: "fileAttachment",
       headerName: "File Attachment",
-      cellRenderer: (params: any) => (
-        <FileCellRenderer
-          {...params}
-          rowId={params.data.gridRowId}
-          selectedFilesMap={selectedFilesMap}
-          setSelectedFilesMap={setSelectedFilesMap}
-        />
-      ),
+      cellRenderer: (params: any) => {
+        return (
+          <FileCellRenderer
+            {...params}
+            rowId={params.data?.gridRowId}
+            selectedFilesMap={selectedFilesMap}
+            setSelectedFilesMap={setSelectedFilesMap}
+          />
+        );
+      },
       editable: false,
       autoHeight: true,
       flex: 3,
@@ -87,16 +89,16 @@ const ExpenseManagement: React.FC = () => {
     },
   ];
 
-  useEffect(() => {
-    const findGridInterval = setInterval(() => {
-      if (gridRef.current) {
-        searchGrid();
-        clearInterval(findGridInterval);
-      }
-    }, 100);
+  // useEffect(() => {
+  //   const findGridInterval = setInterval(() => {
+  //     if (gridRef.current) {
+  //       searchGrid();
+  //       clearInterval(findGridInterval);
+  //     }
+  //   }, 100);
 
-    return () => clearInterval(findGridInterval);
-  }, []);
+  //   return () => clearInterval(findGridInterval);
+  // }, []);
 
   return (
     <div className={styles.start}>
