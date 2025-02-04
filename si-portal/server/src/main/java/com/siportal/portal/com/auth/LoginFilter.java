@@ -27,14 +27,16 @@ import java.util.stream.Collectors;
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private String title;
+    private String databaseType;
     private final AuthenticationManager authenticationManager;
     private PortalMapper portalMapper;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    public LoginFilter(AuthenticationManager authenticationManager, PortalMapper portalMapper, String title) {
+    public LoginFilter(AuthenticationManager authenticationManager, PortalMapper portalMapper, String title, String databaseType) {
         this.authenticationManager = authenticationManager;
         this.portalMapper = portalMapper;
         this.title = title;
+        this.databaseType = databaseType;
         setFilterProcessesUrl("/login"); // 필터가 처리할 URL
 
     }
@@ -106,6 +108,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // 응답 헤더 또는 바디에 JWT 추가
         response.setContentType("application/json");
         response.getWriter().write("{\"token\": \"" + token +
+                "\", \"databaseType\": \"" + databaseType +
                 "\", \"title\": \"" + title +
                 "\", \"userId\": \"" + user.getUserId() +
                 "\", \"userName\": \"" + user.getUserName() +

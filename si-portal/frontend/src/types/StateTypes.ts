@@ -20,4 +20,5 @@ export interface AuthState {
     },
     error: string | null;
     title: string;
+    databaseType: string;
 }
