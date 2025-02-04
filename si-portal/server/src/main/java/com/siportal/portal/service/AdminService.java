@@ -415,6 +415,52 @@ public class AdminService {
         }
     }
 
+    @PostMapping("/api/update-phone-number")
+    public ResponseEntity<?> updatePhoneNumber(
+            @RequestParam("userId") String userId,
+            @RequestParam("phoneNumber") String phoneNumber) {
+        try {
+            if (userId == null || phoneNumber == null || phoneNumber.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Collections.singletonMap("success", false));
+            }
+
+            Map<String, Object> user = new HashMap<>();
+            user.put("userId", userId);
+            user.put("phoneNumber", phoneNumber);
+
+            // 전화번호 업데이트 실행
+            adminMapper.updatePhoneNumber(user);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "전화번호가 업데이트되었습니다.");
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body(Collections.singletonMap("success", false));
+        }
+    }
+
+    @GetMapping("/api/get-user-phone")
+    public ResponseEntity<?> getUserPhoneNumber(@RequestParam("userId") String userId) {
+        try {
+            Map<String, Object> user = adminMapper.getUserPhoneNumber(userId);
+            if (user == null || user.get("phoneNumber") == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("phoneNumber", ""));
+            }
+            String phoneNumber = (String) user.get("phonenumber");
+            Map<String, Object> response = new HashMap<>();
+            response.put("phoneNumber", phoneNumber); // 일관된 키 사용
+
+            return ResponseEntity.ok(user);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", "전화번호 불러오기 실패"));
+        }
+    }
+
     @PostMapping("/api/change-password")
     public ResponseEntity<?> changePassword(@RequestBody Map<String, String> requestData) {
         try {
