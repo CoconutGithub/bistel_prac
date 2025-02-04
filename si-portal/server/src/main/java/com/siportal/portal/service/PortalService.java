@@ -35,7 +35,20 @@ public class PortalService {
         }
     }
 
-
+    @PostMapping("/api/login-success")
+    public ResponseEntity<?> loginSuccess(@RequestBody Map<String, String> requestBody) {
+        try {
+            String userId = requestBody.get("userId");
+            if (userId == null || userId.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: userId is required.");
+            }
+            portalMapper.updateLastLoginDate(userId);
+            return ResponseEntity.ok("Login successful and last login date updated.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error updating last login date: " + e.getMessage());
+        }
+    }
 
     @GetMapping("/api/get-user")
     public ResponseEntity<?> getUser(@RequestParam String userName) {

@@ -23,6 +23,8 @@ public interface PortalMapper {
                             @Param("footerYn") String footerYn,
                             @Param("headerColor") String headerColor);
 
+    void updateLastLoginDate(@Param("userId") String userId);
+
     @MapKey("role_id")
     List<Map<String, Object>> getAllRole();
 

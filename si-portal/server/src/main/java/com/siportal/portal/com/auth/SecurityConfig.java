@@ -19,6 +19,9 @@ public class SecurityConfig {
     @Value("${spring.application.name}")
     private String title;
 
+    @Value("${database.type}")
+    private String databaseType;
+
     @Autowired
     private PortalMapper portalMapper;
 
@@ -34,7 +37,7 @@ public class SecurityConfig {
                         .requestMatchers("/admin/api/register-user2").permitAll() // 인증 없이 허용
                         .anyRequest().authenticated()
                 )
-                .addFilter(new LoginFilter(authenticationManager, portalMapper, title))
+                .addFilter(new LoginFilter(authenticationManager, portalMapper, title, databaseType))
                 .addFilter(new AfterLoginFilter(authenticationManager))
                 .build();
     }

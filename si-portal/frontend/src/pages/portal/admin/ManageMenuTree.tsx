@@ -143,9 +143,19 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
 
     const findClosestMenu = (event: React.MouseEvent) => {
         const { clientX, clientY } = event;
-        let closestNode: MenuItem | null = null;
+        let closestNode: MenuItem | null = {
+            parentMenuId: -1,
+            menuId: -1,
+            depth: -1,
+            path: "",
+            menuName: "Root",
+            parentMenuName: "",
+            children: treeData,
+            isAdd: false,
+            isDelete: false,
+        };
         let closestDistance = Infinity;
-    
+
         nodePositions.current.forEach((rect, menuId) => {
             const centerX = rect.left + rect.width * 2/3;
             const centerY = rect.top + rect.height * 0.5;
@@ -155,7 +165,17 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
     
             if (distance < closestDistance) {
                 closestDistance = distance;
-                closestNode = menuData.find((node) => node.menuId === menuId) || null;
+                closestNode = menuData.find((node) => node.menuId === menuId) || {
+                    parentMenuId: -1,
+                    menuId: -1,
+                    depth: -1,
+                    path: "/",
+                    menuName: "Root",
+                    parentMenuName: "",
+                    children: treeData,
+                    isAdd: false,
+                    isDelete: false,
+                };
             }
         });
     
@@ -253,7 +273,7 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
 
                 const data = {
                     menuName: inputText,
-                    parentMenuId: childData?.menuId,
+                    parentMenuId: childData?.menuId === -1 ? 0 : childData?.menuId,
                     depth: (childData?.depth ?? 0) + 1,
                     path: childData?.path,
                     position: 1,
@@ -402,7 +422,7 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
                     onClick={(e) => e.stopPropagation()}
                 >
                     <Dropdown.Header>
-                        {menuData.find((item) => item.menuId === contextMenu?.node?.menuId)?.menuName}
+                        {menuData.find((item) => item.menuId === contextMenu?.node?.menuId)?.menuName || 'Root'}
                     </Dropdown.Header>
                     <Dropdown.Item
                         // style={{ padding: "5px 10px", cursor: "pointer" }}

@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { jwtDecode } from 'jwt-decode';
 import { AuthState } from '~types/StateTypes';
 import axios from "axios";
-import {isBoolean} from "@craco/craco/dist/lib/utils";
+
 
 
 // 전역 변수로 authToken 캐싱
@@ -34,6 +34,7 @@ const initialState: AuthState = {
     },
     error: null,
     title: '',
+    databaseType: '',
 };
 
 // refreshToken 정의
@@ -186,6 +187,7 @@ const authSlice = createSlice({
             action: PayloadAction<{
                 token: string;
                 title: string;
+                databaseType: string;
                 userId: string;
                 userName: string;
                 roleId: string;
@@ -201,6 +203,7 @@ const authSlice = createSlice({
             console.log('setLoginToken-UserId:', action.payload.userId);
 
             state.title = action.payload.title;
+            state.databaseType = action.payload.databaseType;
 
             cachedAuthToken = action.payload.token; // 전역 변수에 토큰 저장
             sessionStorage.setItem('authToken', action.payload.token); // sessionStorage에 저장
@@ -236,6 +239,7 @@ const authSlice = createSlice({
                 headerColor: '#f8f9fa',
             };
             state.title = 'SI-Portal';
+            state.databaseType = '';
         },
         toggleFooter(state) {
             state.user.isShowFooter = !state.user.isShowFooter;
