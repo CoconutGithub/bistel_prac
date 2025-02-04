@@ -113,9 +113,9 @@
     </select>
 
     <update id="updateLastLoginDate">
-        UPDATE p_user
-        SET last_login_date = now()
-        WHERE user_id = #{userId}
+        UPDATE P_USER
+        SET LAST_LOGIN_DATE = NOW()
+        WHERE USER_ID = #{userId}
     </update>
 
 </mapper>
