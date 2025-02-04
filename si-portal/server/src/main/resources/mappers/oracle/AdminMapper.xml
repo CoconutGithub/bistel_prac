@@ -2,16 +2,19 @@
 <!DOCTYPE mapper PUBLIC "//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.siportal.portal.mapper.AdminMapper">
     <select id= "getMenuId" resultType="INTEGER">
-        SELECT SEQ_P_MENU.NEXTVAL FROM DUAL;
+        SELECT SEQ_P_MENU.NEXTVAL FROM DUAL
     </select>
+
     <insert id="createMenu">
         INSERT INTO P_MENU (MENU_ID, MENU_NAME, PARENT_MENU_ID, PATH, POSITION, CHILD_YN, STATUS, DEPTH, CREATE_DATE, CREATE_BY)
         VALUES (#{menuId}, #{menuName}, #{parentMenuId}, #{path}, #{position}, #{childYn}, #{status}, #{depth}, SYSDATE, #{createBy})
     </insert>
+
     <delete id="deleteMenu">
         DELETE FROM P_MENU
         WHERE MENU_ID = #{menuId}
     </delete>
+
     <update id="updateSchedule">
         UPDATE P_SCHEDULER
         SET
@@ -24,10 +27,12 @@
             AND TRIGGER_KEY = #{triggerKey}
             AND CLASS_NAME = #{className}
     </update>
+
     <insert id="createSchedule">
         INSERT INTO P_SCHEDULER (JOB_NAME, GROUP_NAME, TRIGGER_KEY, CLASS_NAME, CRON_TAB, STATUS, CREATE_DATE, CREATE_BY)
         VALUES (#{jobName}, #{groupName}, #{triggerKey}, #{className}, #{cronTab}, #{status}, SYSDATE, #{userId})
     </insert>
+
     <select id="getMenuTree" resultType="com.siportal.portal.com.result.ComResultMap">
         SELECT
             A.MENU_ID,
@@ -44,13 +49,15 @@
             P_MENU B
         ON
             A.PARENT_MENU_ID = B.MENU_ID
-        ORDER BY A.DEPTH, A.POSITION;
+        ORDER BY A.DEPTH, A.POSITION
     </select>
+
     <delete id="deleteSchedule">
         DELETE FROM P_SCHEDULER
         WHERE JOB_NAME = #{jobName}
             AND GROUP_NAME = #{groupName}
     </delete>
+
     <select id="getScheduleList" parameterType="String" resultType="com.siportal.portal.dto.SchedulDTO">
         SELECT
             JOB_NAME, GROUP_NAME, TRIGGER_KEY, CLASS_NAME, CRON_TAB, TO_CHAR(CREATE_DATE, 'YYYY-MM-DD HH24:MI:SS') CREATE_DATE, STATUS
@@ -66,6 +73,7 @@
         </if>
         ORDER BY JOB_NAME
     </select>
+
     <select id="getUserByUserName" resultType="com.siportal.portal.com.result.ComResultMap">
         SELECT
         ROW_NUMBER() OVER (ORDER BY A.CREATE_DATE DESC) as GRID_ROW_ID
@@ -109,6 +117,7 @@
         , UPDATE_BY = 'ADMIN'
         WHERE USER_ID = #{userId}
     </update>
+
     <update id="updateUserRole">
         UPDATE P_USER_ROLE
         SET ROLE_ID = #{roleId}
@@ -239,13 +248,13 @@
 
     <insert id="insertMenu" parameterType="map">
         INSERT INTO dev.p_menu
-        (menu_id, menu_name, parent_menu_id, "depth", "path", "position", child_yn, status, create_date)
+        (menu_id, menu_name, parent_menu_id, depth, path, position, child_yn, status, create_date)
         VALUES
-            (#{menuId}, #{menuName}, #{parentMenuId}, #{depth}, #{path}, #{position}, #{childYn}, #{status}, SYSDATE);
+            (seq_p_menu.nextval, #{menuName}, #{parentMenuId}, #{depth}, #{path}, #{position}, #{childYn}, #{status}, SYSDATE)
     </insert>
 
 <!--    <delete id="deleteMenu" parameterType="map">-->
-<!--        DELETE FROM P_MENU WHERE MENU_ID = #{menuId} or PARENT_MENU_ID = #{menuId};-->
+<!--        DELETE FROM P_MENU WHERE MENU_ID = #{menuId} or PARENT_MENU_ID = #{menuId}-->
 <!--    </delete>-->
 
     <update id="updateMenuContent" parameterType="map">
