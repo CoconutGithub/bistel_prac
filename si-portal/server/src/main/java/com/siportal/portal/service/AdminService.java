@@ -605,7 +605,7 @@ public class AdminService {
 
             if (!menuIdList.isEmpty()) {
                 // 첫 번째 요소의 menuId 값 추출
-                Object menuId = menuIdList.get(0).get("menu_id");
+                Object menuId = menuIdList.get(0).get("menuId");
                 result.put("menuId", menuId);
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
