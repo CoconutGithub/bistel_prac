@@ -1,51 +1,14 @@
 import SiTableIcon from "~components/icons/SiTableIcon";
 import styles from "./ExpenseManagement.module.scss";
 import AgGridWrapper from "~components/agGridWrapper/AgGridWrapper";
-import FileCellRenderer from "~components/FileCellRenderer";
+import FileCellRenderer from "~components/fileCellRenderer/FileCellRenderer";
 import { AgGridWrapperHandle } from "~types/GlobalTypes";
-import { useEffect, useRef } from "react";
-
-const columns = [
-  {
-    filed: "gridRowId",
-    field: "user",
-    headerName: "User",
-    editable: true,
-    flex: 1,
-  },
-  {
-    filed: "gridRowId",
-    field: "category",
-    headerName: "Category",
-    editable: true,
-    flex: 2,
-  },
-  {
-    filed: "gridRowId",
-    field: "item",
-    headerName: "Item",
-    editable: true,
-    flex: 2,
-  },
-  {
-    filed: "gridRowId",
-    field: "price",
-    headerName: "Price",
-    editable: true,
-    flex: 2,
-  },
-  {
-    filed: "gridRowId",
-    field: "fileAttachment",
-    headerName: "File Attachment",
-    cellRenderer: FileCellRenderer,
-    editable: false,
-    flex: 2,
-  },
-];
+import { useEffect, useRef, useState } from "react";
 
 const ExpenseManagement: React.FC = () => {
   const gridRef = useRef<AgGridWrapperHandle>(null);
+  const [selectedFilesMap, setSelectedFilesMap] = useState<any>({});
+
   const searchGrid = () => {
     gridRef.current!.setRowData([
       {
@@ -57,6 +20,72 @@ const ExpenseManagement: React.FC = () => {
       },
     ]);
   };
+
+  const handleSave = (props: any) => {
+    const { deleteList, updateList, createList } = props;
+    console.log(deleteList, updateList, createList);
+  };
+
+  const columns = [
+    {
+      filed: "gridRowId",
+      field: "user",
+      headerName: "User",
+      editable: true,
+      autoHeight: true,
+      flex: 1,
+      wrapText: true,
+      cellStyle: { display: "flex", alignItems: "center" },
+    },
+    {
+      filed: "gridRowId",
+      field: "category",
+      headerName: "Category",
+      editable: true,
+      autoHeight: true,
+      flex: 2,
+      wrapText: true,
+      cellStyle: { display: "flex", alignItems: "center" },
+    },
+    {
+      filed: "gridRowId",
+      field: "item",
+      headerName: "Item",
+      editable: true,
+      autoHeight: true,
+      flex: 2,
+      wrapText: true,
+      cellStyle: { display: "flex", alignItems: "center" },
+    },
+    {
+      filed: "gridRowId",
+      field: "price",
+      headerName: "Price",
+      editable: true,
+      autoHeight: true,
+      flex: 1,
+      wrapText: true,
+      cellStyle: { display: "flex", alignItems: "center" },
+    },
+    {
+      filed: "gridRowId",
+      field: "fileAttachment",
+      headerName: "File Attachment",
+      cellRenderer: (params: any) => (
+        <FileCellRenderer
+          {...params}
+          rowId={params.data.gridRowId}
+          selectedFilesMap={selectedFilesMap}
+          setSelectedFilesMap={setSelectedFilesMap}
+        />
+      ),
+      editable: false,
+      autoHeight: true,
+      flex: 3,
+      wrapText: true,
+      cellStyle: { display: "flex", alignItems: "center" },
+    },
+  ];
 
   useEffect(() => {
     const findGridInterval = setInterval(() => {
@@ -85,6 +114,7 @@ const ExpenseManagement: React.FC = () => {
           canUpdate={true}
           columnDefs={columns}
           tableHeight={"calc(100% - 35px)"}
+          onSave={handleSave}
         />
       </main>
     </div>

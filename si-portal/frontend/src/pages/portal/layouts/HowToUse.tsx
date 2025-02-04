@@ -3,7 +3,7 @@ import { Container, Row, Col, Button } from "react-bootstrap";
 import { ComAPIContext } from "~components/ComAPIContext";
 import ExamButton from "~pages/portal/example/ExamButton";
 import AgGridWrapper from "~components/agGridWrapper/AgGridWrapper";
-import FileCellRenderer from "~components/FileCellRenderer";
+import FileCellRenderer from "~components/fileCellRenderer/FileCellRenderer";
 import { AgGridWrapperHandle } from "~types/GlobalTypes";
 import { useSelector } from "react-redux";
 import { RootState } from "~store/Store";

@@ -107,6 +107,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
     const gridRef = useRef<AgGridReact>(null); // AgGrid 참조
     const [rowData, setRowData] = useState<any[]>([]);
     const [modifiedRows, setModifiedRows] = useState(new Set()); // 수정된 행 추적
+    const [selectedFilesMap, setSelectedFilesMap] = useState<any>({});
 
     const updateList = useRef<Map<string, string>>(new Map());
     const createList = useRef<Map<string, string>>(new Map());
@@ -127,6 +128,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
               headerCheckboxSelection: true,
               checkboxSelection: true,
               width: 50,
+              cellStyle: { display: "flex", alignItems: "center" },
             },
             ...columnDefs,
           ]
@@ -138,6 +140,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
         valueGetter: "node.rowIndex + 1",
         width: 90,
         suppressSizeToFit: true,
+        cellStyle: { display: "flex", alignItems: "center" },
       });
 
       return baseColumnDefs.map((colDef) => ({
@@ -153,8 +156,6 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
     }, []);
 
     const handleCellValueChange = (event: any) => {
-      console.log("handleCellValueChange:", event);
-
       const { data } = event; // 변경된 행 데이터 가져오기
       if (data.isCreated == true) {
         createList.current.set(data.gridRowId, data); // 고유 ID를 키로 사용
