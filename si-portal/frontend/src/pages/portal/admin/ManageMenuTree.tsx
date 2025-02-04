@@ -82,6 +82,15 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
     }, [refreshTree]);
 
     useEffect(() => {
+        nodePositions.current = new Map(); // 기존 값 초기화
+    
+        menuData.forEach((node) => {
+            nodePositions.current.set(node.menuId, new DOMRect(0, 0, 100, 40)); 
+        });
+    }, [menuData]); // menuData가 변경될 때마다 실행
+    
+
+    useEffect(() => {
         if (isAdding && inputRef.current) {
             inputRef.current.focus();
         }
@@ -165,8 +174,6 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
             );
     
             if (distance < closestDistance) {
-                console.log('menuId', menuId)
-                console.log('menuData', menuData)
                 closestDistance = distance;
                 closestNode = menuData.find((node) => node.menuId === menuId) || {
                     parentMenuId: -1,
@@ -194,17 +201,12 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
             return
         }
 
-        console.log('menuData', menuData)
-
-        console.log(node)
-
         handleMenuClick(node)
 
         const adjustedX = Math.max(event.clientX);
         const adjustedY = Math.max(event.clientY);
 
         const closestNode = findClosestMenu(event);
-        console.log(closestNode)
         setContextMenu({
             visible: true,
             x: adjustedX,
@@ -227,7 +229,6 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
     };
 
     const handleDeleteMenu = async () => { // 자식 노드까지 다 삭제 alert Y, N
-        console.log(contextMenu)
         if (contextMenu.node) {
             try {
 
@@ -357,8 +358,10 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
                             <div
                                 ref={(el) => {
                                     if (el) {
-                                        const rect = el.getBoundingClientRect();
-                                        nodePositions.current.set(node.menuId, rect);
+                                        setTimeout(() => {
+                                            const rect = el.getBoundingClientRect();
+                                            nodePositions.current.set(node.menuId, rect);
+                                        }, 0);
                                     }
                                 }}
                                 style={{
