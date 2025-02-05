@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>메일 제목</title>
+    <style>
+        /* 이메일 스타일 */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+        table {
+            border-spacing: 0;
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border: 1px solid #dddddd;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+        }
+        .header {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            text-align: center;
+            font-size: 24px;
+        }
+        .content {
+            padding: 20px;
+            color: #333333;
+        }
+        .footer {
+            background-color: #f1f1f1;
+            padding: 10px;
+            font-size: 12px;
+            text-align: center;
+            color: #555555;
+        }
+        .button {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+<table>
+    <tr>
+        <td class="header">
+            <!-- 이메일 제목 -->
+            <span th:text="${title}">[이메일 제목]</span>
+        </td>
+    </tr>
+    <tr>
+        <td class="content">
+            <!-- 이메일 내용 -->
+            <p th:text="${message}">여기에 이메일 내용을 입력하세요.</p>
+            <!-- 추가 안내 -->
+            <p>더 많은 정보를 보려면 아래 버튼을 클릭하세요:</p>
+            <a class="button" th:href="${actionUrl}" th:text="${buttonText}">버튼 텍스트</a>
+        </td>
+    </tr>
+    <tr>
+        <td class="footer">
+            <!-- 이메일 푸터 -->
+            <p>이 메일은 자동 발송된 메일입니다. 회신하지 마세요.</p>
+            <p>&copy; 2025 Your Company. All rights reserved.</p>
+        </td>
+    </tr>
+</table>
+</body>
+</html>
