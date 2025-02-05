@@ -12,6 +12,7 @@ const Profile: React.FC = () => {
     const userName = useSelector((state: RootState) => state.auth.user.userName);
     const userId = useSelector((state: RootState) => state.auth.user.userId);
     const roleName = useSelector((state: RootState) => state.auth.user.roleName);
+    const email = useSelector((state: RootState) => state.auth.user.email);
     const [profileImage, setProfileImage] = useState<string | null>(null);
     const [newPassword, setNewPassword] = useState("");
     const phoneNumberRef = useRef<string>("");
@@ -26,7 +27,8 @@ const Profile: React.FC = () => {
             headers: {Authorization: `Bearer ${cachedAuthToken}`},
             params: {'userId': userId},
         }).then((res) => {
-            setProfileImage(res.data.profile_image); // Base64 이미지
+            console.log('getImage', res);
+            setProfileImage(res.data.profileImage); // Base64 이미지 profile_image
         }).catch(error => {
             console.error("Error fetching user profile image:", error);
         });
@@ -224,6 +226,10 @@ const Profile: React.FC = () => {
                         <ComButton size="sm" variant="primary" onClick={handleUpdatePhoneNumber}>
                             변경
                         </ComButton>
+                    </p>
+                    <p>
+                        <strong>이메일: </strong>
+                        {email}
                     </p>
                 </Col>
                 <Col xs={4} className="d-flex flex-column align-items-center">
