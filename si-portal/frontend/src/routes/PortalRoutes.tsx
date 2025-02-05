@@ -16,6 +16,9 @@ const ExpenseManagement = React.lazy(
 const ManageSchedule = React.lazy(
   () => import("~pages/portal/admin/ManageSchedule")
 );
+const ManageMessage = React.lazy(
+  () => import("~pages/portal/admin/ManageMessage")
+);
 
 export default function PortalRoutes(): RouteObject[] {
   return [
@@ -100,6 +103,15 @@ export default function PortalRoutes(): RouteObject[] {
       element: (
         <React.Suspense fallback={<div>Loading...</div>}>
           <ManageSchedule />
+        </React.Suspense>
+      ),
+      loader: checkBtnAuthLoader,
+    },
+    {
+      path: "/main/manage-message",
+      element: (
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <ManageMessage />
         </React.Suspense>
       ),
       loader: checkBtnAuthLoader,

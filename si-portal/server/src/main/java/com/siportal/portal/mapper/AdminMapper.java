@@ -55,6 +55,18 @@ public interface AdminMapper {
 
     List<SchedulDTO> getScheduleList(@Param("jobName") String jobName, @Param("status") String status);
 
+    List<ComResultMap> getMsgTypeList(@Param("status") String status);
+    List<ComResultMap> getMsgList(Map<String, String> params);
+    int deleteMsgList(Map<String, String> params);
+    int getSeqMsgId();
+    int createMsgMain(Map<String, String> params);
+    int createMsgDetail(Map<String, String> params);
+    int checkDupMsg(Map<String, String> params);
+    int getMsgId(Map<String, String> params);
+    int updateMsgMain(Map<String, String> params);
+    int updateMsgDetail(Map<String, String> params);
+    int checkMsgTextExist(Map<String, String> params);
+
     int deleteSchedule(@Param("jobName") String jobName, @Param("groupName") String groupName);
     int createSchedule(@Param("jobName") String jobName, @Param("groupName") String groupName, @Param("triggerKey") String triggerKey
             , @Param("className") String className, @Param("cronTab") String cronTab, @Param("status") String status, @Param("userId") String createBy);
