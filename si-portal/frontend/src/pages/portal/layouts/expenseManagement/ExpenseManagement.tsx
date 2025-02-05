@@ -3,34 +3,7 @@ import styles from "./ExpenseManagement.module.scss";
 import AgGridWrapper from "~components/agGridWrapper/AgGridWrapper";
 import FileCellRenderer from "~components/fileCellRenderer/FileCellRenderer";
 import { AgGridWrapperHandle } from "~types/GlobalTypes";
-import { useEffect, useRef, useState } from "react";
-
-async function getPresignedUrl(file: File) {
-  const response = await fetch(
-    "http://localhost:8080/api/minio/presigned-url?fileName=" +
-      encodeURIComponent(file.name),
-    {
-      method: "POST",
-    }
-  );
-
-  const { presignedUrl, fileUrl } = await response.json();
-  return { presignedUrl, fileUrl };
-}
-
-// async function uploadFile(file: File) {
-//   const { presignedUrl, fileUrl } = await getPresignedUrl(file);
-
-//   await fetch(presignedUrl, {
-//     method: 'PUT',
-//     body: file,
-//     headers: {
-//       'Content-Type': file.type
-//     }
-//   });
-
-//   console.log('업로드 완료! 파일 URL:', fileUrl);
-// }
+import { useRef, useState } from "react";
 
 const ExpenseManagement: React.FC = () => {
   const gridRef = useRef<AgGridWrapperHandle>(null);
@@ -51,8 +24,16 @@ const ExpenseManagement: React.FC = () => {
   const handleSave = (props: any) => {
     const { deleteList, updateList, createList } = props;
 
-    const createData = Object.entries(createList).map(
-      ([key, value]: [any, any]) => {
+    // 신규 생성 데이터를 처리하는 로직
+    const createData = await Promise.all(
+      Object.entries(createList).map(async ([key, value]: [any, any]) => {
+        let fileDate = null;
+
+        if (selectedFilesMap[value.gridRowId]) {
+          const files = selectedFilesMap[value.gridRowId];
+          // 이어서 작성
+        }
+
         return {
           gridRowId: value.gridRowId,
           user: value.user,
@@ -61,7 +42,7 @@ const ExpenseManagement: React.FC = () => {
           price: value.price,
           fileAttachment: selectedFilesMap[value.gridRowId] || null,
         };
-      }
+      })
     );
     console.log("createData", createData);
   };
