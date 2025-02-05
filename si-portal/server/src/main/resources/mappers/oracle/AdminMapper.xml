@@ -136,27 +136,27 @@
     </insert>
 
     <update id="updateProfileImage">
-        UPDATE P_USER SET PROFILE_IMAGE = #{profileImage}
-        WHERE USER_ID = #{userId}
+        UPDATE P_USER
+           SET PROFILE_IMAGE = #{profileImage,jdbcType=BLOB}
+         WHERE USER_ID = #{userId}
     </update>
 
-
-    <select id="getUserProfileImage" resultType="map">
-        SELECT NVL(PROFILE_IMAGE,'') AS PROFILE_IMAGE
-        FROM P_USER
-        WHERE USER_ID = #{userId}
+    <select id="getUserProfileImage" resultType="com.siportal.portal.com.result.ComResultMap">
+        SELECT PROFILE_IMAGE
+          FROM P_USER
+         WHERE USER_ID = #{userId}
     </select>
 
     <update id="updatePhoneNumber">
         UPDATE P_USER
-        SET PHONE_NUMBER = #{phoneNumber}, UPDATE_DATE = SYSDATE
-        WHERE USER_ID = #{userId}
+           SET PHONE_NUMBER = #{phoneNumber}, UPDATE_DATE = SYSDATE
+         WHERE USER_ID = #{userId}
     </update>
 
     <select id="getUserPhoneNumber" resultType="map">
-        SELECT PHONE_NUMBER AS phoneNumber
-        FROM P_USER
-        WHERE USER_ID = #{userId}
+        SELECT NVL(PHONE_NUMBER, '') AS "phoneNumber"
+          FROM P_USER
+         WHERE USER_ID = #{userId}
     </select>
 
     <insert id="registerUserRole">

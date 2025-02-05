@@ -231,19 +231,20 @@
     </insert>
 
     <update id="updateProfileImage">
-        UPDATE P_USER SET PROFILE_IMAGE = #{profileImage}
-        WHERE USER_ID = #{userId}
+        UPDATE P_USER
+           SET PROFILE_IMAGE = #{profileImage}
+         WHERE USER_ID = #{userId}
     </update>
 
-    <select id="getUserProfileImage" resultType="map">
+    <select id="getUserProfileImage" resultType="com.siportal.portal.com.result.ComResultMap">
         SELECT COALESCE(PROFILE_IMAGE,'') AS PROFILE_IMAGE
-        FROM P_USER
-        WHERE USER_ID = #{userId}
+          FROM P_USER
+         WHERE USER_ID = #{userId}
     </select>
 
     <update id="updatePhoneNumber">
         UPDATE P_USER
-        SET PHONE_NUMBER = #{phoneNumber}, UPDATE_DATE = NOW()
+           SET PHONE_NUMBER = #{phoneNumber}, UPDATE_DATE = NOW()
         WHERE USER_ID = #{userId}
     </update>
 

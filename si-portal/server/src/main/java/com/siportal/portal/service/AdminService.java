@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+
+import java.sql.Blob;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -433,14 +435,24 @@ public class AdminService {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
             }
 
-            // 프로필 이미지가 있는 경우 Base64 인코딩
-            if (user.get("profileImage") != null) {
-                byte[] imageBytes = (byte[]) user.get("profileImage");
-                String base64Image = Base64.getEncoder().encodeToString(imageBytes);
-                user.put("profileImage", base64Image);
+            Object profileImage = user.get("profileImage");
+            String base64Image = null;
+
+            // PostgreSQL (BYTEA) 처리
+            if (profileImage instanceof byte[]) {
+                base64Image = Base64.getEncoder().encodeToString((byte[]) profileImage);
+            }
+            // Oracle (BLOB) 처리
+            else if (profileImage instanceof Blob) {
+                Blob imageBlob = (Blob) profileImage;
+                byte[] imageBytes = imageBlob.getBytes(1, (int) imageBlob.length());
+                base64Image = Base64.getEncoder().encodeToString(imageBytes);
             }
 
-            return ResponseEntity.ok(user);
+            // 변환된 Base64 이미지 응답
+            Map<String, Object> response = new HashMap<>();
+            response.put("profileImage", base64Image);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred");
