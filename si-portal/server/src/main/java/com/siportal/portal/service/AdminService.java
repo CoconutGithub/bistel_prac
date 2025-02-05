@@ -6,6 +6,7 @@ import com.siportal.portal.dto.SchedulDTO;
 import com.siportal.portal.mapper.AdminMapper;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,38 +14,35 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.*;
-
-import java.io.File;
 import java.util.stream.Collectors;
 
-@RestController
-@CrossOrigin(origins = "http://localhost:9090")
-@RequestMapping("/admin") // API 기본 경로
-@Transactional
+@Service
 @Slf4j
 public class AdminService {
 
-    @Autowired
-    private AdminMapper adminMapper;
+    private final AdminMapper adminMapper;
+    private final JavaMailSender emailSender;
+    private final TemplateEngine templateEngine;  // Thymeleaf 템플릿 엔진
+    private final QuartzDynamicConfig quartzDynamicConfig;
+    private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    private JavaMailSender emailSender;
+    public AdminService(AdminMapper adminMapper, JavaMailSender emailSender
+        , TemplateEngine templateEngine, QuartzDynamicConfig quartzDynamicConfig
+        , JdbcTemplate jdbcTemplate) {
+        this.adminMapper = adminMapper;
+        this.emailSender = emailSender;
+        this.templateEngine = templateEngine;  // Thymeleaf 템플릿 엔진
+        this.quartzDynamicConfig = quartzDynamicConfig;
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
-    @Autowired
-    private TemplateEngine templateEngine;  // Thymeleaf 템플릿 엔진
-
-    @Autowired
-    QuartzDynamicConfig quartzDynamicConfig;
-
-    @GetMapping("/api/get-menu-id")
     public ResponseEntity<?> getMenuId() {
         try {
             int menuId = this.adminMapper.getMenuId();
@@ -54,7 +52,7 @@ public class AdminService {
                     .body("Error occurred: " + e.getMessage());
         }
     }
-    @PostMapping("/api/create-menu")
+
     public ResponseEntity<?> createMenu(@RequestBody(required = false) Map<String, Object> requestData) {
         try {
             List<Map<String, Object>> createList = (List<Map<String, Object>>) requestData.get("createList");
@@ -77,30 +75,6 @@ public class AdminService {
         }
     }
 
-//    @PostMapping("/api/delete-menu")
-//    public ResponseEntity<?> deleteMenu(@RequestBody(required = false) Map<String, List<Integer>> requestData) {
-//        try {
-//            List<Integer> deleteList = (List<Integer>) requestData.get("deleteList");
-//            int deletedMenusCnt = 0; // 삭제된 행 갯수
-//
-//            // Delete 처리
-//            for (Integer menuId : deleteList) {
-//                deletedMenusCnt += this.adminMapper.deleteMenu(menuId);
-//            }
-//
-//            Map<String, Object> response = new HashMap<>();
-//            response.put("messageCode", "success");
-//            response.put("message", "모든 작업이 성공적으로 처리되었습니다.");
-//            response.put("deletedMenusCnt", deletedMenusCnt);
-//
-//            return ResponseEntity.ok(response);
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
-//                    .body("Error occurred: " + e.getMessage());
-//        }
-//    }
-
-    @GetMapping("/api/get-menu-tree")
     public ResponseEntity<?> getMenuTree() {
         try {
             List<ComResultMap> result = this.adminMapper.getMenuTree();
@@ -259,20 +233,13 @@ public class AdminService {
 
         try {
             List<SchedulDTO> result = this.adminMapper.getScheduleList(jobName, status);
-            //스케줄잡 Quartz 삭제 업데이트 테스트 임시
-//            for(SchedulDTO dto : result) {
-//                if(dto.getJobName().equals("dynamicJob")) {
-//                    quartzDynamicConfig.deleteJob(dto.getJobName(), dto.getGroupName());
-//                    quartzDynamicConfig.updateJobTrigger(dto.getTriggerKey(), "0/2 * * * * ?");
-//                }
-//            }
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
                     .body("Error occurred: " + e.getMessage());
         }
     }
-    @PostMapping("/api/update-schedule")
+
     public ResponseEntity<?> updateScheduler(@RequestBody Map<String, Object> requestData) {
 
         try {
@@ -379,7 +346,6 @@ public class AdminService {
         }
     }
 
-    @GetMapping("/api/get-user")
     public ResponseEntity<?> getUser(@RequestParam String userName) {
 
         try {
@@ -391,7 +357,6 @@ public class AdminService {
         }
     }
 
-    @PostMapping("/api/update-user")
     public ResponseEntity<?> updateUser(@RequestBody Map<String, Object> requestData) {
 
         try {
@@ -419,9 +384,6 @@ public class AdminService {
 
                 adminMapper.deleteUser((String)user.get("userId"));
                 deletedCount += adminMapper.deleteUserRole((String)user.get("userId"));
-
-//                adminMapper.deleteUserInfo((String)user.get("userId"));
-//                deletedCount++;
             }
 
             Map<String, Object> response = new HashMap<>();
@@ -438,7 +400,6 @@ public class AdminService {
         }
     }
 
-    @PostMapping("/api/exist-user")
     public ResponseEntity<?> existUser(@RequestBody Map<String, Object> requestData) {
 
         try {
@@ -463,45 +424,6 @@ public class AdminService {
         }
     }
 
-//    @PostMapping("/api/register-user")
-//    public ResponseEntity<?> registerUser(@RequestBody Map<String, Object> requestData) {
-//
-//        try {
-//            Map<String, Object> user = new HashMap<>();
-//
-//            String userId = (String) requestData.get("userId");
-//            String userName = (String) requestData.get("userName");
-//            String phoneNumber = (String) requestData.get("phoneNumber");
-//            String status = (String) requestData.get("status");
-//            String password = (String) requestData.get("password");
-//            String email = (String) requestData.get("email");
-//            user.put("userId", userId);
-//            user.put("userName", userName);
-//            user.put("phoneNumber", phoneNumber);
-//            user.put("status", status);
-//            user.put("password", password);
-//            user.put("email", email);
-//            adminMapper.registerUser(user);
-//
-//            Map<String, Object> userRoleObject = new HashMap<>();
-//            Integer userRole = (Integer) requestData.get("userRole");
-//            userRoleObject.put("userId", userId);
-//            userRoleObject.put("roleId", userRole);
-//            adminMapper.registerUserRole(userRoleObject);
-//
-//            Map<String, Object> response = new HashMap<>();
-//            response.put("success", true);
-//            response.put("message", "User has been successfully registered.");
-//
-//            return ResponseEntity.ok(response);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
-//                    .body("Error occurred: " + e.getMessage());
-//        }
-//    }
-
-    @GetMapping("/api/user-profile-image")
     public ResponseEntity<?> getUserProfileImage(@RequestParam("userId") String userId) {
         try {
             // DB에서 사용자 정보 조회
@@ -525,7 +447,6 @@ public class AdminService {
         }
     }
 
-    @PostMapping("/api/update-profile-image")
     public ResponseEntity<?> updateProfileImage(
             @RequestParam(value = "userId", required = false) String userId,
             @RequestParam(value = "image", required = false) MultipartFile image
@@ -558,7 +479,53 @@ public class AdminService {
         }
     }
 
-    @PostMapping("/api/change-password")
+
+    public ResponseEntity<?> updatePhoneNumber(
+            @RequestParam("userId") String userId,
+            @RequestParam("phoneNumber") String phoneNumber) {
+        try {
+            if (userId == null || phoneNumber == null || phoneNumber.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Collections.singletonMap("success", false));
+            }
+
+            Map<String, Object> user = new HashMap<>();
+            user.put("userId", userId);
+            user.put("phoneNumber", phoneNumber);
+
+            // 전화번호 업데이트 실행
+            adminMapper.updatePhoneNumber(user);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "전화번호가 업데이트되었습니다.");
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body(Collections.singletonMap("success", false));
+        }
+    }
+
+
+    public ResponseEntity<?> getUserPhoneNumber(@RequestParam("userId") String userId) {
+        try {
+            Map<String, Object> user = adminMapper.getUserPhoneNumber(userId);
+            if (user == null || user.get("phoneNumber") == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("phoneNumber", ""));
+            }
+            String phoneNumber = (String) user.get("phonenumber");
+            Map<String, Object> response = new HashMap<>();
+            response.put("phoneNumber", phoneNumber); // 일관된 키 사용
+
+            return ResponseEntity.ok(user);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", "전화번호 불러오기 실패"));
+        }
+    }
+
+
     public ResponseEntity<?> changePassword(@RequestBody Map<String, String> requestData) {
         try {
             String userId = requestData.get("userId");
@@ -580,7 +547,7 @@ public class AdminService {
         }
     }
 
-    @PostMapping("/api/register-user")
+
     public ResponseEntity<?> registerUser(
             @RequestParam("userId") String userId,
             @RequestParam("userName") String userName,
@@ -632,9 +599,6 @@ public class AdminService {
     }
 
 
-
-
-    @GetMapping("/api/get-email-history")
     public ResponseEntity<?> getEmailHistory(@RequestParam String sendUser) {
 
         try {
@@ -647,7 +611,6 @@ public class AdminService {
     }
 
 
-    @PostMapping("/api/send-email")
     public ResponseEntity<?> sendEmail(@RequestBody Map<String, String> emailData) {
         String sendUser = emailData.get("sendUser");
         String email = emailData.get("email");
@@ -684,17 +647,6 @@ public class AdminService {
         }
     }
 
-//    @PostMapping("/api/save-role")
-//    public ResponseEntity<?> saveRole(@RequestBody Map<String, String> roleData) {
-//        String roleName = roleData.get("roleName");
-//        String status = roleData.get("status");
-//        String userName = roleData.get("userName");
-//
-//        saveRoleList(roleName, status, userName);
-//        return ResponseEntity.ok("Email sent successfully.");
-//    }
-
-    @PostMapping("/api/insert-menu")
     public ResponseEntity<?> insertMenu(@RequestBody Map<String, Object> result) {
         try {
             // List<Map<String, Object>> 형태로 반환된다고 가정
@@ -702,7 +654,7 @@ public class AdminService {
 
             if (!menuIdList.isEmpty()) {
                 // 첫 번째 요소의 menuId 값 추출
-                Object menuId = menuIdList.get(0).get("menu_id");
+                Object menuId = menuIdList.get(0).get("menuId");
                 result.put("menuId", menuId);
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -718,7 +670,6 @@ public class AdminService {
         }
     }
 
-    @PostMapping("/api/delete-menu")
     public ResponseEntity<?> deleteMenu(@RequestBody Map<String, Object> result) {
         try {
             adminMapper.deleteMenu(result);
@@ -729,7 +680,6 @@ public class AdminService {
         }
     }
 
-    @PostMapping("/api/update-menu-content")
     public ResponseEntity<?> updateMenuContent(@RequestBody Map<String, Object> result) {
         try {
             // position 값이 있을 경우 이를 integer로 변환
@@ -750,8 +700,7 @@ public class AdminService {
         }
     }
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+
 
     private void saveEmailHistory(String sendUser, String sendReceiver, String title, String content) {
         String sql = "INSERT INTO dev.p_email_history (send_user, send_reciver, title, content, read_yn, creation_time) " +
@@ -769,7 +718,6 @@ public class AdminService {
         jdbcTemplate.update(sql, roleName, status, userName);
     }
 
-    @GetMapping("/api/get-roles")
     public ResponseEntity<?> getRoles(@RequestParam String roleName) {
         try {
             List<ComResultMap> roles = adminMapper.getAllRoles(roleName); // 모든 권한 조회 메서드
@@ -780,7 +728,6 @@ public class AdminService {
         }
     }
 
-    @GetMapping("/api/get-menu-role")
     public ResponseEntity<?> getMenuRole(@RequestParam String menuIdStr) {
         try {
             Integer menuId = Integer.parseInt(menuIdStr);
@@ -795,7 +742,6 @@ public class AdminService {
         }
     }
 
-    @PostMapping("/api/update-menu-role")
     public ResponseEntity<?> updateMenuRole(@RequestBody Map<String, Object> requestData) {
         try {
             // 데이터 파싱
@@ -831,7 +777,6 @@ public class AdminService {
         }
     }
 
-    @GetMapping("/api/get-roles-list")
     public ResponseEntity<?> getRoleList() {
         try {
             List<ComResultMap> roles = adminMapper.getRoleList(); // 모든 권한 조회 메서드
@@ -842,7 +787,6 @@ public class AdminService {
         }
     }
 
-    @PostMapping("/api/save-roles")
     public ResponseEntity<?> saveRoles(@RequestBody Map<String, Object> payload) {
         try {
             log.info("Payload: {}", payload);
@@ -932,6 +876,5 @@ public class AdminService {
                     .body("Error occurred while saving roles: " + e.getMessage());
         }
     }
-
 
 }

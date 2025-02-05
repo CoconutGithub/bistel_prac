@@ -8,9 +8,8 @@
         INSERT INTO P_MENU (MENU_ID, MENU_NAME, PARENT_MENU_ID, PATH, POSITION, CHILD_YN, STATUS, DEPTH, CREATE_DATE, CREATE_BY)
         VALUES (#{menuId}, #{menuName}, #{parentMenuId}, #{path}, #{position}, #{childYn}, #{status}, #{depth}, NOW(), #{createBy})
     </insert>
-    <delete id="deleteMenu">
-        DELETE FROM P_MENU
-        WHERE MENU_ID = #{menuId}
+    <delete id="deleteMenu" parameterType="map">
+        DELETE FROM P_MENU WHERE MENU_ID = #{menuId} or PARENT_MENU_ID = #{menuId};
     </delete>
     <update id="updateSchedule">
         UPDATE P_SCHEDULER
@@ -177,6 +176,7 @@
         , A.STATUS
         , TO_CHAR(A.CREATE_DATE,'YYYY-MM-DD HH24:MI:SS') AS CREATE_DATE
         , TO_CHAR(A.UPDATE_DATE,'YYYY-MM-DD HH24:MI:SS') AS UPDATE_DATE
+        , TO_CHAR(A.LAST_LOGIN_DATE,'YYYY-MM-DD HH24:MI:SS') AS LAST_LOGIN_DATE
         , A.UPDATE_BY
         , C.ROLE_NAME
         , C.ROLE_ID
@@ -235,9 +235,20 @@
         WHERE USER_ID = #{userId}
     </update>
 
-
     <select id="getUserProfileImage" resultType="map">
         SELECT COALESCE(PROFILE_IMAGE,'') AS PROFILE_IMAGE
+        FROM P_USER
+        WHERE USER_ID = #{userId}
+    </select>
+
+    <update id="updatePhoneNumber">
+        UPDATE P_USER
+        SET PHONE_NUMBER = #{phoneNumber}, UPDATE_DATE = NOW()
+        WHERE USER_ID = #{userId}
+    </update>
+
+    <select id="getUserPhoneNumber" resultType="map">
+        SELECT PHONE_NUMBER AS "phoneNumber"
         FROM P_USER
         WHERE USER_ID = #{userId}
     </select>
@@ -337,7 +348,7 @@
         </foreach>
     </delete>
 
-    <select id="getMenuIdSeq">
+    <select id="getMenuIdSeq" resultType="com.siportal.portal.com.result.ComResultMap">
         SELECT NEXTVAL('SEQ_P_MENU') AS MENU_ID
     </select>
 
@@ -347,10 +358,6 @@
         VALUES
             (#{menuId}, #{menuName}, #{parentMenuId}, #{depth}, #{path}, #{position}, #{childYn}, #{status}, CURRENT_TIMESTAMP);
     </insert>
-
-<!--    <delete id="deleteMenu" parameterType="map">-->
-<!--        DELETE FROM P_MENU WHERE MENU_ID = #{menuId} or PARENT_MENU_ID = #{menuId};-->
-<!--    </delete>-->
 
     <update id="updateMenuContent" parameterType="map">
         UPDATE p_menu SET

@@ -29,6 +29,7 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
 
     const [menuData, setMenuData] = useState<MenuItem[]>([]);
     const [showModal, setShowModal] = useState<boolean>(false); // 모달 표시 여부
+    const [showMenuWarning, setShowMenuWarning] = useState<boolean>(false);
     const [selectedMenuId, setSelectedMenuId] = useState<number>(-1);
     const [visibleMenuIds, setVisibleMenuIds] = useState<number[]>([]);
     const [contextMenu, setContextMenu] = useState<{
@@ -81,6 +82,15 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
     }, [refreshTree]);
 
     useEffect(() => {
+        nodePositions.current = new Map(); // 기존 값 초기화
+    
+        menuData.forEach((node) => {
+            nodePositions.current.set(node.menuId, new DOMRect(0, 0, 100, 40)); 
+        });
+    }, [menuData]); // menuData가 변경될 때마다 실행
+    
+
+    useEffect(() => {
         if (isAdding && inputRef.current) {
             inputRef.current.focus();
         }
@@ -106,7 +116,7 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
             {
                 parentMenuId: -1,
                 menuId: -1,
-                depth: -1,
+                depth: 0,
                 path: "",
                 menuName: "Root",
                 parentMenuName: "",
@@ -143,9 +153,19 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
 
     const findClosestMenu = (event: React.MouseEvent) => {
         const { clientX, clientY } = event;
-        let closestNode: MenuItem | null = null;
+        let closestNode: MenuItem | null = {
+            parentMenuId: -1,
+            menuId: -1,
+            depth: 0,
+            path: "",
+            menuName: "Root",
+            parentMenuName: "",
+            children: treeData,
+            isAdd: false,
+            isDelete: false,
+        };
         let closestDistance = Infinity;
-    
+
         nodePositions.current.forEach((rect, menuId) => {
             const centerX = rect.left + rect.width * 2/3;
             const centerY = rect.top + rect.height * 0.5;
@@ -155,7 +175,17 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
     
             if (distance < closestDistance) {
                 closestDistance = distance;
-                closestNode = menuData.find((node) => node.menuId === menuId) || null;
+                closestNode = menuData.find((node) => node.menuId === menuId) || {
+                    parentMenuId: -1,
+                    menuId: -1,
+                    depth: 0,
+                    path: "/",
+                    menuName: "Root",
+                    parentMenuName: "",
+                    children: treeData,
+                    isAdd: false,
+                    isDelete: false,
+                };
             }
         });
     
@@ -166,11 +196,17 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
         event.preventDefault();
         event.stopPropagation();
 
+        if(node.depth >= 4) {
+            setShowMenuWarning(true)
+            return
+        }
+
+        handleMenuClick(node)
+
         const adjustedX = Math.max(event.clientX);
         const adjustedY = Math.max(event.clientY);
 
         const closestNode = findClosestMenu(event);
-        console.log(closestNode)
         setContextMenu({
             visible: true,
             x: adjustedX,
@@ -193,7 +229,6 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
     };
 
     const handleDeleteMenu = async () => { // 자식 노드까지 다 삭제 alert Y, N
-        console.log(contextMenu)
         if (contextMenu.node) {
             try {
 
@@ -253,7 +288,7 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
 
                 const data = {
                     menuName: inputText,
-                    parentMenuId: childData?.menuId,
+                    parentMenuId: childData?.menuId === -1 ? 0 : childData?.menuId,
                     depth: (childData?.depth ?? 0) + 1,
                     path: childData?.path,
                     position: 1,
@@ -323,8 +358,10 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
                             <div
                                 ref={(el) => {
                                     if (el) {
-                                        const rect = el.getBoundingClientRect();
-                                        nodePositions.current.set(node.menuId, rect);
+                                        setTimeout(() => {
+                                            const rect = el.getBoundingClientRect();
+                                            nodePositions.current.set(node.menuId, rect);
+                                        }, 0);
                                     }
                                 }}
                                 style={{
@@ -402,7 +439,7 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
                     onClick={(e) => e.stopPropagation()}
                 >
                     <Dropdown.Header>
-                        {menuData.find((item) => item.menuId === contextMenu?.node?.menuId)?.menuName}
+                        {menuData.find((item) => item.menuId === contextMenu?.node?.menuId)?.menuName || 'Root'}
                     </Dropdown.Header>
                     <Dropdown.Item
                         // style={{ padding: "5px 10px", cursor: "pointer" }}
@@ -448,6 +485,20 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
                     삭제
                     </Button>
                 )}
+                </Modal.Footer>
+            </Modal>
+            {/* 모달 창 */}
+            <Modal show={showMenuWarning} onHide={() => setShowMenuWarning(false)}>
+                <Modal.Header closeButton>
+                <Modal.Title>삭제 확인</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                {("자식은 depth는 최대 3개 입니다.")}
+                </Modal.Body>
+                <Modal.Footer>
+                <Button variant="secondary" onClick={() => setShowMenuWarning(false)}>
+                    확인
+                </Button>
                 </Modal.Footer>
             </Modal>
         </div>

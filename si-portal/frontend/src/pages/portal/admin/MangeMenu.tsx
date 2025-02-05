@@ -23,12 +23,12 @@ const ManageMenu: React.FC = () => {
             <div style={{borderTop: '1px solid black', margin: '5px 0'}}></div>
             <Row className="h-100">
                 {/* 좌측 메뉴 */}
-                <Col style={{flex: '0 0 20%'}} className="border-end h-100">
+                <Col style={{flex: '0 0 30%'}} className="border-end h-100">
                     <ManageMenuTree onMenuClick={setChooseMenuData} refreshTree={refreshTree} />
                 </Col>
 
                 {/* 우측 콘텐츠 */}
-                <Col style={{flex: '0 0 65%'}} className="h-100">
+                <Col style={{flex: '0 0 70%'}} className="h-100">
                     <ManageMenuContent chooseMenuData={chooseMenuData} onSave={handleRefreshTree}/>
                 </Col>
             </Row>

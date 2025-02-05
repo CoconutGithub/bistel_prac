@@ -81,6 +81,13 @@ const columnDefs = [
     filter: true,
   },
   {
+    field: "lastLoginDate",
+    headerName: "최근접속일",
+    sortable: true,
+    width: 200,
+    filter: true,
+  },
+  {
     field: "updateDate",
     headerName: "수정일",
     sortable: true,
@@ -184,6 +191,8 @@ const ManageUser: React.FC = () => {
         params: { userName: inputRef.current?.value || "" },
       })
       .then((res) => {
+        console.log("응답 데이터:", res.data); // 응답 데이터 콘솔 출력
+
         if (gridRef.current) {
           gridRef.current.setRowData(res.data); // 데이터를 AgGridWrapper에 설정
         }
