@@ -159,4 +159,31 @@ public class AdminController {
     public ResponseEntity<?> saveRoles(@RequestBody Map<String, Object> payload) {
         return adminService.saveRoles(payload);
     }
+
+    @GetMapping("/api/get-msg-type")
+    public ResponseEntity<?> getMsgTypeList(@RequestParam String status) {
+        return adminService.getMsgTypeList(status);
+    }
+
+    @GetMapping("/api/check-msg")
+    public ResponseEntity<?> checkMsg(@RequestParam Map<String, String> params) {
+        return adminService.checkMsg(params);
+    }
+
+    @GetMapping("/api/get-msg-list")
+    public ResponseEntity<?> getMsgList(@RequestParam Map<String, String> params) {
+        return adminService.getMsgList(params);
+    }
+
+    @GetMapping("/api/get-msg-list2")
+    public ResponseEntity<?> getMsgList2() {
+        Map<String, String> params = new HashMap<>();
+        params.put("status", "ACTIVE");
+        return adminService.getMsgList(params);
+    }
+
+    @PostMapping("/api/update-msg-list")
+    public ResponseEntity<?> updateMsgList(@RequestBody Map<String, Object> requestData) {
+        return adminService.updateMsgList(requestData);
+    }
 }
