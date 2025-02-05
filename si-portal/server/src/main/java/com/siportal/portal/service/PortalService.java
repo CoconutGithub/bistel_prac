@@ -8,22 +8,22 @@ import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
-@RestController
-@CrossOrigin(origins = "http://localhost:9090")
-@RequestMapping("/") // API 기본 경로
-@Transactional
+@Service
 public class PortalService {
 
+    private final PortalMapper portalMapper;
+
     @Autowired
-    private PortalMapper portalMapper;
+    public PortalService(PortalMapper portalMapper) {
+        this.portalMapper = portalMapper;
+    }
 
 
-    @GetMapping("/page-auth")
     public ResponseEntity<?> getPageAuth(@RequestParam String roleId, @RequestParam String path) {
 
         try {
@@ -35,7 +35,6 @@ public class PortalService {
         }
     }
 
-    @PostMapping("/api/login-success")
     public ResponseEntity<?> loginSuccess(@RequestBody Map<String, String> requestBody) {
         try {
             String userId = requestBody.get("userId");
@@ -50,7 +49,6 @@ public class PortalService {
         }
     }
 
-    @GetMapping("/api/get-user")
     public ResponseEntity<?> getUser(@RequestParam String userName) {
 
         try {
@@ -62,7 +60,6 @@ public class PortalService {
         }
     }
 
-    @PostMapping("/refresh-token")
     public ResponseEntity<?> refreshToken(@RequestBody Map<String, String> requestBody) {
 
         try {
@@ -77,7 +74,6 @@ public class PortalService {
         }
     }
 
-    @PostMapping("/api/update-settings")
     public ResponseEntity<?> updateUserSettings(@RequestBody Map<String, String> settings) {
         try {
 
@@ -104,7 +100,6 @@ public class PortalService {
         }
     }
 
-    @PostMapping("/api/get-settings")
     public ResponseEntity<?> getUserSettings(@RequestBody Map<String, String> requestBody) {
         try {
             String userId = requestBody.get("userId");
@@ -128,9 +123,6 @@ public class PortalService {
     }
 
 
-
-
-    @GetMapping("/menu")
     public Map<String, Object> getMenuTreeList(@RequestParam String roleId, @RequestParam String isMighty) {
 
         List<PMenuDTO> menus = null;
