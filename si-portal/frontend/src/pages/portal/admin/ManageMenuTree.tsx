@@ -196,7 +196,7 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
         event.preventDefault();
         event.stopPropagation();
 
-        if(node.depth >= 4) {
+        if(node.depth >= 3) {
             setShowMenuWarning(true)
             return
         }
