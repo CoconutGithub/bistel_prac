@@ -24,6 +24,9 @@ repositories {
 }
 
 dependencies {
+	// MinIO SDK 추가
+	implementation 'io.minio:minio:8.5.7'
+
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
@@ -57,6 +60,8 @@ dependencies {
 
 	// Quartz 의존성 추가
 	implementation 'org.springframework.boot:spring-boot-starter-quartz'
+
+
 }
 
 tasks.named('test') {
