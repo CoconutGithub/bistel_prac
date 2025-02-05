@@ -35,3 +35,13 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# Gradle 작업 디렉터리 및 캐시 파일 무시
+.gradle/
+build/
+
+# Gradle 파일 중 특정 파일 무시 (선택 사항)
+.gradle/**/buildOutputCleanup.lock
+.gradle/**/executionHistory.bin
+.gradle/**/executionHistory.lock
+.gradle/**/checksums.lock

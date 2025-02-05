@@ -26,8 +26,14 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
+
 	implementation 'org.apache.commons:commons-collections4:4.4'
+
+	//mybatis
+	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
+
+	// Spring Boot Data JPA 의존성
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
 	//jwt--start
 	implementation 'org.springframework.boot:spring-boot-starter-security'
