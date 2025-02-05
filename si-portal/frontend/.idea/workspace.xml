@@ -4,49 +4,100 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="698a8721-f13d-4355-a92b-50d09a9b4c66" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../ui/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/.idea/ui.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/package-lock.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/package.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/public/favicon.ico" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/public/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/public/logo192.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/public/logo512.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/public/manifest.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/public/robots.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/src/App.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/src/App.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/src/App.test.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/src/components/biz/ServiceC.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/src/components/biz/SubServiceA1.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/src/components/biz/SubServiceA2.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/src/components/biz/SubServiceC1.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/src/components/biz/SubServiceC2.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/src/components/portal/Login.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/src/components/portal/com/context/ComAPIContext.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/src/components/portal/com/css/GridCss.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/src/components/portal/com/grid/AgGridWrapper.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/src/components/portal/com/store/AuthSlice.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/src/components/portal/com/store/Store.d.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/src/components/portal/com/store/Store.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/src/components/portal/menu/admin/ManageRole.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/src/components/portal/menu/admin/ManageUser.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/src/components/portal/menu/admin/ManageUser.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/src/components/portal/menu/admin/MangeMenu.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/src/components/portal/menu/layout/About.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/src/components/portal/menu/layout/Home.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/src/components/portal/menu/layout/MainPage.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/src/components/portal/menu/layout/MultiLevelDropdown.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/src/index.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/src/index.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/src/logo.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/src/reportWebVitals.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/src/setupTests.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui/tsconfig.json" beforeDir="false" />
+    <list default="true" id="698a8721-f13d-4355-a92b-50d09a9b4c66" name="Changes" comment=".">
+      <change afterPath="$PROJECT_DIR$/../server_JPA/src/main/java/com/siportal/portal/config/JPAConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../server_JPA/src/main/java/com/siportal/portal/domain/File.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../server_JPA/src/main/java/com/siportal/portal/domain/Menu.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../server_JPA/src/main/java/com/siportal/portal/domain/Permission.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../server_JPA/src/main/java/com/siportal/portal/domain/Role.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../server_JPA/src/main/java/com/siportal/portal/domain/Scheduler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../server_JPA/src/main/java/com/siportal/portal/domain/User.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../server_JPA/src/main/java/com/siportal/portal/domain/UserRole.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../server_JPA/src/main/java/com/siportal/portal/domain/UserRoleId.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../server_JPA/src/main/java/com/siportal/portal/repository/FileRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../server_JPA/src/main/java/com/siportal/portal/repository/MenuRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../server_JPA/src/main/java/com/siportal/portal/repository/PermissionRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../server_JPA/src/main/java/com/siportal/portal/repository/RoleRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../server_JPA/src/main/java/com/siportal/portal/repository/SchedulerRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../server_JPA/src/main/java/com/siportal/portal/repository/UserRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../server_JPA/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/.gradle/8.11.1/executionHistory/executionHistory.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/.gradle/8.11.1/executionHistory/executionHistory.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/.gradle/8.11.1/fileChanges/last-build.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/.gradle/8.11.1/fileHashes/fileHashes.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/.gradle/8.11.1/fileHashes/resourceHashesCache.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/.gradle/8.11.1/gc.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/.gradle/buildOutputCleanup/cache.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/.gradle/file-system.probe" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/.gradle/vcs-1/gc.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../server_JPA/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/classes/java/main/com/siportal/portal/SIPortalApplication.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/classes/java/main/com/siportal/portal/com/auth/AfterLoginFilter.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/classes/java/main/com/siportal/portal/com/auth/JwtUtils.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/classes/java/main/com/siportal/portal/com/auth/LoginFilter.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/classes/java/main/com/siportal/portal/com/auth/SecurityConfig.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/classes/java/main/com/siportal/portal/com/batch/config/QuartzDynamicConfig.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/classes/java/main/com/siportal/portal/com/batch/job/DynamicJob.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/classes/java/main/com/siportal/portal/com/batch/job/SecondJob.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/classes/java/main/com/siportal/portal/com/result/ComResultMap.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/classes/java/main/com/siportal/portal/config/MyBatisConfig$MyBatisLoggingInterceptor.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/classes/java/main/com/siportal/portal/config/MyBatisConfig.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/classes/java/main/com/siportal/portal/controller/AdminController.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/classes/java/main/com/siportal/portal/controller/EmailController$EmailData.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/classes/java/main/com/siportal/portal/controller/EmailController.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/classes/java/main/com/siportal/portal/controller/PortalController.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/classes/java/main/com/siportal/portal/dto/LoginRequest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/classes/java/main/com/siportal/portal/dto/PMenuDTO.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/classes/java/main/com/siportal/portal/dto/SchedulDTO.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/classes/java/main/com/siportal/portal/dto/User.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/classes/java/main/com/siportal/portal/mapper/AdminMapper.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/classes/java/main/com/siportal/portal/mapper/PortalMapper.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/classes/java/main/com/siportal/portal/service/AdminService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/classes/java/main/com/siportal/portal/service/EmailService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/classes/java/main/com/siportal/portal/service/PortalService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/classes/java/test/com/siportal/MyprojectApplicationTests.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/libs/si-portal-0.0.1-SNAPSHOT-plain.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/libs/si-portal-0.0.1-SNAPSHOT.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/reports/problems/problems-report.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/reports/tests/test/classes/com.siportal.MyprojectApplicationTests.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/reports/tests/test/css/base-style.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/reports/tests/test/css/style.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/reports/tests/test/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/reports/tests/test/js/report.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/reports/tests/test/packages/com.siportal.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/resolvedMainClassName" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/resources/main/application-oracle.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/resources/main/application-postgresql.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/resources/main/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/resources/main/logback-spring.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/resources/main/mappers/oracle/AdminMapper.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/resources/main/mappers/oracle/PortalMapper.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/resources/main/mappers/postgresql/AdminMapper.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/resources/main/mappers/postgresql/PortalMapper.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/resources/main/templates/manageEmail.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/test-results/test/TEST-com.siportal.MyprojectApplicationTests.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/test-results/test/binary/output.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/test-results/test/binary/output.bin.idx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/test-results/test/binary/results.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/tmp/bootJar/MANIFEST.MF" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/tmp/compileJava/compileTransaction/stash-dir/AdminController.class.uniqueId2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/tmp/compileJava/compileTransaction/stash-dir/AdminService.class.uniqueId1" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/tmp/compileJava/compileTransaction/stash-dir/PortalController.class.uniqueId0" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/tmp/compileJava/previous-compilation-data.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/tmp/compileTestJava/previous-compilation-data.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/build/tmp/jar/MANIFEST.MF" beforeDir="false" />
+    </list>
+    <list id="a4ad4b1f-cbb9-4a58-9c1d-b1a62edb9f40" name="not_push" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/.gradle/8.11.1/checksums/checksums.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/.gradle/8.11.1/checksums/md5-checksums.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/.gradle/8.11.1/checksums/sha1-checksums.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/.gradle/8.11.1/fileHashes/fileHashes.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../server_JPA/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/.idea/modules/si-portal.main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../server_JPA/.idea/modules/si-portal.main.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_JPA/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../server_JPA/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -95,23 +146,23 @@
     <option name="showExcludedFiles" value="false" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "20250205__csh__jpa신규개발",
-    "ignore.virus.scanning.warn.message": "true",
-    "last_opened_file_path": "D:/bistelligence/gitRepository/si-portal/frontend/public/assets/icons",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "File.Encoding",
-    "ts.external.directory.path": "D:\\bistelligence\\gitRepository\\si-portal\\frontend\\node_modules\\typescript\\lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;20250205__csh__jpa신규개발&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/bistelligence/gitRepository/si-portal/frontend/public/assets/icons&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;File.Encoding&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;D:\\bistelligence\\gitRepository\\si-portal\\frontend\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="D:\bistelligence\gitRepository\si-portal\frontend\public\assets\icons" />
@@ -203,14 +254,6 @@
       <workItem from="1738713512948" duration="3663000" />
       <workItem from="1738721477113" duration="2318000" />
       <workItem from="1738724302521" duration="596000" />
-    </task>
-    <task id="LOCAL-00006" summary="신규행 추가 로직 추가함.">
-      <option name="closed" value="true" />
-      <created>1736851838842</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1736851838842</updated>
     </task>
     <task id="LOCAL-00007" summary="권한메뉴 초벌 추가함.">
       <option name="closed" value="true" />
@@ -596,7 +639,15 @@
       <option name="project" value="LOCAL" />
       <updated>1738715003564</updated>
     </task>
-    <option name="localTasksCounter" value="55" />
+    <task id="LOCAL-00055" summary=".">
+      <option name="closed" value="true" />
+      <created>1738729492324</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1738729492324</updated>
+    </task>
+    <option name="localTasksCounter" value="56" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -646,7 +697,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="." />
     <MESSAGE value="버튼별 권한 체크 로직 재개발함." />
     <MESSAGE value="버튼별 권한 체크 로직 Warning 제거 해서 올림" />
     <MESSAGE value="navigator 추가함" />
@@ -671,7 +721,8 @@
     <MESSAGE value="오라클일 경우 에러 나는것 수정함" />
     <MESSAGE value="오라클, POSTGRESQL 에 따라 application.properties 나눔" />
     <MESSAGE value="오라클, POSTGRESQL 에 따라 application.properties 나눔2" />
-    <option name="LAST_COMMIT_MESSAGE" value="오라클, POSTGRESQL 에 따라 application.properties 나눔2" />
+    <MESSAGE value="." />
+    <option name="LAST_COMMIT_MESSAGE" value="." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
