@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="758b37f7-2e40-4015-8ddc-d517d1984250" name="Changes" comment="새로운 BACKEND 신규로 추가함">
+      <change beforePath="$PROJECT_DIR$/../ui/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/.idea/ui.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/package-lock.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/public/favicon.ico" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/public/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/public/logo192.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/public/logo512.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/public/manifest.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/public/robots.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/src/App.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/src/App.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/src/App.test.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/src/components/biz/ServiceC.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/src/components/biz/SubServiceA1.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/src/components/biz/SubServiceA2.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/src/components/biz/SubServiceC1.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/src/components/biz/SubServiceC2.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/src/components/portal/Login.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/src/components/portal/com/context/ComAPIContext.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/src/components/portal/com/css/GridCss.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/src/components/portal/com/grid/AgGridWrapper.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/src/components/portal/com/store/AuthSlice.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/src/components/portal/com/store/Store.d.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/src/components/portal/com/store/Store.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/src/components/portal/menu/admin/ManageRole.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/src/components/portal/menu/admin/ManageUser.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/src/components/portal/menu/admin/ManageUser.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/src/components/portal/menu/admin/MangeMenu.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/src/components/portal/menu/layout/About.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/src/components/portal/menu/layout/Home.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/src/components/portal/menu/layout/MainPage.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/src/components/portal/menu/layout/MultiLevelDropdown.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/src/index.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/src/index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/src/logo.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/src/reportWebVitals.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/src/setupTests.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui/tsconfig.json" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <task path="$PROJECT_DIR$">
+          <activation />
+        </task>
+        <projects_view>
+          <tree_state>
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="si-portal" type="f1a62948:ProjectNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="si-portal" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="si-portal" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="build" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="si-portal" type="f1a62948:ProjectNode" />
+                <item name="Dependencies" type="6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode" />
+              </path>
+            </expand>
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Interface" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$/../.." value="20250205_csh_jpa_with_mybatis" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="GitLabMergeRequestFiltersHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPENED&quot;,
+    &quot;assignee&quot;: {
+      &quot;type&quot;: &quot;org.jetbrains.plugins.gitlab.mergerequest.ui.filters.GitLabMergeRequestsFiltersValue.MergeRequestsMemberFilterValue.MergeRequestsAssigneeFilterValue&quot;,
+      &quot;username&quot;: &quot;chosehee&quot;,
+      &quot;fullname&quot;: &quot;sehee cho&quot;
+    }
+  }
+}</component>
+  <component name="GitLabMergeRequestsSettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;first&quot;: &quot;http://git.bistelligence.ai/cec-developers/bistelligence-portal.git&quot;,
+    &quot;second&quot;: &quot;a5fee169-1f43-4d52-9f67-1cb6cc2321a3&quot;
+  }
+}</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 1
+}</component>
+  <component name="ProjectId" id="2rPyvkh2kVxYo3O8mBGLggUde9P" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Gradle.server [:com.example.myproject.MyprojectApplication.main()].executor&quot;: &quot;Debug&quot;,
+    &quot;Gradle.server [:com.siportal.MyprojectApplication.main()].executor&quot;: &quot;Debug&quot;,
+    &quot;Gradle.server [:com.siportal.SIPortalApplication.main()].executor&quot;: &quot;Debug&quot;,
+    &quot;Gradle.server [:com.siportal.portal.SIPortalApplication.main()].executor&quot;: &quot;Debug&quot;,
+    &quot;Gradle.server [bootJar].executor&quot;: &quot;Debug&quot;,
+    &quot;Gradle.server [build].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.server [clean].executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;20250205__csh__jpa신규개발&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/bistelligence/gitRepository/si-portal/server&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;Console&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\bistelligence\gitRepository\si-portal\server\src\main\resources\mappers\oracle" />
+      <recent name="D:\bistelligence\gitRepository\si-portal\server\src\main\resources\mappers\postgresql" />
+      <recent name="D:\bistelligence\gitRepository\si-portal\server\src\main\java\com\siportal\portal\com\auth" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\bistelligence\gitRepository\si-portal\server\src\main\resources\mappers\postgresql" />
+      <recent name="D:\bistelligence\gitRepository\si-portal\server\src\main\resources\mappers\oracle" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.siportal.portal.mapper" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Application.com.siportal.portal.SIPortalApplication">
+    <configuration name="com.siportal.portal.SIPortalApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="ALTERNATIVE_JRE_PATH" value="openjdk-23" />
+      <option name="MAIN_CLASS_NAME" value="com.siportal.portal.SIPortalApplication" />
+      <module name="si-portal.main" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.example.myproject.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="server [bootJar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="bootJar" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <configuration name="server [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="build" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <configuration name="server [clean]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="clean" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Application.com.siportal.portal.SIPortalApplication" />
+      <item itemvalue="Gradle.server [build]" />
+      <item itemvalue="Gradle.server [bootJar]" />
+      <item itemvalue="Gradle.server [clean]" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Gradle.server [build]" />
+        <item itemvalue="Gradle.server [bootJar]" />
+        <item itemvalue="Gradle.server [clean]" />
+        <item itemvalue="Application.com.siportal.portal.SIPortalApplication" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="758b37f7-2e40-4015-8ddc-d517d1984250" name="Changes" comment="" />
+      <created>1736475238942</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1736475238942</updated>
+    </task>
+    <task id="LOCAL-00001" summary="prgoress bar 와 toastMessage 때문에 재랜더링되는 문제점 수정함">
+      <option name="closed" value="true" />
+      <created>1736845739264</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1736845739264</updated>
+    </task>
+    <task id="LOCAL-00002" summary="prgoress bar 와 toastMessage 때문에 재랜더링되는 문제점 수정함">
+      <option name="closed" value="true" />
+      <created>1736845775173</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1736845775173</updated>
+    </task>
+    <task id="LOCAL-00003" summary="AdminService 추가함">
+      <option name="closed" value="true" />
+      <created>1736905526875</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1736905526875</updated>
+    </task>
+    <task id="LOCAL-00004" summary="AgGridWrapper 에 custom 버튼 기능 추가&#10;AgGridWrapper 에 추가,등록,삭제 버튼 보이게 하는 기능 추가">
+      <option name="closed" value="true" />
+      <created>1737005805809</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1737005805809</updated>
+    </task>
+    <task id="LOCAL-00005" summary="버튼 세션 체크시, OverlayTrigger 아래에 있는 ProtectedButton 을 forwardRef 로 구현함">
+      <option name="closed" value="true" />
+      <created>1737072786380</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1737072786380</updated>
+    </task>
+    <task id="LOCAL-00006" summary="구조와 전번적인 소스 수정을 해서 다시 올림.">
+      <option name="closed" value="true" />
+      <created>1737333273934</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1737333273934</updated>
+    </task>
+    <task id="LOCAL-00007" summary="구조와 전번적인 소스 수정을 해서 다시 올림.">
+      <option name="closed" value="true" />
+      <created>1737336802336</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1737336802336</updated>
+    </task>
+    <task id="LOCAL-00008" summary="1. Setting 에 header 색깔변경 작동 안하는것 수정함.&#10;2. 권한 관리 일부 고침">
+      <option name="closed" value="true" />
+      <created>1737368935216</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1737368935216</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Toast message가 footer 위로 올라가도록 수정함">
+      <option name="closed" value="true" />
+      <created>1737436788017</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1737436788017</updated>
+    </task>
+    <task id="LOCAL-00010" summary="버튼별 활성화 기능 추가함">
+      <option name="closed" value="true" />
+      <created>1737446504205</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1737446504205</updated>
+    </task>
+    <task id="LOCAL-00011" summary="버튼별 활성화 기능 추가함">
+      <option name="closed" value="true" />
+      <created>1737518495007</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1737518495007</updated>
+    </task>
+    <task id="LOCAL-00012" summary="버튼별 활성화 기능 추가함">
+      <option name="closed" value="true" />
+      <created>1737518673279</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1737518673279</updated>
+    </task>
+    <task id="LOCAL-00013" summary="오라클도 지원하게  수정함">
+      <option name="closed" value="true" />
+      <created>1738562296297</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1738562296297</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Controller 거쳐서 Servcie 로 가도록 수정함">
+      <option name="closed" value="true" />
+      <created>1738721659201</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1738721659201</updated>
+    </task>
+    <task id="LOCAL-00015" summary="새로운 BACKEND 신규로 추가함">
+      <option name="closed" value="true" />
+      <created>1738723628891</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1738723628891</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="prgoress bar 와 toastMessage 때문에 재랜더링되는 문제점 수정함" />
+    <MESSAGE value="AdminService 추가함" />
+    <MESSAGE value="AgGridWrapper 에 custom 버튼 기능 추가&#10;AgGridWrapper 에 추가,등록,삭제 버튼 보이게 하는 기능 추가" />
+    <MESSAGE value="버튼 세션 체크시, OverlayTrigger 아래에 있는 ProtectedButton 을 forwardRef 로 구현함" />
+    <MESSAGE value="구조와 전번적인 소스 수정을 해서 다시 올림." />
+    <MESSAGE value="1. Setting 에 header 색깔변경 작동 안하는것 수정함.&#10;2. 권한 관리 일부 고침" />
+    <MESSAGE value="Toast message가 footer 위로 올라가도록 수정함" />
+    <MESSAGE value="버튼별 활성화 기능 추가함" />
+    <MESSAGE value="오라클도 지원하게  수정함" />
+    <MESSAGE value="Controller 거쳐서 Servcie 로 가도록 수정함" />
+    <MESSAGE value="새로운 BACKEND 신규로 추가함" />
+    <option name="LAST_COMMIT_MESSAGE" value="새로운 BACKEND 신규로 추가함" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/siportal/portal/com/auth/JwtLoginFilter.java</url>
+          <line>27</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/siportal/portal/service/AdminService.java</url>
+          <line>437</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/siportal/portal/com/auth/LoginFilter.java</url>
+          <line>91</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/siportal/portal/service/AdminService.java</url>
+          <line>311</line>
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>
