@@ -466,7 +466,7 @@ const ManageMenuContent: React.FC<{
                   style={{
                     backgroundColor: "#f0f8ff", // 연한 파란색
                   }}
-                  onChange={onchangeMenuName} // 변경시 menuName 상태 업데이트
+                  onChange={(e) => setMenuName(e.target.value)}
                 />
               </Col>
             </Form.Group>
@@ -485,7 +485,7 @@ const ManageMenuContent: React.FC<{
                   style={{
                     backgroundColor: "#f0f8ff", // 연한 파란색
                   }}
-                  onChange={(e) => e.target.value} // 변경시 menuName 상태 업데이트
+                  onChange={(e) => setPath(e.target.value)}
                 />
               </Col>
             </Form.Group>

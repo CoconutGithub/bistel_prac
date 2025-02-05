@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+
+import java.sql.Blob;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -84,7 +86,146 @@ public class AdminService {
                     .body("Error occurred: " + e.getMessage());
         }
     }
+    public ResponseEntity<?> getMsgTypeList(@RequestParam String status) {
 
+        try {
+            List<ComResultMap> result = this.adminMapper.getMsgTypeList(status);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
+    public ResponseEntity<?> checkMsg(@RequestParam Map<String, String> params) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            int cnt = this.adminMapper.checkDupMsg(params);
+            response.put("messageCode", "success");
+            if(cnt > 0)
+                response.put("message", "Y");
+            else
+                response.put("message", "N");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
+
+    public ResponseEntity<?> getMsgList(@RequestParam Map<String, String> params) {
+
+        try {
+            List<ComResultMap> result = this.adminMapper.getMsgList(params);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
+    public ResponseEntity<?> updateMsgList(@RequestBody Map<String, Object> requestData) {
+
+        try {
+            // 데이터 파싱
+            List<Map<String, String>> updateList = (List<Map<String, String>>) requestData.get("updateList");
+            List<Map<String, String>> deleteList = (List<Map<String, String>>) requestData.get("deleteList");
+            List<Map<String, String>> createList = (List<Map<String, String>>) requestData.get("createList");
+            String userId = (String) requestData.get("userId");
+
+            int updatedCount = 0; // 업데이트된 행 갯수
+            int deletedCount = 0; // 삭제된 행 갯수
+            int createdCount = 0; // 생성된 행 갯수
+
+            // Delete 처리
+            for (Map<String, String> temp : deleteList) {
+                deletedCount += adminMapper.deleteMsgList(temp);
+            }
+
+            // Create 처리
+            for (Map<String, String> temp : createList) {
+                if(adminMapper.checkDupMsg(temp) > 0) {//중복이므로 업데이트
+                    Integer msgId = adminMapper.getMsgId(temp);
+                    temp.put("msgId", msgId.toString());
+                    temp.put("userId", userId);
+                    updatedCount += adminMapper.updateMsgMain(temp);
+                    mergeMsgDetail(temp, userId);
+                } else { //신규이므로 생성
+                    temp.put("userId", userId);
+                    Integer msgId = adminMapper.getSeqMsgId();
+                    temp.put("msgId", msgId.toString());
+                    createdCount += adminMapper.createMsgMain(temp);
+                    mergeMsgDetail(temp, userId);
+                }
+            }
+
+            // Update 처리
+            for (Map<String, String> temp : updateList) {
+                if(adminMapper.checkDupMsg(temp) > 0) {//중복이므로 업데이트
+                    temp.put("userId", userId);
+                    updatedCount += adminMapper.updateMsgMain(temp);
+                    mergeMsgDetail(temp, userId);
+                } else { //신규이므로 생성
+                    temp.put("userId", userId);
+                    Integer msgId = adminMapper.getSeqMsgId();
+                    temp.put("msgId", msgId.toString());
+                    createdCount += adminMapper.createMsgMain(temp);
+                    mergeMsgDetail(temp, userId);
+                }
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("messageCode", "success");
+            response.put("message", "모든 작업이 성공적으로 처리되었습니다.");
+            response.put("updatedUsersCnt", updatedCount);
+            response.put("deletedUsersCnt", deletedCount);
+            response.put("createdUsersCnt", createdCount);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
+    void mergeMsgDetail(Map<String, String> params, String userId) {
+        params.put("userId", userId);
+        if(params.get("koLangText") != null && !params.get("koLangText").isEmpty()) {
+            Map<String, String> tempMap = new HashMap<>();
+            tempMap.put("msgId", String.valueOf(params.get("msgId")));
+            tempMap.put("langCode", "KO");
+            tempMap.put("langText", params.get("koLangText"));
+            tempMap.put("userId", userId);
+            if(adminMapper.checkMsgTextExist(tempMap) > 0) {
+                adminMapper.updateMsgDetail(tempMap);
+            } else {
+                adminMapper.createMsgDetail(tempMap);
+            }
+        }
+        if(params.get("enLangText") != null && !params.get("enLangText").isEmpty()) {
+            Map<String, String> tempMap = new HashMap<>();
+            tempMap.put("msgId", String.valueOf(params.get("msgId")));
+            tempMap.put("langCode", "EN");
+            tempMap.put("langText", params.get("enLangText"));
+            tempMap.put("userId", userId);
+            if(adminMapper.checkMsgTextExist(tempMap) > 0) {
+                adminMapper.updateMsgDetail(tempMap);
+            } else {
+                adminMapper.createMsgDetail(tempMap);
+            }
+        }
+        if(params.get("cnLangText") != null && !params.get("cnLangText").isEmpty()) {
+            Map<String, String> tempMap = new HashMap<>();
+            tempMap.put("msgId", String.valueOf(params.get("msgId")));
+            tempMap.put("langCode", "CN");
+            tempMap.put("langText", params.get("cnLangText"));
+            tempMap.put("userId", userId);
+            if(adminMapper.checkMsgTextExist(tempMap) > 0) {
+                adminMapper.updateMsgDetail(tempMap);
+            } else {
+                adminMapper.createMsgDetail(tempMap);
+            }
+        }
+    }
     public ResponseEntity<?> getScheduleList(@RequestParam String jobName, @RequestParam String status) {
 
         try {
@@ -289,14 +430,24 @@ public class AdminService {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
             }
 
-            // 프로필 이미지가 있는 경우 Base64 인코딩
-            if (user.get("profileImage") != null) {
-                byte[] imageBytes = (byte[]) user.get("profileImage");
-                String base64Image = Base64.getEncoder().encodeToString(imageBytes);
-                user.put("profileImage", base64Image);
+            Object profileImage = user.get("profileImage");
+            String base64Image = null;
+
+            // PostgreSQL (BYTEA) 처리
+            if (profileImage instanceof byte[]) {
+                base64Image = Base64.getEncoder().encodeToString((byte[]) profileImage);
+            }
+            // Oracle (BLOB) 처리
+            else if (profileImage instanceof Blob) {
+                Blob imageBlob = (Blob) profileImage;
+                byte[] imageBytes = imageBlob.getBytes(1, (int) imageBlob.length());
+                base64Image = Base64.getEncoder().encodeToString(imageBytes);
             }
 
-            return ResponseEntity.ok(user);
+            // 변환된 Base64 이미지 응답
+            Map<String, Object> response = new HashMap<>();
+            response.put("profileImage", base64Image);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred");
