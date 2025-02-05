@@ -65,6 +65,110 @@
         </if>
         ORDER BY JOB_NAME
     </select>
+    <select id="getMsgTypeList" parameterType="String" resultType="com.siportal.portal.com.result.ComResultMap">
+        SELECT
+            DISTINCT MSG_TYPE
+        FROM
+            DEV.P_MSG_MAIN
+        WHERE 1 = 1
+        <if test="status != null and status != ''">
+            AND STATUS = #{status}
+        </if>
+        ORDER BY MSG_TYPE
+    </select>
+    <select id="getMsgList" parameterType="map" resultType="com.siportal.portal.com.result.ComResultMap">
+        SELECT *
+        FROM CROSSTAB(
+            'SELECT A.MSG_ID, C.MSG_TYPE, C.MSG_NAME, C.MSG_DEFAULT, C.STATUS, A.LANG_CODE, LANG_TEXT
+             FROM DEV.P_MSG_DETAIL A
+             JOIN DEV.P_LANGUAGE B
+             ON A.LANG_CODE = B.LANG_CODE
+             JOIN DEV.P_MSG_MAIN C
+             ON A.MSG_ID = C.MSG_ID
+             ORDER BY 1',
+            'VALUES (''KO''), (''EN''), (''CN'')'  -- 예상되는 LANG_CODE 값
+        ) AS CT(MSG_ID INT, MSG_TYPE TEXT, MSG_NAME TEXT, MSG_DEFAULT TEXT, STATUS TEXT, KO_LANG_TEXT TEXT, EN_LANG_TEXT TEXT, CN_LANG_TEXT TEXT)
+        WHERE
+            1 = 1
+        <if test="msgType != null and msgType != ''">
+            AND MSG_TYPE LIKE '%' || #{msgType} || '%'
+        </if>
+        <if test="msgName != null and msgName != ''">
+            AND MSG_NAME LIKE '%' || #{msgName} || '%'
+        </if>
+        <if test="msgDefault != null and msgDefault != ''">
+            AND MSG_DEFAULT = #{msgDefault} || '%'
+        </if>
+        <if test="status != null and status != ''">
+            AND STATUS LIKE '%' || #{status} || '%'
+        </if>
+        <if test="koLangText != null and koLangText != ''">
+            AND KO_LANG_TEXT LIKE '%' || #{koLangText} || '%'
+        </if>
+        <if test="enLangText != null and enLangText != ''">
+            AND EN_LANG_TEXT LIKE '%' || #{enLangText} || '%'
+        </if>
+        <if test="cnLangText != null and cnLangText != ''">
+            AND CN_LANG_TEXT LIKE '%' || #{cnLangText} || '%'
+        </if>
+    </select>
+    <delete id="deleteMsgList" parameterType="map">
+        DELETE FROM P_MSG_MAIN
+        WHERE MSG_TYPE = #{msgType}
+            AND MSG_NAME = #{msgName}
+    </delete>
+    <select id="getSeqMsgId" resultType="int">
+        SELECT NEXTVAL('SEQ_P_MSG') AS MSG_ID
+    </select>
+    <insert id="createMsgMain" parameterType="map">
+        INSERT INTO P_MSG_MAIN (MSG_ID, MSG_TYPE, MSG_NAME, MSG_DEFAULT, STATUS, CREATE_DATE, CREATE_BY)
+        VALUES
+            (CAST(#{msgId} AS INTEGER), #{msgType}, #{msgName}, #{msgDefault}, #{status}, NOW(), #{userId})
+    </insert>
+    <insert id="createMsgDetail" parameterType="map">
+        INSERT INTO P_MSG_DETAIL (MSG_ID, LANG_CODE, LANG_TEXT, CREATE_DATE, CREATE_BY)
+        VALUES
+            (CAST(#{msgId} AS INTEGER), #{langCode}, #{langText}, NOW(), #{userId})
+    </insert>
+    <select id="checkDupMsg" parameterType="map" resultType="int">
+        SELECT COUNT(*) AS CNT
+        FROM P_MSG_MAIN
+        WHERE MSG_TYPE = #{msgType}
+            AND MSG_NAME = #{msgName}
+    </select>
+    <select id="getMsgId" parameterType="map" resultType="int">
+        SELECT MSG_ID
+        FROM P_MSG_MAIN
+        WHERE MSG_TYPE = #{msgType}
+            AND MSG_NAME = #{msgName}
+    </select>
+    <select id="checkMsgTextExist" parameterType="map" resultType="int">
+        SELECT COUNT(*) AS CNT
+        FROM P_MSG_DETAIL
+        WHERE MSG_ID = CAST(#{msgId} AS INTEGER)
+            AND LANG_CODE = #{langCode}
+    </select>
+    <update id="updateMsgMain" parameterType="map">
+        UPDATE P_MSG_MAIN
+        SET
+            MSG_DEFAULT = #{msgDefault}
+            , STATUS = #{status}
+            , UPDATE_DATE = NOW()
+            , UPDATE_BY = #{userId}
+        WHERE
+            MSG_TYPE = #{msgType}
+            AND MSG_NAME = #{msgName}
+    </update>
+    <update id="updateMsgDetail" parameterType="map">
+        UPDATE P_MSG_DETAIL
+        SET
+            LANG_TEXT = #{langText}
+            , UPDATE_DATE = NOW()
+            , UPDATE_BY = #{userId}
+        WHERE
+            MSG_ID = CAST(#{msgId} AS INTEGER)
+            AND LANG_CODE = #{langCode}
+    </update>
     <select id="getUserByUserName" resultType="com.siportal.portal.com.result.ComResultMap">
         SELECT
         ROW_NUMBER() OVER (ORDER BY A.CREATE_DATE DESC) as GRID_ROW_ID
