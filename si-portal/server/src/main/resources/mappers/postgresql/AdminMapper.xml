@@ -33,6 +33,7 @@
             A.MENU_NAME,
             A.PARENT_MENU_ID,
             coalesce(B.MENU_NAME, '-') AS PARENT_MENU_NAME,
+            A.DEPTH,
             A.PATH,
             A.POSITION,
             A.CHILD_YN,
