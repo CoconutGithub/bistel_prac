@@ -263,8 +263,11 @@ public class AdminService {
             for (Map<String, Object> user : deleteList) {
                 System.out.println("DELETE USER: " + user.get("userId"));
 
-                adminMapper.deleteUser((String)user.get("userId"));
-                deletedCount += adminMapper.deleteUserRole((String)user.get("userId"));
+                //JPA
+                userRepository.deleteByUserId((String)user.get("userId"));
+                userRoleRepository.deleteByUserId((String)user.get("userId"));
+
+                deletedCount++;
             }
 
             Map<String, Object> response = new HashMap<>();
@@ -273,7 +276,7 @@ public class AdminService {
             response.put("updatedUsersCnt", updatedCount);
             response.put("deletedUsersCnt", deletedCount);
 
-            return ResponseEntity.ok(null);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)

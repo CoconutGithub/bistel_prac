@@ -32,9 +32,6 @@ public interface AdminMapper {
     int updateUser(Map<String, Object> user);
     int updateUserRole(Map<String, Object> user);
 
-    int deleteUser(@Param("userId") String userId);
-    int deleteUserRole(@Param("userId") String userId);
-
     int createMenuRole(Map<String, Object> user);
     int updateMenuRole(Map<String, Object> user);
     int deleteMenuRole(Map<String, Object> user);
