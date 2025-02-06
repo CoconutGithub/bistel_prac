@@ -4,6 +4,7 @@ import com.siportal.portal.com.batch.config.QuartzDynamicConfig;
 import com.siportal.portal.com.result.ComResultMap;
 import com.siportal.portal.dto.SchedulDTO;
 import com.siportal.portal.mapper.AdminMapper;
+import com.siportal.portal.repository.UserRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
@@ -32,15 +33,22 @@ public class AdminService {
     private final QuartzDynamicConfig quartzDynamicConfig;
     private final JdbcTemplate jdbcTemplate;
 
+    //XXX-CHO
+    private final UserRepository userRepository;
+
     @Autowired
     public AdminService(AdminMapper adminMapper, JavaMailSender emailSender
         , TemplateEngine templateEngine, QuartzDynamicConfig quartzDynamicConfig
-        , JdbcTemplate jdbcTemplate) {
+        , JdbcTemplate jdbcTemplate
+        , UserRepository userRepository
+        ) {
         this.adminMapper = adminMapper;
         this.emailSender = emailSender;
         this.templateEngine = templateEngine;  // Thymeleaf 템플릿 엔진
         this.quartzDynamicConfig = quartzDynamicConfig;
         this.jdbcTemplate = jdbcTemplate;
+
+        this.userRepository = userRepository;
     }
 
     public ResponseEntity<?> getMenuId() {
@@ -205,8 +213,16 @@ public class AdminService {
     public ResponseEntity<?> getUser(@RequestParam String userName) {
 
         try {
-            List<ComResultMap> result = this.adminMapper.getUserByUserName(userName);
+            //[JPA]
+            List<ComResultMap> result = null;
+            if (userName.trim().isEmpty()) {
+                result = this.userRepository.getUserAll();
+            } else {
+                result = this.userRepository.getUserByUserName(userName);
+            }
+
             return ResponseEntity.ok(result);
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
                     .body("Error occurred: " + e.getMessage());
