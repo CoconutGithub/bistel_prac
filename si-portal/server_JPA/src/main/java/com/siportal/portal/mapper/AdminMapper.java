@@ -29,8 +29,6 @@ public interface AdminMapper {
 
     void updateMenuContent(Map<String, Object> data);
 
-    int updateUser(Map<String, Object> user);
-    int updateUserRole(Map<String, Object> user);
 
     int createMenuRole(Map<String, Object> user);
     int updateMenuRole(Map<String, Object> user);

@@ -180,11 +180,6 @@
         , UPDATE_BY = 'ADMIN'
         WHERE USER_ID = #{userId}
     </update>
-    <update id="updateUserRole">
-        UPDATE P_USER_ROLE
-        SET ROLE_ID = #{roleId}
-        WHERE USER_ID = #{userId}
-    </update>
 
     <update id="updateProfileImage">
         UPDATE P_USER SET PROFILE_IMAGE = #{profileImage}
