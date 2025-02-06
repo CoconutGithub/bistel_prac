@@ -72,15 +72,6 @@
         </if>
         ORDER BY JOB_NAME
     </select>
-    <delete id="deleteUser" >
-        DELETE FROM P_USER
-        WHERE USER_ID = #{userId}
-    </delete>
-
-    <delete id="deleteUserRole" >
-        DELETE FROM P_USER_ROLE
-        WHERE USER_ID = #{userId}
-    </delete>
 
     <update id="updateUser">
         UPDATE P_USER
@@ -98,11 +89,6 @@
         SET ROLE_ID = #{roleId}
         WHERE USER_ID = #{userId}
     </update>
-
-    <insert id="registerUser">
-        INSERT INTO P_USER (USER_ID, USER_NAME, PASSWORD, EMAIL, PHONE_NUMBER, STATUS, PROFILE_IMAGE)
-        VALUES (#{userId}, #{userName}, #{password}, #{email}, #{phoneNumber}, #{status}, #{profileImage})
-    </insert>
 
     <update id="updateProfileImage">
         UPDATE P_USER SET PROFILE_IMAGE = #{profileImage}

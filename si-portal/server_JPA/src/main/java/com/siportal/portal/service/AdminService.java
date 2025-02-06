@@ -2,9 +2,12 @@ package com.siportal.portal.service;
 
 import com.siportal.portal.com.batch.config.QuartzDynamicConfig;
 import com.siportal.portal.com.result.ComResultMap;
+import com.siportal.portal.domain.User;
+import com.siportal.portal.domain.UserRole;
 import com.siportal.portal.dto.SchedulDTO;
 import com.siportal.portal.mapper.AdminMapper;
 import com.siportal.portal.repository.UserRepository;
+import com.siportal.portal.repository.UserRoleRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
@@ -16,10 +19,13 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,12 +41,14 @@ public class AdminService {
 
     //XXX-CHO
     private final UserRepository userRepository;
+    private final UserRoleRepository userRoleRepository;
 
     @Autowired
     public AdminService(AdminMapper adminMapper, JavaMailSender emailSender
         , TemplateEngine templateEngine, QuartzDynamicConfig quartzDynamicConfig
         , JdbcTemplate jdbcTemplate
         , UserRepository userRepository
+        , UserRoleRepository userRoleRepository
         ) {
         this.adminMapper = adminMapper;
         this.emailSender = emailSender;
@@ -49,6 +57,7 @@ public class AdminService {
         this.jdbcTemplate = jdbcTemplate;
 
         this.userRepository = userRepository;
+        this.userRoleRepository = userRoleRepository;
     }
 
     public ResponseEntity<?> getMenuId() {
@@ -254,8 +263,11 @@ public class AdminService {
             for (Map<String, Object> user : deleteList) {
                 System.out.println("DELETE USER: " + user.get("userId"));
 
-                adminMapper.deleteUser((String)user.get("userId"));
-                deletedCount += adminMapper.deleteUserRole((String)user.get("userId"));
+                //JPA
+                userRepository.deleteByUserId((String)user.get("userId"));
+                userRoleRepository.deleteByUserId((String)user.get("userId"));
+
+                deletedCount++;
             }
 
             Map<String, Object> response = new HashMap<>();
@@ -264,7 +276,7 @@ public class AdminService {
             response.put("updatedUsersCnt", updatedCount);
             response.put("deletedUsersCnt", deletedCount);
 
-            return ResponseEntity.ok(null);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
@@ -419,6 +431,7 @@ public class AdminService {
     }
 
 
+    @Transactional
     public ResponseEntity<?> registerUser(
             @RequestParam("userId") String userId,
             @RequestParam("userName") String userName,
@@ -431,31 +444,32 @@ public class AdminService {
     ) {
 
         try {
-            Map<String, Object> user = new HashMap<>();
-
-            user.put("userId", userId);
-            user.put("userName", userName);
-            user.put("phoneNumber", phoneNumber);
-            user.put("status", status);
-            user.put("password", password);
-            user.put("email", email);
+            //JPA-User 저장
+            User userObj = new User();
+            userObj.setUserId(userId);
+            userObj.setUserName(userName);
+            userObj.setPhoneNumber(phoneNumber);
+            userObj.setStatus(status);
+            userObj.setPassword(password);
+            userObj.setEmail(email);
+            userObj.setCreateBy("system");
+            userObj.setCreateDate(LocalDateTime.now());
 
             // 파일을 DB의 bytea 컬럼에 저장
             if (image != null && !image.isEmpty()) {
                 byte[] imageBytes = image.getBytes(); // 파일을 byte[]로 변환
-                user.put("profileImage", imageBytes);
+                userObj.setProfileImage(imageBytes);
             } else {
-                user.put("profileImage", null); // 이미지가 없으면 null 저장
+                userObj.setProfileImage(null); // 이미지가 없으면 null 저장
             }
 
-            // 사용자 정보 저장
-            adminMapper.registerUser(user);
+            userRepository.save(userObj);
 
-            // 사용자 역할 저장
-            Map<String, Object> userRoleObject = new HashMap<>();
-            userRoleObject.put("userId", userId);
-            userRoleObject.put("roleId", userRole);
-            adminMapper.registerUserRole(userRoleObject);
+            //JPA-UserRole 저장
+            UserRole userRoleObj = new UserRole();
+            userRoleObj.setUserId(userId);
+            userRoleObj.setRoleId(userRole);
+            userRoleRepository.save(userRoleObj);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);

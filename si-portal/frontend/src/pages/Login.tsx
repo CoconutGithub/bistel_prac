@@ -42,6 +42,7 @@ const Login = () => {
         })
         .then((response) => {
           console.log("Login 시도 결과:", response.status);
+          console.log("Login 시도 결과:", response.data);
           if (response.status === 200) {
             dispatch(
                 setLoginToken({
@@ -57,6 +58,7 @@ const Login = () => {
                   footerYN: response.data.footerYN,
                   headerColor: response.data.headerColor,
                   email: response.data.email, //email
+                  langCode: response.data.langCode,
                 })
             );
 

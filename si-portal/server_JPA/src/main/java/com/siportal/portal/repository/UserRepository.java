@@ -42,5 +42,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     //사용자id로 사용자가 존재하는지 찾는다.
     boolean existsByUserId(String userId);
+
+    void deleteByUserId(String userId);
 }
 

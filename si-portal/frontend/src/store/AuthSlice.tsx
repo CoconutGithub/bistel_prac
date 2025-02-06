@@ -25,6 +25,7 @@ const initialState: AuthState = {
         isShowFooter: true, // 기본값 설정
         headerColor: '#f8f9fa',
         email: '',
+        langCode: '',
     },
     pageButtonAuth: {
         canCreate: false,
@@ -197,6 +198,7 @@ const authSlice = createSlice({
                 footerYN: string; // footer_yn 값 (Y/N)
                 headerColor: string;
                 email: string;
+                langCode: string;
             }>
         ) {
             console.log('setLoginToken:', action.payload.token);
@@ -220,6 +222,7 @@ const authSlice = createSlice({
                 isShowFooter: action.payload.footerYN === 'Y',
                 headerColor: action.payload.headerColor,
                 email: action.payload.email,
+                langCode: action.payload.langCode,
             };
         },
         removeLoginToken(state) {
@@ -235,6 +238,7 @@ const authSlice = createSlice({
                 isMighty: 'N',
                 phoneNumber: '',
                 email: '',
+                langCode: 'KO',
                 isShowFooter: true,
                 headerColor: '#f8f9fa',
             };
@@ -303,6 +307,7 @@ const authSlice = createSlice({
                     isMighty: 'N',
                     phoneNumber: '',
                     email: '',
+                    langCode: '',
                     isShowFooter: true,
                     headerColor: '#f8f9fa',
                 };

@@ -17,7 +17,6 @@ public interface AdminMapper {
 
     List<ComResultMap> getEmailHistory(@Param("sendUser") String sendUser);
 
-    void registerUser(Map<String, Object> user);
     void updateProfileImage(Map<String, Object> user);
     Map<String, Object> getUserProfileImage(String userId);
     void updatePhoneNumber(Map<String, Object> user);
@@ -32,9 +31,6 @@ public interface AdminMapper {
 
     int updateUser(Map<String, Object> user);
     int updateUserRole(Map<String, Object> user);
-
-    int deleteUser(@Param("userId") String userId);
-    int deleteUserRole(@Param("userId") String userId);
 
     int createMenuRole(Map<String, Object> user);
     int updateMenuRole(Map<String, Object> user);

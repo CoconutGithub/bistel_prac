@@ -1,12 +1,12 @@
 package com.siportal.portal.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Entity
@@ -14,10 +14,16 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
+@IdClass(UserRole.PrimaryKey.class)  // 복합 키 클래스를 명시
 public class UserRole {
 
-    @EmbeddedId
-    private UserRoleId id;
+    @Id
+    @Column(name = "USER_ID", length = 100, nullable = false)
+    private String userId;
+
+    @Id
+    @Column(name = "ROLE_ID", nullable = false)
+    private Integer roleId;
 
     @Column(name = "CREATE_DATE", updatable = false)
     private LocalDateTime createDate;
@@ -30,4 +36,14 @@ public class UserRole {
 
     @Column(name = "UPDATE_BY", length = 100)
     private String updateBy;
+
+    // 내부 클래스로 복합 키 정의
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @EqualsAndHashCode
+    public static class PrimaryKey implements Serializable {
+        private String userId;
+        private Integer roleId;
+    }
 }
