@@ -10,6 +10,7 @@ import java.util.List;
 
 public interface UserRepository extends JpaRepository<User, Integer> {
 
+    //사용자명으로 사용자를 조회 한다.
     @Query(value = """
             SELECT 
                 ROW_NUMBER() OVER (ORDER BY A.CREATE_DATE DESC) as GRID_ROW_ID,
@@ -24,6 +25,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
             """, nativeQuery = true)
     List<ComResultMap> getUserByUserName(@Param("userName") String userName);
 
+    //모든 사용자를 다 조회해 온다.
     @Query(value = """
             SELECT 
                 ROW_NUMBER() OVER (ORDER BY A.CREATE_DATE DESC) as GRID_ROW_ID,
@@ -37,5 +39,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
             ORDER BY A.CREATE_DATE DESC
             """, nativeQuery = true)
     List<ComResultMap> getUserAll();
+
+    //사용자id로 사용자가 존재하는지 찾는다.
+    boolean existsByUserId(String userId);
 }
 
