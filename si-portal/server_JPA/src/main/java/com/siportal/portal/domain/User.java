@@ -1,15 +1,13 @@
 package com.siportal.portal.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Lob;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import jakarta.persistence.Id;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "P_USER")
@@ -46,7 +44,6 @@ public class User {
     @Column(name = "HEADER_COLOR", length = 20)
     private String headerColor = "#f8f9fa";
 
-    @Lob
     @Column(name = "PROFILE_IMAGE")
     private byte[] profileImage;
 
@@ -61,4 +58,8 @@ public class User {
 
     @Column(name = "UPDATE_BY", length = 100)
     private String updateBy;
+
+    @Column(name = "LANG_CODE", length = 2)
+    private String langCode = "KO";
+
 }
