@@ -20,6 +20,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.TemplateEngine;
@@ -39,7 +40,7 @@ public class AdminService {
     private final QuartzDynamicConfig quartzDynamicConfig;
     private final JdbcTemplate jdbcTemplate;
 
-    //XXX-CHO
+    //JPA
     private final UserRepository userRepository;
     private final UserRoleRepository userRoleRepository;
 
@@ -238,6 +239,7 @@ public class AdminService {
         }
     }
 
+    @Transactional
     public ResponseEntity<?> updateUser(@RequestBody Map<String, Object> requestData) {
 
         try {
@@ -252,11 +254,24 @@ public class AdminService {
             for (Map<String, Object> user : updateList) {
                 System.out.println( user);
 
-                //아침에 와서 여기 넣어라..
+                User userObj = userRepository.findByUserId((String)user.get("userId"))
+                        .orElseThrow(() -> new RuntimeException("User not found"));
+
+                userObj.setUserName((String)user.get("userName"));
+                userObj.setPhoneNumber((String)user.get("phoneNumber"));
+                userObj.setStatus((String)user.get("status"));
+                userObj.setEmail((String)user.get("email"));
+                userObj.setUpdateBy("system");
+                userObj.setUpdateDate(LocalDateTime.now());
 
 
-                adminMapper.updateUser(user);
-                updatedCount += adminMapper.updateUserRole(user);
+                userRoleRepository.updateRoleId(
+                        (String)user.get("userId")
+                        , (Integer)user.get("roleId")
+                );
+
+
+                updatedCount++;
             }
 
             // Delete 처리
@@ -279,6 +294,8 @@ public class AdminService {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             e.printStackTrace();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
                     .body("Error occurred: " + e.getMessage());
         }
