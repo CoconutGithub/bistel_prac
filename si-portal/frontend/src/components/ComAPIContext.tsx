@@ -3,9 +3,9 @@ import ReactDOM from "react-dom";
 import ToastContainer from "react-bootstrap/ToastContainer";
 import Toast from "react-bootstrap/Toast";
 import ProgressBar from "react-bootstrap/ProgressBar";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import axios from "axios";
-import {AppDispatch} from "~store/Store";
+import {AppDispatch, RootState} from "~store/Store";
 import {chkLoginToken} from "~store/AuthSlice";
 
 // Toast 타입 정의
@@ -20,7 +20,7 @@ interface ComAPIContextType {
     showToast: (message: string, variant?: "success" | "danger" | "warning" | "info" | "dark") => void;
     showProgressBar: () => void;
     hideProgressBar: () => void;
-    $msg: (type: string, message: string, lang: string, text: string) => void;
+    $msg: (type: string, message: string, text: string) => void;
 }
 
 // 초기 컨텍스트 값 정의
@@ -54,8 +54,10 @@ interface ComAPIProviderProps {
 export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
     const [toasts, setToasts] = useState<ToastType[]>([]);
     const [progressBarVisible, setProgressBarVisible] = useState<boolean>(false);
-    const messages = useRef<MessageType[]>([]);
-
+    const messages = useRef<MessageType[]>([]);    
+    const lang = useSelector((state: RootState) => state.auth.user.langCode);
+    console.log('lang : ', lang);   
+    
     const dispatch = useDispatch<AppDispatch>(); // 타입 지정 추가
 
     useEffect(() => {
@@ -69,6 +71,7 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
     // 메시지 가져오기 함수
     const getMessages = async () => {
         // 메시지 가져오기
+        await
         axios
         .get("http://localhost:8080/admin/api/get-msg-list2")
         .then((res) => {
@@ -111,7 +114,8 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
     }, []);
 
     // $msg 메서드
-    const $msg = useCallback((type: string, message: string, lang: string, text: string) => {
+    const $msg = useCallback((type: string, message: string, text: string) => {        
+        console.log("$msg lang : ", lang);
         const foundMessage = messages.current.find((msg) => msg.msgType === type && msg.msgName === message);
         if (!foundMessage) {
             return text;

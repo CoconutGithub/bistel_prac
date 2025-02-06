@@ -116,7 +116,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                 "\", \"roleName\": \"" + user.getRoleName() +
                 "\", \"isMighty\": \"" + user.getIsMighty() +
                 "\", \"phoneNumber\": \"" + user.getPhoneNumber() +
-
+                "\", \"langCode\": \"" + user.getLangCode()+
                 "\", \"footerYN\": \"" + user.getFooterYN() +
                 "\", \"headerColor\": \"" + user.getHeaderColor() +
                 "\", \"email\": \"" + user.getEmail() + "\"}");

@@ -163,7 +163,8 @@ const ManageMessage: React.FC = () => {
   }, []);
 
   const handleSearch = async () => {
-//     console.log("메세지 가져오기 테스트: ", comAPIContext.$msg("label", "asfdasffasd", "KO", "취소얌"));
+    console.log("state", state);
+    console.log("메세지 가져오기 테스트: ", comAPIContext.$msg("label", "cancel", "취소얌"));
     comAPIContext.showProgressBar();
     await new Promise((resolve) => setTimeout(resolve, 500));
     const params = { msgType: selectedType

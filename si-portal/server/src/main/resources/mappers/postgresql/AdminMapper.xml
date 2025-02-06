@@ -181,6 +181,7 @@
         , A.UPDATE_BY
         , C.ROLE_NAME
         , C.ROLE_ID
+        , A.LANG_CODE
         FROM P_USER A
         , P_USER_ROLE B
         , P_ROLE C
