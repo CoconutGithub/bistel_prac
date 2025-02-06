@@ -19,15 +19,14 @@ public class MinioController {
         this.minioService = minioService;
     }
 
-    @PostMapping("/presigned-url")
+    @PostMapping("/get-presigned-url")
     public Map<String, String> getPresignedUrl(@RequestParam String fileName) {
-        String presignedUrl = minioService.generatePresignedUrl(fileName);
 
-        String fileUrl = "http://localhost:9000/siportal" + fileName;
+        String presignedUrl = minioService.generatePresignedUrl(fileName);
 
         Map<String, String> response = new HashMap<>();
         response.put("presignedUrl", presignedUrl);
-        response.put("fileUrl", fileUrl);
+
         return response;
     }
 }
