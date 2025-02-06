@@ -15,10 +15,8 @@ public interface AdminMapper {
     int deleteMenu(@Param("menuId") int menuId);
     List<ComResultMap> getMenuTree();
 
-    List<ComResultMap> getUserByUserName(@Param("userName") String userName);
     List<ComResultMap> getEmailHistory(@Param("sendUser") String sendUser);
 
-    int existUser(@Param("userId") String userId);
     void registerUser(Map<String, Object> user);
     void updateProfileImage(Map<String, Object> user);
     Map<String, Object> getUserProfileImage(String userId);

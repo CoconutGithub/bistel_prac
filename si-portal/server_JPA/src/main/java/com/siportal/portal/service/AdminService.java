@@ -276,21 +276,20 @@ public class AdminService {
 
         try {
             String userId = (String) requestData.get("userId");
-            int dataCount = adminMapper.existUser(userId);
+            boolean exist = userRepository.existsByUserId(userId);
 
             Map<String, Object> response = new HashMap<>();
 
-            if (dataCount == 0) {
-                response.put("success", true);
-                response.put("message", "User ID is available for creation.");
-            } else {
+            if (exist) {
                 response.put("success", false);
                 response.put("message", "User ID is not available for creation.");
+            } else {
+                response.put("success", true);
+                response.put("message", "User ID is available for creation.");
             }
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
                     .body("Error occurred: " + e.getMessage());
         }
