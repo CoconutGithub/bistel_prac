@@ -14,7 +14,7 @@ public class User {
     private String roleId;
     private String roleName;
     private String isMighty;
-
+    private String langCode;
     private String footerYN;
     private String headerColor;
 }
