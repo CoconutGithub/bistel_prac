@@ -63,6 +63,7 @@
              , A.HEADER_COLOR
              , C.ROLE_ID
              , C.IS_MIGHTY
+             , A.LANG_CODE
         FROM P_USER A
            , P_USER_ROLE B
            , P_ROLE C
