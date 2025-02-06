@@ -72,15 +72,6 @@
         </if>
         ORDER BY JOB_NAME
     </select>
-    <delete id="deleteUser" >
-        DELETE FROM P_USER
-        WHERE USER_ID = #{userId}
-    </delete>
-
-    <delete id="deleteUserRole" >
-        DELETE FROM P_USER_ROLE
-        WHERE USER_ID = #{userId}
-    </delete>
 
     <update id="updateUser">
         UPDATE P_USER
