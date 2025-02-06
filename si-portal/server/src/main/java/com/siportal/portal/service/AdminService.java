@@ -86,7 +86,6 @@ public class AdminService {
                     .body("Error occurred: " + e.getMessage());
         }
     }
-    @GetMapping("/api/get-msg-type")
     public ResponseEntity<?> getMsgTypeList(@RequestParam String status) {
 
         try {
@@ -97,7 +96,6 @@ public class AdminService {
                     .body("Error occurred: " + e.getMessage());
         }
     }
-    @GetMapping("/api/check-msg")
     public ResponseEntity<?> checkMsg(@RequestParam Map<String, String> params) {
         Map<String, Object> response = new HashMap<>();
 
@@ -115,7 +113,6 @@ public class AdminService {
         }
     }
 
-    @GetMapping("/api/get-msg-list")
     public ResponseEntity<?> getMsgList(@RequestParam Map<String, String> params) {
 
         try {
@@ -126,7 +123,6 @@ public class AdminService {
                     .body("Error occurred: " + e.getMessage());
         }
     }
-    @PostMapping("/api/update-msg-list")
     public ResponseEntity<?> updateMsgList(@RequestBody Map<String, Object> requestData) {
 
         try {
@@ -230,7 +226,6 @@ public class AdminService {
             }
         }
     }
-    @GetMapping("/api/get-schedule")
     public ResponseEntity<?> getScheduleList(@RequestParam String jobName, @RequestParam String status) {
 
         try {

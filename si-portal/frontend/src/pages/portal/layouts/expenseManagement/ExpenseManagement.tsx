@@ -5,6 +5,33 @@ import FileCellRenderer from "~components/fileCellRenderer/FileCellRenderer";
 import { AgGridWrapperHandle } from "~types/GlobalTypes";
 import { useEffect, useRef, useState } from "react";
 
+async function getPresignedUrl(file: File) {
+  const response = await fetch(
+    "http://localhost:8080/api/minio/presigned-url?fileName=" +
+      encodeURIComponent(file.name),
+    {
+      method: "POST",
+    }
+  );
+
+  const { presignedUrl, fileUrl } = await response.json();
+  return { presignedUrl, fileUrl };
+}
+
+// async function uploadFile(file: File) {
+//   const { presignedUrl, fileUrl } = await getPresignedUrl(file);
+
+//   await fetch(presignedUrl, {
+//     method: 'PUT',
+//     body: file,
+//     headers: {
+//       'Content-Type': file.type
+//     }
+//   });
+
+//   console.log('업로드 완료! 파일 URL:', fileUrl);
+// }
+
 const ExpenseManagement: React.FC = () => {
   const gridRef = useRef<AgGridWrapperHandle>(null);
   const [selectedFilesMap, setSelectedFilesMap] = useState<any>({});
@@ -23,7 +50,20 @@ const ExpenseManagement: React.FC = () => {
 
   const handleSave = (props: any) => {
     const { deleteList, updateList, createList } = props;
-    console.log(deleteList, updateList, createList);
+
+    const createData = Object.entries(createList).map(
+      ([key, value]: [any, any]) => {
+        return {
+          gridRowId: value.gridRowId,
+          user: value.user,
+          category: value.category,
+          item: value.item,
+          price: value.price,
+          fileAttachment: selectedFilesMap[value.gridRowId] || null,
+        };
+      }
+    );
+    console.log("createData", createData);
   };
 
   const columns = [
@@ -99,6 +139,8 @@ const ExpenseManagement: React.FC = () => {
 
   //   return () => clearInterval(findGridInterval);
   // }, []);
+
+  console.log("selectedFilesMap", selectedFilesMap);
 
   return (
     <div className={styles.start}>

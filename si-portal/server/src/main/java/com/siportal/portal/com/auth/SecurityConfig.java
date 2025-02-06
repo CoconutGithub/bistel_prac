@@ -35,6 +35,7 @@ public class SecurityConfig {
                         .requestMatchers("/admin/api/exist-user").permitAll() // 인증 없이 허용
                         .requestMatchers("/admin/api/register-user").permitAll() // 인증 없이 허용
                         .requestMatchers("/admin/api/register-user2").permitAll() // 인증 없이 허용
+                        .requestMatchers("/admin/api/get-msg-list2").permitAll() // 인증 없이 허용
                         .anyRequest().authenticated()
                 )
                 .addFilter(new LoginFilter(authenticationManager, portalMapper, title, databaseType))
