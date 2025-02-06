@@ -1,9 +1,37 @@
+import axios from "axios";
 import SiTableIcon from "~components/icons/SiTableIcon";
 import styles from "./ExpenseManagement.module.scss";
 import AgGridWrapper from "~components/agGridWrapper/AgGridWrapper";
 import FileCellRenderer from "~components/fileCellRenderer/FileCellRenderer";
 import { AgGridWrapperHandle } from "~types/GlobalTypes";
 import { useRef, useState } from "react";
+
+const API_BASE_URL = "http://localhost:8080/";
+let cachedAuthToken: string | null = sessionStorage.getItem("authToken");
+
+async function getPresignedUrl(
+  file: File
+): Promise<{ presignedUrl: string; fileUrl: string }> {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/get-presigned-url`,
+      {
+        headers: {
+          Authorization: `Bearer ${cachedAuthToken}`,
+        },
+      },
+      {
+        params: { fileName: encodeURIComponent(file.name) },
+      }
+    );
+
+    console.log("get presigned url return data", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Presigned URL 요청 중 오류가 발생했습니다", error);
+    throw error;
+  }
+}
 
 const ExpenseManagement: React.FC = () => {
   const gridRef = useRef<AgGridWrapperHandle>(null);
@@ -25,26 +53,26 @@ const ExpenseManagement: React.FC = () => {
     const { deleteList, updateList, createList } = props;
 
     // 신규 생성 데이터를 처리하는 로직
-    const createData = await Promise.all(
-      Object.entries(createList).map(async ([key, value]: [any, any]) => {
-        let fileDate = null;
+    // const createData = await Promise.all(
+    //   Object.entries(createList).map(async ([key, value]: [any, any]) => {
+    //     let fileDate = null;
 
-        if (selectedFilesMap[value.gridRowId]) {
-          const files = selectedFilesMap[value.gridRowId];
-          // 이어서 작성
-        }
+    //     if (selectedFilesMap[value.gridRowId]) {
+    //       const files = selectedFilesMap[value.gridRowId];
+    //       // 이어서 작성
+    //     }
 
-        return {
-          gridRowId: value.gridRowId,
-          user: value.user,
-          category: value.category,
-          item: value.item,
-          price: value.price,
-          fileAttachment: selectedFilesMap[value.gridRowId] || null,
-        };
-      })
-    );
-    console.log("createData", createData);
+    //     return {
+    //       gridRowId: value.gridRowId,
+    //       user: value.user,
+    //       category: value.category,
+    //       item: value.item,
+    //       price: value.price,
+    //       fileAttachment: selectedFilesMap[value.gridRowId] || null,
+    //     };
+    //   })
+    // );
+    // console.log("createData", createData);
   };
 
   const columns = [
