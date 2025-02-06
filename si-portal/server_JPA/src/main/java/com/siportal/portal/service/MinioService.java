@@ -5,7 +5,8 @@ import io.minio.MinioClient;
 import io.minio.http.Method;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -22,14 +23,20 @@ public class MinioService {
 
     public String generatePresignedUrl(String fileName) {
         try {
-            return minioClient.getPresignedObjectUrl(
+
+            String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8);
+
+            String presignedUrl = minioClient.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
                             .method(Method.PUT)
                             .bucket(bucketName)
-                            .object(fileName)
+                            .object(encodedFileName)
                             .expiry(10, TimeUnit.MINUTES)
                             .build()
             );
+
+
+            return presignedUrl;
         } catch (Exception e) {
             throw new RuntimeException("Presigned URL 생성 실패: " + e.getMessage());
         }
