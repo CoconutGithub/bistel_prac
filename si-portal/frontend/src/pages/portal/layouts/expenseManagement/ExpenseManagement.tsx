@@ -95,6 +95,7 @@ const ExpenseManagement: React.FC = () => {
         }
 
         return {
+          gridRowId: value.gridRowId,
           userName: value.user,
           category: value.category,
           item: value.item,

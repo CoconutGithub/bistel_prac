@@ -1,42 +1,50 @@
 package com.siportal.portal.domain;
 
 import jakarta.persistence.*;
+import lombok.Generated;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import jakarta.persistence.Id;
+import org.checkerframework.checker.units.qual.C;
+
 import java.time.LocalDateTime;
 
 
 @Entity
-@Table(name = "P_FILE")
+@Table(name = "p_file")
 @Getter
 @Setter
-@NoArgsConstructor
 public class File {
 
     @Id
-    @Column(name = "FILE_GROUP_ID", nullable = false)
-    private Integer fileGroupId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "file_id")
+    private Long fileId;
 
-    @Column(name = "FILE_NAME", length = 200, nullable = false)
+    @Column(name = "grid_row_id", length = 255)
+    private String gridRowId;
+
+    @Column(name = "file_group_id", nullable = false)
+    private Long fileGroupId;
+
+    @Column(name = "file_name", nullable = false, length = 255)
     private String fileName;
 
-    @Column(name = "FILE_PATH", length = 200, nullable = false)
+    @Column(name = "file_path", nullable = false, columnDefinition = "TEXT")
     private String filePath;
 
-    @Column(name = "FILE_SIZE", nullable = false)
-    private Integer fileSize;
+    @Column(name = "file_size", nullable = false)
+    private Long fileSize;
 
-    @Column(name = "CREATE_DATE", updatable = false)
-    private LocalDateTime createDate;
+    @Column(name = "created_at", updatable = false, columnDefinition = "TIMESTAMP DEFAULT now()")
+    private LocalDateTime createdAt = LocalDateTime.now();
 
-    @Column(name = "CREATE_BY", length = 100, updatable = false)
-    private String createBy;
+    @Column(name = "created_by", length = 100)
+    private String createdBy;
 
-    @Column(name = "UPDATE_DATE")
-    private LocalDateTime updateDate;
+    @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT now()")
+    private LocalDateTime updatedAt = LocalDateTime.now();
 
-    @Column(name = "UPDATE_BY", length = 100)
-    private String updateBy;
+    @Column(name = "updated_by", length = 100)
+    private String updatedBy;
 }
