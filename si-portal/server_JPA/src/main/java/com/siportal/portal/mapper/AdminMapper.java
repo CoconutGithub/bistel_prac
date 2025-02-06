@@ -49,6 +49,18 @@ public interface AdminMapper {
 
     void deleteUserInfo(@Param("userId") String userId);
 
+    List<ComResultMap> getMsgTypeList(@Param("status") String status);
+    List<ComResultMap> getMsgList(Map<String, String> params);
+    int deleteMsgList(Map<String, String> params);
+    int getSeqMsgId();
+    int createMsgMain(Map<String, String> params);
+    int createMsgDetail(Map<String, String> params);
+    int checkDupMsg(Map<String, String> params);
+    int getMsgId(Map<String, String> params);
+    int updateMsgMain(Map<String, String> params);
+    int updateMsgDetail(Map<String, String> params);
+    int checkMsgTextExist(Map<String, String> params);
+
     List<SchedulDTO> getScheduleList(@Param("jobName") String jobName, @Param("status") String status);
 
     int deleteSchedule(@Param("jobName") String jobName, @Param("groupName") String groupName);
