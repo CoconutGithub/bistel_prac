@@ -9,6 +9,7 @@ export interface AuthState {
         isMighty: string;
         phoneNumber: string;
         email: string;
+        langCode: string;
         isShowFooter: boolean;
         headerColor: string;
     };
