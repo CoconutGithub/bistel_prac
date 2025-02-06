@@ -17,7 +17,6 @@ public interface AdminMapper {
 
     List<ComResultMap> getEmailHistory(@Param("sendUser") String sendUser);
 
-    void registerUser(Map<String, Object> user);
     void updateProfileImage(Map<String, Object> user);
     Map<String, Object> getUserProfileImage(String userId);
     void updatePhoneNumber(Map<String, Object> user);
