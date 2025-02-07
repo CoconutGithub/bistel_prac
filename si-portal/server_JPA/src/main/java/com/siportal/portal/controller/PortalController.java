@@ -25,11 +25,6 @@ public class PortalController {
         return portalService.getPageAuth(roleId, path);
     }
 
-    @PostMapping("/api/login-success")
-    public ResponseEntity<?> loginSuccess(@RequestBody Map<String, String> requestBody) {
-        return portalService.loginSuccess(requestBody);
-    }
-
     @GetMapping("/api/get-user")
     public ResponseEntity<?> getUser(@RequestParam String userName) {
         return portalService.getUser(userName);

@@ -2,6 +2,7 @@ package com.siportal.portal.repository;
 
 import com.siportal.portal.com.result.ComResultMap;
 import com.siportal.portal.domain.User;
+import com.siportal.portal.dto.UserDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -9,6 +10,30 @@ import java.util.Optional;
 import java.util.List;
 
 public interface UserRepository extends JpaRepository<User, Integer> {
+
+    @Query(value = """
+        SELECT A.USER_ID
+            , A.USER_NAME
+            , A.EMAIL
+            , A.PHONE_NUMBER
+            , A.STATUS
+            , A.PASSWORD
+            , C.ROLE_NAME
+            , A.FOOTER_YN
+            , A.HEADER_COLOR
+            , CAST(C.ROLE_ID AS TEXT) AS ROLE_ID
+            , C.IS_MIGHTY
+            , A.LANG_CODE
+        FROM P_USER A
+            , P_USER_ROLE B
+            , P_ROLE C
+        WHERE 1=1
+            AND A.STATUS ='ACTIVE'
+            AND A.USER_ID = B.USER_ID
+            AND B.ROLE_ID = C.ROLE_ID
+            AND A.USER_ID = #{userId}
+    """, nativeQuery = true)
+    UserDto getLoginDataByUserId(@Param("userId") String userName);
 
     //사용자명으로 사용자를 조회 한다.
     @Query(value = """

@@ -1,6 +1,8 @@
 package com.siportal.portal.com.auth;
 
 import com.siportal.portal.mapper.PortalMapper;
+import com.siportal.portal.repository.LoginRepository;
+import com.siportal.portal.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -23,7 +25,7 @@ public class SecurityConfig {
     private String databaseType;
 
     @Autowired
-    private PortalMapper portalMapper;
+    private LoginRepository loginRepository;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
@@ -38,7 +40,7 @@ public class SecurityConfig {
                         .requestMatchers("/admin/api/get-msg-list2").permitAll() // 인증 없이 허용
                         .anyRequest().authenticated()
                 )
-                .addFilter(new LoginFilter(authenticationManager, portalMapper, title, databaseType))
+                .addFilter(new LoginFilter(authenticationManager, loginRepository, title, databaseType))
                 .addFilter(new AfterLoginFilter(authenticationManager))
                 .build();
     }
