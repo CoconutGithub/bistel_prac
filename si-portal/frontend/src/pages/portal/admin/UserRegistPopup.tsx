@@ -18,11 +18,11 @@ import * as bcrypt from "bcryptjs";
 interface IUserRegistPopup {
     onResearchUser?: () => void;
     mode?: "signup" | "register";
-    isPopup?: boolean;
+    isManager?: boolean;
 }
 
 const UserRegistPopup = forwardRef(
-    ({onResearchUser, mode = "register", isPopup }: IUserRegistPopup, ref: any) => {
+    ({onResearchUser, mode = "register", isManager }: IUserRegistPopup, ref: any) => {
         const [isVisible, setIsVisible] = useState<boolean>(false);
         const comAPIContext = useContext(ComAPIContext);
         const [userId, setUserId] = useState<string>("");
@@ -204,7 +204,7 @@ const UserRegistPopup = forwardRef(
             try {
                 const formData = new FormData();
 
-                console.log("🚀 isPop 값:", isPopup);
+                console.log("🚀 isManager 값:", isManager);
 
                 // 파일이 선택된 경우에만 이미지 추가
                 if (file) {
@@ -216,7 +216,7 @@ const UserRegistPopup = forwardRef(
                 const salt = await bcrypt.genSalt(10);
                 const hashedPassword = await bcrypt.hash(password, salt);
 
-                const createByValue = isPopup ? "system" : userId;
+                const createByValue = isManager ? "system" : userId;
                 console.log("🚀 createBy 값:", createByValue); // 👉 로그 추가 (확인용)
 
                 //사용자 정보 추가
@@ -488,8 +488,7 @@ const UserRegistPopup = forwardRef(
                                             <Form.Select value={langCode} onChange={handleLangCode}>
                                                 <option value="KO">한국어 (KO)</option>
                                                 <option value="EN">영어 (EN)</option>
-                                                <option value="CH">중국어 (CH)</option>
-                                                <option value="ZH">대만어 (ZH)</option>
+                                                <option value="CN">중국어 (CH)</option>
                                             </Form.Select>
                                         </Col>
                                     </Form.Group>

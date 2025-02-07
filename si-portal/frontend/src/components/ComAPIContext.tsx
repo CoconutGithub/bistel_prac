@@ -20,7 +20,7 @@ interface ComAPIContextType {
     showToast: (message: string, variant?: "success" | "danger" | "warning" | "info" | "dark") => void;
     showProgressBar: () => void;
     hideProgressBar: () => void;
-    $msg: (type: string, message: string, text: string) => void;
+    $msg: (langCode: string, type: string, message: string, text: string) => string;
 }
 
 // 초기 컨텍스트 값 정의
@@ -28,7 +28,7 @@ const defaultContextValue: ComAPIContextType = {
     showToast: () => {},
     showProgressBar: () => {},
     hideProgressBar: () => {},
-    $msg: () => {},
+    $msg: () => {return ""},
 };
 
 // $msg 메서드 타입 정의
@@ -114,13 +114,12 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
     }, []);
 
     // $msg 메서드
-    const $msg = useCallback((type: string, message: string, text: string) => {        
-        console.log("$msg lang : ", lang);
+    const $msg = useCallback((langCode: string, type: string, message: string, text: string) => {
         const foundMessage = messages.current.find((msg) => msg.msgType === type && msg.msgName === message);
         if (!foundMessage) {
             return text;
         } else {
-            switch (lang.toUpperCase()) {
+            switch (langCode.toUpperCase()) {
                 case "KO":
                     return foundMessage.koLangText;
                 case "EN":
@@ -132,6 +131,7 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
             }
         }
     }, []);
+
 
     // useMemo를 사용하여 value 메모이제이션
     const contextValue = useMemo(
