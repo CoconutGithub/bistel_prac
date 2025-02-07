@@ -18,10 +18,11 @@ import * as bcrypt from "bcryptjs";
 interface IUserRegistPopup {
     onResearchUser?: () => void;
     mode?: "signup" | "register";
+    isPopup?: boolean;
 }
 
 const UserRegistPopup = forwardRef(
-    ({onResearchUser, mode = "register"}: IUserRegistPopup, ref: any) => {
+    ({onResearchUser, mode = "register", isPopup }: IUserRegistPopup, ref: any) => {
         const [isVisible, setIsVisible] = useState<boolean>(false);
         const comAPIContext = useContext(ComAPIContext);
         const [userId, setUserId] = useState<string>("");
@@ -38,6 +39,7 @@ const UserRegistPopup = forwardRef(
         const [toastShow, setToastShow] = useState(false);
         const [file, setFile] = useState<File | null>(null); // File | null 타입 명시
         const [preview, setPreview] = useState<string | null>(null); // string | null 타입 명시 // 이미지 미리보기
+        const [langCode, setLangCode] = useState<string>("KO");
 
         const resetForm = () => {
             setUserId("");
@@ -92,6 +94,10 @@ const UserRegistPopup = forwardRef(
 
         const handleStatus = (e: any) => {
             setStatus(e.target.value);
+        };
+
+        const handleLangCode = (e: any) => {
+            setLangCode(e.target.value);
         };
 
         const getRoles = async () => {
@@ -198,6 +204,8 @@ const UserRegistPopup = forwardRef(
             try {
                 const formData = new FormData();
 
+                console.log("🚀 isPop 값:", isPopup);
+
                 // 파일이 선택된 경우에만 이미지 추가
                 if (file) {
                     formData.append("image", file);
@@ -208,6 +216,9 @@ const UserRegistPopup = forwardRef(
                 const salt = await bcrypt.genSalt(10);
                 const hashedPassword = await bcrypt.hash(password, salt);
 
+                const createByValue = isPopup ? "system" : userId;
+                console.log("🚀 createBy 값:", createByValue); // 👉 로그 추가 (확인용)
+
                 //사용자 정보 추가
                 formData.append("userId", userId);
                 formData.append("userName", userName);
@@ -216,6 +227,8 @@ const UserRegistPopup = forwardRef(
                 formData.append("phoneNumber", phoneNumber);
                 formData.append("userRole", mode === "register" ? String(parseInt(userRole, 10)) : "4");
                 formData.append("status", status);
+                formData.append("langCode", langCode);
+                formData.append("createBy", createByValue);
 
                 // 서버로 전송
                 let response;
@@ -262,10 +275,6 @@ const UserRegistPopup = forwardRef(
                 comAPIContext.hideProgressBar();
             }
         };
-
-
-
-
 
         const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
             const selectedFile = e.target.files![0];
@@ -468,6 +477,19 @@ const UserRegistPopup = forwardRef(
                                             <Form.Select value={status} onChange={handleStatus}>
                                                 <option value="ACTIVE">ACTIVE</option>
                                                 <option value="INACTIVE">INACTIVE</option>
+                                            </Form.Select>
+                                        </Col>
+                                    </Form.Group>
+                                    <Form.Group as={Row} className="mb-3" controlId="langCode">
+                                        <Form.Label column sm={3}>
+                                            <strong>언어</strong>
+                                        </Form.Label>
+                                        <Col sm={9}>
+                                            <Form.Select value={langCode} onChange={handleLangCode}>
+                                                <option value="KO">한국어 (KO)</option>
+                                                <option value="EN">영어 (EN)</option>
+                                                <option value="CH">중국어 (CH)</option>
+                                                <option value="ZH">대만어 (ZH)</option>
                                             </Form.Select>
                                         </Col>
                                     </Form.Group>
