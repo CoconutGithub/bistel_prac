@@ -3,7 +3,6 @@ import React, {
   useEffect,
   useContext,
   useRef,
-  useMemo,
   useCallback,
 } from "react";
 import { Container, Row, Col, Form, Button } from "react-bootstrap";
@@ -136,10 +135,6 @@ const ManageUser: React.FC = () => {
   );
   //=== 설정된 값 및 버튼 정보, 공통함수 가져옴-end ===
 
-  // const langCode = useSelector((state: RootState) => state.auth.user.langCode);
-  // console.log("langCode=====================>", langCode);
-
-
   const inputRef = useRef<HTMLInputElement>(null);
   const gridRef = useRef<AgGridWrapperHandle>(null);
   const userRegisterRef = useRef<any>(null);
@@ -208,7 +203,7 @@ const ManageUser: React.FC = () => {
             gridRef.current.setRowData(res.data); // 데이터를 AgGridWrapper에 설정
           }
           comAPIContext.hideProgressBar();
-          comAPIContext.showToast("" + comAPIContext.$msg("message", "search_complete", "afdafsd"), "success");
+          comAPIContext.showToast(comAPIContext.$msg("message", "search_complete", "조회가 완료됐습니다."), "success");
 
         })
         .catch((err) => {
@@ -234,12 +229,10 @@ const ManageUser: React.FC = () => {
 
   const handleSave = useCallback(
       (lists: { deleteList: any[]; updateList: any[] }) => {
-        console.log("--------->", roleKind);
-
         if (!gridRef.current) return;
 
         if (lists.deleteList.length === 0 && lists.updateList.length === 0) {
-          comAPIContext.showToast("저장할 데이터가 없습니다.", "dark");
+          comAPIContext.showToast(comAPIContext.$msg("message", "no_save_data", "저장할 데이터가 없습니다."), "dark");
           return;
         }
 
@@ -273,11 +266,9 @@ const ManageUser: React.FC = () => {
               }
           ).then((res) => {
             if (res.data.messageCode === 'success') {
-              comAPIContext.showToast(
-                  "모든 작업이 성공적으로 처리되었습니다."
-                  + `(update: ${res.data.updatedUsersCnt}, delete: ${res.data.deletedUsersCnt})`,
-                  "success"
-              );
+              comAPIContext.showToast(comAPIContext.$msg("message", "save_complete", "저장이 완료됐습니다."
+                  + `(update: ${res.data.updatedUsersCnt}, delete: ${res.data.deletedUsersCnt})`
+              ), "success");
 
               handleSearch(); // 저장 후 최신 데이터 조회
             }
@@ -285,7 +276,7 @@ const ManageUser: React.FC = () => {
 
         } catch (err) {
           console.error("Error saving data:", err);
-          comAPIContext.showToast("저장 중 오류가 발생했습니다.", "danger");
+          comAPIContext.showToast(comAPIContext.$msg("message", "save_fail", "저장이 실패했습니다."), "danger");
           handleSearch();
         } finally {
           comAPIContext.hideProgressBar();

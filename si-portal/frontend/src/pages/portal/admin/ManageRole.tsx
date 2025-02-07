@@ -191,7 +191,7 @@ const ManageRole: React.FC = () => {
     comAPIContext.showProgressBar();
     try {
       if (!roleList) {
-        comAPIContext.showToast("로딩중입니다.", "warning");
+        comAPIContext.showToast(comAPIContext.$msg("message", "loading", "데이타를 가져오는 중입니다."), "warning");
         return;
       }
 
@@ -212,10 +212,10 @@ const ManageRole: React.FC = () => {
         gridRef.current.setRowData(response.data);
       }
 
-      comAPIContext.showToast("조회가 완료되었습니다.", "success");
+      comAPIContext.showToast(comAPIContext.$msg("message", "search_complete", "조회가 완료됐습니다."), "success");
     } catch (error: any) {
       console.error("Error fetching roles:", error);
-      comAPIContext.showToast("조회 중 오류가 발생했습니다.", "danger");
+      comAPIContext.showToast(comAPIContext.$msg("message", "search_fail", "저장이 실패했습니다."), "danger");
     } finally {
       comAPIContext.hideProgressBar();
     }
@@ -247,7 +247,7 @@ const ManageRole: React.FC = () => {
       if (!gridRef.current) return;
 
       if (lists.deleteList.length === 0 && lists.updateList.length === 0) {
-        comAPIContext.showToast("저장할 데이터가 없습니다.", "dark");
+        comAPIContext.showToast(comAPIContext.$msg("message", "no_save_data", "저장할 데이터가 없습니다."), "dark");
         return;
       }
 
@@ -274,12 +274,12 @@ const ManageRole: React.FC = () => {
         );
 
         console.log("Save response:", response); // 응답 확인
+        comAPIContext.showToast(comAPIContext.$msg("message", "save_complete", "저장이 완료됐습니다."), "success");
 
-        comAPIContext.showToast("저장되었습니다.", "success");
         handleSearch();
       } catch (err) {
         console.error("Error saving data:", err);
-        comAPIContext.showToast("저장 중 오류가 발생했습니다.", "danger");
+        comAPIContext.showToast(comAPIContext.$msg("message", "save_fail", "저장이 실패했습니다."), "danger");
       } finally {
         comAPIContext.hideProgressBar();
       }
@@ -332,14 +332,13 @@ const ManageRole: React.FC = () => {
       console.log("SavePopup response:", response); // 응답 확인
 
       if (response.data.messageCode === "success") {
-        const { updatedUsersCnt, insertedUsersCnt, deletedUsersCnt } =
-          response.data;
-        comAPIContext.showToast(
-          `저장되었습니다. 업데이트된 수: ${updatedUsersCnt}, 삽입된 수: ${insertedUsersCnt}, 삭제된 수: ${deletedUsersCnt}`,
-          "success"
-        );
+          const { updatedUsersCnt, insertedUsersCnt, deletedUsersCnt } = response.data;
+          comAPIContext.showToast(comAPIContext.$msg("message", "save_complete", "저장이 완료됐습니다."
+              + `(update: ${updatedUsersCnt}, insert: ${insertedUsersCnt}, delete: ${deletedUsersCnt})`
+          ),"success");
+
       } else {
-        comAPIContext.showToast("저장 중 오류가 발생했습니다.", "danger");
+        comAPIContext.showToast(comAPIContext.$msg("message", "save_fail", "저장이 실패했습니다."), "danger");
       }
 
       comAPIContext.hideProgressBar();
@@ -347,7 +346,7 @@ const ManageRole: React.FC = () => {
       setShowPopup(false); // 팝업 닫기
     } catch (error: any) {
       console.error("Error saving role:", error);
-      comAPIContext.showToast("저장 중 오류가 발생했습니다.", "danger");
+      comAPIContext.showToast(comAPIContext.$msg("message", "save_fail", "저장이 실패했습니다."), "danger");
       comAPIContext.hideProgressBar();
     }
   };
