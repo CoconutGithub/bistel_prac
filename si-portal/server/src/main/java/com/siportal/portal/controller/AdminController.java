@@ -103,9 +103,10 @@ public class AdminController {
             @RequestParam("password") String password,
             @RequestParam("email") String email,
             @RequestParam("userRole") Integer userRole,
+            @RequestParam("langCode") String langCode,
             @RequestParam(value = "image", required = false) MultipartFile image // 파일 처리
     ) {
-        return adminService.registerUser(userId, userName, phoneNumber, status, password, email, userRole, image);
+        return adminService.registerUser(userId, userName, phoneNumber, status, password, email, userRole, langCode, image);
     }
 
 

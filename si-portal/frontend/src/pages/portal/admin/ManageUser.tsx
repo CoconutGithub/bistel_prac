@@ -101,6 +101,13 @@ const columnDefs = [
     width: 200,
     filter: true,
   },
+  {
+    field: "langCode",
+    headerName: "언어코드",
+    sortable: true,
+    width: 150,
+    filter: true,
+  },
 ];
 
 interface Role {
@@ -344,7 +351,7 @@ const ManageUser: React.FC = () => {
             </AgGridWrapper>
           </Col>
         </Row>
-        <UserRegistPopup onResearchUser={refreshData} ref={userRegisterRef} />
+        <UserRegistPopup onResearchUser={refreshData} ref={userRegisterRef} isPopup={true}/>
       </Container>
   );
 };

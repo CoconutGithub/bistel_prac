@@ -563,6 +563,7 @@ public class AdminService {
             @RequestParam("password") String password,
             @RequestParam("email") String email,
             @RequestParam("userRole") Integer userRole,
+            @RequestParam("langCode") String langCode,
             @RequestParam(value = "image", required = false) MultipartFile image // 파일 처리
     ) {
 
@@ -575,6 +576,7 @@ public class AdminService {
             user.put("status", status);
             user.put("password", password);
             user.put("email", email);
+            user.put("langCode", langCode);
 
             // 파일을 DB의 bytea 컬럼에 저장
             if (image != null && !image.isEmpty()) {
