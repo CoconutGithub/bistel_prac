@@ -208,9 +208,6 @@ const ManageUser: React.FC = () => {
             gridRef.current.setRowData(res.data); // 데이터를 AgGridWrapper에 설정
           }
           comAPIContext.hideProgressBar();
-
-          //console.log("2==========>", langCode);
-
           comAPIContext.showToast("" + comAPIContext.$msg("message", "search_complete", "afdafsd"), "success");
 
         })
