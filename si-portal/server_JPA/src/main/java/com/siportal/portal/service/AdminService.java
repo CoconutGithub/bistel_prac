@@ -958,4 +958,39 @@ public class AdminService {
         }
     }
 
+    public ResponseEntity<?> getLangCode(String userId) {
+        try {
+            Optional<User> userOpt = userRepository.findByUserId(userId);
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            }
+
+            String langCode = userOpt.get().getLangCode();
+            return ResponseEntity.ok(Collections.singletonMap("langCode", langCode));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
+
+    @Transactional
+    public ResponseEntity<?> updateLangCode(Map<String, String> requestData) {
+        try {
+            String userId = requestData.get("userId");
+            String langCode = requestData.get("langCode");
+
+            User user = userRepository.findByUserId(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            user.setLangCode(langCode);
+            userRepository.save(user);
+
+            return ResponseEntity.ok(Collections.singletonMap("message", "Language code updated successfully."));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
+
+
 }

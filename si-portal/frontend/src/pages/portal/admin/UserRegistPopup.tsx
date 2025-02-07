@@ -480,19 +480,6 @@ const UserRegistPopup = forwardRef(
                                             </Form.Select>
                                         </Col>
                                     </Form.Group>
-                                    <Form.Group as={Row} className="mb-3" controlId="langCode">
-                                        <Form.Label column sm={3}>
-                                            <strong>언어</strong>
-                                        </Form.Label>
-                                        <Col sm={9}>
-                                            <Form.Select value={langCode} onChange={handleLangCode}>
-                                                <option value="KO">한국어 (KO)</option>
-                                                <option value="EN">영어 (EN)</option>
-                                                <option value="CH">중국어 (CH)</option>
-                                                <option value="ZH">대만어 (ZH)</option>
-                                            </Form.Select>
-                                        </Col>
-                                    </Form.Group>
                                 </>
                             )}
                             {mode === "signup" && (
@@ -519,6 +506,20 @@ const UserRegistPopup = forwardRef(
                                         </Col>
                                     </Form.Group>
                                 </>
+                            )}
+                            {(mode === "signup" || mode === "register") && (
+                                <Form.Group as={Row} className="mb-3" controlId="langCode">
+                                    <Form.Label column sm={3}>
+                                        <strong>언어</strong>
+                                    </Form.Label>
+                                    <Col sm={9}>
+                                        <Form.Select value={langCode} onChange={handleLangCode}>
+                                            <option value="KO">한국어 (KO)</option>
+                                            <option value="EN">영어 (EN)</option>
+                                            <option value="CH">중국어 (CH)</option>
+                                        </Form.Select>
+                                    </Col>
+                                </Form.Group>
                             )}
                         </Form>
                     </Modal.Body>
