@@ -22,6 +22,9 @@ const Profile: React.FC = () => {
     const [preview, setPreview] = useState<string | null>(null); // string | null 타입 명시 // 이미지 미리보기
     const [file, setFile] = useState<File | null>(null); // File | null 타입 명시
 
+    const [langCode, setLangCode] = useState<string>("");
+    const [newLangCode, setNewLangCode] = useState<string>("");
+
     const getPageTitleImage = () => {
         axios.get("http://localhost:8080/admin/api/user-profile-image", {
             headers: {Authorization: `Bearer ${cachedAuthToken}`},
@@ -48,10 +51,23 @@ const Profile: React.FC = () => {
         });
     };
 
+    const getLangCode = () => {
+        axios.get("http://localhost:8080/admin/api/get-lang-code", {
+            headers: { Authorization: `Bearer ${cachedAuthToken}` },
+            params: { userId: userId }
+        })
+        .then(res => {
+            setLangCode(res.data.langCode);
+            setNewLangCode(res.data.langCode); // 초기값 설정
+        })
+        .catch(error => console.error("Error fetching lang code:", error));
+    };
+
     useEffect(() => {
         // 사용자 이미지를 가져오는 API 호출
         getPageTitleImage();
         getUserPhoneNumber();
+        getLangCode();
     }, []);
 
     const changePassword = () => {
@@ -170,6 +186,23 @@ const Profile: React.FC = () => {
         });
     };
 
+    const handleLangCodeUpdate = () => {
+        axios.post("http://localhost:8080/admin/api/update-lang-code", {
+            userId: userId,
+            langCode: newLangCode
+        }, {
+            headers: { Authorization: `Bearer ${cachedAuthToken}` }
+        })
+            .then(() => {
+                setLangCode(newLangCode); // 성공 시 현재 langCode 업데이트
+                comAPIContext.showToast("언어 코드가 업데이트되었습니다.", "success");
+            })
+            .catch(error => {
+                console.error("Error updating lang code:", error);
+                comAPIContext.showToast("언어 코드 업데이트 실패", "danger");
+            });
+    };
+
     return (
         <Container className="mt-4">
             <Row>
@@ -229,8 +262,20 @@ const Profile: React.FC = () => {
                     </p>
                     <p>
                         <strong>이메일: </strong>
-                        {email.length === 0 ? "" : email}
+                        {email === null || email === undefined || email.toLowerCase() === "null" ? "NULL" : email}
                     </p>
+                    <p>
+                        <strong>언어 코드: </strong>
+                        <select value={newLangCode} onChange={(e) => setNewLangCode(e.target.value)} style={{ marginRight: "10px" }}>
+                            <option value="KO">한국어</option>
+                            <option value="EN">영어</option>
+                            <option value="CN">중국어</option>
+                        </select>
+                        <ComButton size="sm" variant="primary" onClick={handleLangCodeUpdate} disabled={langCode === newLangCode}>
+                            변경
+                        </ComButton>
+                    </p>
+
                 </Col>
                 <Col xs={4} className="d-flex flex-column align-items-center">
                     <>
