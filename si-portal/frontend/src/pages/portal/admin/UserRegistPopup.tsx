@@ -40,6 +40,7 @@ const UserRegistPopup = forwardRef(
         const [file, setFile] = useState<File | null>(null); // File | null 타입 명시
         const [preview, setPreview] = useState<string | null>(null); // string | null 타입 명시 // 이미지 미리보기
         const [langCode, setLangCode] = useState<string>("KO");
+        const [phoneParts, setPhoneParts] = useState<string[]>(["", "", ""]);
 
         const resetForm = () => {
             setUserId("");
@@ -74,10 +75,6 @@ const UserRegistPopup = forwardRef(
 
         const handleUserName = (e: any) => {
             setUserName(e.target.value);
-        };
-
-        const handlePhoneNumber = (e: any) => {
-            setPhoneNumber(e.target.value);
         };
 
         const handlePassword = (e: any) => {
@@ -203,6 +200,7 @@ const UserRegistPopup = forwardRef(
 
             try {
                 const formData = new FormData();
+                const formattedPhoneNumber = getFormattedPhoneNumber();
 
                 console.log("🚀 isManager 값:", isManager);
 
@@ -224,7 +222,7 @@ const UserRegistPopup = forwardRef(
                 formData.append("userName", userName);
                 formData.append("password", hashedPassword);  // 비크립트
                 formData.append("email", email);
-                formData.append("phoneNumber", phoneNumber);
+                formData.append("phoneNumber", formattedPhoneNumber);
                 formData.append("userRole", mode === "register" ? String(parseInt(userRole, 10)) : "4");
                 formData.append("status", status);
                 formData.append("langCode", langCode);
@@ -294,6 +292,24 @@ const UserRegistPopup = forwardRef(
                 reader.readAsDataURL(selectedFile);
             }
         };
+
+        const handlePhoneNumberChange = (index: number, value: string) => {
+            const updatedParts = [...phoneParts];
+            updatedParts[index] = value.replace(/[^0-9]/g, ""); // 숫자만 허용
+
+            // 자리 제한 적용
+            if (index === 0 && updatedParts[0].length > 3) updatedParts[0] = updatedParts[0].slice(0, 3);
+            if ((index === 1 || index === 2) && updatedParts[index].length > 4) updatedParts[index] = updatedParts[index].slice(0, 4);
+
+            setPhoneParts(updatedParts);
+        };
+
+        const getFormattedPhoneNumber = () => phoneParts.join("-");
+
+        useEffect(() => {
+            setIsTested(false);
+            setIsAvailableId(false);
+        }, [userId]);
 
 
         useEffect(() => {
@@ -440,12 +456,31 @@ const UserRegistPopup = forwardRef(
                                 <Form.Label column sm={3}>
                                     <strong>전화번호</strong>
                                 </Form.Label>
-                                <Col sm={9}>
+                                <Col sm={3}>
                                     <Form.Control
                                         type="text"
-                                        placeholder="Enter Phone Number"
-                                        value={phoneNumber}
-                                        onChange={handlePhoneNumber}
+                                        value={phoneParts[0]}
+                                        onChange={(e) => handlePhoneNumberChange(0, e.target.value)}
+                                        maxLength={3}
+                                        placeholder="XXX"
+                                    />
+                                </Col>
+                                <Col sm={3}>
+                                    <Form.Control
+                                        type="text"
+                                        value={phoneParts[1]}
+                                        onChange={(e) => handlePhoneNumberChange(1, e.target.value)}
+                                        maxLength={4}
+                                        placeholder="XXXX"
+                                    />
+                                </Col>
+                                <Col sm={3}>
+                                    <Form.Control
+                                        type="text"
+                                        value={phoneParts[2]}
+                                        onChange={(e) => handlePhoneNumberChange(2, e.target.value)}
+                                        maxLength={4}
+                                        placeholder="XXXX"
                                     />
                                 </Col>
                             </Form.Group>
