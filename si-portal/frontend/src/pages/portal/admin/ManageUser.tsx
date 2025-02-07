@@ -74,6 +74,13 @@ const columnDefs = [
     cellEditorParams: { values: ["ACTIVE", "INACTIVE"] }, // Combobox 옵션
   },
   {
+    field: "langCode",
+    headerName: "언어코드",
+    sortable: true,
+    width: 150,
+    filter: true,
+  },
+  {
     field: "createDate",
     headerName: "생성일",
     sortable: true,
@@ -99,13 +106,6 @@ const columnDefs = [
     headerName: "수정자",
     sortable: true,
     width: 200,
-    filter: true,
-  },
-  {
-    field: "langCode",
-    headerName: "언어코드",
-    sortable: true,
-    width: 150,
     filter: true,
   },
 ];
@@ -135,6 +135,8 @@ const ManageUser: React.FC = () => {
       (state: RootState) => state.auth.pageButtonAuth.canRead
   );
   //=== 설정된 값 및 버튼 정보, 공통함수 가져옴-end ===
+
+  const langCode = useSelector((state: RootState) => state.auth.user.langCode);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const gridRef = useRef<AgGridWrapperHandle>(null);
@@ -204,7 +206,9 @@ const ManageUser: React.FC = () => {
             gridRef.current.setRowData(res.data); // 데이터를 AgGridWrapper에 설정
           }
           comAPIContext.hideProgressBar();
-          comAPIContext.showToast("조회가 완료됐습니다.", "success");
+
+          comAPIContext.showToast(comAPIContext.$msg(langCode, "message", "search_complete", "조회가 완료됐습니다."),"success");
+
         })
         .catch((err) => {
           console.error("Error fetching data:", err);
@@ -267,7 +271,6 @@ const ManageUser: React.FC = () => {
                 headers: { Authorization: `Bearer ${cachedAuthToken}` },
               }
           ).then((res) => {
-            debugger
             if (res.data.messageCode === 'success') {
               comAPIContext.showToast(
                   "모든 작업이 성공적으로 처리되었습니다."
@@ -351,7 +354,7 @@ const ManageUser: React.FC = () => {
             </AgGridWrapper>
           </Col>
         </Row>
-        <UserRegistPopup onResearchUser={refreshData} ref={userRegisterRef} isPopup={true}/>
+        <UserRegistPopup onResearchUser={refreshData} ref={userRegisterRef} isManager={true}/>
       </Container>
   );
 };
