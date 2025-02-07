@@ -71,5 +71,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     void deleteByUserId(String userId);
 
     Optional<User> findByUserId(String userId);
+
+    @Query("SELECT u.profileImage FROM User u WHERE u.userId = :userId")
+    Optional<byte[]> findUserProfileImageByUserId(@Param("userId") String userId);
 }
 

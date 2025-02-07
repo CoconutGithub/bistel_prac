@@ -238,13 +238,6 @@ const Profile: React.FC = () => {
                             <img
                                 src={`data:image/png;base64,${profileImage}`}
                                 alt="프로필"
-                                style={{
-                                    display: "block",
-                                    width: "100%",
-                                    height: "auto",
-                                    borderRadius: "8px",
-                                    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                                }}
                             />
                         ) : (
                             <p>이미지가 없습니다.</p>

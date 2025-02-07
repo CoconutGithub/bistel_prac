@@ -2,10 +2,12 @@ package com.siportal.portal.service;
 
 import com.siportal.portal.com.batch.config.QuartzDynamicConfig;
 import com.siportal.portal.com.result.ComResultMap;
+import com.siportal.portal.domain.Menu;
 import com.siportal.portal.domain.User;
 import com.siportal.portal.domain.UserRole;
 import com.siportal.portal.dto.SchedulDTO;
 import com.siportal.portal.mapper.AdminMapper;
+import com.siportal.portal.repository.MenuRepository;
 import com.siportal.portal.repository.UserRepository;
 import com.siportal.portal.repository.UserRoleRepository;
 import jakarta.mail.MessagingException;
@@ -43,6 +45,7 @@ public class AdminService {
     //JPA
     private final UserRepository userRepository;
     private final UserRoleRepository userRoleRepository;
+    private final MenuRepository menuRepository;
 
     @Autowired
     public AdminService(AdminMapper adminMapper, JavaMailSender emailSender
@@ -50,6 +53,7 @@ public class AdminService {
         , JdbcTemplate jdbcTemplate
         , UserRepository userRepository
         , UserRoleRepository userRoleRepository
+        , MenuRepository menuRepository
         ) {
         this.adminMapper = adminMapper;
         this.emailSender = emailSender;
@@ -59,6 +63,8 @@ public class AdminService {
 
         this.userRepository = userRepository;
         this.userRoleRepository = userRoleRepository;
+
+        this.menuRepository = menuRepository;
     }
 
     public ResponseEntity<?> getMenuId() {
@@ -471,20 +477,19 @@ public class AdminService {
     public ResponseEntity<?> getUserProfileImage(@RequestParam("userId") String userId) {
         try {
             // DB에서 사용자 정보 조회
-            Map<String, Object> user = adminMapper.getUserProfileImage(userId);
+            Optional<byte[]> profileImageOpt = userRepository.findUserProfileImageByUserId(userId);
 
-            if (user == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            if (profileImageOpt.isEmpty() || profileImageOpt.get().length == 0) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User profile image not found");
             }
 
             // 프로필 이미지가 있는 경우 Base64 인코딩
-            if (user.get("profileImage") != null) {
-                byte[] imageBytes = (byte[]) user.get("profileImage");
-                String base64Image = Base64.getEncoder().encodeToString(imageBytes);
-                user.put("profileImage", base64Image);
-            }
+            String base64Image = Base64.getEncoder().encodeToString(profileImageOpt.get());
 
-            return ResponseEntity.ok(user);
+            Map<String, Object> response = new HashMap<>();
+            response.put("profileImage", base64Image);
+
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred");
@@ -601,8 +606,9 @@ public class AdminService {
             @RequestParam("password") String password,
             @RequestParam("email") String email,
             @RequestParam("userRole") Integer userRole,
-            @RequestParam("langCode") String langCode,
-            @RequestParam(value = "image", required = false) MultipartFile image // 파일 처리
+            @RequestParam(value = "image", required = false) MultipartFile image, // 파일 처리
+            @RequestParam(value = "langCode", required = false, defaultValue = "KO") String langCode,
+            @RequestParam("createBy") String createBy
     ) {
 
         try {
@@ -615,7 +621,7 @@ public class AdminService {
             userObj.setPassword(password);
             userObj.setEmail(email);
             userObj.setLangCode(langCode);
-            userObj.setCreateBy("system");
+            userObj.setCreateBy(createBy);
             userObj.setCreateDate(LocalDateTime.now());
 
             // 파일을 DB의 bytea 컬럼에 저장
