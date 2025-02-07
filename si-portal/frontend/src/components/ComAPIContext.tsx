@@ -20,7 +20,7 @@ interface ComAPIContextType {
     showToast: (message: string, variant?: "success" | "danger" | "warning" | "info" | "dark") => void;
     showProgressBar: () => void;
     hideProgressBar: () => void;
-    $msg: (type: string, message: string, text: string) => void;
+    $msg: (type: string, message: string, text: string) => string;
 }
 
 // 초기 컨텍스트 값 정의
@@ -28,7 +28,7 @@ const defaultContextValue: ComAPIContextType = {
     showToast: () => {},
     showProgressBar: () => {},
     hideProgressBar: () => {},
-    $msg: () => {},
+    $msg: () => { return ""},
 };
 
 // $msg 메서드 타입 정의
