@@ -1,29 +1,35 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
-import {useSelector} from "react-redux";
-import {RootState} from "~store/Store";
+import {useDispatch, useSelector} from "react-redux";
+import {AppDispatch, RootState} from "~store/Store";
 import ComButton from "~pages/portal/buttons/ComButton";
 import axios from "axios";
-import {cachedAuthToken} from "~store/AuthSlice";
+import {cachedAuthToken, setLangCode, setLoginToken} from "~store/AuthSlice";
 import {ComAPIContext} from "~components/ComAPIContext";
 
 const Profile: React.FC = () => {
     const comAPIContext = useContext(ComAPIContext);
+    const dispatch = useDispatch<AppDispatch>();
+
     const userName = useSelector((state: RootState) => state.auth.user.userName);
     const userId = useSelector((state: RootState) => state.auth.user.userId);
     const roleName = useSelector((state: RootState) => state.auth.user.roleName);
     const email = useSelector((state: RootState) => state.auth.user.email);
+    const langCode = useSelector((state: RootState) => state.auth.user.langCode);
+
     const [profileImage, setProfileImage] = useState<string | null>(null);
     const [newPassword, setNewPassword] = useState("");
     const phoneNumberRef = useRef<string>("");
-
     const [phoneParts, setPhoneParts] = useState<string[]>(["", "", ""]); //전화번호 파트를 배열로 관리
+
+    const [pageLangCode, setPageLangCode] = useState(langCode);
+
+    console.log("pageLangCode======>", pageLangCode);
+
+
 
     const [preview, setPreview] = useState<string | null>(null); // string | null 타입 명시 // 이미지 미리보기
     const [file, setFile] = useState<File | null>(null); // File | null 타입 명시
-
-    const [langCode, setLangCode] = useState<string>("");
-    const [newLangCode, setNewLangCode] = useState<string>("");
 
     const getPageTitleImage = () => {
         axios.get("http://localhost:8080/admin/api/user-profile-image", {
@@ -51,24 +57,15 @@ const Profile: React.FC = () => {
         });
     };
 
-    const getLangCode = () => {
-        axios.get("http://localhost:8080/admin/api/get-lang-code", {
-            headers: { Authorization: `Bearer ${cachedAuthToken}` },
-            params: { userId: userId }
-        })
-        .then(res => {
-            setLangCode(res.data.langCode);
-            setNewLangCode(res.data.langCode); // 초기값 설정
-        })
-        .catch(error => console.error("Error fetching lang code:", error));
-    };
-
     useEffect(() => {
         // 사용자 이미지를 가져오는 API 호출
         getPageTitleImage();
         getUserPhoneNumber();
-        getLangCode();
     }, []);
+
+    const langCodeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setPageLangCode(e.target.value);
+    }
 
     const changePassword = () => {
         if (!newPassword) {
@@ -189,13 +186,16 @@ const Profile: React.FC = () => {
     const handleLangCodeUpdate = () => {
         axios.post("http://localhost:8080/admin/api/update-lang-code", {
             userId: userId,
-            langCode: newLangCode
+            langCode: pageLangCode,
         }, {
             headers: { Authorization: `Bearer ${cachedAuthToken}` }
         })
             .then(() => {
-                setLangCode(newLangCode); // 성공 시 현재 langCode 업데이트
+                dispatch(setLangCode({ langCode: pageLangCode } as any));
                 comAPIContext.showToast("언어 코드가 업데이트되었습니다.", "success");
+
+
+
             })
             .catch(error => {
                 console.error("Error updating lang code:", error);
@@ -266,12 +266,12 @@ const Profile: React.FC = () => {
                     </p>
                     <p>
                         <strong>언어 코드: </strong>
-                        <select value={newLangCode} onChange={(e) => setNewLangCode(e.target.value)} style={{ marginRight: "10px" }}>
+                        <select value={pageLangCode} onChange={langCodeChange} style={{ marginRight: "10px" }}>
                             <option value="KO">한국어</option>
                             <option value="EN">영어</option>
                             <option value="CN">중국어</option>
                         </select>
-                        <ComButton size="sm" variant="primary" onClick={handleLangCodeUpdate} disabled={langCode === newLangCode}>
+                        <ComButton size="sm" variant="primary" onClick={handleLangCodeUpdate} disabled={langCode === pageLangCode}>
                             변경
                         </ComButton>
                     </p>
