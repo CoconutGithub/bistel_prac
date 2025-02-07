@@ -3,9 +3,10 @@ package com.siportal.portal.domain;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.checkerframework.checker.units.qual.C;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.UUID;
 import java.time.LocalDateTime;
 
 @Entity
@@ -19,9 +20,6 @@ public class Expense {
     @Column(name = "expense_id")
     private Long expenseId;
 
-    @Column(name = "grid_row_id", nullable = false, length = 100)
-    private String gridRowId;
-
     @Column(name = "user_name", nullable = false, length = 100)
     private String userName;
 
@@ -34,7 +32,7 @@ public class Expense {
     @Column(name = "price", nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
-    @Column(name = "file_group_id")
+    @Column(name = "file_group_id", nullable = true, length = 50)
     private Long fileGroupId;
 
     @Column(name = "created_at", updatable = false, columnDefinition = "TIMESTAMP DEFAULT now()")
@@ -48,4 +46,8 @@ public class Expense {
 
     @Column(name = "updated_by", length = 100)
     private String updatedBy;
+
+    public static String generateFileGroupId() {
+        return UUID.randomUUID().toString() + "-" + Instant.now().toEpochMilli();
+    }
 }
