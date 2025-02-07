@@ -131,7 +131,7 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
                     return foundMessage.msgDefault;
             }
         }
-    }, []);
+    }, [lang]);
 
     // useMemo를 사용하여 value 메모이제이션
     const contextValue = useMemo(
