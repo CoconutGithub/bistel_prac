@@ -136,7 +136,9 @@ const ManageUser: React.FC = () => {
   );
   //=== 설정된 값 및 버튼 정보, 공통함수 가져옴-end ===
 
-  const langCode = useSelector((state: RootState) => state.auth.user.langCode);
+  // const langCode = useSelector((state: RootState) => state.auth.user.langCode);
+  // console.log("langCode=====================>", langCode);
+
 
   const inputRef = useRef<HTMLInputElement>(null);
   const gridRef = useRef<AgGridWrapperHandle>(null);
@@ -207,7 +209,9 @@ const ManageUser: React.FC = () => {
           }
           comAPIContext.hideProgressBar();
 
-          comAPIContext.showToast(comAPIContext.$msg(langCode, "message", "search_complete", "조회가 완료됐습니다."),"success");
+          //console.log("2==========>", langCode);
+
+          comAPIContext.showToast("" + comAPIContext.$msg("message", "search_complete", "afdafsd"), "success");
 
         })
         .catch((err) => {
