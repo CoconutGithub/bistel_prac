@@ -66,9 +66,6 @@ const ExpenseManagement: React.FC = () => {
   const handleSave = async (props: any) => {
     const { deleteList, updateList, createList } = props;
 
-    const fileGroupId = new Date().getTime();
-
-    // 신규 생성 데이터를 처리하는 로직
     const createData = await Promise.all(
       Object.entries(createList).map(async ([key, value]: [any, any]) => {
         let files: {
@@ -95,34 +92,30 @@ const ExpenseManagement: React.FC = () => {
         }
 
         return {
-          gridRowId: value.gridRowId,
           userName: value.user,
           category: value.category,
           item: value.item,
           price: value.price,
-          fileAttachment: selectedFilesMap[value.gridRowId] || null,
-          fileGroupId,
           files,
         };
       })
     );
 
-    console.log("createData", createData);
-
-    // try {
-    //   const response = await axios.post(
-    //     `${API_BASE_URL}/api/expense/create`,
-    //     createData,
-    //     {
-    //       headers: {
-    //         Authorization: `Bearer ${cachedAuthToken}`,
-    //         "Content-Type": "application/json",
-    //       },
-    //     }
-    //   );
-    // } catch (error) {
-    //   console.error("신규 데이터를 저장하지 못했습니다.", error);
-    // }
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/api/expense/create`,
+        createData,
+        {
+          headers: {
+            Authorization: `Bearer ${cachedAuthToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log("신규 데이터를 저장하였습니다.", response.data);
+    } catch (error) {
+      console.error("신규 데이터를 저장하지 못했습니다.", error);
+    }
   };
 
   const columns = [
@@ -187,19 +180,6 @@ const ExpenseManagement: React.FC = () => {
       cellStyle: { display: "flex", alignItems: "center" },
     },
   ];
-
-  // useEffect(() => {
-  //   const findGridInterval = setInterval(() => {
-  //     if (gridRef.current) {
-  //       searchGrid();
-  //       clearInterval(findGridInterval);
-  //     }
-  //   }, 100);
-
-  //   return () => clearInterval(findGridInterval);
-  // }, []);
-
-  console.log("selectedFilesMap", selectedFilesMap);
 
   return (
     <div className={styles.start}>

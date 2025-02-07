@@ -6,8 +6,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class FileRequest {
-    private String gridRowId;
+    private Long fileGroupId;
     private String fileName;
     private String filePath;
     private long fileSize;
+    private String createdBy;
+    private String updatedBy;
 }

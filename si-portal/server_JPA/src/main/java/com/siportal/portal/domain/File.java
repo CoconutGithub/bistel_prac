@@ -1,11 +1,8 @@
 package com.siportal.portal.domain;
 
 import jakarta.persistence.*;
-import lombok.Generated;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.checkerframework.checker.units.qual.C;
 
 import java.time.LocalDateTime;
 
@@ -21,10 +18,7 @@ public class File {
     @Column(name = "file_id")
     private Long fileId;
 
-    @Column(name = "grid_row_id", length = 255)
-    private String gridRowId;
-
-    @Column(name = "file_group_id", nullable = false)
+    @Column(name = "file_group_id", nullable = false, length = 50)
     private Long fileGroupId;
 
     @Column(name = "file_name", nullable = false, length = 255)
