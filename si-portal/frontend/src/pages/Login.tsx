@@ -158,7 +158,7 @@ const Login = () => {
             >
               Don’t have an account?
             </Button>
-            <UserRegistPopup ref={userSignupRef} mode="signup" />
+            <UserRegistPopup ref={userSignupRef} mode="signup" isManager={false} />
           </Form>
         </Container>
       </div>

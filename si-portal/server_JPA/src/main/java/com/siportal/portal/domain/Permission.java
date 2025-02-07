@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import jakarta.persistence.Id;
 import java.time.LocalDateTime;
 
 @Entity
@@ -18,17 +17,27 @@ public class Permission {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "permission_seq_generator")
     @SequenceGenerator(
             name = "permission_seq_generator",
-            sequenceName = "SEQ_P_PERMISSION",  // 시퀀스 이름 수정
+            sequenceName = "SEQ_P_PERMISSION",
             allocationSize = 1
     )
     @Column(name = "PERMISSION_ID", nullable = false)
     private Integer permissionId;
 
+    // Role과 ManyToOne 관계 설정
+    @ManyToOne
+    @JoinColumn(name = "ROLE_ID", nullable = false, insertable = false, updatable = false)
+    private Role role;
+
+    // Menu와 ManyToOne 관계 설정
+    @ManyToOne
+    @JoinColumn(name = "MENU_ID", nullable = false, insertable = false, updatable = false)
+    private Menu menu;
+
     @Column(name = "ROLE_ID", nullable = false)
-    private Integer roleId;
+    private Integer roleId; // 기존 roleId 유지 (외래키로 사용)
 
     @Column(name = "MENU_ID", nullable = false)
-    private Integer menuId;
+    private Integer menuId; // 기존 menuId 유지 (외래키로 사용)
 
     @Column(name = "CAN_CREATE", length = 1)
     private String canCreate = "N";

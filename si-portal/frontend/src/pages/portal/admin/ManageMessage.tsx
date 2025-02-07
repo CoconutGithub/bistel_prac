@@ -130,6 +130,8 @@ const ManageMessage: React.FC = () => {
   );
   const comAPIContext = useContext(ComAPIContext);
   //==end: 여기는 무조건 공통으로 받는다고 생각하자
+
+  const langCode = useSelector((state: RootState) => state.auth.user.langCode);
   console.log("stat", state);
 
   const msgNameRef = useRef<HTMLInputElement>(null);
@@ -164,7 +166,7 @@ const ManageMessage: React.FC = () => {
 
   const handleSearch = async () => {
     console.log("state", state);
-    console.log("메세지 가져오기 테스트: ", comAPIContext.$msg("label", "cancel", "취소얌"));
+    console.log("메세지 가져오기 테스트: ", comAPIContext.$msg( "label", "cancel", "취소얌"));
     comAPIContext.showProgressBar();
     await new Promise((resolve) => setTimeout(resolve, 500));
     const params = { msgType: selectedType

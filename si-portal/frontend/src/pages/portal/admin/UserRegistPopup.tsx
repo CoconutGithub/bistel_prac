@@ -18,10 +18,11 @@ import * as bcrypt from "bcryptjs";
 interface IUserRegistPopup {
     onResearchUser?: () => void;
     mode?: "signup" | "register";
+    isManager?: boolean;
 }
 
 const UserRegistPopup = forwardRef(
-    ({onResearchUser, mode = "register"}: IUserRegistPopup, ref: any) => {
+    ({onResearchUser, mode = "register", isManager }: IUserRegistPopup, ref: any) => {
         const [isVisible, setIsVisible] = useState<boolean>(false);
         const comAPIContext = useContext(ComAPIContext);
         const [userId, setUserId] = useState<string>("");
@@ -38,6 +39,8 @@ const UserRegistPopup = forwardRef(
         const [toastShow, setToastShow] = useState(false);
         const [file, setFile] = useState<File | null>(null); // File | null 타입 명시
         const [preview, setPreview] = useState<string | null>(null); // string | null 타입 명시 // 이미지 미리보기
+        const [langCode, setLangCode] = useState<string>("KO");
+        const [phoneParts, setPhoneParts] = useState<string[]>(["", "", ""]);
 
         const resetForm = () => {
             setUserId("");
@@ -74,10 +77,6 @@ const UserRegistPopup = forwardRef(
             setUserName(e.target.value);
         };
 
-        const handlePhoneNumber = (e: any) => {
-            setPhoneNumber(e.target.value);
-        };
-
         const handlePassword = (e: any) => {
             setPassword(e.target.value);
         };
@@ -92,6 +91,10 @@ const UserRegistPopup = forwardRef(
 
         const handleStatus = (e: any) => {
             setStatus(e.target.value);
+        };
+
+        const handleLangCode = (e: any) => {
+            setLangCode(e.target.value);
         };
 
         const getRoles = async () => {
@@ -197,6 +200,9 @@ const UserRegistPopup = forwardRef(
 
             try {
                 const formData = new FormData();
+                const formattedPhoneNumber = getFormattedPhoneNumber();
+
+                console.log("🚀 isManager 값:", isManager);
 
                 // 파일이 선택된 경우에만 이미지 추가
                 if (file) {
@@ -208,14 +214,19 @@ const UserRegistPopup = forwardRef(
                 const salt = await bcrypt.genSalt(10);
                 const hashedPassword = await bcrypt.hash(password, salt);
 
+                const createByValue = isManager ? "system" : userId;
+                console.log("🚀 createBy 값:", createByValue); // 👉 로그 추가 (확인용)
+
                 //사용자 정보 추가
                 formData.append("userId", userId);
                 formData.append("userName", userName);
                 formData.append("password", hashedPassword);  // 비크립트
                 formData.append("email", email);
-                formData.append("phoneNumber", phoneNumber);
+                formData.append("phoneNumber", formattedPhoneNumber);
                 formData.append("userRole", mode === "register" ? String(parseInt(userRole, 10)) : "4");
                 formData.append("status", status);
+                formData.append("langCode", langCode);
+                formData.append("createBy", createByValue);
 
                 // 서버로 전송
                 let response;
@@ -263,10 +274,6 @@ const UserRegistPopup = forwardRef(
             }
         };
 
-
-
-
-
         const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
             const selectedFile = e.target.files![0];
             if (selectedFile) {
@@ -285,6 +292,24 @@ const UserRegistPopup = forwardRef(
                 reader.readAsDataURL(selectedFile);
             }
         };
+
+        const handlePhoneNumberChange = (index: number, value: string) => {
+            const updatedParts = [...phoneParts];
+            updatedParts[index] = value.replace(/[^0-9]/g, ""); // 숫자만 허용
+
+            // 자리 제한 적용
+            if (index === 0 && updatedParts[0].length > 3) updatedParts[0] = updatedParts[0].slice(0, 3);
+            if ((index === 1 || index === 2) && updatedParts[index].length > 4) updatedParts[index] = updatedParts[index].slice(0, 4);
+
+            setPhoneParts(updatedParts);
+        };
+
+        const getFormattedPhoneNumber = () => phoneParts.join("-");
+
+        useEffect(() => {
+            setIsTested(false);
+            setIsAvailableId(false);
+        }, [userId]);
 
 
         useEffect(() => {
@@ -431,12 +456,31 @@ const UserRegistPopup = forwardRef(
                                 <Form.Label column sm={3}>
                                     <strong>전화번호</strong>
                                 </Form.Label>
-                                <Col sm={9}>
+                                <Col sm={3}>
                                     <Form.Control
                                         type="text"
-                                        placeholder="Enter Phone Number"
-                                        value={phoneNumber}
-                                        onChange={handlePhoneNumber}
+                                        value={phoneParts[0]}
+                                        onChange={(e) => handlePhoneNumberChange(0, e.target.value)}
+                                        maxLength={3}
+                                        placeholder="XXX"
+                                    />
+                                </Col>
+                                <Col sm={3}>
+                                    <Form.Control
+                                        type="text"
+                                        value={phoneParts[1]}
+                                        onChange={(e) => handlePhoneNumberChange(1, e.target.value)}
+                                        maxLength={4}
+                                        placeholder="XXXX"
+                                    />
+                                </Col>
+                                <Col sm={3}>
+                                    <Form.Control
+                                        type="text"
+                                        value={phoneParts[2]}
+                                        onChange={(e) => handlePhoneNumberChange(2, e.target.value)}
+                                        maxLength={4}
+                                        placeholder="XXXX"
                                     />
                                 </Col>
                             </Form.Group>
@@ -468,6 +512,18 @@ const UserRegistPopup = forwardRef(
                                             <Form.Select value={status} onChange={handleStatus}>
                                                 <option value="ACTIVE">ACTIVE</option>
                                                 <option value="INACTIVE">INACTIVE</option>
+                                            </Form.Select>
+                                        </Col>
+                                    </Form.Group>
+                                    <Form.Group as={Row} className="mb-3" controlId="langCode">
+                                        <Form.Label column sm={3}>
+                                            <strong>언어</strong>
+                                        </Form.Label>
+                                        <Col sm={9}>
+                                            <Form.Select value={langCode} onChange={handleLangCode}>
+                                                <option value="KO">한국어 (KO)</option>
+                                                <option value="EN">영어 (EN)</option>
+                                                <option value="CN">중국어 (CH)</option>
                                             </Form.Select>
                                         </Col>
                                     </Form.Group>

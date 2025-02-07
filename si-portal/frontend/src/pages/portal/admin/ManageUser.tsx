@@ -3,7 +3,6 @@ import React, {
   useEffect,
   useContext,
   useRef,
-  useMemo,
   useCallback,
 } from "react";
 import { Container, Row, Col, Form, Button } from "react-bootstrap";
@@ -72,6 +71,13 @@ const columnDefs = [
     width: 100,
     cellEditor: "agSelectCellEditor", // Combobox 설정
     cellEditorParams: { values: ["ACTIVE", "INACTIVE"] }, // Combobox 옵션
+  },
+  {
+    field: "langCode",
+    headerName: "언어코드",
+    sortable: true,
+    width: 150,
+    filter: true,
   },
   {
     field: "createDate",
@@ -197,7 +203,8 @@ const ManageUser: React.FC = () => {
             gridRef.current.setRowData(res.data); // 데이터를 AgGridWrapper에 설정
           }
           comAPIContext.hideProgressBar();
-          comAPIContext.showToast("조회가 완료됐습니다.", "success");
+          comAPIContext.showToast(comAPIContext.$msg("message", "search_complete", "조회가 완료됐습니다."), "success");
+
         })
         .catch((err) => {
           console.error("Error fetching data:", err);
@@ -222,12 +229,10 @@ const ManageUser: React.FC = () => {
 
   const handleSave = useCallback(
       (lists: { deleteList: any[]; updateList: any[] }) => {
-        console.log("--------->", roleKind);
-
         if (!gridRef.current) return;
 
         if (lists.deleteList.length === 0 && lists.updateList.length === 0) {
-          comAPIContext.showToast("저장할 데이터가 없습니다.", "dark");
+          comAPIContext.showToast(comAPIContext.$msg("message", "no_save_data", "저장할 데이터가 없습니다."), "dark");
           return;
         }
 
@@ -260,13 +265,10 @@ const ManageUser: React.FC = () => {
                 headers: { Authorization: `Bearer ${cachedAuthToken}` },
               }
           ).then((res) => {
-            debugger
             if (res.data.messageCode === 'success') {
-              comAPIContext.showToast(
-                  "모든 작업이 성공적으로 처리되었습니다."
-                  + `(update: ${res.data.updatedUsersCnt}, delete: ${res.data.deletedUsersCnt})`,
-                  "success"
-              );
+              comAPIContext.showToast(comAPIContext.$msg("message", "save_complete", "저장이 완료됐습니다."
+                  + `(update: ${res.data.updatedUsersCnt}, delete: ${res.data.deletedUsersCnt})`
+              ), "success");
 
               handleSearch(); // 저장 후 최신 데이터 조회
             }
@@ -274,7 +276,7 @@ const ManageUser: React.FC = () => {
 
         } catch (err) {
           console.error("Error saving data:", err);
-          comAPIContext.showToast("저장 중 오류가 발생했습니다.", "danger");
+          comAPIContext.showToast(comAPIContext.$msg("message", "save_fail", "저장이 실패했습니다."), "danger");
           handleSearch();
         } finally {
           comAPIContext.hideProgressBar();
@@ -344,7 +346,7 @@ const ManageUser: React.FC = () => {
             </AgGridWrapper>
           </Col>
         </Row>
-        <UserRegistPopup onResearchUser={refreshData} ref={userRegisterRef} />
+        <UserRegistPopup onResearchUser={refreshData} ref={userRegisterRef} isManager={true}/>
       </Container>
   );
 };

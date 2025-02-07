@@ -2,12 +2,18 @@ package com.siportal.portal.service;
 
 import com.siportal.portal.com.batch.config.QuartzDynamicConfig;
 import com.siportal.portal.com.result.ComResultMap;
+import com.siportal.portal.domain.Role;
+import com.siportal.portal.dto.MenuRoleDTO;
+import com.siportal.portal.domain.Menu;
 import com.siportal.portal.domain.User;
 import com.siportal.portal.domain.UserRole;
 import com.siportal.portal.dto.SchedulDTO;
 import com.siportal.portal.mapper.AdminMapper;
+import com.siportal.portal.repository.MenuRepository;
 import com.siportal.portal.repository.UserRepository;
 import com.siportal.portal.repository.UserRoleRepository;
+import com.siportal.portal.repository.PermissionRepository;
+import com.siportal.portal.repository.RoleRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +49,9 @@ public class AdminService {
     //JPA
     private final UserRepository userRepository;
     private final UserRoleRepository userRoleRepository;
+    private final MenuRepository menuRepository;
+    private final RoleRepository roleRepository;
+    private final PermissionRepository permissionRepository;
 
     @Autowired
     public AdminService(AdminMapper adminMapper, JavaMailSender emailSender
@@ -50,7 +59,10 @@ public class AdminService {
         , JdbcTemplate jdbcTemplate
         , UserRepository userRepository
         , UserRoleRepository userRoleRepository
-        ) {
+        , MenuRepository menuRepository
+        , RoleRepository roleRepository
+        , PermissionRepository permissionRepository
+    ) {
         this.adminMapper = adminMapper;
         this.emailSender = emailSender;
         this.templateEngine = templateEngine;  // Thymeleaf 템플릿 엔진
@@ -59,6 +71,10 @@ public class AdminService {
 
         this.userRepository = userRepository;
         this.userRoleRepository = userRoleRepository;
+
+        this.menuRepository = menuRepository;
+        this.roleRepository = roleRepository;
+        this.permissionRepository = permissionRepository;
     }
 
     public ResponseEntity<?> getMenuId() {
@@ -471,20 +487,19 @@ public class AdminService {
     public ResponseEntity<?> getUserProfileImage(@RequestParam("userId") String userId) {
         try {
             // DB에서 사용자 정보 조회
-            Map<String, Object> user = adminMapper.getUserProfileImage(userId);
+            Optional<byte[]> profileImageOpt = userRepository.findUserProfileImageByUserId(userId);
 
-            if (user == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            if (profileImageOpt.isEmpty() || profileImageOpt.get().length == 0) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User profile image not found");
             }
 
             // 프로필 이미지가 있는 경우 Base64 인코딩
-            if (user.get("profileImage") != null) {
-                byte[] imageBytes = (byte[]) user.get("profileImage");
-                String base64Image = Base64.getEncoder().encodeToString(imageBytes);
-                user.put("profileImage", base64Image);
-            }
+            String base64Image = Base64.getEncoder().encodeToString(profileImageOpt.get());
 
-            return ResponseEntity.ok(user);
+            Map<String, Object> response = new HashMap<>();
+            response.put("profileImage", base64Image);
+
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred");
@@ -601,8 +616,9 @@ public class AdminService {
             @RequestParam("password") String password,
             @RequestParam("email") String email,
             @RequestParam("userRole") Integer userRole,
-            @RequestParam("langCode") String langCode,
-            @RequestParam(value = "image", required = false) MultipartFile image // 파일 처리
+            @RequestParam(value = "image", required = false) MultipartFile image, // 파일 처리
+            @RequestParam(value = "langCode", required = false, defaultValue = "KO") String langCode,
+            @RequestParam("createBy") String createBy
     ) {
 
         try {
@@ -615,7 +631,7 @@ public class AdminService {
             userObj.setPassword(password);
             userObj.setEmail(email);
             userObj.setLangCode(langCode);
-            userObj.setCreateBy("system");
+            userObj.setCreateBy(createBy);
             userObj.setCreateDate(LocalDateTime.now());
 
             // 파일을 DB의 bytea 컬럼에 저장
@@ -728,7 +744,7 @@ public class AdminService {
         }
     }
 
-    public ResponseEntity<?> updateMenuContent(@RequestBody Map<String, Object> result) {
+    public ResponseEntity<?> updateMenuContent(Map<String, Object> result) {
         try {
             // position 값이 있을 경우 이를 integer로 변환
             if (result.containsKey("position")) {
@@ -740,8 +756,21 @@ public class AdminService {
                 }
             }
 
-            adminMapper.updateMenuContent(result);
-            return ResponseEntity.ok(result);
+            // updateMenuContent 메서드를 호출하여 메뉴 업데이트
+            int updateCount = menuRepository.updateMenuContent(
+                    (Integer) result.get("menuId"),
+                    (String) result.get("menuName"),
+                    (String) result.get("path"),
+                    (Integer) result.get("position"),
+                    (String) result.get("status"),
+                    (String) result.get("userId")
+            );
+
+            if (updateCount > 0) {
+                return ResponseEntity.ok(result); // 성공적으로 업데이트된 경우
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Menu not found for the given ID");
+            }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
                     .body("Error occurred: " + e.getMessage());
@@ -752,7 +781,7 @@ public class AdminService {
 
     private void saveEmailHistory(String sendUser, String sendReceiver, String title, String content) {
         String sql = "INSERT INTO dev.p_email_history (send_user, send_reciver, title, content, read_yn, creation_time) " +
-                "VALUES (?, ?, ?, ?, 'N', CURRENT_TIMESTAMP)";
+                     "VALUES (?, ?, ?, ?, 'N', CURRENT_TIMESTAMP)";
 
         // JdbcTemplate을 사용하여 데이터 삽입
         jdbcTemplate.update(sql, sendUser, sendReceiver, title, content);
@@ -760,7 +789,7 @@ public class AdminService {
 
     private void saveRoleList(String roleName, String status, String userName) {
         String sql = "INSERT INTO dev.p_role (role_id, role_name, status, create_date, create_by) " +
-                "VALUES (nextval('seq_p_role'), ?, ?, CURRENT_TIMESTAMP, ?)";
+                     "VALUES (nextval('seq_p_role'), ?, ?, CURRENT_TIMESTAMP, ?)";
 
         // JdbcTemplate을 사용하여 데이터 삽입
         jdbcTemplate.update(sql, roleName, status, userName);
@@ -779,18 +808,22 @@ public class AdminService {
     public ResponseEntity<?> getMenuRole(@RequestParam String menuIdStr) {
         try {
             Integer menuId = Integer.parseInt(menuIdStr);
-            List<ComResultMap> roles = adminMapper.getMenuRole(menuId); // 모든 권한 조회 메서드
+            List<MenuRoleDTO> roles = menuRepository.getMenuRole(menuId); // JPA 적용된 쿼리 실행
+
             if (roles.isEmpty()) {
                 return ResponseEntity.ok("조회된 데이터가 없습니다");
             }
             return ResponseEntity.ok(roles);
+        } catch (NumberFormatException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Invalid menuId format: " + menuIdStr);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error occurred: " + e.getMessage());
         }
     }
 
-    public ResponseEntity<?> updateMenuRole(@RequestBody Map<String, Object> requestData) {
+    public ResponseEntity<?> updateMenuRole(Map<String, Object> requestData) {
         try {
             // 데이터 파싱
             List<Map<String, Object>> createList = (List<Map<String, Object>>) requestData.get("createList");
@@ -924,5 +957,40 @@ public class AdminService {
                     .body("Error occurred while saving roles: " + e.getMessage());
         }
     }
+
+    public ResponseEntity<?> getLangCode(String userId) {
+        try {
+            Optional<User> userOpt = userRepository.findByUserId(userId);
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            }
+
+            String langCode = userOpt.get().getLangCode();
+            return ResponseEntity.ok(Collections.singletonMap("langCode", langCode));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
+
+    @Transactional
+    public ResponseEntity<?> updateLangCode(Map<String, String> requestData) {
+        try {
+            String userId = requestData.get("userId");
+            String langCode = requestData.get("langCode");
+
+            User user = userRepository.findByUserId(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            user.setLangCode(langCode);
+            userRepository.save(user);
+
+            return ResponseEntity.ok(Collections.singletonMap("message", "Language code updated successfully."));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
+
 
 }

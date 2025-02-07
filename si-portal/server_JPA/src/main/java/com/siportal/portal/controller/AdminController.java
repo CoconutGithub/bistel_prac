@@ -104,11 +104,11 @@ public class AdminController {
             @RequestParam("password") String password,
             @RequestParam("email") String email,
             @RequestParam("userRole") Integer userRole,
-            @RequestParam("langCode") String langCode,
+            @RequestParam(value = "langCode", required = false, defaultValue = "KO") String langCode,
+            @RequestParam(value = "createBy", required = false) String createBy,
             @RequestParam(value = "image", required = false) MultipartFile image // 파일 처리
-
     ) {
-        return adminService.registerUser(userId, userName, phoneNumber, status, password, email, userRole, langCode, image);
+        return adminService.registerUser(userId, userName, phoneNumber, status, password, email, userRole, image, langCode, createBy);
     }
 
 
@@ -189,4 +189,15 @@ public class AdminController {
     public ResponseEntity<?> updateMsgList(@RequestBody Map<String, Object> requestData) {
         return adminService.updateMsgList(requestData);
     }
+
+    @GetMapping("/api/get-lang-code")
+    public ResponseEntity<?> getLangCode(@RequestParam("userId") String userId) {
+        return adminService.getLangCode(userId);
+    }
+
+    @PostMapping("/api/update-lang-code")
+    public ResponseEntity<?> updateLangCode(@RequestBody Map<String, String> requestData) {
+        return adminService.updateLangCode(requestData);
+    }
+
 }

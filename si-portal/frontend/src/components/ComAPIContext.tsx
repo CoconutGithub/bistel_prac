@@ -20,7 +20,7 @@ interface ComAPIContextType {
     showToast: (message: string, variant?: "success" | "danger" | "warning" | "info" | "dark") => void;
     showProgressBar: () => void;
     hideProgressBar: () => void;
-    $msg: (type: string, message: string, text: string) => void;
+    $msg: (type: string, message: string, text: string) => string;
 }
 
 // 초기 컨텍스트 값 정의
@@ -28,7 +28,7 @@ const defaultContextValue: ComAPIContextType = {
     showToast: () => {},
     showProgressBar: () => {},
     hideProgressBar: () => {},
-    $msg: () => {},
+    $msg: () => { return ""},
 };
 
 // $msg 메서드 타입 정의
@@ -54,10 +54,10 @@ interface ComAPIProviderProps {
 export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
     const [toasts, setToasts] = useState<ToastType[]>([]);
     const [progressBarVisible, setProgressBarVisible] = useState<boolean>(false);
-    const messages = useRef<MessageType[]>([]);    
+    const messages = useRef<MessageType[]>([]);
     const lang = useSelector((state: RootState) => state.auth.user.langCode);
-    console.log('lang : ', lang);   
-    
+    console.log('lang : ', lang);
+
     const dispatch = useDispatch<AppDispatch>(); // 타입 지정 추가
 
     useEffect(() => {
@@ -72,18 +72,18 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
     const getMessages = async () => {
         // 메시지 가져오기
         await
-        axios
-        .get("http://localhost:8080/admin/api/get-msg-list2")
-        .then((res) => {
-            console.log("res", res);
-            messages.current = res.data;
-            console.log("messages", messages);
-        })
-        .catch((err) => {
-            console.log("err", err);
-        })
-        .finally(() => {
-        });
+            axios
+                .get("http://localhost:8080/admin/api/get-msg-list2")
+                .then((res) => {
+                    console.log("res", res);
+                    messages.current = res.data;
+                    console.log("messages", messages);
+                })
+                .catch((err) => {
+                    console.log("err", err);
+                })
+                .finally(() => {
+                });
     };
     useEffect(() => {
         getMessages();
@@ -114,7 +114,7 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
     }, []);
 
     // $msg 메서드
-    const $msg = useCallback((type: string, message: string, text: string) => {        
+    const $msg = useCallback((type: string, message: string, text: string) => {
         console.log("$msg lang : ", lang);
         const foundMessage = messages.current.find((msg) => msg.msgType === type && msg.msgName === message);
         if (!foundMessage) {
@@ -131,7 +131,7 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
                     return foundMessage.msgDefault;
             }
         }
-    }, []);
+    }, [lang]);
 
     // useMemo를 사용하여 value 메모이제이션
     const contextValue = useMemo(

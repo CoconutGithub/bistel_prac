@@ -85,6 +85,7 @@
         , A.UPDATE_BY
         , C.ROLE_NAME
         , C.ROLE_ID
+        , A.LANG_CODE
         FROM P_USER A
         , P_USER_ROLE B
         , P_ROLE C
@@ -114,6 +115,7 @@
         , EMAIL = #{email}
         , PHONE_NUMBER = #{phoneNumber}
         , STATUS = #{status}
+        , LANG_CODE = #{langCode}
         , UPDATE_DATE = SYSDATE
         , UPDATE_BY = 'ADMIN'
         WHERE USER_ID = #{userId}
@@ -132,8 +134,8 @@
     </select>
 
     <insert id="registerUser">
-        INSERT INTO P_USER (USER_ID, USER_NAME, PASSWORD, EMAIL, PHONE_NUMBER, STATUS, PROFILE_IMAGE)
-        VALUES (#{userId}, #{userName}, #{password}, #{email}, #{phoneNumber}, #{status}, #{profileImage})
+        INSERT INTO P_USER (USER_ID, USER_NAME, PASSWORD, EMAIL, PHONE_NUMBER, STATUS, PROFILE_IMAGE, LANG_CODE)
+        VALUES (#{userId}, #{userName}, #{password}, #{email}, #{phoneNumber}, #{status}, #{profileImage}, #{langCode})
     </insert>
 
     <update id="updateProfileImage">
