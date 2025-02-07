@@ -1,15 +1,12 @@
 package com.siportal.portal.com.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.siportal.portal.dto.User;
-import com.siportal.portal.mapper.PortalMapper;
+import com.siportal.portal.dto.UserDto;
+import com.siportal.portal.repository.LoginRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,6 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -29,12 +27,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private String title;
     private String databaseType;
     private final AuthenticationManager authenticationManager;
-    private PortalMapper portalMapper;
+    private LoginRepository loginRepository;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    public LoginFilter(AuthenticationManager authenticationManager, PortalMapper portalMapper, String title, String databaseType) {
+    public LoginFilter(AuthenticationManager authenticationManager, LoginRepository loginRepository, String title, String databaseType) {
         this.authenticationManager = authenticationManager;
-        this.portalMapper = portalMapper;
+        this.loginRepository = loginRepository;
         this.title = title;
         this.databaseType = databaseType;
         setFilterProcessesUrl("/login"); // 필터가 처리할 URL
@@ -68,7 +66,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             }
 
             // 인증 성공 시, User 객체 반환
-            User user = (User) responseEntity.getBody();
+            UserDto user = (UserDto) responseEntity.getBody();
 
             // 인증 객체 생성
             UsernamePasswordAuthenticationToken authenticationToken =
@@ -100,7 +98,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                                             Authentication authResult) throws IOException {
 
         System.out.println(authResult);
-        User user = (User)authResult.getDetails();
+        UserDto userDto = (UserDto)authResult.getDetails();
 
         // JWT 생성
         String token = generateJwtToken(authResult);
@@ -110,16 +108,16 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         response.getWriter().write("{\"token\": \"" + token +
                 "\", \"databaseType\": \"" + databaseType +
                 "\", \"title\": \"" + title +
-                "\", \"userId\": \"" + user.getUserId() +
-                "\", \"userName\": \"" + user.getUserName() +
-                "\", \"roleId\": \"" + user.getRoleId() +
-                "\", \"roleName\": \"" + user.getRoleName() +
-                "\", \"isMighty\": \"" + user.getIsMighty() +
-                "\", \"phoneNumber\": \"" + user.getPhoneNumber() +
-                "\", \"langCode\": \"" + user.getLangCode()+
-                "\", \"footerYN\": \"" + user.getFooterYN() +
-                "\", \"headerColor\": \"" + user.getHeaderColor() +
-                "\", \"email\": \"" + user.getEmail() + "\"}");
+                "\", \"userId\": \"" + userDto.getUserId() +
+                "\", \"userName\": \"" + userDto.getUserName() +
+                "\", \"roleId\": \"" + userDto.getRoleId() +
+                "\", \"roleName\": \"" + userDto.getRoleName() +
+                "\", \"isMighty\": \"" + userDto.getIsMighty() +
+                "\", \"phoneNumber\": \"" + userDto.getPhoneNumber() +
+                "\", \"langCode\": \"" + userDto.getLangCode()+
+                "\", \"footerYN\": \"" + userDto.getFooterYN() +
+                "\", \"headerColor\": \"" + userDto.getHeaderColor() +
+                "\", \"email\": \"" + userDto.getEmail() + "\"}");
 
     }
 
@@ -128,18 +126,19 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         return JwtUtils.generateToken(userId);
     }
 
-    private ResponseEntity<?> validateUserFromDB(String username, String password) {
-        User user = null;
+    private ResponseEntity<?> validateUserFromDB(String userId, String password) {
+
+        List<UserDto> userDtoList = null;
         try {
             // 비밀번호 없이 사용자 정보 조회
-            user = portalMapper.getUserByUserId(username);
+            userDtoList = loginRepository.getLoginDataByUserId(databaseType, userId);
 
             // 사용자가 존재하지 않거나 비밀번호가 일치하지 않는 경우
-            if (user == null) {
+            if (userDtoList == null || userDtoList.isEmpty()) {
                 log.error("Invalid username.");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body("존재하지 않는 회원입니다.");
-            } else if (!passwordEncoder.matches(password, user.getPassword())) {
+            } else if (!passwordEncoder.matches(password, userDtoList.get(0).getPassword())) {
                 log.error("Invalid password.");
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body("로그인에 실패했습니다. 관리자에게 문의하십시오.");
@@ -150,8 +149,9 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("서버 오류가 발생했습니다.");
         }
-        portalMapper.updateLastLoginDate(user.getUserId()); // 로그인 성공 시 last_login_date 업데이트
+
+        loginRepository.updateLastLoginDate(userDtoList.get(0).getUserId()); // 로그인 성공 시 last_login_date 업데이트
         // 로그인 성공 시 user 객체 반환
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(userDtoList.get(0));
     }
 }

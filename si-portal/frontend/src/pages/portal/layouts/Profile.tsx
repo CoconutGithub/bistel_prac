@@ -229,7 +229,7 @@ const Profile: React.FC = () => {
                     </p>
                     <p>
                         <strong>이메일: </strong>
-                        {email}
+                        {email.length === 0 ? "" : email}
                     </p>
                 </Col>
                 <Col xs={4} className="d-flex flex-column align-items-center">
