@@ -189,4 +189,15 @@ public class AdminController {
     public ResponseEntity<?> updateMsgList(@RequestBody Map<String, Object> requestData) {
         return adminService.updateMsgList(requestData);
     }
+
+    @GetMapping("/api/get-lang-code")
+    public ResponseEntity<?> getLangCode(@RequestParam("userId") String userId) {
+        return adminService.getLangCode(userId);
+    }
+
+    @PostMapping("/api/update-lang-code")
+    public ResponseEntity<?> updateLangCode(@RequestBody Map<String, String> requestData) {
+        return adminService.updateLangCode(requestData);
+    }
+
 }
