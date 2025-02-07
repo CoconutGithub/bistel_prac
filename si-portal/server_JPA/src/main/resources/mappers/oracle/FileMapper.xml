@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.siportal.portal.mapper.FileMapper">
+    <insert id="insertFiles">
+        INSERT INTO p_file (file_group_id, file_name, file_path, file_size, created_by, updated_by)
+        VALUES
+        <foreach collection="files" item="file" separator=",">
+            (#{file.fileGroupId}, #{file.fileName}, #{file.filePath}, #{file.fileSize}, #{file.createdBy}, #{file.updatedBy})
+        </foreach>
+    </insert>
+</mapper>
