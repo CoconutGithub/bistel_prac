@@ -206,6 +206,7 @@ const ManageMenuContent: React.FC<{
         }
       );
 
+
       const roleList = res.data;
 
       roleKind = res.data;
@@ -264,6 +265,8 @@ const ManageMenuContent: React.FC<{
             },
           }
         );
+
+        console.log(response)
 
         if (gridRef.current && response.data !== "조회된 데이터가 없습니다") {
           gridRef.current.setRowData(response.data);
