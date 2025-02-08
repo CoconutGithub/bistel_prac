@@ -2,8 +2,9 @@ package com.siportal.portal.service;
 
 import com.siportal.portal.com.auth.JwtUtils;
 import com.siportal.portal.com.result.ComResultMap;
-import com.siportal.portal.dto.PMenuDTO;
+import com.siportal.portal.dto.MenuDto;
 import com.siportal.portal.mapper.PortalMapper;
+import com.siportal.portal.repository.MenuRepository;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,10 +18,12 @@ import java.util.*;
 public class PortalService {
 
     private final PortalMapper portalMapper;
+    private final MenuRepository menuRepository;
 
     @Autowired
-    public PortalService(PortalMapper portalMapper) {
+    public PortalService(PortalMapper portalMapper, MenuRepository menuRepository) {
         this.portalMapper = portalMapper;
+        this.menuRepository = menuRepository;
     }
 
 
@@ -109,13 +112,15 @@ public class PortalService {
     }
 
 
-    public Map<String, Object> getMenuTreeList(@RequestParam String roleId, @RequestParam String isMighty) {
+    public Map<String, Object> getMenuTreeList(@RequestParam String langCode, @RequestParam String roleId, @RequestParam String isMighty) {
 
-        List<PMenuDTO> menus = null;
+        List<MenuDto> menus = null;
         if (isMighty.equals("Y")) {
-            menus = portalMapper.getAllMenuTreeList();
+            menus = menuRepository.getAllMenuTreeList(langCode);
+
+
         } else {
-            menus = portalMapper.getMyMenuTreeList(roleId);
+            menus = menuRepository.getMyMenuTreeList(langCode, Integer.valueOf(roleId));
         }
 
         Map<Integer, Map<String, Object>> menuMap = new HashMap<>();
@@ -123,7 +128,7 @@ public class PortalService {
 
         List routeList = new ArrayList<>();
 
-        for (PMenuDTO menu : menus) {
+        for (MenuDto menu : menus) {
             Map<String, Object> menuItem = new HashMap<>();
             menuItem.put("menuId", menu.getMenuId());
             menuItem.put("title", menu.getTitle());

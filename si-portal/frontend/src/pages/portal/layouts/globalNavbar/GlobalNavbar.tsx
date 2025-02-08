@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Navbar, Nav, Container, NavDropdown } from "react-bootstrap";
+import {useContext, useEffect, useState} from "react";
+import { Navbar, Nav, NavDropdown } from "react-bootstrap";
 import NavMenuItem from "~pages/portal/layouts/NavMenuItem";
 import { MenuItem } from "~types/LayoutTypes";
 import axios from "axios";
@@ -9,6 +9,7 @@ import { AppDispatch, RootState } from "~store/Store";
 import { removeLoginToken } from "~store/AuthSlice";
 import { cachedAuthToken } from "~store/AuthSlice";
 import SiUserIcon from "~components/icons/SiUserIcon";
+import { ComAPIContext } from "~components/ComAPIContext";
 
 import styles from "./GlobalNavbar.module.scss";
 import SiVerticalDot from "~components/icons/SiVerticalDot";
@@ -17,6 +18,7 @@ const GlobalNavbar = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const isMighty = useSelector((state: RootState) => state.auth.user.isMighty);
   const roleId = useSelector((state: RootState) => state.auth.user.roleId);
+  const langCode = useSelector((state: RootState) => state.auth.user.langCode);
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const headerColor = useSelector(
@@ -24,13 +26,14 @@ const GlobalNavbar = () => {
   );
   const userName = useSelector((state: RootState) => state.auth.user.userName);
   const roleName = useSelector((state: RootState) => state.auth.user.roleName);
+  const comAPIContext = useContext(ComAPIContext);
 
   useEffect(() => {
     const fetchMenuData = () => {
       axios
         .get("http://localhost:8080/menu", {
           headers: { Authorization: `Bearer ${cachedAuthToken}` },
-          params: { roleId: roleId, isMighty: isMighty },
+          params: { langCode: langCode, roleId: roleId, isMighty: isMighty },
         })
         .then((res) => {
           if (res.data) {
@@ -139,22 +142,22 @@ const GlobalNavbar = () => {
               {isMighty === "Y" && (
                 <>
                   <NavDropdown.Item as={Link} to="/main/manage-menu">
-                    메뉴 관리
+                    { comAPIContext.$msg("label", "manage_menu", "메뉴 관리") }
                   </NavDropdown.Item>
                   <NavDropdown.Item as={Link} to="/main/manage-role">
-                    권한 관리
+                    { comAPIContext.$msg("label", "manage_role", "권한 관리") }
                   </NavDropdown.Item>
                   <NavDropdown.Item as={Link} to="/main/manage-user">
-                    사용자 관리
+                    { comAPIContext.$msg("label", "manage_user", "사용자 관리") }
                   </NavDropdown.Item>
                   <NavDropdown.Item as={Link} to="/main/manage-email">
-                    이메일 관리
+                    { comAPIContext.$msg("label", "manage_email", "이메일 관리") }
                   </NavDropdown.Item>
                   <NavDropdown.Item as={Link} to="/main/manage-schedule">
-                    스케줄 관리
+                    { comAPIContext.$msg("label", "manage_schedule", "스케줄 관리") }
                   </NavDropdown.Item>
                   <NavDropdown.Item as={Link} to="/main/manage-message">
-                    메세지 관리
+                    { comAPIContext.$msg("label", "manage_message", "메세지 관리") }
                   </NavDropdown.Item>
                 </>
               )}
