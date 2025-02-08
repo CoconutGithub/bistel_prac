@@ -46,7 +46,7 @@ public class PortalController {
     }
 
     @GetMapping("/menu")
-    public Map<String, Object> getMenuTreeList(@RequestParam String roleId, @RequestParam String isMighty) {
-        return portalService.getMenuTreeList(roleId, isMighty);
+    public Map<String, Object> getMenuTreeList(@RequestParam String langCode, @RequestParam String roleId, @RequestParam String isMighty) {
+        return portalService.getMenuTreeList(langCode, roleId, isMighty);
     }
 }
