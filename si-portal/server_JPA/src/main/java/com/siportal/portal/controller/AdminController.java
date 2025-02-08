@@ -35,8 +35,8 @@ public class AdminController {
     }
 
     @GetMapping("/api/get-menu-tree")
-    public ResponseEntity<?> getMenuTree() {
-        return adminService.getMenuTree();
+    public ResponseEntity<?> getMenuTree4ManageMenu(@RequestParam String langCode) {
+        return adminService.getMenuTree4ManageMenu(langCode);
     }
 
     @GetMapping("/api/get-schedule")

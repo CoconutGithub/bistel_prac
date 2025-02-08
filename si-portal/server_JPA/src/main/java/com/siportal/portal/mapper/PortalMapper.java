@@ -1,7 +1,7 @@
 package com.siportal.portal.mapper;
 
 import com.siportal.portal.com.result.ComResultMap;
-import com.siportal.portal.dto.PMenuDTO;
+import com.siportal.portal.dto.MenuDto;
 import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -13,8 +13,6 @@ import java.util.Map;
 public interface PortalMapper {
     List<ComResultMap> getPageAuth(@Param("roleId") String roleId, @Param("path") String path);
     List<ComResultMap> getUserByUserName(@Param("userName") String userName);
-    List<PMenuDTO> getMyMenuTreeList(@Param("roleId") String roleId);
-    List<PMenuDTO> getAllMenuTreeList();
 
     void updateUserSettings(@Param("userId") String userId,
                             @Param("footerYn") String footerYn,

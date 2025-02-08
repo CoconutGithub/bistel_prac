@@ -12,39 +12,6 @@
         AND A.PATH = #{path}
     </select>
 
-
-    <select id="getAllMenuTreeList" resultType="com.siportal.portal.dto.PMenuDTO">
-        SELECT
-            A.MENU_ID
-            , A.MENU_NAME AS TITLE
-            , A.PATH
-            , A.COMPONENT_PATH
-            , A.PARENT_MENU_ID
-            , A.DEPTH
-            , A.CHILD_YN
-        FROM P_MENU A
-        WHERE A.STATUS = 'ACTIVE'
-        ORDER BY A.DEPTH, A.POSITION
-    </select>
-
-    <select id="getMyMenuTreeList" parameterType="String" resultType="com.siportal.portal.dto.PMenuDTO">
-        SELECT
-            A.MENU_ID
-            , A.MENU_NAME AS TITLE
-            , A.PATH
-            , A.COMPONENT_PATH
-            , A.PARENT_MENU_ID
-            , A.DEPTH
-            , A.CHILD_YN
-        FROM P_MENU A
-        , p_permission B
-        WHERE 1=1
-        and A.STATUS = 'ACTIVE'
-        AND A.MENU_ID = B.menu_id
-        and B.ROLE_ID =  CAST(#{roleId} AS INTEGER)
-        ORDER BY A.DEPTH, A.POSITION
-    </select>
-
     <select id="getAllRole" resultType="java.util.Map">
         SELECT *
         FROM P_ROLE

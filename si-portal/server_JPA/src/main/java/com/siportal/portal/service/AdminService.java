@@ -2,7 +2,8 @@ package com.siportal.portal.service;
 
 import com.siportal.portal.com.batch.config.QuartzDynamicConfig;
 import com.siportal.portal.com.result.ComResultMap;
-import com.siportal.portal.domain.*;
+import com.siportal.portal.domain.Role;
+import com.siportal.portal.dto.MenuDto;
 import com.siportal.portal.dto.MenuRoleDTO;
 import com.siportal.portal.dto.SchedulDTO;
 import com.siportal.portal.mapper.AdminMapper;
@@ -105,9 +106,9 @@ public class AdminService {
         }
     }
 
-    public ResponseEntity<?> getMenuTree() {
+    public ResponseEntity<?> getMenuTree4ManageMenu(String langCode) {
         try {
-            List<ComResultMap> result = this.adminMapper.getMenuTree();
+            List<MenuDto> result = this.menuRepository.getMenuTree4ManageMenu(langCode);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)

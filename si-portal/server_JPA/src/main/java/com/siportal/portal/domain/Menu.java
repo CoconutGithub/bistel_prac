@@ -24,8 +24,14 @@ public class Menu {
     @Column(name = "MENU_ID", nullable = false)
     private Integer menuId;
 
-    @Column(name = "MENU_NAME", length = 100, nullable = false)
-    private String menuName;
+    @Column(name = "KO_NAME", length = 100, nullable = false)
+    private String koName;
+
+    @Column(name = "CN_NAME", length = 100, nullable = false)
+    private String cnName;
+
+    @Column(name = "EN_NAME", length = 100, nullable = false)
+    private String enName;
 
     @Column(name = "PARENT_MENU_ID")
     private Integer parentMenuId;

@@ -1,6 +1,7 @@
 package com.siportal.portal.repository;
 
 import com.siportal.portal.domain.Menu;
+import com.siportal.portal.dto.MenuDto;
 import com.siportal.portal.dto.MenuRoleDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,6 +13,75 @@ import java.util.List;
 
 @Repository
 public interface MenuRepository extends JpaRepository<Menu, Integer> {
+
+    @Query(value = """
+        SELECT
+            A.MENU_ID,
+            CASE WHEN :langCode = 'KO' THEN A.KO_NAME
+                 WHEN :langCode = 'CN' THEN A.CN_NAME
+                 WHEN :langCode = 'EN' THEN A.EN_NAME
+            END AS MENU_NAME,
+            A.PARENT_MENU_ID,
+            NVL( CASE WHEN :langCode = 'KO' THEN B.KO_NAME
+                    WHEN :langCode = 'CN' THEN B.CN_NAME
+                    WHEN :langCode = 'EN' THEN B.EN_NAME
+                END
+            '-') AS PARENT_MENU_NAME
+            A.PATH,
+            A.POSITION,
+            A.CHILD_YN,
+            A.STATUS
+        FROM
+            P_MENU A
+        LEFT JOIN
+            P_MENU B
+        ON
+            A.PARENT_MENU_ID = B.MENU_ID
+        ORDER BY A.DEPTH, A.POSITION    
+    """, nativeQuery = true)
+    List<MenuDto> getMenuTree4ManageMenu(String langCode);
+
+    @Query(value = """
+        SELECT
+            A.MENU_ID AS menuId,
+            CASE WHEN :langCode = 'KO' THEN A.KO_NAME
+                 WHEN :langCode = 'CN' THEN A.CN_NAME
+                 WHEN :langCode = 'EN' THEN A.EN_NAME
+            END AS title,
+            A.PATH AS path,
+            A.COMPONENT_PATH AS componentPath,
+            A.PARENT_MENU_ID AS parentMenuId,
+            A.DEPTH AS depth,
+            A.CHILD_YN AS childYn
+        FROM P_MENU A
+        WHERE A.STATUS = 'ACTIVE'
+        ORDER BY A.DEPTH, A.POSITION
+    """, nativeQuery = true)
+    List<MenuDto> getAllMenuTreeList(String langCode);
+
+
+    @Query(value = """
+        SELECT
+            A.MENU_ID
+            , CASE WHEN :langCode = 'KO' THEN A.KO_NAME
+                 WHEN :langCode = 'CN' THEN A.CN_NAME
+                 WHEN :langCode = 'EN' THEN A.EN_NAME
+                END AS TITLE
+            , A.PATH
+            , A.COMPONENT_PATH
+            , A.PARENT_MENU_ID
+            , A.DEPTH
+            , A.CHILD_YN
+        FROM P_MENU A
+        , p_permission B
+        WHERE 1=1
+        and A.STATUS = 'ACTIVE'
+        AND A.MENU_ID = B.menu_id
+        and B.ROLE_ID =  :roleId
+        ORDER BY A.DEPTH, A.POSITION        
+    """, nativeQuery = true)
+    List<MenuDto> getMyMenuTreeList(String langCode, Integer roleId);
+
 
     @Query(value = """
         SELECT 
@@ -38,7 +108,7 @@ public interface MenuRepository extends JpaRepository<Menu, Integer> {
     @Transactional
     @Query("""
         UPDATE Menu m 
-        SET m.menuName = :menuName, 
+        SET m.koName = :menuName, 
             m.path = :path, 
             m.position = :position, 
             m.status = :status, 

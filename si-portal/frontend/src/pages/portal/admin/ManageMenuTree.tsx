@@ -24,8 +24,9 @@ interface MenuItem {
 }
 
 const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ onMenuClick, refreshTree }) => {
-    const state = useSelector((state: RootState) => state.auth);
+    const langCode = useSelector((state: RootState) => state.auth.user.langCode);
     const comAPIContext = useContext(ComAPIContext);
+
 
     const [menuData, setMenuData] = useState<MenuItem[]>([]);
     const [showModal, setShowModal] = useState<boolean>(false); // 모달 표시 여부
@@ -59,9 +60,10 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
         const fetchData = async () => {
             try {
                 comAPIContext.showProgressBar();
-                const res = await axios.get("http://localhost:8080/admin/api/get-menu-tree", {
-                    headers: {
-                        Authorization: `Bearer ${cachedAuthToken}`,
+                const res = await axios.get("http://localhost:8080/admin/api/get-menu-tree",
+                    {
+                        headers: {Authorization: `Bearer ${cachedAuthToken}`,
+                        params: { langCode: langCode } as any,
                     },
                 });
 
@@ -248,9 +250,10 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
                     setContextMenu({ ...contextMenu, visible: false })
                     try {
                         comAPIContext.showProgressBar();
-                        const res = await axios.get("http://localhost:8080/admin/api/get-menu-tree", {
-                            headers: {
-                                Authorization: `Bearer ${cachedAuthToken}`,
+                        const res = await axios.get("http://localhost:8080/admin/api/get-menu-tree",
+                            {
+                                headers: {Authorization: `Bearer ${cachedAuthToken}`,
+                                params: { langCode: langCode } as any,
                             },
                         });
         
@@ -313,9 +316,10 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
                     setInputText('');
                     try {
                         comAPIContext.showProgressBar();
-                        const res = await axios.get("http://localhost:8080/admin/api/get-menu-tree", {
-                            headers: {
-                                Authorization: `Bearer ${cachedAuthToken}`,
+                        const res = await axios.get("http://localhost:8080/admin/api/get-menu-tree",
+                            {
+                                headers: {Authorization: `Bearer ${cachedAuthToken}`,
+                                params: { langCode: langCode } as any,
                             },
                         });
         
