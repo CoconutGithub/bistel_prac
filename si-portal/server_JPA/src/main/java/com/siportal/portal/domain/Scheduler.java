@@ -49,4 +49,7 @@ public class Scheduler {
 
     @Column(name = "STATUS")
     private String status;
+
+    @Column(name = "GRID_ROW_ID")
+    private String gridRowId;
 }
