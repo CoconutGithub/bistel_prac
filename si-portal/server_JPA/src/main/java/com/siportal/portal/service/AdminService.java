@@ -5,16 +5,9 @@ import com.siportal.portal.com.result.ComResultMap;
 import com.siportal.portal.domain.Role;
 import com.siportal.portal.dto.MenuDto;
 import com.siportal.portal.dto.MenuRoleDTO;
-import com.siportal.portal.domain.Menu;
-import com.siportal.portal.domain.User;
-import com.siportal.portal.domain.UserRole;
 import com.siportal.portal.dto.SchedulDTO;
 import com.siportal.portal.mapper.AdminMapper;
-import com.siportal.portal.repository.MenuRepository;
-import com.siportal.portal.repository.UserRepository;
-import com.siportal.portal.repository.UserRoleRepository;
-import com.siportal.portal.repository.PermissionRepository;
-import com.siportal.portal.repository.RoleRepository;
+import com.siportal.portal.repository.*;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
@@ -53,6 +46,7 @@ public class AdminService {
     private final MenuRepository menuRepository;
     private final RoleRepository roleRepository;
     private final PermissionRepository permissionRepository;
+    private final SchedulerRepository schedulerRepository;
 
     @Autowired
     public AdminService(AdminMapper adminMapper, JavaMailSender emailSender
@@ -63,6 +57,7 @@ public class AdminService {
         , MenuRepository menuRepository
         , RoleRepository roleRepository
         , PermissionRepository permissionRepository
+        , SchedulerRepository schedulerRepository
     ) {
         this.adminMapper = adminMapper;
         this.emailSender = emailSender;
@@ -76,6 +71,7 @@ public class AdminService {
         this.menuRepository = menuRepository;
         this.roleRepository = roleRepository;
         this.permissionRepository = permissionRepository;
+        this.schedulerRepository = schedulerRepository;
     }
 
     public ResponseEntity<?> getMenuId() {
@@ -266,7 +262,7 @@ public class AdminService {
     public ResponseEntity<?> getScheduleList(@RequestParam String jobName, @RequestParam String status) {
 
         try {
-            List<SchedulDTO> result = this.adminMapper.getScheduleList(jobName, status);
+            List<Scheduler> result = this.schedulerRepository.getScheduleList(jobName, status);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
