@@ -62,10 +62,10 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
                 comAPIContext.showProgressBar();
                 const res = await axios.get("http://localhost:8080/admin/api/get-menu-tree",
                     {
-                        headers: {Authorization: `Bearer ${cachedAuthToken}`,
+                        headers: {Authorization: `Bearer ${cachedAuthToken}`},
                         params: { langCode: langCode } as any,
-                    },
-                });
+                    }
+                );
 
                 if (res && res.data) {
                     setMenuData(res.data);
@@ -252,10 +252,10 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
                         comAPIContext.showProgressBar();
                         const res = await axios.get("http://localhost:8080/admin/api/get-menu-tree",
                             {
-                                headers: {Authorization: `Bearer ${cachedAuthToken}`,
+                                headers: {Authorization: `Bearer ${cachedAuthToken}`},
                                 params: { langCode: langCode } as any,
                             },
-                        });
+                        );
         
                         if (res && res.data) {
                             setMenuData(res.data);
@@ -318,10 +318,10 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
                         comAPIContext.showProgressBar();
                         const res = await axios.get("http://localhost:8080/admin/api/get-menu-tree",
                             {
-                                headers: {Authorization: `Bearer ${cachedAuthToken}`,
+                                headers: {Authorization: `Bearer ${cachedAuthToken}`},
                                 params: { langCode: langCode } as any,
                             },
-                        });
+                        );
         
                         if (res && res.data) {
                             setMenuData(res.data);

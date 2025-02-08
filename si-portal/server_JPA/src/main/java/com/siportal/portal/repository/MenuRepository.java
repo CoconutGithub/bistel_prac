@@ -22,11 +22,11 @@ public interface MenuRepository extends JpaRepository<Menu, Integer> {
                  WHEN :langCode = 'EN' THEN A.EN_NAME
             END AS MENU_NAME,
             A.PARENT_MENU_ID,
-            NVL( CASE WHEN :langCode = 'KO' THEN B.KO_NAME
+            CASE WHEN :langCode = 'KO' THEN B.KO_NAME
                     WHEN :langCode = 'CN' THEN B.CN_NAME
                     WHEN :langCode = 'EN' THEN B.EN_NAME
                 END
-            '-') AS PARENT_MENU_NAME
+                AS PARENT_MENU_NAME,
             A.PATH,
             A.POSITION,
             A.CHILD_YN,
