@@ -38,7 +38,7 @@ const columnDefs = [
   },
   {
     field: "email",
-    headerName: "이메일",
+    headerName: "Email",
     sortable: true,
     filter: true,
     editable: true,
@@ -46,7 +46,7 @@ const columnDefs = [
   },
   {
     field: "phoneNumber",
-    headerName: "전화번호",
+    headerName: "Phone Number",
     sortable: true,
     filter: true,
     editable: true,
@@ -135,6 +135,7 @@ const ManageUser: React.FC = () => {
   );
   //=== 설정된 값 및 버튼 정보, 공통함수 가져옴-end ===
 
+  const langCode = useSelector((state: RootState) => state.auth.user.langCode);
   const inputRef = useRef<HTMLInputElement>(null);
   const gridRef = useRef<AgGridWrapperHandle>(null);
   const userRegisterRef = useRef<any>(null);
@@ -142,6 +143,32 @@ const ManageUser: React.FC = () => {
   const [dynamicColumnDefs, setDynamicColumnDefs] = useState(columnDefs); // 컬럼 정보
 
   useEffect(() => {
+
+    const setDefColumn = () => {
+
+      columnDefs.forEach((column) => {
+        if (column.headerName === "이름") {
+          column.headerName = comAPIContext.$msg("label", "name", "이름")
+        } else if (column.headerName === "역할") {
+          column.headerName = comAPIContext.$msg("label", "role", "역할")
+        } else if (column.headerName === "상태") {
+          column.headerName = comAPIContext.$msg("label", "status", "상태")
+        } else if (column.headerName === "언어코드") {
+          column.headerName = comAPIContext.$msg("label", "status", "언어코드")
+        } else if (column.headerName === "최근접속일") {
+          column.headerName = comAPIContext.$msg("label", "latest_login", "최근접속일")
+        } else if (column.headerName === "생성일") {
+          column.headerName = comAPIContext.$msg("label", "create_date", "생성일")
+        } else if (column.headerName === "수정일") {
+          column.headerName = comAPIContext.$msg("label", "update_date", "수정일")
+        } else if (column.headerName === "수정자") {
+          column.headerName = comAPIContext.$msg("label", "editor", "수정자")
+        }
+      });
+
+    }
+    setDefColumn();
+
     const getRoleList = async () => {
       try {
         comAPIContext.showProgressBar();
@@ -295,7 +322,7 @@ const ManageUser: React.FC = () => {
               onClick={openPopup}
               disabled={!canCreate}
           >
-            사용자 등록
+            { comAPIContext.$msg("label", "user_regist", "사용자등록") }
           </ComButton>
         </>
     );
@@ -305,27 +332,27 @@ const ManageUser: React.FC = () => {
       <Container fluid>
         <Row className="mb-3">
           <Col>
-            <h2>사용자 관리</h2>
+            <h2>{comAPIContext.$msg("label", "manage_user", "사용자 관리")}</h2>
           </Col>
         </Row>
         <Row className="mb-3">
           <Col lg={9}>
             <Form.Group as={Row}>
               <Form.Label column sm={1} className="text-center">
-                사용자 이름
+                { comAPIContext.$msg("label", "user_name", "사용자 이름") }
               </Form.Label>
               <Col sm={2}>
                 <Form.Control
                     ref={inputRef}
                     type="text"
-                    placeholder="사용자 이름 입력"
+                    placeholder={comAPIContext.$msg("message", "typing_user_name", "사용자 이름을 입력하세요.") }
                 />
               </Col>
             </Form.Group>
           </Col>
           <Col lg={3} className="d-flex justify-content-end">
             <ComButton size="sm" variant="primary" onClick={handleSearch}>
-              검색
+              { comAPIContext.$msg("label", "search", "검색") }
             </ComButton>
           </Col>
         </Row>
