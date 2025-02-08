@@ -280,7 +280,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
                   variant="outline-danger"
                   onClick={handleDelete}
                 >
-                  삭제
+                  { comAPIContext.$msg("label", "delete", "삭제") }
                 </ComButton>
                 <ComButton
                   size="sm"
@@ -288,7 +288,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
                   variant="outline-primary"
                   onClick={handleAddRow}
                 >
-                  추가
+                  { comAPIContext.$msg("label", "add", "추가") }
                 </ComButton>
                 <ComButton
                   size="sm"
@@ -296,7 +296,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
                   variant="primary"
                   onClick={handleSave}
                 >
-                  저장
+                  { comAPIContext.$msg("label", "save", "저장") }
                 </ComButton>
               </Col>
             )}

@@ -38,7 +38,7 @@ public class LoginRepository {
         if ("postgresql".equalsIgnoreCase(databaseType)) {
             sql.append("\n , CAST(C.ROLE_ID AS TEXT) AS ROLE_ID ");
         } else if ("oracle".equalsIgnoreCase(databaseType)) {
-            sql.append("\n , C.ROLE_ID ");
+            sql.append("\n , TO_CHAR(C.ROLE_ID) AS ROLE_ID ");
         } else {
             throw new UnsupportedOperationException("Unsupported database type: " + databaseType);
         }
