@@ -110,6 +110,11 @@ const ManageSchedule: React.FC = () => {
         console.log("res", res);
         console.log("gridRef.current", gridRef.current);
         if (gridRef.current) {
+          let gridRowId = 0;
+          res.data.forEach((e: any) => {
+            e.gridRowId = ++gridRowId;
+          });
+          console.log("next res", res);
           gridRef.current.setRowData(res.data); // 데이터를 AgGridWrapper에 설정
           scheduleData.current = JSON.parse(JSON.stringify(res.data));
           //             console.log('scheduleData.current:', scheduleData.current);
