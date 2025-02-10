@@ -254,6 +254,9 @@ const authSlice = createSlice({
         setLangCode(state, action: PayloadAction<{langCode: string}>) {
             state.user.langCode = action.payload.langCode;
         },
+        setPhoneNumber(state, action: PayloadAction<string>) {
+            state.user.phoneNumber = action.payload;
+        },
         setPageButtonAuth(
             state,
             action: PayloadAction<{
@@ -269,9 +272,6 @@ const authSlice = createSlice({
             state.pageButtonAuth.canUpdate = canUpdate;
             state.pageButtonAuth.canRead = canRead;
         },
-
-
-
     },
     extraReducers: (builder) => {
         builder
@@ -329,5 +329,6 @@ export const {
     toggleFooter,
     setHeaderColor,
     setPageButtonAuth,
+    setPhoneNumber,
 } = authSlice.actions;
 export default authSlice.reducer;

@@ -4,7 +4,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "~store/Store";
 import ComButton from "~pages/portal/buttons/ComButton";
 import axios from "axios";
-import {cachedAuthToken, setLangCode, setLoginToken} from "~store/AuthSlice";
+import {cachedAuthToken, setLangCode, setPhoneNumber, setLoginToken} from "~store/AuthSlice";
 import {ComAPIContext} from "~components/ComAPIContext";
 
 const Profile: React.FC = () => {
@@ -19,8 +19,11 @@ const Profile: React.FC = () => {
 
     const [profileImage, setProfileImage] = useState<string | null>(null);
     const [newPassword, setNewPassword] = useState("");
-    const phoneNumberRef = useRef<string>("");
-    const [phoneParts, setPhoneParts] = useState<string[]>(["", "", ""]); //전화번호 파트를 배열로 관리
+
+    // const phoneNumberRef = useRef<string>("");
+    // const [phoneParts, setPhoneParts] = useState<string[]>(["", "", ""]); //전화번호 파트를 배열로 관리
+    const phoneNumber = useSelector((state: RootState) => state.auth.user.phoneNumber);
+    const phoneParts = phoneNumber ? phoneNumber.split("-") : ["", "", ""]; // 전화번호를 배열로 변환
 
     const [pageLangCode, setPageLangCode] = useState(langCode);
 
@@ -43,24 +46,24 @@ const Profile: React.FC = () => {
         });
     }
 
-    const getUserPhoneNumber = () => {
-        axios.get("http://localhost:8080/admin/api/get-user-phone", {
-            headers: { Authorization: `Bearer ${cachedAuthToken}` },
-            params: { userId: userId },
-        }).then((res) => {
-            if (res.data.phoneNumber) {
-                phoneNumberRef.current = res.data.phoneNumber; //useRef에 저장
-                setPhoneParts(res.data.phoneNumber.split("-")); // 파트를 쪼개서 상태에 저장
-            }
-        }).catch(error => {
-            console.error("Error fetching user phone number:", error);
-        });
-    };
+    // const getUserPhoneNumber = () => {
+    //     axios.get("http://localhost:8080/admin/api/get-user-phone", {
+    //         headers: { Authorization: `Bearer ${cachedAuthToken}` },
+    //         params: { userId: userId },
+    //     }).then((res) => {
+    //         if (res.data.phoneNumber) {
+    //             phoneNumberRef.current = res.data.phoneNumber; //useRef에 저장
+    //             setPhoneParts(res.data.phoneNumber.split("-")); // 파트를 쪼개서 상태에 저장
+    //         }
+    //     }).catch(error => {
+    //         console.error("Error fetching user phone number:", error);
+    //     });
+    // };
 
     useEffect(() => {
         // 사용자 이미지를 가져오는 API 호출
         getPageTitleImage();
-        getUserPhoneNumber();
+        // getUserPhoneNumber();
     }, []);
 
     const langCodeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -69,7 +72,7 @@ const Profile: React.FC = () => {
 
     const changePassword = () => {
         if (!newPassword) {
-            comAPIContext.showToast("새 비밀번호를 입력하세요.", "danger");
+            comAPIContext.showToast(comAPIContext.$msg("message", "enter_new_password", "새 비밀번호를 입력하세요."), "danger");
             return;
         }
 
@@ -77,11 +80,11 @@ const Profile: React.FC = () => {
             { userId, newPassword },
             { headers: { Authorization: `Bearer ${cachedAuthToken}` } })
             .then(() => {
-                comAPIContext.showToast("비밀번호가 변경되었습니다.", "success");
+                comAPIContext.showToast(comAPIContext.$msg("message", "change_password", "비밀번호가 변경되었습니다."), "success");
             })
             .catch((error) => {
                 console.error("Error changing password:", error);
-                comAPIContext.showToast("비밀번호 변경 실패", "danger");
+                comAPIContext.showToast(comAPIContext.$msg("message", "enter_new_password", "새 비밀번호를 입력하세요."), "danger");
             });
     }
 
@@ -145,19 +148,21 @@ const Profile: React.FC = () => {
         updatedParts[index] = value.replace(/[^0-9]/g, ""); // 숫자만 허용
 
         // 수정: 상태 및 useRef 동기화
-        phoneNumberRef.current = updatedParts.join("-");
-        setPhoneParts(updatedParts);
+        const updatedPhoneNumber = updatedParts.join("-");
+        dispatch(setPhoneNumber(updatedPhoneNumber));
     };
 
     const handleUpdatePhoneNumber = () => {
-        if (!phoneNumberRef.current) {
+        if (!phoneParts.join("-")) { // Redux에서 가져온 phoneParts를 사용
             comAPIContext.showToast("전화번호를 올바르게 입력하세요!", "danger");
             return;
         }
 
+        const updatedPhoneNumber = phoneParts.join("-"); // Redux 상태에서 전화번호 조합
+
         const formData = new FormData();
         formData.append("userId", userId);
-        formData.append("phoneNumber", phoneNumberRef.current);
+        formData.append("phoneNumber", updatedPhoneNumber);
 
         comAPIContext.showProgressBar();
 
@@ -173,7 +178,7 @@ const Profile: React.FC = () => {
         ).then((response) => {
             if (response.data.success) {
                 comAPIContext.showToast("전화번호가 업데이트되었습니다!", "success");
-                getUserPhoneNumber(); // 최신 전화번호 다시 로드
+                dispatch(setPhoneNumber(updatedPhoneNumber)); // Redux 상태 업데이트
             }
         }).catch((error) => {
             console.error(error);
@@ -210,15 +215,15 @@ const Profile: React.FC = () => {
                     {/* 사용자 정보 */}
                     <h2>Profile</h2>
                     <p>
-                        <strong>이름: </strong>
+                        <strong>{comAPIContext.$msg("label", "name", "이름")}: </strong>
                         {userName}
                     </p>
                     <p>
-                        <strong>ID: </strong>
+                        <strong>{comAPIContext.$msg("label", "id", "ID")}: </strong>
                         {userId}
                     </p>
                     <p>
-                        <strong>비밀번호 변경: </strong>
+                        <strong>{comAPIContext.$msg("label", "set_new_password", "비밀번호 변경")}: </strong>
                         <input
                             type="password"
                             value={newPassword}
@@ -231,10 +236,10 @@ const Profile: React.FC = () => {
                         </ComButton>
                     </p>
                     <p>
-                        <strong>권한: </strong> {roleName}
+                        <strong>{comAPIContext.$msg("label", "role", "역할")}: </strong> {roleName}
                     </p>
                     <p>
-                        <strong>전화번호: </strong>
+                        <strong>{comAPIContext.$msg("label", "phone_number", "전화번호")}: </strong>
                         <input
                             type="text"
                             value={phoneParts[0]}
@@ -261,11 +266,11 @@ const Profile: React.FC = () => {
                         </ComButton>
                     </p>
                     <p>
-                        <strong>이메일: </strong>
+                        <strong>{comAPIContext.$msg("label", "email", "이메일")}: </strong>
                         {email === null || email === undefined || email.toLowerCase() === "null" ? "NULL" : email}
                     </p>
                     <p>
-                        <strong>언어 코드: </strong>
+                        <strong>{comAPIContext.$msg("label", "lang_code", "언어코드")}: </strong>
                         <select value={pageLangCode} onChange={langCodeChange} style={{ marginRight: "10px" }}>
                             <option value="KO">한국어</option>
                             <option value="EN">영어</option>
