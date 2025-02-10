@@ -299,16 +299,6 @@
         </foreach>
     </delete>
 
-    <select id="getMenuIdSeq" resultType="com.siportal.portal.com.result.ComResultMap">
-        SELECT NEXTVAL('SEQ_P_MENU') AS MENU_ID
-    </select>
-
-    <insert id="insertMenu" parameterType="map">
-        INSERT INTO dev.p_menu
-        (menu_id, menu_name, parent_menu_id, "depth", "path", "position", child_yn, status, create_date)
-        VALUES
-            (#{menuId}, #{menuName}, #{parentMenuId}, #{depth}, #{path}, #{position}, #{childYn}, #{status}, CURRENT_TIMESTAMP);
-    </insert>
 
     <update id="updateMenuContent" parameterType="map">
         UPDATE p_menu SET

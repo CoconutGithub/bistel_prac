@@ -43,42 +43,60 @@ public interface MenuRepository extends JpaRepository<Menu, Integer> {
 
     @Query(value = """
         SELECT
-            A.MENU_ID AS menuId,
-            CASE WHEN :langCode = 'KO' THEN A.KO_NAME
-                 WHEN :langCode = 'CN' THEN A.CN_NAME
-                 WHEN :langCode = 'EN' THEN A.EN_NAME
-            END AS title,
-            A.PATH AS path,
-            A.COMPONENT_PATH AS componentPath,
-            A.PARENT_MENU_ID AS parentMenuId,
-            A.DEPTH AS depth,
-            A.CHILD_YN AS childYn
+            A.MENU_ID,
+            CASE WHEN B.MSG_ID IS NULL THEN A.MENU_NAME
+                ELSE B.LANG_TEXT
+            END AS TITLE,
+            A.PATH AS PATH,
+            A.COMPONENT_PATH,
+            A.PARENT_MENU_ID,
+            A.DEPTH AS DEPTH,
+            A.CHILD_YN
         FROM P_MENU A
+            LEFT JOIN
+            (
+                SELECT M1.MSG_ID, M2.LANG_TEXT
+                FROM P_MSG_MAIN M1
+                    JOIN P_MSG_DETAIL M2
+                ON M1.MSG_ID = M2.MSG_ID
+                WHERE M2.LANG_CODE = :langCode
+                AND M1.MSG_TYPE ='label'
+            ) B
+            ON A.MSG_ID = B.MSG_ID
         WHERE A.STATUS = 'ACTIVE'
-        ORDER BY A.DEPTH, A.POSITION
+        ORDER BY A.DEPTH, A.POSITION        
     """, nativeQuery = true)
     List<MenuDto> getAllMenuTreeList(String langCode);
 
 
     @Query(value = """
         SELECT
-            A.MENU_ID
-            , CASE WHEN :langCode = 'KO' THEN A.KO_NAME
-                 WHEN :langCode = 'CN' THEN A.CN_NAME
-                 WHEN :langCode = 'EN' THEN A.EN_NAME
-                END AS TITLE
-            , A.PATH
-            , A.COMPONENT_PATH
-            , A.PARENT_MENU_ID
-            , A.DEPTH
-            , A.CHILD_YN
+            A.MENU_ID,
+            CASE WHEN A.MSG_ID IS NULL THEN A.MENU_NAME
+                ELSE C.LANG_TEXT
+            END AS TITLE,
+            A.PATH AS PATH,
+            A.COMPONENT_PATH,
+            A.PARENT_MENU_ID,
+            A.DEPTH AS DEPTH,
+            A.CHILD_YN
         FROM P_MENU A
-        , p_permission B
+            JOIN P_PERMISSION B
+                ON A.MENU_ID = B.MENU_ID
+            LEFT JOIN
+            (
+                SELECT M1.MSG_ID, M2.LANG_TEXT
+                FROM P_MSG_MAIN M1
+                    JOIN P_MSG_DETAIL M2
+                ON M1.MSG_ID = M2.MSG_ID
+                WHERE M2.LANG_CODE = :langCode
+                AND M1.MSG_TYPE ='label'
+            ) C
+                ON A.MSG_ID = C.MSG_ID
         WHERE 1=1
-        and A.STATUS = 'ACTIVE'
-        AND A.MENU_ID = B.menu_id
-        and B.ROLE_ID =  :roleId
-        ORDER BY A.DEPTH, A.POSITION        
+        AND A.STATUS = 'ACTIVE'
+        AND B.ROLE_ID =  :roleId
+        ORDER BY A.DEPTH, A.POSITION
     """, nativeQuery = true)
     List<MenuDto> getMyMenuTreeList(String langCode, Integer roleId);
 
