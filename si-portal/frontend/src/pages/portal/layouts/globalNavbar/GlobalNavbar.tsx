@@ -201,23 +201,73 @@ const GlobalNavbar = ({
                   >
                     {comAPIContext.$msg("label", "manage_menu", "메뉴 관리")}
                   </NavDropdown.Item>
-                  <NavDropdown.Item as={Link} to="/main/manage-role">
+                  <NavDropdown.Item
+                    as={Link}
+                    to="/main/manage-role"
+                    onClick={() =>
+                      onSelectTab({
+                        key: "manage-role",
+                        label: "Manage role",
+                        path: "/main/manage-role",
+                      })
+                    }
+                  >
                     {comAPIContext.$msg("label", "manage_role", "권한 관리")}
                   </NavDropdown.Item>
-                  <NavDropdown.Item as={Link} to="/main/manage-user">
+                  <NavDropdown.Item
+                    as={Link}
+                    to="/main/manage-user"
+                    onClick={() =>
+                      onSelectTab({
+                        key: "manage-user",
+                        label: "Manage user",
+                        path: "/main/manage-user",
+                      })
+                    }
+                  >
                     {comAPIContext.$msg("label", "manage_user", "사용자 관리")}
                   </NavDropdown.Item>
-                  <NavDropdown.Item as={Link} to="/main/manage-email">
+                  <NavDropdown.Item
+                    as={Link}
+                    to="/main/manage-email"
+                    onClick={() =>
+                      onSelectTab({
+                        key: "manage-email",
+                        label: "Manage email",
+                        path: "/main/manage-email",
+                      })
+                    }
+                  >
                     {comAPIContext.$msg("label", "manage_email", "이메일 관리")}
                   </NavDropdown.Item>
-                  <NavDropdown.Item as={Link} to="/main/manage-schedule">
+                  <NavDropdown.Item
+                    as={Link}
+                    to="/main/manage-schedule"
+                    onClick={() =>
+                      onSelectTab({
+                        key: "manage-schedule",
+                        label: "Manage schedule",
+                        path: "/main/manage-schedule",
+                      })
+                    }
+                  >
                     {comAPIContext.$msg(
                       "label",
                       "manage_schedule",
                       "스케줄 관리"
                     )}
                   </NavDropdown.Item>
-                  <NavDropdown.Item as={Link} to="/main/manage-message">
+                  <NavDropdown.Item
+                    as={Link}
+                    to="/main/manage-message"
+                    onClick={() =>
+                      onSelectTab({
+                        key: "manage-message",
+                        label: "Manage message",
+                        path: "/main/manage-message",
+                      })
+                    }
+                  >
                     {comAPIContext.$msg(
                       "label",
                       "manage_message",
