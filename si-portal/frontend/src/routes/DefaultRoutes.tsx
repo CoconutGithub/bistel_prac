@@ -15,12 +15,12 @@ const ChoBiz = React.lazy(() => import("~pages/biz/ChoBiz"));
 export default function DefaultRoutes(): RouteObject[] {
   return [
     {
-      path: "home",
+      path: "/main/home",
       element: <Home />,
       loader: checkBtnAuthLoader,
     },
     {
-      path: "service/service-a/sub-a2",
+      path: "/main/service/service-a/sub-a2",
       element: (
         <React.Suspense fallback={<div>Loading...</div>}>
           <SubServiceA2 />
@@ -29,7 +29,7 @@ export default function DefaultRoutes(): RouteObject[] {
       loader: checkBtnAuthLoader,
     },
     {
-      path: "service/service-b/sub-b2",
+      path: "/main/service/service-b/sub-b2",
       element: (
         <React.Suspense fallback={<div>Loading...</div>}>
           <SubServiceB2 />
@@ -38,7 +38,7 @@ export default function DefaultRoutes(): RouteObject[] {
       loader: checkBtnAuthLoader,
     },
     {
-      path: "service/service-c",
+      path: "/main/service/service-c",
       element: (
         <React.Suspense fallback={<div>Loading...</div>}>
           <ServiceC />
@@ -47,7 +47,7 @@ export default function DefaultRoutes(): RouteObject[] {
       loader: checkBtnAuthLoader,
     },
     {
-      path: "service/service-a/sub-a1",
+      path: "/main/service/service-a/sub-a1",
       element: (
         <React.Suspense fallback={<div>Loading...</div>}>
           <SubServiceA1 />
@@ -56,7 +56,7 @@ export default function DefaultRoutes(): RouteObject[] {
       loader: checkBtnAuthLoader,
     },
     {
-      path: "service/service-b/sub-b1",
+      path: "/main/service/service-b/sub-b1",
       element: (
         <React.Suspense fallback={<div>Loading...</div>}>
           <SubServiceB1 />
@@ -65,7 +65,7 @@ export default function DefaultRoutes(): RouteObject[] {
       loader: checkBtnAuthLoader,
     },
     {
-      path: "service/service-a/sub-a1/a1",
+      path: "/main/service/service-a/sub-a1/a1",
       element: (
         <React.Suspense fallback={<div>Loading...</div>}>
           <SubServiceA1A1 />
@@ -76,9 +76,9 @@ export default function DefaultRoutes(): RouteObject[] {
     {
       path: "/main/service/cho-biz",
       element: (
-          <React.Suspense fallback={<div>Loading...</div>}>
-            <ChoBiz />
-          </React.Suspense>
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <ChoBiz />
+        </React.Suspense>
       ),
       loader: checkBtnAuthLoader,
     },

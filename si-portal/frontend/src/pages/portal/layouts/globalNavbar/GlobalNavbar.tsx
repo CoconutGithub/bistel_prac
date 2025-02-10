@@ -1,4 +1,4 @@
-import {useContext, useEffect, useState} from "react";
+import { useContext, useEffect, useState } from "react";
 import { Navbar, Nav, NavDropdown } from "react-bootstrap";
 import NavMenuItem from "~pages/portal/layouts/NavMenuItem";
 import { MenuItem } from "~types/LayoutTypes";
@@ -14,7 +14,11 @@ import { ComAPIContext } from "~components/ComAPIContext";
 import styles from "./GlobalNavbar.module.scss";
 import SiVerticalDot from "~components/icons/SiVerticalDot";
 
-const GlobalNavbar = () => {
+const GlobalNavbar = ({
+  onSelectTab,
+}: {
+  onSelectTab: (tab: { key: string; label: string; path: string }) => void;
+}) => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const isMighty = useSelector((state: RootState) => state.auth.user.isMighty);
   const roleId = useSelector((state: RootState) => state.auth.user.roleId);
@@ -69,7 +73,14 @@ const GlobalNavbar = () => {
       <Navbar.Collapse id="basic-navbar-nav" className={styles.nav_container}>
         <div className={styles.nav_wrap}>
           <Nav className={styles.nav}>
-            <Nav.Link as={NavLink} to="/main/home" className={styles.nav_link}>
+            <Nav.Link
+              as={NavLink}
+              to="/main/home"
+              onClick={() =>
+                onSelectTab({ key: "home", label: "Home", path: "/main/home" })
+              }
+              className={styles.nav_link}
+            >
               Home
             </Nav.Link>
             {menuItems.map((item) => (
@@ -79,6 +90,7 @@ const GlobalNavbar = () => {
                 depth={1}
                 as={NavLink}
                 navLinkClass={styles.nav_link}
+                onSelectTab={onSelectTab}
               />
             ))}
           </Nav>
@@ -87,6 +99,13 @@ const GlobalNavbar = () => {
               as={NavLink}
               to="/main/how-to-use"
               className={styles.nav_link}
+              onClick={() =>
+                onSelectTab({
+                  key: "how-to-use",
+                  label: "How to use",
+                  path: "/main/how-to-use",
+                })
+              }
             >
               How to use
             </Nav.Link>
@@ -94,6 +113,13 @@ const GlobalNavbar = () => {
               as={NavLink}
               to="/main/dashboard"
               className={styles.nav_link}
+              onClick={() =>
+                onSelectTab({
+                  key: "dashboard",
+                  label: "Dashboard",
+                  path: "/main/dashboard",
+                })
+              }
             >
               Dashboard
             </Nav.Link>
@@ -101,6 +127,13 @@ const GlobalNavbar = () => {
               as={NavLink}
               to="/main/profile"
               className={styles.nav_link}
+              onClick={() =>
+                onSelectTab({
+                  key: "profile",
+                  label: "Profile",
+                  path: "/main/profile",
+                })
+              }
             >
               Profile
             </Nav.Link>
@@ -108,6 +141,13 @@ const GlobalNavbar = () => {
               as={NavLink}
               to="/main/settings"
               className={styles.nav_link}
+              onClick={() =>
+                onSelectTab({
+                  key: "settings",
+                  label: "Settings",
+                  path: "/main/settings",
+                })
+              }
             >
               Settings
             </Nav.Link>
@@ -115,6 +155,13 @@ const GlobalNavbar = () => {
               as={NavLink}
               to="/main/expense-management"
               className={styles.nav_link}
+              onClick={() =>
+                onSelectTab({
+                  key: "expense-management",
+                  label: "Expense management",
+                  path: "/main/expense-management",
+                })
+              }
             >
               Expense management
             </Nav.Link>
@@ -141,23 +188,41 @@ const GlobalNavbar = () => {
             >
               {isMighty === "Y" && (
                 <>
-                  <NavDropdown.Item as={Link} to="/main/manage-menu">
-                    { comAPIContext.$msg("label", "manage_menu", "메뉴 관리") }
+                  <NavDropdown.Item
+                    as={Link}
+                    to="/main/manage-menu"
+                    onClick={() =>
+                      onSelectTab({
+                        key: "manage-menu",
+                        label: "Manage menu",
+                        path: "/main/manage-menu",
+                      })
+                    }
+                  >
+                    {comAPIContext.$msg("label", "manage_menu", "메뉴 관리")}
                   </NavDropdown.Item>
                   <NavDropdown.Item as={Link} to="/main/manage-role">
-                    { comAPIContext.$msg("label", "manage_role", "권한 관리") }
+                    {comAPIContext.$msg("label", "manage_role", "권한 관리")}
                   </NavDropdown.Item>
                   <NavDropdown.Item as={Link} to="/main/manage-user">
-                    { comAPIContext.$msg("label", "manage_user", "사용자 관리") }
+                    {comAPIContext.$msg("label", "manage_user", "사용자 관리")}
                   </NavDropdown.Item>
                   <NavDropdown.Item as={Link} to="/main/manage-email">
-                    { comAPIContext.$msg("label", "manage_email", "이메일 관리") }
+                    {comAPIContext.$msg("label", "manage_email", "이메일 관리")}
                   </NavDropdown.Item>
                   <NavDropdown.Item as={Link} to="/main/manage-schedule">
-                    { comAPIContext.$msg("label", "manage_schedule", "스케줄 관리") }
+                    {comAPIContext.$msg(
+                      "label",
+                      "manage_schedule",
+                      "스케줄 관리"
+                    )}
                   </NavDropdown.Item>
                   <NavDropdown.Item as={Link} to="/main/manage-message">
-                    { comAPIContext.$msg("label", "manage_message", "메세지 관리") }
+                    {comAPIContext.$msg(
+                      "label",
+                      "manage_message",
+                      "메세지 관리"
+                    )}
                   </NavDropdown.Item>
                 </>
               )}
