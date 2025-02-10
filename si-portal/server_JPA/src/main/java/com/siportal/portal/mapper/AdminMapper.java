@@ -23,8 +23,6 @@ public interface AdminMapper {
     Map<String, Object> getUserPhoneNumber(@Param("userId") String userId);
     void updateUserPassword(Map<String, Object> user);
     void registerUserRole(Map<String, Object> userRoleObject);
-    List<Map<String, Object>> getMenuIdSeq();
-    void insertMenu(Map<String, Object> data);
     void deleteMenu(Map<String, Object> data);
 
     void updateMenuContent(Map<String, Object> data);

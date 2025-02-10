@@ -4,6 +4,7 @@ import com.siportal.portal.com.batch.config.QuartzDynamicConfig;
 import com.siportal.portal.com.result.ComResultMap;
 import com.siportal.portal.domain.Role;
 import com.siportal.portal.dto.MenuDto;
+import com.siportal.portal.domain.*;
 import com.siportal.portal.dto.MenuRoleDTO;
 import com.siportal.portal.dto.SchedulDTO;
 import com.siportal.portal.mapper.AdminMapper;
@@ -710,19 +711,19 @@ public class AdminService {
 
     public ResponseEntity<?> insertMenu(@RequestBody Map<String, Object> result) {
         try {
-            // List<Map<String, Object>> 형태로 반환된다고 가정
-            List<Map<String, Object>> menuIdList = this.adminMapper.getMenuIdSeq();
-
-            if (!menuIdList.isEmpty()) {
-                // 첫 번째 요소의 menuId 값 추출
-                Object menuId = menuIdList.get(0).get("menuId");
-                result.put("menuId", menuId);
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("Error: menuId list is empty.");
-            }
-
-            adminMapper.insertMenu(result);
+            Menu menu = new Menu();
+            menu.setKoName((String)result.get("menuName"));
+            menu.setCnName((String)result.get("menuName"));
+            menu.setEnName((String)result.get("menuName"));
+            menu.setParentMenuId((Integer)result.get("parentMenuId"));
+            menu.setDepth((Integer)result.get("depth"));
+            menu.setPath((String)result.get("path"));
+            menu.setPosition((Integer)result.get("position"));
+            menu.setChildYn((String)result.get("childYn"));
+            menu.setStatus((String)result.get("status"));
+            menu.setCreateBy((String)result.get("userId"));
+            menu.setCreateDate(LocalDateTime.now());
+            menuRepository.save(menu);
 
             return ResponseEntity.ok(result);
         } catch (Exception e) {
