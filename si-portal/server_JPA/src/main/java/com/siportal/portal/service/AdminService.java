@@ -712,9 +712,7 @@ public class AdminService {
     public ResponseEntity<?> insertMenu(@RequestBody Map<String, Object> result) {
         try {
             Menu menu = new Menu();
-            menu.setKoName((String)result.get("menuName"));
-            menu.setCnName((String)result.get("menuName"));
-            menu.setEnName((String)result.get("menuName"));
+            menu.setMenuName((String)result.get("menuName"));
             menu.setParentMenuId((Integer)result.get("parentMenuId"));
             menu.setDepth((Integer)result.get("depth"));
             menu.setPath((String)result.get("path"));
