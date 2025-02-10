@@ -364,7 +364,7 @@ const ManageMenuContent: React.FC<{
       lists.updateList.length === 0 &&
       lists.createList.length === 0
     ) {
-      comAPIContext.showToast("저장할 데이터가 없습니다.", "dark");
+      comAPIContext.showToast(comAPIContext.$msg("message", "no_save_data", "저장할 데이터가 없습니다."), "dark");
       return;
     }
 
@@ -417,11 +417,11 @@ const ManageMenuContent: React.FC<{
         }
       );
 
-      comAPIContext.showToast("저장되었습니다.", "success");
+      comAPIContext.showToast(comAPIContext.$msg("message", "save_complete", "저장이 완료됐습니다."));
       fetchData(); // 저장 후 최신 데이터 조회
     } catch (err) {
       console.error("Error saving data:", err);
-      comAPIContext.showToast("저장 중 오류가 발생했습니다.", "danger");
+      comAPIContext.showToast(comAPIContext.$msg("message", "save_fail", "저장이 실패했습니다."), "danger");
       fetchData();
     } finally {
       comAPIContext.hideProgressBar();
