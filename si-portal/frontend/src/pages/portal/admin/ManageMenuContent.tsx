@@ -47,7 +47,7 @@ let roleKind: any = null;
 let columnDefs: ColumnDef[] = [
   {
     field: "roleName",
-    headerName: "권한 이름",
+    headerName: "역할",
     cellEditor: "agSelectCellEditor",
     sortable: true,
     filter: true,
@@ -90,7 +90,7 @@ let columnDefs: ColumnDef[] = [
   },
   {
     field: "canUpdate",
-    headerName: "업데이트 권한",
+    headerName: "수정 권한",
     cellDataType: "boolean",
     valueGetter: (params: any) => {
       return params.data.canUpdate === "Y" ? true : false;
@@ -140,7 +140,7 @@ let columnDefs: ColumnDef[] = [
   },
   {
     field: "updateDate",
-    headerName: "업데이트일",
+    headerName: "수정일",
     sortable: true,
     filter: false,
     editable: false,
@@ -191,6 +191,33 @@ const ManageMenuContent: React.FC<{
   }, [chooseMenuData]); // chooseMenuData가 변경될 때마다 호출됩니다.
 
   useEffect(() => {
+
+    const setDefColumn = () => {
+      columnDefs.forEach((column) => {
+        if (column.headerName === "역할") {
+          column.headerName = comAPIContext.$msg("label", "role", "역할");
+        } else if (column.headerName === "읽기 권한") {
+          column.headerName = comAPIContext.$msg("label", "search_permission", "읽기 권한")
+        } else if (column.headerName === "수정 권한") {
+          column.headerName = comAPIContext.$msg("label", "update_permission", "수정 권한")
+        } else if (column.headerName === "생성 권한") {
+          column.headerName = comAPIContext.$msg("label", "create_permission", "생성 권한")
+        } else if (column.headerName === "삭제 권한") {
+          column.headerName = comAPIContext.$msg("label", "delete_permission", "삭제 권한")
+
+        } else if (column.headerName === "생성일") {
+          column.headerName = comAPIContext.$msg("label", "create_date", "생성일")
+        } else if (column.headerName === "생성자") {
+          column.headerName = comAPIContext.$msg("label", "creator", "생성자")
+        } else if (column.headerName === "수정일") {
+          column.headerName = comAPIContext.$msg("label", "update_date", "수정일")
+        } else if (column.headerName === "수정자") {
+          column.headerName = comAPIContext.$msg("label", "editor", "수정자")
+        }
+      });
+    }
+    setDefColumn();
+
     getRoleListData();
   }, []);
 
@@ -517,11 +544,17 @@ const ManageMenuContent: React.FC<{
             {/* 저장 버튼 */}
             <Form.Group as={Row} className="mt-4">
               <Col sm={{ span: 4, offset: 2 }}>
-                <ComButton onClick={handleSave}>저장</ComButton>
+                <ComButton onClick={handleSave}>
+                  { comAPIContext.$msg("label", "save", "저장") }
+                </ComButton>
               </Col>
             </Form.Group>
           </Form>
-          <h4 className="mt-4">Role</h4>
+          <h4 className="mt-4">
+            {comAPIContext.$msg("label", "role", "역할") 
+              + comAPIContext.$msg("label", "add", "추가")
+            }
+          </h4>
           <div>
             <AgGridWrapper
               ref={gridRef}

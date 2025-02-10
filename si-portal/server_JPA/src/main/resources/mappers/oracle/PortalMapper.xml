@@ -2,24 +2,6 @@
 <!DOCTYPE mapper PUBLIC "//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.siportal.portal.mapper.PortalMapper">
 
-    <select id="getUserByUserName" resultType="com.siportal.portal.com.result.ComResultMap">
-        SELECT A.USER_ID, A.USER_NAME, A.EMAIL, A.PHONE_NUMBER
-        , A.STATUS
-        , TO_CHAR(A.CREATE_DATE,'YYYY-MM-DD HH24:MI:SS') AS CREATE_DATE
-        , C.ROLE_NAME
-        FROM P_USER A
-        , P_USER_ROLE B
-        , P_ROLE C
-        WHERE 1=1
-        AND A.USER_ID = B.USER_ID
-        AND B.ROLE_ID = C.ROLE_ID
-
-        <if test="userName != null and userName != ''">
-            AND A.USER_NAME = #{userName}
-        </if>
-        ORDER BY A.CREATE_DATE desc
-    </select>
-
     <update id="updateUserSettings">
         UPDATE P_USER
            SET FOOTER_YN = #{footerYn},

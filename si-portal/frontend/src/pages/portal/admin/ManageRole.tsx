@@ -256,7 +256,7 @@ const ManageRole: React.FC = () => {
           onClick={handleRegist}
           disabled={!canCreate}
         >
-          { comAPIContext.$msg("label", "role", "역활") }
+          { comAPIContext.$msg("label", "role", "역할") }
           { comAPIContext.$msg("label", "registration", "등록") }
         </ComButton>
       </>
@@ -384,7 +384,7 @@ const ManageRole: React.FC = () => {
       <Container fluid>
         <Row className="mb-3">
           <Col>
-            <h2>{comAPIContext.$msg("menu", "manage_role", "역활 관리")}</h2>
+            <h2>{comAPIContext.$msg("menu", "manage_role", "역할 관리")}</h2>
           </Col>
         </Row>
         <Row className="mb-3">

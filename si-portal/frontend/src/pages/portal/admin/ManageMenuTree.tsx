@@ -433,14 +433,14 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
                         //     setContextMenu({ ...contextMenu, visible: false });
                         // }}
                     >
-                    <Button size="sm" variant="primary" onClick={() => {
+                    <Button className="me-2"  size="sm" variant="primary" onClick={() => {
                         setIsAdding(true);
                         setContextMenu({ ...contextMenu, visible: false });
                     }}>
-                        추가
+                        { comAPIContext.$msg("label", "add", "추가") }
                     </Button>
-                    <Button size="sm" variant="primary" onClick={handleDeleteConfirm}>
-                        삭제
+                    <Button size="sm" variant="danger" onClick={handleDeleteConfirm}>
+                        { comAPIContext.$msg("label", "delete", "삭제") }
                     </Button>
                     </Dropdown.Item>
                 </Dropdown.Menu>
