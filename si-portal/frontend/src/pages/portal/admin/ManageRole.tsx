@@ -362,7 +362,7 @@ const ManageRole: React.FC = () => {
       <Container fluid>
         <Row className="mb-3">
           <Col>
-            <h2>권한 관리</h2>
+            <h2>{comAPIContext.$msg("menu", "manage_role", "권한 관리")}</h2>
           </Col>
         </Row>
         <Row className="mb-3">
@@ -388,7 +388,7 @@ const ManageRole: React.FC = () => {
           </Col>
           <Col lg={1}>
             <ComButton size="sm" variant="primary" onClick={handleSearch}>
-              검색
+              { comAPIContext.$msg("label", "search", "검색") }
             </ComButton>
           </Col>
         </Row>
