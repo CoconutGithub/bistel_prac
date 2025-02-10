@@ -142,8 +142,10 @@ public class PortalService {
             menuItem.put("menuId", menu.getMenuId());
             menuItem.put("title", menu.getTitle());
             menuItem.put("path", menu.getPath());
+            menuItem.put("position", menu.getPosition());
             menuItem.put("componentPath", menu.getComponentPath());
             menuItem.put("children", new ArrayList<>());
+            menuItem.put("status", menu.getStatus());
 
             if (menu.getChildYn() != null && menu.getChildYn().equals("N")) {
                 routeList.add(menuItem);

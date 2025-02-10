@@ -16,6 +16,8 @@ interface MenuItem {
     menuId: number;
     depth: number;
     path: string;
+    position: number;
+    status: string;
     parentMenuName: string;
     menuName: string;
     children?: MenuItem[];
@@ -127,8 +129,10 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
                 parentMenuId: -1,
                 menuId: -1,
                 depth: 0,
-                path: "",
+                path: "/",
+                position: 0,
                 menuName: "Root",
+                status: 'ACTIVE',
                 parentMenuName: "",
                 children: treeData,
                 isAdd: false,
@@ -157,6 +161,8 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
     const handleMenuClick = useCallback((event: React.MouseEvent, node: MenuItem) => {
         const adjustedX = Math.max(event.clientX);
         const adjustedY = Math.max(event.clientY);
+
+        console.log(node)
 
         setContextMenu({
             visible: true,
@@ -257,6 +263,8 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
             console.log(contextMenu.node)
 
                 const childData = contextMenu.node
+
+                console.log(childData)
 
                 const data = {
                     menuName: inputText,
