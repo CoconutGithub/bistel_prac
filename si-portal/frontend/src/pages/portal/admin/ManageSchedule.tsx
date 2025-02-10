@@ -115,7 +115,7 @@ const ManageSchedule: React.FC = () => {
           //             console.log('scheduleData.current:', scheduleData.current);
         }
         comAPIContext.hideProgressBar();
-        comAPIContext.showToast("조회가 완료됐습니다.", "success");
+        comAPIContext.showToast(comAPIContext.$msg("message", "search_complete", "조회가 완료됐습니다."), "success");
       })
       .catch((err) => {
         console.error("Error fetching data:", err);
@@ -138,7 +138,7 @@ const ManageSchedule: React.FC = () => {
       lists.updateList.length === 0 &&
       lists.createList.length === 0
     ) {
-      comAPIContext.showToast("저장할 데이터가 없습니다.", "dark");
+      comAPIContext.showToast(comAPIContext.$msg("message", "no_save_data", "저장할 데이터가 없습니다."), "dark");
       return;
     }
 
@@ -286,10 +286,7 @@ const ManageSchedule: React.FC = () => {
       handleSearch(); // 저장 후 최신 데이터 조회
     } catch (err) {
       console.error("Error saving data:", err);
-      comAPIContext.showToast(
-        "저장 중 오류가 발생했습니다dsafdsfsda.",
-        "danger"
-      );
+      comAPIContext.showToast(comAPIContext.$msg("message", "save_fail", "저장이 실패했습니다."), "danger");
       handleSearch();
     } finally {
       comAPIContext.hideProgressBar();
@@ -332,7 +329,7 @@ const ManageSchedule: React.FC = () => {
     <Container fluid>
       <Row className="mb-3">
         <Col>
-          <h2>스케줄 관리</h2>
+          <h2>{ comAPIContext.$msg("menu", "manage_schedule", "스케줄 관리") }</h2>
         </Col>
       </Row>
       <Row className="mb-3">
@@ -348,7 +345,7 @@ const ManageSchedule: React.FC = () => {
         </Col>
         <Col lg={1}>
           <ComButton size="sm" variant="primary" onClick={handleSearch}>
-            검색
+            { comAPIContext.$msg("label", "search", "검색") }
           </ComButton>
         </Col>
       </Row>
