@@ -25,6 +25,8 @@ const columnDefs = [
     filter: true,
     editable: true,
     width: 100,
+    cellEditor: "agSelectCellEditor", // Combobox 설정
+    cellEditorParams: { values: ["label", "menu", "message"] }, // Combobox 옵션
   },
   {
     field: "msgName",
