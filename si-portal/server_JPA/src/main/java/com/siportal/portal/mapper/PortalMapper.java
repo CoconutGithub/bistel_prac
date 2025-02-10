@@ -11,7 +11,6 @@ import java.util.Map;
 
 @Mapper
 public interface PortalMapper {
-    List<ComResultMap> getPageAuth(@Param("roleId") String roleId, @Param("path") String path);
     List<ComResultMap> getUserByUserName(@Param("userName") String userName);
 
     void updateUserSettings(@Param("userId") String userId,

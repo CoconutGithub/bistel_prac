@@ -2,6 +2,7 @@ package com.siportal.portal.repository;
 
 import com.siportal.portal.domain.Permission;
 import com.siportal.portal.dto.PPermissionDTO;
+import com.siportal.portal.dto.PageBtnDto;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -12,6 +13,19 @@ import java.util.List;
 
 @Repository
 public interface PermissionRepository extends JpaRepository<Permission, Integer> {
+
+
+    @Query(value = """
+        SELECT B.CAN_CREATE, B.CAN_DELETE , B.CAN_READ, B.CAN_UPDATE
+        FROM P_MENU  A
+            , P_PERMISSION B
+        WHERE 1=1
+        AND A.MENU_ID = B.MENU_ID
+        AND B.ROLE_ID = :roleId
+        AND A.PATH = :path
+    """, nativeQuery = true)
+    List<PageBtnDto> getPageBtnAuth(Integer roleId, String path);
+
 
     // INSERT operation
     @Modifying

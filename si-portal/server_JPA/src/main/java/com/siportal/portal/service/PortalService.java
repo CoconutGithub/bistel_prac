@@ -3,8 +3,10 @@ package com.siportal.portal.service;
 import com.siportal.portal.com.auth.JwtUtils;
 import com.siportal.portal.com.result.ComResultMap;
 import com.siportal.portal.dto.MenuDto;
+import com.siportal.portal.dto.PageBtnDto;
 import com.siportal.portal.mapper.PortalMapper;
 import com.siportal.portal.repository.MenuRepository;
+import com.siportal.portal.repository.PermissionRepository;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,19 +21,23 @@ public class PortalService {
 
     private final PortalMapper portalMapper;
     private final MenuRepository menuRepository;
+    private final PermissionRepository permissionRepository;
 
     @Autowired
-    public PortalService(PortalMapper portalMapper, MenuRepository menuRepository) {
+    public PortalService(PortalMapper portalMapper, MenuRepository menuRepository
+            , PermissionRepository permissionRepository) {
         this.portalMapper = portalMapper;
         this.menuRepository = menuRepository;
+        this.permissionRepository = permissionRepository;
     }
 
 
     public ResponseEntity<?> getPageAuth(@RequestParam String roleId, @RequestParam String path) {
 
         try {
-            List<ComResultMap> result = portalMapper.getPageAuth(roleId, path);
+            List<PageBtnDto> result = permissionRepository.getPageBtnAuth(Integer.parseInt(roleId), path);
             return ResponseEntity.ok(result);
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
                     .body("Error occurred: " + e.getMessage());
