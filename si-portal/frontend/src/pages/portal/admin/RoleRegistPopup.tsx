@@ -33,7 +33,7 @@ const RoleRegistPopup: React.FC<RoleRegistPopupProps> = ({ show, onClose, onSave
         >
             <Modal.Header closeButton>
                 <Modal.Title>
-                    { comAPIContext.$msg("label", "role", "역활") }
+                    { comAPIContext.$msg("label", "role", "역할") }
                     { comAPIContext.$msg("label", "registration", "등록") }
                 </Modal.Title>
             </Modal.Header>
