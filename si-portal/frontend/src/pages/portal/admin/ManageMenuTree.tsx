@@ -154,53 +154,22 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
         }
     };
 
-    const handleMenuClick = useCallback((node: MenuItem) => {
+    const handleMenuClick = useCallback((event: React.MouseEvent, node: MenuItem) => {
+        const adjustedX = Math.max(event.clientX);
+        const adjustedY = Math.max(event.clientY);
+
+        setContextMenu({
+            visible: true,
+            x: adjustedX,
+            y: adjustedY,
+            node: node,
+        });
+
         if (selectedMenuId !== node.menuId) {
             setSelectedMenuId(node.menuId);
             onMenuClick({ ...node, isAdd: false, isDelete: false });
         }
     }, [selectedMenuId, onMenuClick]);
-
-    const findClosestMenu = (event: React.MouseEvent) => {
-        const { clientX, clientY } = event;
-        let closestNode: MenuItem | null = {
-            parentMenuId: -1,
-            menuId: -1,
-            depth: 0,
-            path: "",
-            menuName: "Root",
-            parentMenuName: "",
-            children: treeData,
-            isAdd: false,
-            isDelete: false,
-        };
-        let closestDistance = Infinity;
-
-        nodePositions.current.forEach((rect, menuId) => {
-            const centerX = rect.left + rect.width * 2/3;
-            const centerY = rect.top + rect.height * 0.5;
-            const distance = Math.sqrt(
-                Math.pow(clientX - centerX, 2) + Math.pow(clientY - centerY, 2)
-            );
-    
-            if (distance < closestDistance) {
-                closestDistance = distance;
-                closestNode = menuData.find((node) => node.menuId === menuId) || {
-                    parentMenuId: -1,
-                    menuId: -1,
-                    depth: 0,
-                    path: "/",
-                    menuName: "Root",
-                    parentMenuName: "",
-                    children: treeData,
-                    isAdd: false,
-                    isDelete: false,
-                };
-            }
-        });
-    
-        return closestNode;
-    };
 
     const handleContextMenu = (event: React.MouseEvent, node: MenuItem) => {
         event.preventDefault();
@@ -211,18 +180,7 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
             return
         }
 
-        handleMenuClick(node)
-
-        const adjustedX = Math.max(event.clientX);
-        const adjustedY = Math.max(event.clientY);
-
-        const closestNode = findClosestMenu(event);
-        setContextMenu({
-            visible: true,
-            x: adjustedX,
-            y: adjustedY,
-            node: closestNode,
-        });
+        handleMenuClick(event, node)
     };
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -371,7 +329,7 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
                             key={node.menuId}
                             className="list-group-item"  // mb-3를 제거
                             style={{ marginBottom: 0 }}  // 인라인 스타일로 margin-bottom: 0 설정
-                            onContextMenu={(event) => handleContextMenu(event, node)}
+                            // onContextMenu={(event) => handleContextMenu(event, node)}
                         >
                             <div
                                 ref={(el) => {
@@ -406,7 +364,8 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
                                     </span>
                                 )}
                                 <span
-                                    onClick={() => handleMenuClick(node)}
+                                    onContextMenu={(event) => handleContextMenu(event, node)}
+                                    onClick={(event) => handleMenuClick(event, node)}
                                     style={{ flex: 1 }}
                                 >
                                     {node.menuName}
