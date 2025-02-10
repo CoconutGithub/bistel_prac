@@ -17,26 +17,27 @@ public interface MenuRepository extends JpaRepository<Menu, Integer> {
     @Query(value = """
         SELECT
             A.MENU_ID,
-            CASE WHEN :langCode = 'KO' THEN A.KO_NAME
-                 WHEN :langCode = 'CN' THEN A.CN_NAME
-                 WHEN :langCode = 'EN' THEN A.EN_NAME
-            END AS MENU_NAME,
+            CASE WHEN A.MSG_ID IS NULL THEN A.MENU_NAME
+                ELSE C.LANG_TEXT END AS MENU_NAME,
             A.PARENT_MENU_ID,
-            CASE WHEN :langCode = 'KO' THEN B.KO_NAME
-                    WHEN :langCode = 'CN' THEN B.CN_NAME
-                    WHEN :langCode = 'EN' THEN B.EN_NAME
-                END
-                AS PARENT_MENU_NAME,
+            B.MENU_NAME AS PARENT_MENU_NAME,
             A.PATH,
             A.POSITION,
             A.CHILD_YN,
             A.STATUS
         FROM
             P_MENU A
-        LEFT JOIN
-            P_MENU B
-        ON
-            A.PARENT_MENU_ID = B.MENU_ID
+        LEFT JOIN P_MENU B
+            ON A.PARENT_MENU_ID = B.MENU_ID
+        LEFT JOIN (
+            SELECT M1.MSG_ID, M2.LANG_TEXT
+            FROM P_MSG_MAIN M1
+                JOIN P_MSG_DETAIL M2
+            ON M1.MSG_ID = M2.MSG_ID
+            WHERE M2.LANG_CODE = :langCode
+            AND M1.MSG_TYPE ='label'        
+        ) C   
+            ON A.MSG_ID = C.MSG_ID
         ORDER BY A.DEPTH, A.POSITION    
     """, nativeQuery = true)
     List<MenuDto> getMenuTree4ManageMenu(String langCode);
