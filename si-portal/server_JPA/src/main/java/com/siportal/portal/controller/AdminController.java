@@ -194,8 +194,10 @@ public class AdminController {
     }
 
     @PostMapping("/api/update-lang-code")
-    public ResponseEntity<?> updateLangCode(@RequestBody Map<String, String> requestData) {
-        return adminService.updateLangCode(requestData);
+    public ResponseEntity<?> updateLangCode(@RequestParam("userId") String userId,
+                                            @RequestParam("langCode") String langCode) {
+        return adminService.updateLangCode(userId, langCode);
     }
+
 
 }

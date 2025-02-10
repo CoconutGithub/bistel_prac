@@ -160,26 +160,14 @@ const Profile: React.FC = () => {
 
         const updatedPhoneNumber = phoneParts.join("-"); // Redux 상태에서 전화번호 조합
 
-        const formData = new FormData();
-        formData.append("userId", userId);
-        formData.append("phoneNumber", updatedPhoneNumber);
-
         comAPIContext.showProgressBar();
 
-        axios.post(
-            "http://localhost:8080/admin/api/update-phone-number",
-            formData,
-            {
-                headers: {
-                    Authorization: `Bearer ${cachedAuthToken}`,
-                    "Content-Type": "multipart/form-data",
-                }
-            }
-        ).then((response) => {
-            if (response.data.success) {
-                comAPIContext.showToast("전화번호가 업데이트되었습니다!", "success");
-                dispatch(setPhoneNumber(updatedPhoneNumber)); // Redux 상태 업데이트
-            }
+        axios.post("http://localhost:8080/admin/api/update-phone-number", null, {
+            params: { userId, phoneNumber: updatedPhoneNumber },
+            headers: { Authorization: `Bearer ${cachedAuthToken}` }
+        }).then((response) => {
+            comAPIContext.showToast("전화번호가 업데이트되었습니다!", "success");
+            dispatch(setPhoneNumber(updatedPhoneNumber)); // Redux 상태 업데이트
         }).catch((error) => {
             console.error(error);
             comAPIContext.showToast("전화번호 업데이트 실패!", "danger");
@@ -189,18 +177,13 @@ const Profile: React.FC = () => {
     };
 
     const handleLangCodeUpdate = () => {
-        axios.post("http://localhost:8080/admin/api/update-lang-code", {
-            userId: userId,
-            langCode: pageLangCode,
-        }, {
+        axios.post("http://localhost:8080/admin/api/update-lang-code", null, {
+            params: { userId, langCode: pageLangCode },
             headers: { Authorization: `Bearer ${cachedAuthToken}` }
         })
             .then(() => {
                 dispatch(setLangCode({ langCode: pageLangCode } as any));
                 comAPIContext.showToast("언어 코드가 업데이트되었습니다.", "success");
-
-
-
             })
             .catch(error => {
                 console.error("Error updating lang code:", error);
@@ -288,6 +271,7 @@ const Profile: React.FC = () => {
                             <img
                                 src={`data:image/png;base64,${profileImage}`}
                                 alt="프로필"
+                                style={{ width: "200px", height: "200px" }}
                             />
                         ) : (
                             <p>이미지가 없습니다.</p>
