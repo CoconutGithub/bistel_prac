@@ -13,7 +13,7 @@ public class ExpenseRequest {
     private String category;
     private String item;
     private BigDecimal price;
-//    private Long fileGroupId; mybatis 사용시에는 필요하다.
+//    private String fileGroupId; mybatis 사용시에는 필요하다.
     private String createdBy;
     private String updatedBy;
     private List<FileRequest> files;

@@ -16,7 +16,7 @@ public class FileService {
     private FileRepository fileRepository;
 
     @Transactional
-    public void saveFiles(Long fileGroupId, List<FileRequest> files) {
+    public void saveFiles(String fileGroupId, List<FileRequest> files) {
         if (files == null || files.isEmpty()) {
             return;
         }

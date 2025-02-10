@@ -20,8 +20,8 @@ public class ExpenseService {
     private ExpenseRepository expenseRepository;
 
     @Transactional
-    public long saveExpense(ExpenseRequest request) {
-        long fileGroupId = System.currentTimeMillis();
+    public String saveExpense(ExpenseRequest request) {
+        String fileGroupId = Expense.generateFileGroupId();
 
         Expense expense = new Expense();
         expense.setUserName(request.getUserName());

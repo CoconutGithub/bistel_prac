@@ -33,19 +33,29 @@ public class Expense {
     private BigDecimal price;
 
     @Column(name = "file_group_id", nullable = true, length = 50)
-    private Long fileGroupId;
+    private String fileGroupId;
 
-    @Column(name = "created_at", updatable = false, columnDefinition = "TIMESTAMP DEFAULT now()")
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
     @Column(name = "created_by", length = 100)
     private String createdBy;
 
-    @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT now()")
-    private LocalDateTime updatedAt = LocalDateTime.now();
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
 
     @Column(name = "updated_by", length = 100)
     private String updatedBy;
+
+    public Expense() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 
     public static String generateFileGroupId() {
         return UUID.randomUUID().toString() + "-" + Instant.now().toEpochMilli();
