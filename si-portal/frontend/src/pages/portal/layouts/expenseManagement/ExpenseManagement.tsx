@@ -4,7 +4,8 @@ import styles from "./ExpenseManagement.module.scss";
 import AgGridWrapper from "~components/agGridWrapper/AgGridWrapper";
 import FileCellRenderer from "~components/fileCellRenderer/FileCellRenderer";
 import { AgGridWrapperHandle } from "~types/GlobalTypes";
-import { useRef, useState } from "react";
+import { useContext, useRef, useState } from "react";
+import { ComAPIContext } from "~components/ComAPIContext";
 
 const API_BASE_URL = "http://localhost:8080";
 let cachedAuthToken: string | null = sessionStorage.getItem("authToken");
@@ -49,6 +50,7 @@ async function uploadFileToMinIO(
 
 const ExpenseManagement: React.FC = () => {
   const gridRef = useRef<AgGridWrapperHandle>(null);
+  const comAPIContext = useContext(ComAPIContext);
   const [selectedFilesMap, setSelectedFilesMap] = useState<any>({});
 
   const searchGrid = () => {
@@ -65,6 +67,19 @@ const ExpenseManagement: React.FC = () => {
 
   const handleSave = async (props: any) => {
     const { deleteList, updateList, createList } = props;
+
+    const requiredFields = ["user", "category", "item", "price"];
+    const invalidRows = Object.values(createList).filter((row: any) =>
+      requiredFields.some((field) => !row[field] || row[field].trim() === "")
+    );
+
+    if (invalidRows.length > 0) {
+      comAPIContext.showToast(
+        "파일 첨부를 제외한 모든 필드 값을 입력해야 합니다.",
+        "danger"
+      );
+      return;
+    }
 
     const createData = await Promise.all(
       Object.entries(createList).map(async ([key, value]: [any, any]) => {
@@ -128,6 +143,10 @@ const ExpenseManagement: React.FC = () => {
       autoHeight: true,
       wrapText: true,
       cellStyle: { display: "flex", alignItems: "center" },
+      cellClassRules: {
+        "expense-table-required-cell": (params: any) =>
+          !params.value || params.value.trim() === "",
+      },
     },
     {
       filed: "gridRowId",
@@ -138,6 +157,10 @@ const ExpenseManagement: React.FC = () => {
       flex: 2,
       wrapText: true,
       cellStyle: { display: "flex", alignItems: "center" },
+      cellClassRules: {
+        "expense-table-required-cell": (params: any) =>
+          !params.value || params.value.trim() === "",
+      },
     },
     {
       filed: "gridRowId",
@@ -148,6 +171,10 @@ const ExpenseManagement: React.FC = () => {
       flex: 2,
       wrapText: true,
       cellStyle: { display: "flex", alignItems: "center" },
+      cellClassRules: {
+        "expense-table-required-cell": (params: any) =>
+          !params.value || params.value.trim() === "",
+      },
     },
     {
       filed: "gridRowId",
@@ -158,6 +185,21 @@ const ExpenseManagement: React.FC = () => {
       flex: 1,
       wrapText: true,
       cellStyle: { display: "flex", alignItems: "center" },
+      cellClassRules: {
+        "expense-table-required-cell": (params: any) =>
+          !params.value || params.value.trim() === "",
+      },
+      valueSetter: (params: any) => {
+        const value = params.newValue.trim();
+
+        if (!/^\d+(\.\d+)?$/.test(value)) {
+          comAPIContext.showToast("숫자만 입력 가능합니다.", "danger");
+          return false;
+        }
+
+        params.data.price = value;
+        return true;
+      },
     },
     {
       filed: "gridRowId",

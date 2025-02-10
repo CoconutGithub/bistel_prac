@@ -6,7 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class FileRequest {
-    private Long fileGroupId;
+    private String fileGroupId;
     private String fileName;
     private String filePath;
     private long fileSize;
