@@ -540,34 +540,22 @@ public class AdminService {
         }
     }
 
-
-    public ResponseEntity<?> updatePhoneNumber(
-            @RequestParam("userId") String userId,
-            @RequestParam("phoneNumber") String phoneNumber) {
+    public ResponseEntity<?> updatePhoneNumber(String userId, String phoneNumber) {
         try {
-            if (userId == null || phoneNumber == null || phoneNumber.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(Collections.singletonMap("success", false));
-            }
+            User user = userRepository.findByUserId(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
 
-            Map<String, Object> user = new HashMap<>();
-            user.put("userId", userId);
-            user.put("phoneNumber", phoneNumber);
+            user.setPhoneNumber(phoneNumber);
 
-            // 전화번호 업데이트 실행
-            adminMapper.updatePhoneNumber(user);
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "전화번호가 업데이트되었습니다.");
-
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(Collections.singletonMap("message", "전화번호가 업데이트되었습니다."));
         } catch (Exception e) {
+            e.printStackTrace();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
-                    .body(Collections.singletonMap("success", false));
+                    .body(Collections.singletonMap("error", "전화번호 업데이트 실패: " + e.getMessage()));
         }
     }
-
 
     public ResponseEntity<?> getUserPhoneNumber(@RequestParam("userId") String userId) {
         try {
@@ -614,6 +602,9 @@ public class AdminService {
 
             return ResponseEntity.ok(Collections.singletonMap("message", "비밀번호 변경이 완료되었습니다."));
         } catch (Exception e) {
+            e.printStackTrace();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("비밀번호 변경 중 오류 발생: " + e.getMessage());
         }
     }
@@ -984,23 +975,23 @@ public class AdminService {
     }
 
     @Transactional
-    public ResponseEntity<?> updateLangCode(Map<String, String> requestData) {
+    public ResponseEntity<?> updateLangCode(String userId, String langCode) {
         try {
-            String userId = requestData.get("userId");
-            String langCode = requestData.get("langCode");
-
             User user = userRepository.findByUserId(userId)
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
             user.setLangCode(langCode);
-            userRepository.save(user);
 
-            return ResponseEntity.ok(Collections.singletonMap("message", "Language code updated successfully."));
+            return ResponseEntity.ok(Collections.singletonMap("message", "언어 코드가 업데이트되었습니다."));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error occurred: " + e.getMessage());
+            e.printStackTrace();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body(Collections.singletonMap("error", "언어 코드 업데이트 실패: " + e.getMessage()));
         }
     }
+
 
 
 }
