@@ -286,7 +286,8 @@ public class AdminService {
             for (Map<String, Object> job : deleteList) {
                 System.out.println("DELETE JOB: " + job.get("jobName"));
                 if (quartzDynamicConfig.deleteJob((String) job.get("jobName"), (String) job.get("groupName"))) {
-                    adminMapper.deleteSchedule((String) job.get("jobName"), (String) job.get("groupName"));
+//                    adminMapper.deleteSchedule((String) job.get("jobName"), (String) job.get("groupName"));
+                    schedulerRepository.deleteByJobName((String) job.get("jobName"));
                 }
                 else {
                     errorList.add((String) job.get("jobName"));
@@ -298,7 +299,10 @@ public class AdminService {
                 System.out.println("CREATE JOB: " + job.get("jobName"));
                 try {
                     if (quartzDynamicConfig.addJob((String) job.get("className"), (String) job.get("jobName"), (String) job.get("groupName"), (String) job.get("triggerKey"), (String) job.get("cronTab"))) {
-                        adminMapper.createSchedule((String) job.get("jobName"), (String) job.get("groupName"), (String) job.get("triggerKey")
+//                        adminMapper.createSchedule((String) job.get("jobName"), (String) job.get("groupName"), (String) job.get("triggerKey")
+//                                , (String) job.get("className"), (String) job.get("cronTab"), (String) job.get("status")
+//                                , userId);
+                        schedulerRepository.createSchedule((String) job.get("jobName"), (String) job.get("groupName"), (String) job.get("triggerKey")
                                 , (String) job.get("className"), (String) job.get("cronTab"), (String) job.get("status")
                                 , userId);
                     }
@@ -319,7 +323,7 @@ public class AdminService {
                 if("N".equals((String)job.get("changeStatus")) && "ACTIVE".equals((String) job.get("status"))) {
                     try {
                         if (quartzDynamicConfig.updateJobTrigger((String) job.get("jobName"), (String) job.get("groupName"), (String) job.get("triggerKey"), (String) job.get("cronTab"))) {
-                            adminMapper.updateSchedule((String) job.get("jobName"), (String) job.get("groupName"), (String) job.get("triggerKey")
+                            schedulerRepository.updateSchedule((String) job.get("jobName"), (String) job.get("groupName"), (String) job.get("triggerKey")
                                     , (String) job.get("className"), (String) job.get("cronTab"), (String) job.get("status")
                                     , userId);
                         }
@@ -332,7 +336,7 @@ public class AdminService {
                 } else if ("Y".equals((String)job.get("changeStatus")) && "ACTIVE".equals((String) job.get("status"))){
                     try {
                         if (quartzDynamicConfig.addJob((String) job.get("className"), (String) job.get("jobName"), (String) job.get("groupName"), (String) job.get("triggerKey"), (String) job.get("cronTab"))) {
-                            adminMapper.updateSchedule((String) job.get("jobName"), (String) job.get("groupName"), (String) job.get("triggerKey")
+                            schedulerRepository.updateSchedule((String) job.get("jobName"), (String) job.get("groupName"), (String) job.get("triggerKey")
                                     , (String) job.get("className"), (String) job.get("cronTab"), (String) job.get("status")
                                     , userId);
                         }
@@ -344,7 +348,7 @@ public class AdminService {
                     }
                 } else if ("Y".equals((String)job.get("changeStatus")) && "INACTIVE".equals((String) job.get("status"))){
                     if (quartzDynamicConfig.deleteJob((String) job.get("jobName"), (String) job.get("groupName"))) {
-                        adminMapper.updateSchedule((String) job.get("jobName"), (String) job.get("groupName"), (String) job.get("triggerKey")
+                        schedulerRepository.updateSchedule((String) job.get("jobName"), (String) job.get("groupName"), (String) job.get("triggerKey")
                                 , (String) job.get("className"), (String) job.get("cronTab"), (String) job.get("status")
                                 , userId);
                     }
@@ -352,7 +356,7 @@ public class AdminService {
                         errorList.add((String) job.get("jobName"));
                     }
                 } else {
-                    adminMapper.updateSchedule((String) job.get("jobName"), (String) job.get("groupName"), (String) job.get("triggerKey")
+                    schedulerRepository.updateSchedule((String) job.get("jobName"), (String) job.get("groupName"), (String) job.get("triggerKey")
                             , (String) job.get("className"), (String) job.get("cronTab"), (String) job.get("status")
                             , userId);
                 }
