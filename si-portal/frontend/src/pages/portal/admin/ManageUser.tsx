@@ -322,7 +322,7 @@ const ManageUser: React.FC = () => {
               onClick={openPopup}
               disabled={!canCreate}
           >
-            { comAPIContext.$msg("label", "user_regist", "사용자등록") }
+            { comAPIContext.$msg("label", "user_regist", "사용자 등록") }
           </ComButton>
         </>
     );

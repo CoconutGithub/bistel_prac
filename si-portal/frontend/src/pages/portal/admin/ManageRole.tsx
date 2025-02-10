@@ -28,7 +28,7 @@ const columnDefs = [
   },
   {
     field: "roleId",
-    headerName: "권한 ID",
+    headerName: "ID",
     sortable: true,
     filter: true,
     editable: false,
@@ -36,7 +36,7 @@ const columnDefs = [
   },
   {
     field: "roleName",
-    headerName: "권한 이름",
+    headerName: "이름",
     sortable: true,
     filter: true,
     editable: true,
@@ -74,7 +74,7 @@ const columnDefs = [
   },
   {
     field: "updateDate",
-    headerName: "업데이트일",
+    headerName: "수정일",
     sortable: true,
     filter: false,
     width: 200,
@@ -134,6 +134,27 @@ const ManageRole: React.FC = () => {
   console.log("ManageRole create.......");
 
   useEffect(() => {
+
+    const setDefColumn = () => {
+      columnDefs.forEach((column) => {
+        if (column.headerName === "이름") {
+          column.headerName = comAPIContext.$msg("label", "name", "이름")
+        } else if (column.headerName === "상태") {
+          column.headerName = comAPIContext.$msg("label", "status", "상태")
+        } else if (column.headerName === "생성일") {
+          column.headerName = comAPIContext.$msg("label", "create_date", "생성일")
+        } else if (column.headerName === "생성자") {
+          column.headerName = comAPIContext.$msg("label", "creator", "생성자")
+        } else if (column.headerName === "수정일") {
+          column.headerName = comAPIContext.$msg("label", "update_date", "수정일")
+        } else if (column.headerName === "수정자") {
+          column.headerName = comAPIContext.$msg("label", "editor", "수정자")
+        }
+      });
+    }
+
+    setDefColumn();
+
     const getRoleList = async () => {
       try {
         comAPIContext.showProgressBar();
@@ -235,7 +256,8 @@ const ManageRole: React.FC = () => {
           onClick={handleRegist}
           disabled={!canCreate}
         >
-          권한 등록
+          { comAPIContext.$msg("label", "role", "역활") }
+          { comAPIContext.$msg("label", "registration", "등록") }
         </ComButton>
       </>
     ),
@@ -362,18 +384,18 @@ const ManageRole: React.FC = () => {
       <Container fluid>
         <Row className="mb-3">
           <Col>
-            <h2>{comAPIContext.$msg("menu", "manage_role", "권한 관리")}</h2>
+            <h2>{comAPIContext.$msg("menu", "manage_role", "역활 관리")}</h2>
           </Col>
         </Row>
         <Row className="mb-3">
           <Col lg={11}>
             <Form.Group as={Row}>
               <Form.Label column sm={1} className="text-center">
-                권한 선택
+                { comAPIContext.$msg("label", "role", "역할") }
               </Form.Label>
               <Col sm={2}>
                 <Form.Select onChange={handleRoleChange} value={selectedRoleId}>
-                  <option value="">옵션 선택</option>
+                  <option value="">select</option>
                   {roleList.map((role: Role) => (
                     <option
                       key={role.roleId ?? `new-${role.roleName}`}
