@@ -52,7 +52,8 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
     const nodePositions = useRef<Map<number, DOMRect>>(new Map());
     const inputRef = useRef<HTMLInputElement | null>(null); // Add a ref for the input element
     const contextMenuRef = useRef<HTMLDivElement | null>(null); // Add a ref for the context menu
-
+    const isBlurred = useRef<boolean>(false);
+    
     console.log('render---------------------------------')
 
 
@@ -87,8 +88,15 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
         nodePositions.current = new Map(); // 기존 값 초기화
     
         menuData.forEach((node) => {
-            nodePositions.current.set(node.menuId, new DOMRect(0, 0, 100, 40)); 
+            setTimeout(() => {
+                const element = document.getElementById(`menu-item-${node.menuId}`);
+                if (element) {
+                    const rect = element.getBoundingClientRect();
+            nodePositions.current.set(node.menuId, rect);
+                }
+            }, 0);
         });
+        
     }, [menuData]); // menuData가 변경될 때마다 실행
     
 
@@ -281,6 +289,9 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
     };
 
     const handleBlur = async () => {
+        if (isBlurred.current) return; // 중복 실행 방지
+        isBlurred.current = true;
+
         if(inputText.length === 0) {
             setIsAdding(false);
         } else {
@@ -332,6 +343,7 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
                         console.error("Error fetching data:", err);
                         comAPIContext.showToast("Error fetching roles: " + error.message, "danger");
                     } finally {
+                        isBlurred.current = false;
                         comAPIContext.hideProgressBar();
                     }
                 }
@@ -345,6 +357,7 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if(event.code === 'Enter') {
+            event.preventDefault(); // 엔터 시 기본 동작 방지
             handleBlur();
         }
     }
@@ -352,11 +365,12 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
     const renderTree = (nodes: MenuItem[], level: number = 0) => {
         return (
             <Container>
-                <ul className="list-unstyled mb-3">
+                <ul className="list-unstyled-item" style={{ marginBottom: 0, marginLeft: -40 }}>
                     {nodes.map((node) => (
                         <li
                             key={node.menuId}
-                            className="list-group-item mb-3"
+                            className="list-group-item"  // mb-3를 제거
+                            style={{ marginBottom: 0 }}  // 인라인 스타일로 margin-bottom: 0 설정
                             onContextMenu={(event) => handleContextMenu(event, node)}
                         >
                             <div
@@ -372,7 +386,7 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
                                     display: "flex",
                                     alignItems: "center",
                                     cursor: "pointer",
-                                    marginLeft: `${level * 15}px`,
+                                    marginLeft: `${level * 25}px`,
                                     fontWeight: "bold",
                                     color:
                                         selectedMenuId !== null && node.menuId === selectedMenuId
