@@ -17,10 +17,6 @@ public interface PortalMapper {
                             @Param("footerYn") String footerYn,
                             @Param("headerColor") String headerColor);
 
-
-    @MapKey("role_id")
-    List<Map<String, Object>> getAllRole();
-
     @MapKey("userId")
     Map<String, Object> getUserSettings(@Param("userId") String userId);
 

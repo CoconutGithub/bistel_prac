@@ -2,12 +2,6 @@
 <!DOCTYPE mapper PUBLIC "//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.siportal.portal.mapper.PortalMapper">
 
-    <select id="getAllRole" resultType="java.util.Map">
-        SELECT *
-        FROM P_ROLE
-    </select>
-
-
     <select id="getUserByUserName" resultType="com.siportal.portal.com.result.ComResultMap">
         SELECT A.USER_ID, A.USER_NAME, A.EMAIL, A.PHONE_NUMBER
         , A.STATUS
