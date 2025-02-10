@@ -49,10 +49,12 @@ public interface MenuRepository extends JpaRepository<Menu, Integer> {
                 ELSE B.LANG_TEXT
             END AS TITLE,
             A.PATH AS PATH,
+            A.POSITION AS POSITION,
             A.COMPONENT_PATH,
             A.PARENT_MENU_ID,
             A.DEPTH AS DEPTH,
-            A.CHILD_YN
+            A.CHILD_YN,
+            A.STATUS
         FROM P_MENU A
             LEFT JOIN
             (
@@ -77,10 +79,12 @@ public interface MenuRepository extends JpaRepository<Menu, Integer> {
                 ELSE C.LANG_TEXT
             END AS TITLE,
             A.PATH AS PATH,
+            A.POSITION AS POSITION,
             A.COMPONENT_PATH,
             A.PARENT_MENU_ID,
             A.DEPTH AS DEPTH,
-            A.CHILD_YN
+            A.CHILD_YN,
+            A.STATUS
         FROM P_MENU A
             JOIN P_PERMISSION B
                 ON A.MENU_ID = B.MENU_ID

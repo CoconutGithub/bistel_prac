@@ -177,7 +177,7 @@ const ManageMenuContent: React.FC<{
   const pathRef = useRef<HTMLInputElement>(null);
   const menuNameRef = useRef<HTMLInputElement>(null);
 
-  console.log(chooseMenuData);
+  console.log('chooseMenuData', chooseMenuData)
 
   // chooseMenuData가 변경될 때마다 상태를 업데이트합니다.
   useEffect(() => {

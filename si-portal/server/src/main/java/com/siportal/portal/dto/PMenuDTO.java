@@ -7,10 +7,12 @@ public class PMenuDTO {
     private Integer menuId;
     private String title;
     private String path;
+    private Integer position;
     private String componentPath;
     private Integer parentMenuId;
     private Integer depth;
     private String childYn;
+    private String status;
 
 //    // Getters and Setters
 //    public Integer getMenuId() { return menuId; }
