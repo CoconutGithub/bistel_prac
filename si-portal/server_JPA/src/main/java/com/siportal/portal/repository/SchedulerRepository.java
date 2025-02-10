@@ -11,8 +11,7 @@ import java.util.List;
 
 public interface SchedulerRepository extends JpaRepository<Scheduler, String> {
     @Query(value = "SELECT JOB_NAME, GROUP_NAME, TRIGGER_KEY, CLASS_NAME, CRON_TAB, " +
-            "TO_CHAR(CREATE_DATE, 'YYYY-MM-DD HH24:MI:SS') AS CREATE_DATE, STATUS, CREATE_BY, UPDATE_DATE, UPDATE_BY," +
-            "ROW_NUMBER() OVER() AS GRID_ROW_ID " +
+            "TO_CHAR(CREATE_DATE, 'YYYY-MM-DD HH24:MI:SS') AS CREATE_DATE, STATUS, CREATE_BY, UPDATE_DATE, UPDATE_BY " +
             "FROM P_SCHEDULER " +
             "WHERE (:jobName IS NULL OR :jobName = '' OR JOB_NAME = :jobName) " +
             "AND (:status IS NULL OR :status = '' OR STATUS = :status) " +
