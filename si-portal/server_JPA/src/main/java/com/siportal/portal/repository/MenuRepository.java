@@ -127,7 +127,7 @@ public interface MenuRepository extends JpaRepository<Menu, Integer> {
     @Transactional
     @Query("""
         UPDATE Menu m 
-        SET m.koName = :menuName, 
+        SET m.menuName = :menuName, 
             m.path = :path, 
             m.position = :position, 
             m.status = :status, 
