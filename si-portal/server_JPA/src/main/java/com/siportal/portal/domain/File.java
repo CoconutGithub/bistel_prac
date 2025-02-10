@@ -43,7 +43,8 @@ public class File {
     @Column(name = "updated_by", length = 100)
     private String updatedBy;
 
-    public File() {
+    @PrePersist
+    protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }

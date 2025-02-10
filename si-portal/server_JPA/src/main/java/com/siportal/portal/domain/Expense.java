@@ -47,7 +47,8 @@ public class Expense {
     @Column(name = "updated_by", length = 100)
     private String updatedBy;
 
-    public Expense() {
+    @PrePersist
+    protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
