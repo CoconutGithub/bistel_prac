@@ -484,6 +484,18 @@ const UserRegistPopup = forwardRef(
                                     />
                                 </Col>
                             </Form.Group>
+                            <Form.Group as={Row} className="mb-3" controlId="langCode">
+                                <Form.Label column sm={3}>
+                                    <strong>{comAPIContext.$msg("label", "language", "언어")}</strong>
+                                </Form.Label>
+                                <Col sm={9}>
+                                    <Form.Select value={langCode} onChange={handleLangCode}>
+                                        <option value="KO">Korea (KO)</option>
+                                        <option value="EN">English (EN)</option>
+                                        <option value="CN">China (CH)</option>
+                                    </Form.Select>
+                                </Col>
+                            </Form.Group>
 
                             {mode === "register" && (
                                 <>
@@ -512,18 +524,6 @@ const UserRegistPopup = forwardRef(
                                             <Form.Select value={status} onChange={handleStatus}>
                                                 <option value="ACTIVE">ACTIVE</option>
                                                 <option value="INACTIVE">INACTIVE</option>
-                                            </Form.Select>
-                                        </Col>
-                                    </Form.Group>
-                                    <Form.Group as={Row} className="mb-3" controlId="langCode">
-                                        <Form.Label column sm={3}>
-                                            <strong>{comAPIContext.$msg("label", "language", "언어")}</strong>
-                                        </Form.Label>
-                                        <Col sm={9}>
-                                            <Form.Select value={langCode} onChange={handleLangCode}>
-                                                <option value="KO">Korea (KO)</option>
-                                                <option value="EN">English (EN)</option>
-                                                <option value="CN">China (CH)</option>
                                             </Form.Select>
                                         </Col>
                                     </Form.Group>

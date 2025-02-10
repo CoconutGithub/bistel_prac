@@ -1,16 +1,20 @@
 package com.siportal.portal.domain;
 
 import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "p_msg_main", schema = "dev")
+@Table(name = "p_msg_detail", schema = "dev")
 @Getter
 @Setter
 @NoArgsConstructor
+@IdClass(MsgDetail.PrimaryKey.class)  // 복합 키 클래스를 명시
 public class MsgDetail {
     @Id
     @Column(name = "msg_id", nullable = false)
@@ -34,4 +38,13 @@ public class MsgDetail {
 
     @Column(name = "update_date")
     private LocalDateTime updateDate;
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @EqualsAndHashCode
+    public static class PrimaryKey implements Serializable {
+        private Integer msgId;
+        private String langCode;
+    }
 }

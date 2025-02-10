@@ -9,9 +9,14 @@ interface NavMenuItemProps {
   depth?: number;
   as?: any;
   navLinkClass?: any;
+  onSelectTab: (tab: { key: string; label: string; path: string }) => void;
 }
 
-const RecursiveDropdown = ({ item, depth = 0 }: NavMenuItemProps) => {
+const RecursiveDropdown = ({
+  item,
+  depth = 0,
+  onSelectTab,
+}: NavMenuItemProps) => {
   const [show, setShow] = useState(false);
   const navigate = useNavigate();
 
@@ -19,6 +24,7 @@ const RecursiveDropdown = ({ item, depth = 0 }: NavMenuItemProps) => {
   const handleNavigate = (path: string | undefined) => {
     if (path) {
       setShow(false);
+      onSelectTab({ key: item.menuId, label: item.title, path });
       navigate(path);
     }
   };
@@ -52,6 +58,7 @@ const RecursiveDropdown = ({ item, depth = 0 }: NavMenuItemProps) => {
                   key={child.menuId}
                   item={child}
                   depth={depth + 1}
+                  onSelectTab={onSelectTab}
                 />
               );
             }
@@ -82,12 +89,13 @@ const NavMenuItem = ({
   item,
   as: AsComponent = Link,
   navLinkClass,
+  onSelectTab,
 }: NavMenuItemProps) => {
   const navigate = useNavigate();
 
   // 하위 메뉴가 있는 경우 RecursiveDropdown 사용
   if (item.children && item.children.length > 0) {
-    return <RecursiveDropdown item={item} />;
+    return <RecursiveDropdown item={item} onSelectTab={onSelectTab} />;
   }
 
   // 단일 메뉴인 경우
@@ -98,6 +106,13 @@ const NavMenuItem = ({
         as={AsComponent}
         to={item.path || "/"}
         className={cn("p-2", navLinkClass && navLinkClass)}
+        onClick={() =>
+          onSelectTab({
+            key: item.menuId,
+            label: item.title,
+            path: item.path || "/",
+          })
+        }
       >
         {item.title}
       </Nav.Link>

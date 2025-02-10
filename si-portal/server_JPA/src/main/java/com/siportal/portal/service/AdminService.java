@@ -48,6 +48,8 @@ public class AdminService {
     private final RoleRepository roleRepository;
     private final PermissionRepository permissionRepository;
     private final SchedulerRepository schedulerRepository;
+    private final MsgMainRepository msgMainRepository;
+    private final MsgDetailRepository msgDetailRepository;
 
     @Autowired
     public AdminService(AdminMapper adminMapper, JavaMailSender emailSender
@@ -59,6 +61,8 @@ public class AdminService {
         , RoleRepository roleRepository
         , PermissionRepository permissionRepository
         , SchedulerRepository schedulerRepository
+        , MsgMainRepository msgMainRepository
+        , MsgDetailRepository msgDetailRepository
     ) {
         this.adminMapper = adminMapper;
         this.emailSender = emailSender;
@@ -73,6 +77,8 @@ public class AdminService {
         this.roleRepository = roleRepository;
         this.permissionRepository = permissionRepository;
         this.schedulerRepository = schedulerRepository;
+        this.msgMainRepository = msgMainRepository;
+        this.msgDetailRepository = msgDetailRepository;
     }
 
     public ResponseEntity<?> getMenuId() {
@@ -120,7 +126,7 @@ public class AdminService {
     public ResponseEntity<?> getMsgTypeList(@RequestParam String status) {
 
         try {
-            List<ComResultMap> result = this.adminMapper.getMsgTypeList(status);
+            List<ComResultMap> result = msgMainRepository.getMsgTypeList();
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
@@ -132,7 +138,7 @@ public class AdminService {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            int cnt = this.adminMapper.checkDupMsg(params);
+            long cnt = this.msgMainRepository.checkDupMsg(params.get("msgType"), params.get("msgName"));
             response.put("messageCode", "success");
             if(cnt > 0)
                 response.put("message", "Y");
@@ -148,7 +154,7 @@ public class AdminService {
     public ResponseEntity<?> getMsgList(@RequestParam Map<String, String> params) {
 
         try {
-            List<ComResultMap> result = this.adminMapper.getMsgList(params);
+            List<ComResultMap> result = adminMapper.getMsgList(params);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
@@ -171,37 +177,37 @@ public class AdminService {
 
             // Delete 처리
             for (Map<String, String> temp : deleteList) {
-                deletedCount += adminMapper.deleteMsgList(temp);
+                deletedCount += msgMainRepository.deleteByMsgTypeAndMsgName(temp.get("msgType"), temp.get("msgName"));
             }
 
             // Create 처리
             for (Map<String, String> temp : createList) {
-                if(adminMapper.checkDupMsg(temp) > 0) {//중복이므로 업데이트
-                    Integer msgId = adminMapper.getMsgId(temp);
-                    temp.put("msgId", msgId.toString());
+                if(msgMainRepository.checkDupMsg(temp.get("msgType"), temp.get("msgName")) > 0) {//중복이므로 업데이트
+                    MsgMain ret = msgMainRepository.findMsgIdByMsgTypeAndMsgName(temp.get("msgType"), temp.get("msgName"));
+                    temp.put("msgId", ret.getMsgId().toString());
                     temp.put("userId", userId);
-                    updatedCount += adminMapper.updateMsgMain(temp);
+                    updatedCount += msgMainRepository.updateMsgMain(temp);
                     mergeMsgDetail(temp, userId);
                 } else { //신규이므로 생성
                     temp.put("userId", userId);
-                    Integer msgId = adminMapper.getSeqMsgId();
+                    Long msgId = msgMainRepository.getSeqMsgId();
                     temp.put("msgId", msgId.toString());
-                    createdCount += adminMapper.createMsgMain(temp);
+                    createdCount += msgMainRepository.createMsgMain(temp);
                     mergeMsgDetail(temp, userId);
                 }
             }
 
             // Update 처리
             for (Map<String, String> temp : updateList) {
-                if(adminMapper.checkDupMsg(temp) > 0) {//중복이므로 업데이트
+                if(msgMainRepository.checkDupMsg(temp.get("msgType"), temp.get("msgName")) > 0) {//중복이므로 업데이트
                     temp.put("userId", userId);
-                    updatedCount += adminMapper.updateMsgMain(temp);
+                    updatedCount += msgMainRepository.updateMsgMain(temp);
                     mergeMsgDetail(temp, userId);
                 } else { //신규이므로 생성
                     temp.put("userId", userId);
-                    Integer msgId = adminMapper.getSeqMsgId();
+                    Long msgId = msgMainRepository.getSeqMsgId();
                     temp.put("msgId", msgId.toString());
-                    createdCount += adminMapper.createMsgMain(temp);
+                    createdCount += msgMainRepository.createMsgMain(temp);
                     mergeMsgDetail(temp, userId);
                 }
             }
@@ -228,10 +234,18 @@ public class AdminService {
             tempMap.put("langCode", "KO");
             tempMap.put("langText", params.get("koLangText"));
             tempMap.put("userId", userId);
-            if(adminMapper.checkMsgTextExist(tempMap) > 0) {
-                adminMapper.updateMsgDetail(tempMap);
+            if(msgDetailRepository.checkMsgTextExist(tempMap) > 0) {
+                msgDetailRepository.updateMsgDetail(tempMap);
             } else {
-                adminMapper.createMsgDetail(tempMap);
+                // MsgDetail 객체 생성
+                MsgDetail msgDetail = new MsgDetail();
+                msgDetail.setMsgId(Integer.parseInt(tempMap.get("msgId")));
+                msgDetail.setLangCode(tempMap.get("langCode"));
+                msgDetail.setLangText(tempMap.get("langText"));
+                msgDetail.setCreateBy(userId);
+                msgDetail.setCreateDate(LocalDateTime.now());
+                // MsgDetail 저장
+                msgDetailRepository.save(msgDetail);
             }
         }
         if(params.get("enLangText") != null && !params.get("enLangText").isEmpty()) {
@@ -240,10 +254,18 @@ public class AdminService {
             tempMap.put("langCode", "EN");
             tempMap.put("langText", params.get("enLangText"));
             tempMap.put("userId", userId);
-            if(adminMapper.checkMsgTextExist(tempMap) > 0) {
-                adminMapper.updateMsgDetail(tempMap);
+            if(msgDetailRepository.checkMsgTextExist(tempMap) > 0) {
+                msgDetailRepository.updateMsgDetail(tempMap);
             } else {
-                adminMapper.createMsgDetail(tempMap);
+                // MsgDetail 객체 생성
+                MsgDetail msgDetail = new MsgDetail();
+                msgDetail.setMsgId(Integer.parseInt(tempMap.get("msgId")));
+                msgDetail.setLangCode(tempMap.get("langCode"));
+                msgDetail.setLangText(tempMap.get("langText"));
+                msgDetail.setCreateBy(userId);
+                msgDetail.setCreateDate(LocalDateTime.now());
+                // MsgDetail 저장
+                msgDetailRepository.save(msgDetail);
             }
         }
         if(params.get("cnLangText") != null && !params.get("cnLangText").isEmpty()) {
@@ -252,10 +274,18 @@ public class AdminService {
             tempMap.put("langCode", "CN");
             tempMap.put("langText", params.get("cnLangText"));
             tempMap.put("userId", userId);
-            if(adminMapper.checkMsgTextExist(tempMap) > 0) {
-                adminMapper.updateMsgDetail(tempMap);
+            if(msgDetailRepository.checkMsgTextExist(tempMap) > 0) {
+                msgDetailRepository.updateMsgDetail(tempMap);
             } else {
-                adminMapper.createMsgDetail(tempMap);
+                // MsgDetail 객체 생성
+                MsgDetail msgDetail = new MsgDetail();
+                msgDetail.setMsgId(Integer.parseInt(tempMap.get("msgId")));
+                msgDetail.setLangCode(tempMap.get("langCode"));
+                msgDetail.setLangText(tempMap.get("langText"));
+                msgDetail.setCreateBy(userId);
+                msgDetail.setCreateDate(LocalDateTime.now());
+                // MsgDetail 저장
+                msgDetailRepository.save(msgDetail);
             }
         }
     }
@@ -540,34 +570,22 @@ public class AdminService {
         }
     }
 
-
-    public ResponseEntity<?> updatePhoneNumber(
-            @RequestParam("userId") String userId,
-            @RequestParam("phoneNumber") String phoneNumber) {
+    public ResponseEntity<?> updatePhoneNumber(String userId, String phoneNumber) {
         try {
-            if (userId == null || phoneNumber == null || phoneNumber.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(Collections.singletonMap("success", false));
-            }
+            User user = userRepository.findByUserId(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
 
-            Map<String, Object> user = new HashMap<>();
-            user.put("userId", userId);
-            user.put("phoneNumber", phoneNumber);
+            user.setPhoneNumber(phoneNumber);
 
-            // 전화번호 업데이트 실행
-            adminMapper.updatePhoneNumber(user);
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "전화번호가 업데이트되었습니다.");
-
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(Collections.singletonMap("message", "전화번호가 업데이트되었습니다."));
         } catch (Exception e) {
+            e.printStackTrace();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
-                    .body(Collections.singletonMap("success", false));
+                    .body(Collections.singletonMap("error", "전화번호 업데이트 실패: " + e.getMessage()));
         }
     }
-
 
     public ResponseEntity<?> getUserPhoneNumber(@RequestParam("userId") String userId) {
         try {
@@ -597,13 +615,26 @@ public class AdminService {
             String encodedPassword = passwordEncoder.encode(newPassword);
 
             // DB 업데이트
-            Map<String, Object> userMap = new HashMap<>();
-            userMap.put("userId", userId);
-            userMap.put("password", encodedPassword);
-            adminMapper.updateUserPassword(userMap);
+//            Map<String, Object> userMap = new HashMap<>();
+//            userMap.put("userId", userId);
+//            userMap.put("password", encodedPassword);
+//            adminMapper.updateUserPassword(userMap);
+
+            Optional<User> userOpt = userRepository.findByUserId(userId);
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            }
+
+            // 비밀번호 변경 후 저장
+            User user = userOpt.get();
+            user.setPassword(encodedPassword);
+//            userRepository.save(user);  // 변경된 내용 자동 반영
 
             return ResponseEntity.ok(Collections.singletonMap("message", "비밀번호 변경이 완료되었습니다."));
         } catch (Exception e) {
+            e.printStackTrace();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("비밀번호 변경 중 오류 발생: " + e.getMessage());
         }
     }
@@ -974,23 +1005,23 @@ public class AdminService {
     }
 
     @Transactional
-    public ResponseEntity<?> updateLangCode(Map<String, String> requestData) {
+    public ResponseEntity<?> updateLangCode(String userId, String langCode) {
         try {
-            String userId = requestData.get("userId");
-            String langCode = requestData.get("langCode");
-
             User user = userRepository.findByUserId(userId)
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
             user.setLangCode(langCode);
-            userRepository.save(user);
 
-            return ResponseEntity.ok(Collections.singletonMap("message", "Language code updated successfully."));
+            return ResponseEntity.ok(Collections.singletonMap("message", "언어 코드가 업데이트되었습니다."));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error occurred: " + e.getMessage());
+            e.printStackTrace();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body(Collections.singletonMap("error", "언어 코드 업데이트 실패: " + e.getMessage()));
         }
     }
+
 
 
 }

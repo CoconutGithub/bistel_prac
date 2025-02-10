@@ -55,11 +55,12 @@ const Header = () => {
         <Navbar.Brand href="/">{title}</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto">
+          {/* <Nav className="me-auto">
             {menuItems.map((item) => (
-              <NavMenuItem key={item.menuId} item={item} depth={1} />
+              <NavMenuItem key={item.menuId} item={item} depth={1} 
+              onSelectTab={onSelectTab}/>
             ))}
-          </Nav>
+          </Nav> */}
           <Nav style={{ flex: "0 0 10%" }} className="ms-auto">
             {isMighty === "Y" && (
               <NavDropdown

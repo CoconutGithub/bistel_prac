@@ -3,7 +3,9 @@ package com.siportal.portal.repository;
 import com.siportal.portal.com.result.ComResultMap;
 import com.siportal.portal.domain.User;
 import com.siportal.portal.dto.UserDto;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.util.Optional;
@@ -92,5 +94,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     @Query("SELECT u.profileImage FROM User u WHERE u.userId = :userId")
     Optional<byte[]> findUserProfileImageByUserId(@Param("userId") String userId);
+
 }
 

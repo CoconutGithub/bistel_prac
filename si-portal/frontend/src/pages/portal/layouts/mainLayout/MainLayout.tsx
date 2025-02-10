@@ -1,20 +1,39 @@
-import { Container } from "react-bootstrap";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Container, Tab, Tabs } from "react-bootstrap";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import GlobalNavbar from "~pages/portal/layouts/globalNavbar/GlobalNavbar";
 
 import { removeLoginToken } from "~store/AuthSlice";
 import styles from "./MainLayout.module.scss";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useRef } from "react";
-import { RootState } from "@/store/Store";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+import { RootState } from "~store/Store";
+import { addTab, setActiveTab, removeTab } from "~store/RootTabs";
+import DefaultRoutes from "~routes/DefaultRoutes";
+import PortalRoutes from "~routes/PortalRoutes";
+
+const useRouteComponents = () => {
+  return useMemo(() => {
+    const routes: Record<string, React.ReactNode> = {};
+    [...DefaultRoutes(), ...PortalRoutes()].forEach((route) => {
+      if (route.path) {
+        routes[route.path] = route.element;
+      }
+    });
+
+    return routes;
+  }, []);
+};
 
 const MainLayout = () => {
   const isShowFooter = useSelector(
     (state: RootState) => state.auth.user.isShowFooter
   );
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const { tabs, activeKey } = useSelector((state: RootState) => state.rootTabs);
+  const routeComponents = useRouteComponents();
 
   const resetLogoutTimer = () => {
     if (timeoutRef.current) {
@@ -25,6 +44,41 @@ const MainLayout = () => {
       navigate("/login", { replace: true });
     }, 10 * 60 * 1000);
   };
+
+  const handleSelectTab = useCallback(
+    (tab: { key: string; label: string; path: string }) => {
+      dispatch(addTab(tab));
+      dispatch(setActiveTab(tab.key));
+      navigate(tab.path);
+      console.log("activeKey", activeKey);
+    },
+    [dispatch, navigate]
+  );
+
+  const handleCloseTab = useCallback(
+    (tabKey: string, event: React.MouseEvent) => {
+      event.stopPropagation();
+
+      const remainingTabs = tabs.filter((tab) => tab.key !== tabKey);
+
+      if (activeKey === tabKey) {
+        const lastTab =
+          remainingTabs.length > 0
+            ? remainingTabs[remainingTabs.length - 1]
+            : null;
+        dispatch(setActiveTab(lastTab ? lastTab.key : ""));
+        navigate(lastTab ? lastTab.path : "");
+      }
+      dispatch(removeTab(tabKey));
+    },
+    [tabs, activeKey, dispatch, navigate]
+  );
+  useEffect(() => {
+    const activeTab = tabs.find((tab) => tab.key === activeKey);
+    if (activeTab) {
+      navigate(activeTab.path);
+    }
+  }, [activeKey, tabs, navigate]);
 
   useEffect(() => {
     const events = ["mousemove", "keydown"];
@@ -41,13 +95,54 @@ const MainLayout = () => {
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (
+      location.pathname === "/main/home" &&
+      !tabs.some((tab) => tab.key === "home")
+    ) {
+      dispatch(addTab({ key: "home", label: "Home", path: "/main/home" }));
+    }
+  }, [dispatch, tabs]);
+
+  // useEffect(() => {
+  //   const activeTab = tabs.find((tab) => tab.key === activeKey);
+  //   if (activeTab) {
+  //     navigate(activeTab.path);
+  //   }
+  // }, [tabs, activeKey, navigate]);
+  console.log("tabs", tabs);
+  console.log("activeKey", activeKey);
+
   return (
     <div className={styles.start}>
-      <GlobalNavbar />
+      <GlobalNavbar onSelectTab={handleSelectTab} />
       <main id="main-content-root" className={styles.main}>
-        <Container className={styles.container}>
-          <Outlet />
-        </Container>
+        <Tabs
+          id="root-tabs"
+          activeKey={activeKey || ""}
+          onSelect={(k) => dispatch(setActiveTab(k as string))}
+        >
+          {tabs.map((tab) => (
+            <Tab
+              key={tab.key}
+              eventKey={tab.key}
+              title={
+                <span>
+                  {tab.label}{" "}
+                  <button onClick={(event) => handleCloseTab(tab.key, event)}>
+                    x
+                  </button>
+                </span>
+              }
+            >
+              <Container className={styles.container}>
+                {/* <Outlet /> */}
+                {routeComponents[tab.path] || <div>Not Found</div>}
+              </Container>
+            </Tab>
+          ))}
+        </Tabs>
       </main>
     </div>
   );
