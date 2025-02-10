@@ -598,7 +598,7 @@ const UserRegistPopup = forwardRef(
                         bg="success"
                     >
                         <Toast.Body style={{color: "#fff"}}>
-                            회원가입이 정상적으로 되었습니다.
+                            { comAPIContext.$msg("message", "success_regist_user", "회원가입이 정상적으로 되었습니다.") }
                         </Toast.Body>
                     </Toast>
                 )}

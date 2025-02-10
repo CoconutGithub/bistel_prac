@@ -93,7 +93,7 @@ const ManageEmail: React.FC = () => {
           gridRef.current.setRowData(res.data); // 데이터를 AgGridWrapper에 설정
         }
         comAPIContext.hideProgressBar();
-        comAPIContext.showToast("조회가 완료됐습니다.", "success");
+        comAPIContext.showToast(comAPIContext.$msg("message", "search_complete", "조회가 완료됐습니다."), "success");
       })
       .catch((err) => {
         console.error("Error fetching data:", err);
@@ -108,7 +108,7 @@ const ManageEmail: React.FC = () => {
     <Container fluid>
       <Row className="mb-3">
         <Col>
-          <h2>이메일 관리</h2>
+          <h2>{comAPIContext.$msg("menu", "manage_email", "이메일 관리")} </h2>
         </Col>
       </Row>
 
@@ -129,7 +129,7 @@ const ManageEmail: React.FC = () => {
         </Col>
         <Col lg={1}>
           <ComButton size="sm" variant="primary" onClick={handleSearch}>
-            검색
+            { comAPIContext.$msg("label", "search", "검색") }
           </ComButton>
         </Col>
       </Row>
