@@ -374,7 +374,7 @@ const ManageMenuContent: React.FC<{
       if (lists.createList?.length > 0) {
         for (const obj of lists.createList) {
           if (obj.roleName === undefined) {
-            comAPIContext.showToast("권한 이름을 선택해주세요.", "dark");
+            comAPIContext.showToast(comAPIContext.$msg("message", "select_role", "권한 이름을 선택해주세요."), "dark");
             return;
           }
         }
