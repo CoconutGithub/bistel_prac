@@ -597,10 +597,20 @@ public class AdminService {
             String encodedPassword = passwordEncoder.encode(newPassword);
 
             // DB 업데이트
-            Map<String, Object> userMap = new HashMap<>();
-            userMap.put("userId", userId);
-            userMap.put("password", encodedPassword);
-            adminMapper.updateUserPassword(userMap);
+//            Map<String, Object> userMap = new HashMap<>();
+//            userMap.put("userId", userId);
+//            userMap.put("password", encodedPassword);
+//            adminMapper.updateUserPassword(userMap);
+
+            Optional<User> userOpt = userRepository.findByUserId(userId);
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            }
+
+            // 비밀번호 변경 후 저장
+            User user = userOpt.get();
+            user.setPassword(encodedPassword);
+//            userRepository.save(user);  // 변경된 내용 자동 반영
 
             return ResponseEntity.ok(Collections.singletonMap("message", "비밀번호 변경이 완료되었습니다."));
         } catch (Exception e) {
