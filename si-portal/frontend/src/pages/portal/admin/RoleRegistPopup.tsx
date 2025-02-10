@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import { Modal, Form, Col, Row } from 'react-bootstrap';
 import ComButton from "~pages/portal/buttons/ComButton";
+import {ComAPIContext} from "~components/ComAPIContext";
 
 interface RoleRegistPopupProps {
     show: boolean; // 팝업 표시 여부
@@ -9,6 +10,7 @@ interface RoleRegistPopupProps {
 }
 
 const RoleRegistPopup: React.FC<RoleRegistPopupProps> = ({ show, onClose, onSave }) => {
+    const comAPIContext = useContext(ComAPIContext);
     const [roleName, setRoleName] = useState('');
     const [status, setStatus] = useState('ACTIVE'); // 기본값 'ACTIVE'
 
@@ -30,12 +32,15 @@ const RoleRegistPopup: React.FC<RoleRegistPopupProps> = ({ show, onClose, onSave
             centered
         >
             <Modal.Header closeButton>
-                <Modal.Title>권한 등록</Modal.Title>
+                <Modal.Title>
+                    { comAPIContext.$msg("label", "role", "역활") }
+                    { comAPIContext.$msg("label", "registration", "등록") }
+                </Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <Form>
                     <Form.Group as={Row} className="mb-3" controlId="name">
-                        <Form.Label column sm={3}><strong>Role Name</strong></Form.Label>
+                        <Form.Label column sm={3}><strong>{ comAPIContext.$msg("label", "role", "역할") }</strong></Form.Label>
                         <Col sm={9}>
                             <Form.Control
                                 type="text"
@@ -47,7 +52,7 @@ const RoleRegistPopup: React.FC<RoleRegistPopupProps> = ({ show, onClose, onSave
                     </Form.Group>
 
                     <Form.Group as={Row} className="mb-3" controlId="status">
-                        <Form.Label column sm={3}><strong>상태</strong></Form.Label>
+                        <Form.Label column sm={3}><strong>{ comAPIContext.$msg("label", "status", "상태") }</strong></Form.Label>
                         <Col sm={9}>
                             <Form.Select
                                 value={status}
@@ -62,7 +67,7 @@ const RoleRegistPopup: React.FC<RoleRegistPopupProps> = ({ show, onClose, onSave
             </Modal.Body>
             <Modal.Footer>
                 <ComButton variant="primary" onClick={handleSave}>
-                    Save
+                    { comAPIContext.$msg("label", "registration", "등록") }
                 </ComButton>
                 <ComButton variant="secondary" onClick={() => { 
                     setRoleName(''); // Close 버튼 클릭 시 roleName 초기화

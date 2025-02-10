@@ -347,13 +347,13 @@ const UserRegistPopup = forwardRef(
             <>
                 <Modal show={isVisible} onHide={() => handleModalClose()}>
                     <Modal.Header closeButton>
-                        <Modal.Title>사용자 등록</Modal.Title>
+                        <Modal.Title>{comAPIContext.$msg("label", "user_regist", "사용자 등록")}</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         <Form>
                             <Form.Group as={Row} className="mb-3" controlId="name">
                                 <Form.Label column sm={3}>
-                                    <strong>이름</strong>
+                                    <strong>{ comAPIContext.$msg("label", "name", "이름") }</strong>
                                 </Form.Label>
                                 <Col sm={9}>
                                     <Form.Control
@@ -384,11 +384,11 @@ const UserRegistPopup = forwardRef(
                                         />
                                         {mode === "register" ? (
                                             <ComButton className="ms-3" onClick={searchId}>
-                                                검색
+                                                { comAPIContext.$msg("label", "search", "검색") }
                                             </ComButton>
                                         ) : (
                                             <Button className="ms-3" onClick={searchId}>
-                                                검색
+                                                { comAPIContext.$msg("label", "search", "검색") }
                                             </Button>
                                         )}
                                     </InputGroup>
@@ -428,7 +428,7 @@ const UserRegistPopup = forwardRef(
                             </Form.Group>
                             <Form.Group as={Row} className="mb-3" controlId="password">
                                 <Form.Label column sm={3}>
-                                    <strong>패스워드</strong>
+                                    <strong>password</strong>
                                 </Form.Label>
                                 <Col sm={9}>
                                     <Form.Control
@@ -441,7 +441,7 @@ const UserRegistPopup = forwardRef(
                             </Form.Group>
                             <Form.Group as={Row} className="mb-3" controlId="email">
                                 <Form.Label column sm={3}>
-                                    <strong>이메일</strong>
+                                    <strong>email</strong>
                                 </Form.Label>
                                 <Col sm={9}>
                                     <Form.Control
@@ -454,7 +454,7 @@ const UserRegistPopup = forwardRef(
                             </Form.Group>
                             <Form.Group as={Row} className="mb-3" controlId="phone">
                                 <Form.Label column sm={3}>
-                                    <strong>전화번호</strong>
+                                    <strong>phone number</strong>
                                 </Form.Label>
                                 <Col sm={3}>
                                     <Form.Control
@@ -489,7 +489,7 @@ const UserRegistPopup = forwardRef(
                                 <>
                                     <Form.Group as={Row} className="mb-3" controlId="role">
                                         <Form.Label column sm={3}>
-                                            <strong>권한</strong>
+                                            <strong>{ comAPIContext.$msg("label", "role", "역할") }</strong>
                                         </Form.Label>
                                         <Col sm={9}>
                                             <Form.Select value={userRole} onChange={handleUserRole}>
@@ -506,7 +506,7 @@ const UserRegistPopup = forwardRef(
 
                                     <Form.Group as={Row} className="mb-3" controlId="status">
                                         <Form.Label column sm={3}>
-                                            <strong>상태</strong>
+                                            <strong>{ comAPIContext.$msg("label", "status", "상태") }</strong>
                                         </Form.Label>
                                         <Col sm={9}>
                                             <Form.Select value={status} onChange={handleStatus}>
@@ -517,13 +517,13 @@ const UserRegistPopup = forwardRef(
                                     </Form.Group>
                                     <Form.Group as={Row} className="mb-3" controlId="langCode">
                                         <Form.Label column sm={3}>
-                                            <strong>언어</strong>
+                                            <strong>{comAPIContext.$msg("label", "language", "언어")}</strong>
                                         </Form.Label>
                                         <Col sm={9}>
                                             <Form.Select value={langCode} onChange={handleLangCode}>
-                                                <option value="KO">한국어 (KO)</option>
-                                                <option value="EN">영어 (EN)</option>
-                                                <option value="CN">중국어 (CH)</option>
+                                                <option value="KO">Korea (KO)</option>
+                                                <option value="EN">English (EN)</option>
+                                                <option value="CN">China (CH)</option>
                                             </Form.Select>
                                         </Col>
                                     </Form.Group>
@@ -533,7 +533,7 @@ const UserRegistPopup = forwardRef(
                                 <>
                                     <Form.Group as={Row} className="mb-3" controlId="status">
                                         <Form.Label column sm={3}>
-                                            <strong>상태</strong>
+                                            <strong>{ comAPIContext.$msg("label", "status", "상태") }</strong>
                                         </Form.Label>
                                         <Col sm={9}>
                                             <Form.Select value={status} onChange={handleStatus}>
@@ -543,7 +543,7 @@ const UserRegistPopup = forwardRef(
                                     </Form.Group>
                                     <Form.Group as={Row} className="mb-3" controlId="profileImage">
                                         <Form.Label column sm={3}>
-                                            <strong>사진</strong>
+                                            <strong>Photo</strong>
                                         </Form.Label>
                                         <Col sm={9}>
                                             <Form.Control
@@ -564,7 +564,7 @@ const UserRegistPopup = forwardRef(
                                     onClick={handleSave}
                                     disabled={isButtonDisabled}
                                 >
-                                    등록
+                                    { comAPIContext.$msg("label", "registration", "등록") }
                                 </ComButton>
                                 <ComButton
                                     variant="secondary"
@@ -580,7 +580,7 @@ const UserRegistPopup = forwardRef(
                                     onClick={handleSave}
                                     disabled={isButtonDisabled}
                                 >
-                                    등록
+                                    { comAPIContext.$msg("label", "registration", "등록") }
                                 </Button>
                                 <Button variant="secondary" onClick={() => handleModalClose()}>
                                     Close

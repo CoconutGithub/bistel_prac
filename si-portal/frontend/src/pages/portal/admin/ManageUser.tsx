@@ -322,7 +322,7 @@ const ManageUser: React.FC = () => {
               onClick={openPopup}
               disabled={!canCreate}
           >
-            { comAPIContext.$msg("label", "user_regist", "사용자등록") }
+            { comAPIContext.$msg("label", "user_regist", "사용자 등록") }
           </ComButton>
         </>
     );
@@ -332,7 +332,7 @@ const ManageUser: React.FC = () => {
       <Container fluid>
         <Row className="mb-3">
           <Col>
-            <h2>{comAPIContext.$msg("label", "manage_user", "사용자 관리")}</h2>
+            <h2>{comAPIContext.$msg("menu", "manage_user", "사용자 관리")}</h2>
           </Col>
         </Row>
         <Row className="mb-3">
