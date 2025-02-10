@@ -11,8 +11,6 @@ import java.util.Map;
 
 @Mapper
 public interface PortalMapper {
-    List<ComResultMap> getUserByUserName(@Param("userName") String userName);
-
     void updateUserSettings(@Param("userId") String userId,
                             @Param("footerYn") String footerYn,
                             @Param("headerColor") String headerColor);

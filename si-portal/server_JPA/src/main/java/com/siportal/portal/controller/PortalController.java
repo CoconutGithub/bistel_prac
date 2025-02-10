@@ -25,11 +25,6 @@ public class PortalController {
         return portalService.getPageAuth(roleId, path);
     }
 
-    @GetMapping("/api/get-user")
-    public ResponseEntity<?> getUser(@RequestParam String userName) {
-        return portalService.getUser(userName);
-    }
-
     @PostMapping("/refresh-token")
     public ResponseEntity<?> refreshToken(@RequestBody Map<String, String> requestBody) {
         return portalService.refreshToken(requestBody);

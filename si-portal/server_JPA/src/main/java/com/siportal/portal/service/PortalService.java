@@ -44,17 +44,6 @@ public class PortalService {
         }
     }
 
-    public ResponseEntity<?> getUser(@RequestParam String userName) {
-
-        try {
-            List<ComResultMap> result = this.portalMapper.getUserByUserName(userName);
-            return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
-                    .body("Error occurred: " + e.getMessage());
-        }
-    }
-
     public ResponseEntity<?> refreshToken(@RequestBody Map<String, String> requestBody) {
 
         try {
