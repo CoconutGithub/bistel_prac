@@ -46,24 +46,9 @@ const Profile: React.FC = () => {
         });
     }
 
-    // const getUserPhoneNumber = () => {
-    //     axios.get("http://localhost:8080/admin/api/get-user-phone", {
-    //         headers: { Authorization: `Bearer ${cachedAuthToken}` },
-    //         params: { userId: userId },
-    //     }).then((res) => {
-    //         if (res.data.phoneNumber) {
-    //             phoneNumberRef.current = res.data.phoneNumber; //useRef에 저장
-    //             setPhoneParts(res.data.phoneNumber.split("-")); // 파트를 쪼개서 상태에 저장
-    //         }
-    //     }).catch(error => {
-    //         console.error("Error fetching user phone number:", error);
-    //     });
-    // };
-
     useEffect(() => {
         // 사용자 이미지를 가져오는 API 호출
         getPageTitleImage();
-        // getUserPhoneNumber();
     }, []);
 
     const langCodeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {

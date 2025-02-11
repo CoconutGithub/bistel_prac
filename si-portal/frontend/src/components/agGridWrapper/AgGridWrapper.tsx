@@ -68,7 +68,7 @@ const defaultSettings = {
   rowSelection: "multiple" as "multiple",
   rowHeight: 40,
   pagination: true,
-  paginationPageSize: 10,
+  paginationPageSize: 50,
   tableHeight: "600px",
 
   onDelete: () => {},
