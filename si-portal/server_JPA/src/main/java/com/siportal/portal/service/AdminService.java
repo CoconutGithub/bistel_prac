@@ -783,7 +783,8 @@ public class AdminService {
                     (String) result.get("path"),
                     (Integer) result.get("position"),
                     (String) result.get("status"),
-                    (String) result.get("userId")
+                    (String) result.get("userId"),
+                    (Integer) result.get("msgId")
             );
 
             if (updateCount > 0) {
@@ -850,29 +851,46 @@ public class AdminService {
             List<Map<String, Object>> updateList = (List<Map<String, Object>>) requestData.get("updateList");
             List<Map<String, Object>> deleteList = (List<Map<String, Object>>) requestData.get("deleteList");
 
+            // Create 처리
             for (Map<String, Object> role : createList) {
-                System.out.println(role);
-                adminMapper.createMenuRole(role);
+                permissionRepository.createMenuRole(
+                        (Integer) role.get("roleId"),
+                        (Integer) role.get("menuId"),
+                        (String) role.get("canCreate"),
+                        (String) role.get("canRead"),
+                        (String) role.get("canUpdate"),
+                        (String) role.get("canDelete")
+                );
             }
 
             // Update 처리
             for (Map<String, Object> role : updateList) {
-                System.out.println(role);
-                adminMapper.updateMenuRole(role);
+                permissionRepository.updateMenuRole(
+                        (Integer) role.get("permissionId"),
+                        (Integer) role.get("roleId"),
+                        (Integer) role.get("menuId"),
+                        (String) role.get("canCreate"),
+                        (String) role.get("canRead"),
+                        (String) role.get("canUpdate"),
+                        (String) role.get("canDelete")
+                );
             }
 
             // Delete 처리
             for (Map<String, Object> role : deleteList) {
-                System.out.println(role);
-                adminMapper.deleteMenuRole(role);
+                permissionRepository.deleteMenuRole(
+                        (Integer) role.get("permissionId"),
+                        (Integer) role.get("roleId"),
+                        (Integer) role.get("menuId")
+                );
             }
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("messageCode", "success");
-            response.put("message", "모든 작업이 성공적으로 처리되었습니다.");
-            return ResponseEntity.ok(null);
+            Map<String, Object> response = Map.of(
+                    "messageCode", "success",
+                    "message", "모든 작업이 성공적으로 처리되었습니다."
+            );
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
                     .body("Error occurred: " + e.getMessage());
         }
