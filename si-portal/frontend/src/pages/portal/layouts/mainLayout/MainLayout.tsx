@@ -7,9 +7,10 @@ import styles from "./MainLayout.module.scss";
 import { useDispatch, useSelector } from "react-redux";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { RootState } from "~store/Store";
-import { addTab, setActiveTab, removeTab } from "~store/RootTabs";
+import { addTab, setActiveTab, removeTab, resetTab } from "~store/RootTabs";
 import DefaultRoutes from "~routes/DefaultRoutes";
 import PortalRoutes from "~routes/PortalRoutes";
+import SiCancelIcon from "~components/icons/SiCancelIcon";
 
 const useRouteComponents = () => {
   return useMemo(() => {
@@ -40,6 +41,7 @@ const MainLayout = () => {
       clearTimeout(timeoutRef.current);
     }
     timeoutRef.current = setTimeout(() => {
+      dispatch(resetTab());
       dispatch(removeLoginToken()); // 10분간 비활성 상태일 경우 로그아웃
       navigate("/login", { replace: true });
     }, 10 * 60 * 1000);
@@ -50,7 +52,6 @@ const MainLayout = () => {
       dispatch(addTab(tab));
       dispatch(setActiveTab(tab.key));
       navigate(tab.path);
-      console.log("activeKey", activeKey);
     },
     [dispatch, navigate]
   );
@@ -103,23 +104,14 @@ const MainLayout = () => {
     ) {
       dispatch(addTab({ key: "home", label: "Home", path: "/main/home" }));
     }
-  }, [dispatch, tabs]);
-
-  // useEffect(() => {
-  //   const activeTab = tabs.find((tab) => tab.key === activeKey);
-  //   if (activeTab) {
-  //     navigate(activeTab.path);
-  //   }
-  // }, [tabs, activeKey, navigate]);
-  console.log("tabs", tabs);
-  console.log("activeKey", activeKey);
+  }, []);
 
   return (
     <div className={styles.start}>
       <GlobalNavbar onSelectTab={handleSelectTab} />
       <main id="main-content-root" className={styles.main}>
         <Tabs
-          id="root-tabs"
+          id="ROOT_TABS"
           activeKey={activeKey || ""}
           onSelect={(k) => dispatch(setActiveTab(k as string))}
         >
@@ -128,12 +120,15 @@ const MainLayout = () => {
               key={tab.key}
               eventKey={tab.key}
               title={
-                <span>
-                  {tab.label}{" "}
-                  <button onClick={(event) => handleCloseTab(tab.key, event)}>
-                    x
-                  </button>
-                </span>
+                <div className={styles.rootTab_tile_area}>
+                  <span>{tab.label}</span>
+                  <span
+                    onClick={(event) => handleCloseTab(tab.key, event)}
+                    className={styles.rootTab_close_button}
+                  >
+                    <SiCancelIcon width={14} height={14} currentFill={true} />
+                  </span>
+                </div>
               }
             >
               <Container className={styles.container}>

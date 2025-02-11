@@ -13,6 +13,7 @@ import { ComAPIContext } from "~components/ComAPIContext";
 
 import styles from "./GlobalNavbar.module.scss";
 import SiVerticalDot from "~components/icons/SiVerticalDot";
+import { resetTab } from "~store/RootTabs";
 
 const GlobalNavbar = ({
   onSelectTab,
@@ -41,8 +42,6 @@ const GlobalNavbar = ({
         })
         .then((res) => {
           if (res.data) {
-            console.log("fetchMenuData/menuInfo: ", res.data.menuInfo);
-            console.log("fetchMenuData/routeInfo: ", res.data.routeInfo);
             setMenuItems(res.data.menuInfo);
           }
         })
@@ -56,6 +55,7 @@ const GlobalNavbar = ({
 
   const handleLogout = () => {
     console.log("Logging out...");
+    dispatch(resetTab());
     dispatch(removeLoginToken());
     navigate("/");
   };
