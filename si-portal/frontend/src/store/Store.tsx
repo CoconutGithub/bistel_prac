@@ -12,17 +12,8 @@ const persistConfig: PersistConfig<AuthState> = {
   storage: storageSession, // session Storage를 사용
 };
 
-const rootTabsPersistConfig = {
-  key: "rootTabs",
-  storage: storageSession,
-};
-
 // Persisted Reducer 생성
 const persistedReducer = persistReducer<AuthState>(persistConfig, authReducer);
-const persistedRootTabsReducer = persistReducer(
-  rootTabsPersistConfig,
-  rootTabsReducer
-);
 
 // Redux Store 타입 정의
 export const store = configureStore({
