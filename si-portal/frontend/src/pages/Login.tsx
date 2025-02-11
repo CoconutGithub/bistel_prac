@@ -60,6 +60,7 @@ const Login = () => {
                   email: response.data.email, //email
                   langCode: response.data.langCode,
                   profileImage: response.data.profileImage ?? '',
+                  paginationSize: response.data.paginationSize ?? 0,
                 })
             );
 

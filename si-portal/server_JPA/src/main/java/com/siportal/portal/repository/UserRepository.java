@@ -23,6 +23,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
             , C.ROLE_NAME
             , A.FOOTER_YN
             , A.HEADER_COLOR
+            , A.PAGINATION_SIZE
             , CAST(C.ROLE_ID AS TEXT) AS ROLE_ID
             , C.IS_MIGHTY
             , A.LANG_CODE
@@ -46,6 +47,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
                 A.EMAIL, 
                 A.PHONE_NUMBER, 
                 A.STATUS,
+                A.PAGINATION_SIZE,
                 TO_CHAR(A.CREATE_DATE, 'YYYY-MM-DD HH24:MI:SS') AS CREATE_DATE,
                 TO_CHAR(A.UPDATE_DATE, 'YYYY-MM-DD HH24:MI:SS') AS UPDATE_DATE,
                 TO_CHAR(A.LAST_LOGIN_DATE, 'YYYY-MM-DD HH24:MI:SS') AS LAST_LOGIN_DATE, 
@@ -70,6 +72,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
                 A.EMAIL, 
                 A.PHONE_NUMBER, 
                 A.STATUS,
+                A.PAGINATION_SIZE,
                 TO_CHAR(A.CREATE_DATE, 'YYYY-MM-DD HH24:MI:SS') AS CREATE_DATE,
                 TO_CHAR(A.UPDATE_DATE, 'YYYY-MM-DD HH24:MI:SS') AS UPDATE_DATE,
                 TO_CHAR(A.LAST_LOGIN_DATE, 'YYYY-MM-DD HH24:MI:SS') AS LAST_LOGIN_DATE,                 

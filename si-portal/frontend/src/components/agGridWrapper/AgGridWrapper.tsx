@@ -19,6 +19,8 @@ import ComButton from "~pages/portal/buttons/ComButton";
 import cn from "classnames";
 import "./AgGridWrapper.scss";
 import styles from "./AgGridWrapper.module.scss";
+import {useSelector} from "react-redux";
+import {RootState} from "~store/Store";
 
 //##################### type 지정-start #######################
 // Props 타입 정의
@@ -78,9 +80,11 @@ const defaultSettings = {
   onCellEditingStarted: () => {},
 };
 
+
 const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
   (props, ref) => {
-    const settings = { ...defaultSettings, ...props };
+    const paginationSize = useSelector((state: RootState) => state.auth.user.paginationSize || 50);
+    const settings = { ...defaultSettings, ...props, paginationPageSize: paginationSize };
     const {
       children,
       showButtonArea,

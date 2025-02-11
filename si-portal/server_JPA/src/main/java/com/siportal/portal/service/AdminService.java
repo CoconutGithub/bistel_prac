@@ -1011,6 +1011,36 @@ public class AdminService {
         }
     }
 
+    public ResponseEntity<?> getPaginationSize(@RequestParam("userId") String userId) {
+        try {
+            Optional<User> userOpt = userRepository.findByUserId(userId);
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            }
 
+            Integer paginationSize = userOpt.get().getPaginationSize();
+            return ResponseEntity.ok(Collections.singletonMap("paginationSize", paginationSize));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
+
+    @Transactional
+    public ResponseEntity<?> updatePaginationSize(String userId, Integer paginationSize) {
+        try {
+            User user = userRepository.findByUserId(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            user.setPaginationSize(paginationSize);
+
+            return ResponseEntity.ok(Collections.singletonMap("message", "페이지네이션 크기가 업데이트되었습니다."));
+        } catch (Exception e) {
+            e.printStackTrace();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body(Collections.singletonMap("error", "페이지네이션 크기 업데이트 실패: " + e.getMessage()));
+        }
+    }
 
 }
