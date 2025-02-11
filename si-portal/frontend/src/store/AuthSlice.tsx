@@ -26,6 +26,7 @@ const initialState: AuthState = {
         headerColor: '#f8f9fa',
         email: '',
         langCode: '',
+        profileImage: '',
     },
     pageButtonAuth: {
         canCreate: false,
@@ -199,6 +200,7 @@ const authSlice = createSlice({
                 headerColor: string;
                 email: string;
                 langCode: string;
+                profileImage: string;
             }>
         ) {
             console.log('setLoginToken:', action.payload.token);
@@ -223,6 +225,7 @@ const authSlice = createSlice({
                 headerColor: action.payload.headerColor,
                 email: action.payload.email,
                 langCode: action.payload.langCode,
+                profileImage: action.payload.profileImage ?? '',
             };
         },
         removeLoginToken(state) {
@@ -239,6 +242,7 @@ const authSlice = createSlice({
                 phoneNumber: '',
                 email: '',
                 langCode: 'KO',
+                profileImage: '',
                 isShowFooter: true,
                 headerColor: '#f8f9fa',
             };
@@ -256,6 +260,9 @@ const authSlice = createSlice({
         },
         setPhoneNumber(state, action: PayloadAction<string>) {
             state.user.phoneNumber = action.payload;
+        },
+        setProfileImage(state, action: PayloadAction<string | null>) {
+            state.user.profileImage = action.payload ?? ''; // null이면 빈 문자열로 저장
         },
         setPageButtonAuth(
             state,
@@ -314,6 +321,7 @@ const authSlice = createSlice({
                     phoneNumber: '',
                     email: '',
                     langCode: '',
+                    profileImage: '',
                     isShowFooter: true,
                     headerColor: '#f8f9fa',
                 };
@@ -330,5 +338,6 @@ export const {
     setHeaderColor,
     setPageButtonAuth,
     setPhoneNumber,
+    setProfileImage,
 } = authSlice.actions;
 export default authSlice.reducer;

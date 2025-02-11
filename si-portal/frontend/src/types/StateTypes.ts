@@ -12,6 +12,7 @@ export interface AuthState {
         langCode: string;
         isShowFooter: boolean;
         headerColor: string;
+        profileImage: string;
     };
     pageButtonAuth: {
         canCreate: boolean,
