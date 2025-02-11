@@ -4,7 +4,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "~store/Store";
 import ComButton from "~pages/portal/buttons/ComButton";
 import axios from "axios";
-import {cachedAuthToken, setLangCode, setPhoneNumber, setProfileImage, setLoginToken} from "~store/AuthSlice";
+import {cachedAuthToken, setLangCode, setPhoneNumber, setProfileImage, setPaginationSize, setLoginToken} from "~store/AuthSlice";
 import {ComAPIContext} from "~components/ComAPIContext";
 
 const Profile: React.FC = () => {
@@ -27,9 +27,10 @@ const Profile: React.FC = () => {
 
     const [pageLangCode, setPageLangCode] = useState(langCode);
 
+    const paginationSize = useSelector((state: RootState) => state.auth.user.paginationSize || 50);
+    const [pagePaginationSize, setPagePaginationSize] = useState(paginationSize);
+
     console.log("pageLangCode======>", pageLangCode);
-
-
 
     const [preview, setPreview] = useState<string | null>(null); // string | null 타입 명시 // 이미지 미리보기
     const [file, setFile] = useState<File | null>(null); // File | null 타입 명시
@@ -175,6 +176,25 @@ const Profile: React.FC = () => {
             });
     };
 
+    const paginationSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setPagePaginationSize(Number(e.target.value));
+    };
+
+    const handlePaginationSizeUpdate = () => {
+        axios.post("http://localhost:8080/admin/api/update-pagination-size", null, {
+            params: { userId, paginationSize: pagePaginationSize },
+            headers: { Authorization: `Bearer ${cachedAuthToken}` }
+        })
+            .then(() => {
+                dispatch(setPaginationSize(pagePaginationSize));
+                comAPIContext.showToast("페이지네이션 크기가 업데이트되었습니다.", "success");
+            })
+            .catch(error => {
+                console.error("Error updating pagination size:", error);
+                comAPIContext.showToast("페이지네이션 크기 업데이트 실패", "danger");
+            });
+    };
+
     return (
         <Container className="mt-4">
             <Row>
@@ -244,6 +264,17 @@ const Profile: React.FC = () => {
                             <option value="CN">중국어</option>
                         </select>
                         <ComButton size="sm" variant="primary" onClick={handleLangCodeUpdate} disabled={langCode === pageLangCode}>
+                            변경
+                        </ComButton>
+                    </p>
+                    <p>
+                        <strong>페이지네이션 크기: </strong>
+                        <select value={pagePaginationSize} onChange={paginationSizeChange} style={{ marginRight: "10px" }}>
+                            <option value={20}>20</option>
+                            <option value={50}>50</option>
+                            <option value={100}>100</option>
+                        </select>
+                        <ComButton size="sm" variant="primary" onClick={handlePaginationSizeUpdate} disabled={paginationSize === pagePaginationSize}>
                             변경
                         </ComButton>
                     </p>

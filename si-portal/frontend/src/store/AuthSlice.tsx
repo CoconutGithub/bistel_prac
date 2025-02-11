@@ -27,6 +27,7 @@ const initialState: AuthState = {
         email: '',
         langCode: '',
         profileImage: '',
+        paginationSize: 50,
     },
     pageButtonAuth: {
         canCreate: false,
@@ -201,6 +202,7 @@ const authSlice = createSlice({
                 email: string;
                 langCode: string;
                 profileImage: string;
+                paginationSize: number;
             }>
         ) {
             console.log('setLoginToken:', action.payload.token);
@@ -226,6 +228,7 @@ const authSlice = createSlice({
                 email: action.payload.email,
                 langCode: action.payload.langCode,
                 profileImage: action.payload.profileImage ?? '',
+                paginationSize: action.payload.paginationSize || 50,
             };
         },
         removeLoginToken(state) {
@@ -245,6 +248,7 @@ const authSlice = createSlice({
                 profileImage: '',
                 isShowFooter: true,
                 headerColor: '#f8f9fa',
+                paginationSize: 50,
             };
             state.title = 'SI-Portal';
             state.databaseType = '';
@@ -263,6 +267,9 @@ const authSlice = createSlice({
         },
         setProfileImage(state, action: PayloadAction<string | null>) {
             state.user.profileImage = action.payload ?? ''; // null이면 빈 문자열로 저장
+        },
+        setPaginationSize: (state, action: PayloadAction<number>) => {
+            state.user.paginationSize = action.payload;
         },
         setPageButtonAuth(
             state,
@@ -324,6 +331,7 @@ const authSlice = createSlice({
                     profileImage: '',
                     isShowFooter: true,
                     headerColor: '#f8f9fa',
+                    paginationSize: 50,
                 };
                 console.error('Token is invalid or expired - handled in extraReducers');
             });
@@ -339,5 +347,6 @@ export const {
     setPageButtonAuth,
     setPhoneNumber,
     setProfileImage,
+    setPaginationSize,
 } = authSlice.actions;
 export default authSlice.reducer;

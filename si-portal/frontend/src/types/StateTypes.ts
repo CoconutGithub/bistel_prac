@@ -13,6 +13,7 @@ export interface AuthState {
         isShowFooter: boolean;
         headerColor: string;
         profileImage: string;
+        paginationSize: number;
     };
     pageButtonAuth: {
         canCreate: boolean,
