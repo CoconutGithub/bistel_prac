@@ -521,50 +521,39 @@ public class AdminService {
             // DB에서 사용자 정보 조회
             Optional<byte[]> profileImageOpt = userRepository.findUserProfileImageByUserId(userId);
 
-            if (profileImageOpt.isEmpty() || profileImageOpt.get().length == 0) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User profile image not found");
+            if (profileImageOpt.isPresent() && profileImageOpt.get().length > 0) {
+                String base64Image = Base64.getEncoder().encodeToString(profileImageOpt.get());
+                return ResponseEntity.ok(Collections.singletonMap("profileImage", base64Image));
+            } else {
+                // 기본 이미지 경로 반환 (예: /images/default-profile.png)
+                return ResponseEntity.ok(Collections.singletonMap("profileImage", "/images/default-profile.png"));
             }
-
-            // 프로필 이미지가 있는 경우 Base64 인코딩
-            String base64Image = Base64.getEncoder().encodeToString(profileImageOpt.get());
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("profileImage", base64Image);
-
-            return ResponseEntity.ok(response);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred");
         }
     }
 
-    public ResponseEntity<?> updateProfileImage(
-            @RequestParam(value = "userId", required = false) String userId,
-            @RequestParam(value = "image", required = false) MultipartFile image
-    ) {
+    @Transactional
+    public ResponseEntity<?> updateProfileImage(String userId, MultipartFile image) {
         try {
-            Map<String, Object> user = new HashMap<>();
-            user.put("userId", userId);
+            Optional<User> userOpt = userRepository.findByUserId(userId);
 
-            // 파일을 DB의 bytea 컬럼에 저장
-            if (image != null && !image.isEmpty()) {
-                byte[] imageBytes = image.getBytes(); // 파일을 byte[]로 변환
-                user.put("profileImage", imageBytes);
-            } else {
-                user.put("profileImage", null); // 이미지가 없으면 null 저장
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
             }
 
-            // 사용자 정보 저장
-            adminMapper.updateProfileImage(user);
+            User user = userOpt.get();
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "User profile is successfully updated.");
+            if (image != null && !image.isEmpty()) {
+                user.setProfileImage(image.getBytes());
+            }
+            // 기존 값을 유지하도록 수정: 이미지가 null이면 변경하지 않음
+            userRepository.save(user);
 
-            return ResponseEntity.ok(response);
-
+            return ResponseEntity.ok(Collections.singletonMap("message", "프로필 이미지 업데이트 완료"));
         } catch (Exception e) {
-            e.printStackTrace();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
                     .body("Error occurred: " + e.getMessage());
         }
@@ -794,7 +783,8 @@ public class AdminService {
                     (String) result.get("path"),
                     (Integer) result.get("position"),
                     (String) result.get("status"),
-                    (String) result.get("userId")
+                    (String) result.get("userId"),
+                    (Integer) result.get("msgId")
             );
 
             if (updateCount > 0) {
@@ -861,29 +851,46 @@ public class AdminService {
             List<Map<String, Object>> updateList = (List<Map<String, Object>>) requestData.get("updateList");
             List<Map<String, Object>> deleteList = (List<Map<String, Object>>) requestData.get("deleteList");
 
+            // Create 처리
             for (Map<String, Object> role : createList) {
-                System.out.println(role);
-                adminMapper.createMenuRole(role);
+                permissionRepository.createMenuRole(
+                        (Integer) role.get("roleId"),
+                        (Integer) role.get("menuId"),
+                        (String) role.get("canCreate"),
+                        (String) role.get("canRead"),
+                        (String) role.get("canUpdate"),
+                        (String) role.get("canDelete")
+                );
             }
 
             // Update 처리
             for (Map<String, Object> role : updateList) {
-                System.out.println(role);
-                adminMapper.updateMenuRole(role);
+                permissionRepository.updateMenuRole(
+                        (Integer) role.get("permissionId"),
+                        (Integer) role.get("roleId"),
+                        (Integer) role.get("menuId"),
+                        (String) role.get("canCreate"),
+                        (String) role.get("canRead"),
+                        (String) role.get("canUpdate"),
+                        (String) role.get("canDelete")
+                );
             }
 
             // Delete 처리
             for (Map<String, Object> role : deleteList) {
-                System.out.println(role);
-                adminMapper.deleteMenuRole(role);
+                permissionRepository.deleteMenuRole(
+                        (Integer) role.get("permissionId"),
+                        (Integer) role.get("roleId"),
+                        (Integer) role.get("menuId")
+                );
             }
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("messageCode", "success");
-            response.put("message", "모든 작업이 성공적으로 처리되었습니다.");
-            return ResponseEntity.ok(null);
+            Map<String, Object> response = Map.of(
+                    "messageCode", "success",
+                    "message", "모든 작업이 성공적으로 처리되었습니다."
+            );
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
                     .body("Error occurred: " + e.getMessage());
         }
@@ -1022,6 +1029,36 @@ public class AdminService {
         }
     }
 
+    public ResponseEntity<?> getPaginationSize(@RequestParam("userId") String userId) {
+        try {
+            Optional<User> userOpt = userRepository.findByUserId(userId);
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            }
 
+            Integer paginationSize = userOpt.get().getPaginationSize();
+            return ResponseEntity.ok(Collections.singletonMap("paginationSize", paginationSize));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
+
+    @Transactional
+    public ResponseEntity<?> updatePaginationSize(String userId, Integer paginationSize) {
+        try {
+            User user = userRepository.findByUserId(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            user.setPaginationSize(paginationSize);
+
+            return ResponseEntity.ok(Collections.singletonMap("message", "페이지네이션 크기가 업데이트되었습니다."));
+        } catch (Exception e) {
+            e.printStackTrace();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body(Collections.singletonMap("error", "페이지네이션 크기 업데이트 실패: " + e.getMessage()));
+        }
+    }
 
 }

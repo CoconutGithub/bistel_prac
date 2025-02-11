@@ -199,5 +199,15 @@ public class AdminController {
         return adminService.updateLangCode(userId, langCode);
     }
 
+    @GetMapping("/api/get-pagination-size")
+    public ResponseEntity<?> getPaginationSize(@RequestParam("userId") String userId) {
+        return adminService.getPaginationSize(userId);
+    }
+
+    @PostMapping("/api/update-pagination-size")
+    public ResponseEntity<?> updatePaginationSize(@RequestParam("userId") String userId,
+                                                  @RequestParam("paginationSize") Integer paginationSize) {
+        return adminService.updatePaginationSize(userId, paginationSize);
+    }
 
 }

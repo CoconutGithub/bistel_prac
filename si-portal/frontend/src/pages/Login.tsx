@@ -1,6 +1,13 @@
 import { Container, Form, Button } from "react-bootstrap";
-import React, { useRef, useCallback, useState, useEffect } from "react";
+import React, {
+  useRef,
+  useContext,
+  useCallback,
+  useState,
+  useEffect,
+} from "react";
 import { useNavigate } from "react-router-dom";
+import { ComAPIContext } from "~components/ComAPIContext";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "~store/Store";
 import { setLoginToken } from "~store/AuthSlice";
@@ -52,6 +59,8 @@ const Login = () => {
               headerColor: response.data.headerColor,
               email: response.data.email, //email
               langCode: response.data.langCode,
+              profileImage: response.data.profileImage ?? "",
+              paginationSize: response.data.paginationSize ?? 0,
             })
           );
 
@@ -74,12 +83,13 @@ const Login = () => {
     }
   }, []);
 
-  const handleUserId = useCallback((e: any) => {
+  const handleUserId = (e: any) => {
     setUserId(e.target.value);
-  }, []);
-  const handlePassword = useCallback((e: any) => {
+  };
+
+  const handlePassword = (e: any) => {
     setPassword(e.target.value);
-  }, []);
+  };
 
   useEffect(() => {
     if (userId && password) setLoginButtonDisable(false);

@@ -2,7 +2,6 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { jwtDecode } from "jwt-decode";
 import { AuthState } from "~types/StateTypes";
 import axios from "axios";
-import { resetTab } from "./RootTabs";
 
 // 전역 변수로 authToken 캐싱
 export let cachedAuthToken: string | null = sessionStorage.getItem("authToken");
@@ -25,6 +24,8 @@ const initialState: AuthState = {
     headerColor: "#f8f9fa",
     email: "",
     langCode: "",
+    profileImage: "",
+    paginationSize: 50,
   },
   pageButtonAuth: {
     canCreate: false,
@@ -174,7 +175,6 @@ export const chkLoginToken = createAsyncThunk<
 
     if (now >= expiration) {
       console.log("3-1. over expiration date/ token delete");
-      dispatch(resetTab());
       dispatch(removeLoginToken());
     } else {
       console.log("3-2. token refresh");
@@ -182,7 +182,6 @@ export const chkLoginToken = createAsyncThunk<
     }
   } catch (error) {
     console.error("Invalid token:", error);
-    dispatch(resetTab());
     dispatch(removeLoginToken());
   }
 });
@@ -207,6 +206,8 @@ const authSlice = createSlice({
         headerColor: string;
         email: string;
         langCode: string;
+        profileImage: string;
+        paginationSize: number;
       }>
     ) {
       console.log("setLoginToken:", action.payload.token);
@@ -230,6 +231,8 @@ const authSlice = createSlice({
         headerColor: action.payload.headerColor,
         email: action.payload.email,
         langCode: action.payload.langCode,
+        profileImage: action.payload.profileImage ?? "",
+        paginationSize: action.payload.paginationSize || 50,
       };
     },
     removeLoginToken(state) {
@@ -246,8 +249,10 @@ const authSlice = createSlice({
         phoneNumber: "",
         email: "",
         langCode: "KO",
+        profileImage: "",
         isShowFooter: true,
         headerColor: "#f8f9fa",
+        paginationSize: 50,
       };
       state.title = "SI-Portal";
       state.databaseType = "";
@@ -263,6 +268,12 @@ const authSlice = createSlice({
     },
     setPhoneNumber(state, action: PayloadAction<string>) {
       state.user.phoneNumber = action.payload;
+    },
+    setProfileImage(state, action: PayloadAction<string | null>) {
+      state.user.profileImage = action.payload ?? ""; // null이면 빈 문자열로 저장
+    },
+    setPaginationSize: (state, action: PayloadAction<number>) => {
+      state.user.paginationSize = action.payload;
     },
     setPageButtonAuth(
       state,
@@ -326,8 +337,10 @@ const authSlice = createSlice({
           phoneNumber: "",
           email: "",
           langCode: "",
+          profileImage: "",
           isShowFooter: true,
           headerColor: "#f8f9fa",
+          paginationSize: 50,
         };
         console.error("Token is invalid or expired - handled in extraReducers");
       });
@@ -342,5 +355,7 @@ export const {
   setHeaderColor,
   setPageButtonAuth,
   setPhoneNumber,
+  setProfileImage,
+  setPaginationSize,
 } = authSlice.actions;
 export default authSlice.reducer;

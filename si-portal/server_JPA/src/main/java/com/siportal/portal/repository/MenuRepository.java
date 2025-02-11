@@ -21,6 +21,7 @@ public interface MenuRepository extends JpaRepository<Menu, Integer> {
                 ELSE C.LANG_TEXT END AS MENU_NAME,
             A.PARENT_MENU_ID,
             B.MENU_NAME AS PARENT_MENU_NAME,
+            C.MSG_ID,
             A.PATH,
             A.POSITION,
             A.CHILD_YN,
@@ -35,7 +36,7 @@ public interface MenuRepository extends JpaRepository<Menu, Integer> {
                 JOIN P_MSG_DETAIL M2
             ON M1.MSG_ID = M2.MSG_ID
             WHERE M2.LANG_CODE = :langCode
-            AND M1.MSG_TYPE ='label'        
+            AND M1.MSG_TYPE ='menu'        
         ) C   
             ON A.MSG_ID = C.MSG_ID
         ORDER BY A.DEPTH, A.POSITION    
@@ -135,11 +136,12 @@ public interface MenuRepository extends JpaRepository<Menu, Integer> {
             m.path = :path, 
             m.position = :position, 
             m.status = :status, 
+            m.msgId = :msgId,
             m.updateDate = CURRENT_TIMESTAMP, 
             m.updateBy = :userId
         WHERE m.menuId = :menuId
     """)
-    int updateMenuContent(Integer menuId, String menuName, String path, Integer position, String status, String userId);
+    int updateMenuContent(Integer menuId, String menuName, String path, Integer position, String status, String userId, Integer msgId);
 
 
 }

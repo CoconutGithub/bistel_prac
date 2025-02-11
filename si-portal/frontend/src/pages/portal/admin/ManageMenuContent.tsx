@@ -10,7 +10,7 @@ import { ChooseMenuData } from "~types/ChooseMenuData";
 import AgGridWrapper from "~components/agGridWrapper/AgGridWrapper";
 import { AgGridWrapperHandle } from "~types/GlobalTypes";
 import ComButton from "~pages/portal/buttons/ComButton";
-import RoleRegistPopup from "~pages/portal/admin/RoleRegistPopup";
+import MessageSelectPopup from "~pages/portal/admin/MessageSelectPopup";
 import { RootState } from "~store/Store";
 import { useSelector } from "react-redux";
 import { ComAPIContext } from "~components/ComAPIContext";
@@ -34,6 +34,7 @@ interface ColumnDef {
   filter: boolean;
   editable: boolean;
   width: number;
+  hide: boolean;
   cellDataType?: string;
   valueGetter?: (params: any) => boolean;
   valueSetter?: (params: any) => boolean;
@@ -43,8 +44,16 @@ interface ColumnDef {
 }
 
 let roleKind: any = null;
-
+  // { field: "gridRowId", headerName: "gridRowId", editable: false, hide: true },
 let columnDefs: ColumnDef[] = [
+  { field: "gridRowId",
+    headerName: "gridRowId",
+    sortable: true,
+    filter: true,
+    editable: true,
+    width: 150,
+    hide: true,
+  },
   {
     field: "roleName",
     headerName: "역할",
@@ -53,6 +62,7 @@ let columnDefs: ColumnDef[] = [
     filter: true,
     editable: true,
     width: 150,
+    hide: false,
   },
   {
     field: "canCreate",
@@ -70,6 +80,7 @@ let columnDefs: ColumnDef[] = [
     filter: true,
     editable: true,
     width: 150,
+    hide: false,
   },
   {
     field: "canRead",
@@ -87,6 +98,7 @@ let columnDefs: ColumnDef[] = [
     filter: true,
     editable: true,
     width: 150,
+    hide: false,
   },
   {
     field: "canUpdate",
@@ -104,6 +116,7 @@ let columnDefs: ColumnDef[] = [
     filter: true,
     editable: true,
     width: 150,
+    hide: false,
   },
   {
     field: "canDelete",
@@ -121,6 +134,7 @@ let columnDefs: ColumnDef[] = [
     filter: true,
     editable: true,
     width: 150,
+    hide: false,
   },
   {
     field: "createDate",
@@ -129,6 +143,7 @@ let columnDefs: ColumnDef[] = [
     filter: true,
     editable: false,
     width: 150,
+    hide: false,
   },
   {
     field: "createBy",
@@ -137,6 +152,7 @@ let columnDefs: ColumnDef[] = [
     filter: true,
     editable: false,
     width: 100,
+    hide: false,
   },
   {
     field: "updateDate",
@@ -145,6 +161,7 @@ let columnDefs: ColumnDef[] = [
     filter: false,
     editable: false,
     width: 150,
+    hide: false,
   },
   {
     field: "updateBy",
@@ -153,6 +170,7 @@ let columnDefs: ColumnDef[] = [
     filter: true,
     editable: false,
     width: 100,
+    hide: false,
   },
 ];
 
@@ -175,6 +193,7 @@ const ManageMenuContent: React.FC<{
   const state = useSelector((state: RootState) => state.auth);
   const comAPIContext = useContext(ComAPIContext);
   const pathRef = useRef<HTMLInputElement>(null);
+  const [msgId, setMsgId] = useState<number>(0);
   const menuNameRef = useRef<HTMLInputElement>(null);
 
   console.log('chooseMenuData', chooseMenuData)
@@ -185,6 +204,7 @@ const ManageMenuContent: React.FC<{
       setPosition(Number(chooseMenuData?.position));
       setPath(chooseMenuData?.path);
       setMenuName(chooseMenuData?.menuName); // menuName 업데이트
+      setMsgId(chooseMenuData?.msgId);
       setIsActive(chooseMenuData?.status ?? "INACTIVE");
       fetchData();
     }
@@ -329,7 +349,10 @@ const ManageMenuContent: React.FC<{
       status: isActive,
       userId: state.user?.userId,
       menuId: chooseMenuData?.menuId,
+      msgId: msgId,
     };
+    
+    console.log(data)
 
     try {
       comAPIContext.showProgressBar();
@@ -350,6 +373,17 @@ const ManageMenuContent: React.FC<{
       comAPIContext.hideProgressBar();
       alert("Failed to save menu");
     }
+  };
+
+  const openModal = () => {
+    setShowPopup(true);
+  };
+
+  const selectMessage = (msgId: number, msgDefault: string) => {
+    console.log(msgId, msgDefault);
+    setMsgId(msgId);
+    setMenuName(msgDefault);
+    setShowPopup(false);
   };
 
   const handleGridSave = async (lists: {
@@ -493,10 +527,29 @@ const ManageMenuContent: React.FC<{
                   ref={menuNameRef} // ref로 직접 접근
                   value={menuName || ""} // menuName 상태값 사용
                   size="sm"
-                  style={{
-                    backgroundColor: "#f0f8ff", // 연한 파란색
-                  }}
-                  onChange={(e) => setMenuName(e.target.value)}
+                  disabled
+                  readOnly
+                />
+              </Col>
+              <Col sm={3}>
+                <ComButton onClick={openModal}>
+                  { comAPIContext.$msg("label", "메시지 할당", "메시지 할당") }
+                </ComButton>
+              </Col>
+            </Form.Group>
+
+            {/* Msg Id */}
+            <Form.Group as={Row} className="align-items-center mb-2">
+              <Form.Label column sm={2}>
+              Msg Id:
+              </Form.Label>
+              <Col sm={4}>
+                <Form.Control
+                  type="text"
+                  value={msgId || ""} // path 상태값 사용
+                  size="sm"
+                  disabled
+                  readOnly
                 />
               </Col>
             </Form.Group>
@@ -575,10 +628,10 @@ const ManageMenuContent: React.FC<{
           <p>Please select a menu to see the details.</p>
         </div>
       )}
-      <RoleRegistPopup
+      <MessageSelectPopup
         show={showPopup}
         onClose={() => setShowPopup(false)}
-        onSave={() => setShowPopup(false)}
+        selectMessage={(msgId, msgDefault) => selectMessage(msgId, msgDefault)}
       />
     </Container>
   );

@@ -4,7 +4,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "~store/Store";
 import ComButton from "~pages/portal/buttons/ComButton";
 import axios from "axios";
-import {cachedAuthToken, setLangCode, setPhoneNumber, setLoginToken} from "~store/AuthSlice";
+import {cachedAuthToken, setLangCode, setPhoneNumber, setProfileImage, setPaginationSize, setLoginToken} from "~store/AuthSlice";
 import {ComAPIContext} from "~components/ComAPIContext";
 
 const Profile: React.FC = () => {
@@ -17,7 +17,7 @@ const Profile: React.FC = () => {
     const email = useSelector((state: RootState) => state.auth.user.email);
     const langCode = useSelector((state: RootState) => state.auth.user.langCode);
 
-    const [profileImage, setProfileImage] = useState<string | null>(null);
+    const profileImage = useSelector((state: RootState) => state.auth.user.profileImage);
     const [newPassword, setNewPassword] = useState("");
 
     // const phoneNumberRef = useRef<string>("");
@@ -27,9 +27,10 @@ const Profile: React.FC = () => {
 
     const [pageLangCode, setPageLangCode] = useState(langCode);
 
+    const paginationSize = useSelector((state: RootState) => state.auth.user.paginationSize || 50);
+    const [pagePaginationSize, setPagePaginationSize] = useState(paginationSize);
+
     console.log("pageLangCode======>", pageLangCode);
-
-
 
     const [preview, setPreview] = useState<string | null>(null); // string | null 타입 명시 // 이미지 미리보기
     const [file, setFile] = useState<File | null>(null); // File | null 타입 명시
@@ -37,10 +38,14 @@ const Profile: React.FC = () => {
     const getPageTitleImage = () => {
         axios.get("http://localhost:8080/admin/api/user-profile-image", {
             headers: {Authorization: `Bearer ${cachedAuthToken}`},
-            params: {'userId': userId},
+            params: { userId },
         }).then((res) => {
-            console.log('getImage', res);
-            setProfileImage(res.data.profileImage); // Base64 이미지 profile_image
+            if (res.data.profileImage) {
+                dispatch(setProfileImage(res.data.profileImage));
+            } else {
+                console.warn("프로필 이미지가 없습니다.");
+                dispatch(setProfileImage('')); // 기본값 설정
+            }
         }).catch(error => {
             console.error("Error fetching user profile image:", error);
         });
@@ -79,7 +84,7 @@ const Profile: React.FC = () => {
 
             const MAX_SIZE = 1000 * 1024; // 1MB
             if (selectedFile.size >= MAX_SIZE) {
-                comAPIContext.showToast('이미지 크기는 1MB를 초과할 수 없습니다.', 'danger');
+                comAPIContext.showToast(comAPIContext.$msg("message", "big_image", "이미지 크기는 1MB를 초과할 수 없습니다."), "danger");
                 return;
             }
 
@@ -104,8 +109,6 @@ const Profile: React.FC = () => {
 
         console.log("--->", formData);
 
-        comAPIContext.showProgressBar();
-
         axios.post(
             "http://localhost:8080/admin/api/update-profile-image",
             formData,
@@ -122,10 +125,7 @@ const Profile: React.FC = () => {
         }).catch((error) => {
             console.log(error)
             comAPIContext.showToast("이미지가 업로드실패!", "danger");
-        }).finally(() => {
-            comAPIContext.hideProgressBar();
         });
-
     };
 
     const handlePhoneNumberChange = (index: number, value: string) => {
@@ -173,6 +173,25 @@ const Profile: React.FC = () => {
             .catch(error => {
                 console.error("Error updating lang code:", error);
                 comAPIContext.showToast("언어 코드 업데이트 실패", "danger");
+            });
+    };
+
+    const paginationSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setPagePaginationSize(Number(e.target.value));
+    };
+
+    const handlePaginationSizeUpdate = () => {
+        axios.post("http://localhost:8080/admin/api/update-pagination-size", null, {
+            params: { userId, paginationSize: pagePaginationSize },
+            headers: { Authorization: `Bearer ${cachedAuthToken}` }
+        })
+            .then(() => {
+                dispatch(setPaginationSize(pagePaginationSize));
+                comAPIContext.showToast("페이지네이션 크기가 업데이트되었습니다.", "success");
+            })
+            .catch(error => {
+                console.error("Error updating pagination size:", error);
+                comAPIContext.showToast("페이지네이션 크기 업데이트 실패", "danger");
             });
     };
 
@@ -248,29 +267,87 @@ const Profile: React.FC = () => {
                             변경
                         </ComButton>
                     </p>
+                    <p>
+                        <strong>페이지네이션 크기: </strong>
+                        <select value={pagePaginationSize} onChange={paginationSizeChange} style={{ marginRight: "10px" }}>
+                            <option value={20}>20</option>
+                            <option value={50}>50</option>
+                            <option value={100}>100</option>
+                        </select>
+                        <ComButton size="sm" variant="primary" onClick={handlePaginationSizeUpdate} disabled={paginationSize === pagePaginationSize}>
+                            변경
+                        </ComButton>
+                    </p>
 
                 </Col>
                 <Col xs={4} className="d-flex flex-column align-items-center">
-                    <>
+                    <div className="position-relative">
                         {profileImage ? (
                             <img
                                 src={`data:image/png;base64,${profileImage}`}
                                 alt="프로필"
-                                style={{ width: "200px", height: "200px" }}
+                                style={{
+                                    width: "250px",
+                                    height: "250px",
+                                    objectFit: "cover",
+                                    borderRadius: "50%",
+                                    border: "3px solid #ddd"
+                                }}
                             />
                         ) : (
-                            <p>이미지가 없습니다.</p>
+                            <div
+                                style={{
+                                    width: "250px",
+                                    height: "250px",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    backgroundColor: "#f3f3f3",
+                                    borderRadius: "50%",
+                                    border: "3px dashed #ccc",
+                                    fontSize: "14px",
+                                    color: "#777"
+                                }}
+                            >
+                                이미지 없음
+                            </div>
                         )}
-                        <div style={{marginTop: "10px"}}>
-                            <p>
-                                <strong>사진 변경: </strong>
-                                <input type="file" accept="image/*" onChange={handleFileChange}/>
-                            </p>
-                            <p>
-                                <ComButton onClick={() => handleUpload()}>저장</ComButton>
-                            </p>
-                        </div>
-                    </>
+                    </div>
+
+                    {/* 파일 업로드 및 버튼 */}
+                    <div
+                        className="d-flex flex-column align-items-center"
+                        style={{ marginTop: "15px", width: "100%" }}
+                    >
+                        <label className="d-flex align-items-center gap-2">
+                            <strong>사진 변경:</strong>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleFileChange}
+                                style={{
+                                    border: "1px solid #ccc",
+                                    padding: "6px",
+                                    borderRadius: "5px",
+                                    width: "180px"
+                                }}
+                            />
+                        </label>
+
+                        <ComButton
+                            onClick={handleUpload}
+                            style={{
+                                marginTop: "10px",
+                                backgroundColor: "#007bff",
+                                color: "#fff",
+                                padding: "8px 15px",
+                                borderRadius: "5px",
+                                fontWeight: "bold"
+                            }}
+                        >
+                            저장
+                        </ComButton>
+                    </div>
                 </Col>
             </Row>
         </Container>

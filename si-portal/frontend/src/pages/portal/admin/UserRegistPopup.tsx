@@ -400,9 +400,9 @@ const UserRegistPopup = React.memo(
                           {comAPIContext.$msg("label", "search", "검색")}
                         </ComButton>
                       ) : (
-                        <Button className="ms-3" onClick={searchId}>
+                        <ComButton className="ms-3" onClick={searchId}>
                           {comAPIContext.$msg("label", "search", "검색")}
-                        </Button>
+                        </ComButton>
                       )}
                     </InputGroup>
                   </Col>
@@ -603,19 +603,19 @@ const UserRegistPopup = React.memo(
                 </>
               ) : (
                 <>
-                  <Button
+                  <ComButton
                     variant="primary"
                     onClick={handleSave}
                     disabled={isButtonDisabled}
                   >
                     {comAPIContext.$msg("label", "registration", "등록")}
-                  </Button>
-                  <Button
+                  </ComButton>
+                  <ComButton
                     variant="secondary"
                     onClick={() => handleModalClose()}
                   >
                     Close
-                  </Button>
+                  </ComButton>
                 </>
               )}
             </Modal.Footer>
