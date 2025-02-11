@@ -521,50 +521,39 @@ public class AdminService {
             // DB에서 사용자 정보 조회
             Optional<byte[]> profileImageOpt = userRepository.findUserProfileImageByUserId(userId);
 
-            if (profileImageOpt.isEmpty() || profileImageOpt.get().length == 0) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User profile image not found");
+            if (profileImageOpt.isPresent() && profileImageOpt.get().length > 0) {
+                String base64Image = Base64.getEncoder().encodeToString(profileImageOpt.get());
+                return ResponseEntity.ok(Collections.singletonMap("profileImage", base64Image));
+            } else {
+                // 기본 이미지 경로 반환 (예: /images/default-profile.png)
+                return ResponseEntity.ok(Collections.singletonMap("profileImage", "/images/default-profile.png"));
             }
-
-            // 프로필 이미지가 있는 경우 Base64 인코딩
-            String base64Image = Base64.getEncoder().encodeToString(profileImageOpt.get());
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("profileImage", base64Image);
-
-            return ResponseEntity.ok(response);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred");
         }
     }
 
-    public ResponseEntity<?> updateProfileImage(
-            @RequestParam(value = "userId", required = false) String userId,
-            @RequestParam(value = "image", required = false) MultipartFile image
-    ) {
+    @Transactional
+    public ResponseEntity<?> updateProfileImage(String userId, MultipartFile image) {
         try {
-            Map<String, Object> user = new HashMap<>();
-            user.put("userId", userId);
+            Optional<User> userOpt = userRepository.findByUserId(userId);
 
-            // 파일을 DB의 bytea 컬럼에 저장
-            if (image != null && !image.isEmpty()) {
-                byte[] imageBytes = image.getBytes(); // 파일을 byte[]로 변환
-                user.put("profileImage", imageBytes);
-            } else {
-                user.put("profileImage", null); // 이미지가 없으면 null 저장
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
             }
 
-            // 사용자 정보 저장
-            adminMapper.updateProfileImage(user);
+            User user = userOpt.get();
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "User profile is successfully updated.");
+            if (image != null && !image.isEmpty()) {
+                user.setProfileImage(image.getBytes());
+            }
+            // 기존 값을 유지하도록 수정: 이미지가 null이면 변경하지 않음
+            userRepository.save(user);
 
-            return ResponseEntity.ok(response);
-
+            return ResponseEntity.ok(Collections.singletonMap("message", "프로필 이미지 업데이트 완료"));
         } catch (Exception e) {
-            e.printStackTrace();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
                     .body("Error occurred: " + e.getMessage());
         }

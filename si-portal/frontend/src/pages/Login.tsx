@@ -59,6 +59,7 @@ const Login = () => {
                   headerColor: response.data.headerColor,
                   email: response.data.email, //email
                   langCode: response.data.langCode,
+                  profileImage: response.data.profileImage ?? '',
                 })
             );
 
