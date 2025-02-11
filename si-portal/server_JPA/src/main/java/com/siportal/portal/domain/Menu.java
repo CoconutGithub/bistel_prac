@@ -48,6 +48,9 @@ public class Menu {
     @Column(name = "STATUS", length = 20)
     private String status = "ACTIVE";
 
+    @Column(name = "MSG_ID")
+    private Integer msgId;
+
     @Column(name = "CREATE_DATE", updatable = false)
     private LocalDateTime createDate;
 

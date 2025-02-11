@@ -49,6 +49,7 @@ interface AgGridWrapperProps {
   onCellEditingStopped?: (event: any) => void;
   onCellValueChanged?: (event: any) => void;
   onCellEditingStarted?: (event: any) => void;
+  onCellDoubleClicked?: (event: any) => void;
 }
 
 //##################### type 지정-end #######################
@@ -78,6 +79,7 @@ const defaultSettings = {
   onCellEditingStopped: () => {},
   onCellValueChanged: () => {},
   onCellEditingStarted: () => {},
+  onCellDoubleClicked: () => {},
 };
 
 
@@ -190,6 +192,12 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
       }
     };
 
+    const handleCellDoubleClick = (event: any) => {
+      if (settings.onCellDoubleClicked) {
+      settings.onCellDoubleClicked(event);
+      }
+    };
+
     const handleDelete = () => {
       const selectedNodes = gridRef.current?.api.getSelectedNodes();
       console.log("selectedNodes:", selectedNodes);
@@ -266,6 +274,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
       getRowData: () => {
         return rowData; // 현재 데이터 반환
       },
+      gridApi: gridRef.current?.api,
     }));
 
     return (
@@ -325,6 +334,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
               onGridReady={onGridReady}
               onCellEditingStopped={handleCellEditingStopped}
               onCellEditingStarted={handleCellEditingStarted}
+              onCellDoubleClicked={handleCellDoubleClick}
               className={cn(
                 "ag-theme-alpine",
                 "siportal-theme-grid",

@@ -3,6 +3,7 @@ export interface  ChooseMenuData {
     menuId: number;
     parentMenuName: string;
     menuName: string;
+    msgId: number;
     status: string;
     path: string;
     isAdd: boolean;
