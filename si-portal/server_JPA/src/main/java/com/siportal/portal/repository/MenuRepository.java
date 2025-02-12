@@ -143,5 +143,8 @@ public interface MenuRepository extends JpaRepository<Menu, Integer> {
     """)
     int updateMenuContent(Integer menuId, String menuName, String path, Integer position, String status, String userId, Integer msgId);
 
-
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Menu m WHERE m.menuId = :menuId OR m.parentMenuId = :menuId")
+    void deleteByMenuId(@Param("menuId") Integer menuId);
 }
