@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:9090")
+@CrossOrigin(origins = {"http://192.168.7.37:9090", "http://localhost:9090"})
 @RequestMapping("/") // API 기본 경로
 @Transactional
 public class PortalController {

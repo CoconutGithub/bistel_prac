@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:9090")
+@CrossOrigin(origins = {"http://192.168.7.37:9090", "http://localhost:9090"})
 @RequestMapping("/biz") // API 기본 경로
 @Transactional
 public class ChoBiz {
