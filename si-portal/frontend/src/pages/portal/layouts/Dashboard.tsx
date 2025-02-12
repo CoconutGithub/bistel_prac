@@ -3,6 +3,7 @@ import { Container, Row, Col, Button } from 'react-bootstrap';
 import MenuVisitorChart from "~components/chart/MenuVisitorChart";
 import {ComAPIContext} from "~components/ComAPIContext";
 
+
 const Dashboard: React.FC = () => {
 
     const sampleData = [
