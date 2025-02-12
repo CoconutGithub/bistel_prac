@@ -104,7 +104,7 @@ const UserRegistPopup = React.memo(
       const getRoles = async () => {
         try {
           const response = await axios.get(
-            `${process.env.BACKEND_IP}/admin/api/get-roles-list`,
+            `${process.env.REACT_APP_BACKEND_IP}/admin/api/get-roles-list`,
             {
               headers: {
                 Authorization: `Bearer ${cachedAuthToken}`,
@@ -126,13 +126,13 @@ const UserRegistPopup = React.memo(
 
           if (mode === "register") {
             response = await axios.post(
-              `${process.env.BACKEND_IP}/admin/api/exist-user`,
+              `${process.env.REACT_APP_BACKEND_IP}/admin/api/exist-user`,
               { userId },
               { headers: { Authorization: `Bearer ${cachedAuthToken}` } }
             );
           } else {
             response = await axios.post(
-              `${process.env.BACKEND_IP}/admin/api/exist-user`,
+              `${process.env.REACT_APP_BACKEND_IP}/admin/api/exist-user`,
               { userId }
             );
           }
@@ -166,7 +166,7 @@ const UserRegistPopup = React.memo(
       //         let response;
       //         if (mode === "register") {
       //             response = await axios.post(
-      //                 `${process.env.BACKEND_IP}/admin/api/register-user`,
+      //                 `${process.env.REACT_APP_BACKEND_IP}/admin/api/register-user`,
       //                 userInfo,
       //                 {
       //                     headers: {Authorization: `Bearer ${cachedAuthToken}`},
@@ -174,7 +174,7 @@ const UserRegistPopup = React.memo(
       //             );
       //         } else {
       //             response = await axios.post(
-      //                 `${process.env.BACKEND_IP}/admin/api/register-user`,
+      //                 `${process.env.REACT_APP_BACKEND_IP}/admin/api/register-user`,
       //                 userInfo
       //             );
       //         }
@@ -238,7 +238,7 @@ const UserRegistPopup = React.memo(
           let response;
           if (mode === "register") {
             response = await axios.post(
-              `${process.env.BACKEND_IP}/admin/api/register-user`,
+              `${process.env.REACT_APP_BACKEND_IP}/admin/api/register-user`,
               formData,
               {
                 headers: {
@@ -249,7 +249,7 @@ const UserRegistPopup = React.memo(
             );
           } else {
             response = await axios.post(
-              `${process.env.BACKEND_IP}/admin/api/register-user`,
+              `${process.env.REACT_APP_BACKEND_IP}/admin/api/register-user`,
               formData,
               {
                 headers: {

@@ -184,7 +184,7 @@ const ManageUser: React.FC = () => {
 
         // API 호출
         const res = await axios.get(
-          `${process.env.BACKEND_IP}/admin/api/get-roles-list`,
+          `${process.env.REACT_APP_BACKEND_IP}/admin/api/get-roles-list`,
           {
             headers: {
               Authorization: `Bearer ${cachedAuthToken}`,
@@ -228,7 +228,7 @@ const ManageUser: React.FC = () => {
   const handleSearch = () => {
     comAPIContext.showProgressBar();
     axios
-      .get(`${process.env.BACKEND_IP}/admin/api/get-user`, {
+      .get(`${process.env.REACT_APP_BACKEND_IP}/admin/api/get-user`, {
         headers: { Authorization: `Bearer ${cachedAuthToken}` },
         params: { userName: inputRef.current?.value || "" },
       })
@@ -308,9 +308,13 @@ const ManageUser: React.FC = () => {
         };
 
         axios
-          .post(`${process.env.BACKEND_IP}/admin/api/update-user`, payload, {
-            headers: { Authorization: `Bearer ${cachedAuthToken}` },
-          })
+          .post(
+            `${process.env.REACT_APP_BACKEND_IP}/admin/api/update-user`,
+            payload,
+            {
+              headers: { Authorization: `Bearer ${cachedAuthToken}` },
+            }
+          )
           .then((res) => {
             if (res.data.messageCode === "success") {
               comAPIContext.showToast(

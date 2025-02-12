@@ -36,7 +36,7 @@ const GlobalNavbar = ({
   useEffect(() => {
     const fetchMenuData = () => {
       axios
-        .get(`${process.env.BACKEND_IP}/menu`, {
+        .get(`${process.env.REACT_APP_BACKEND_IP}/menu`, {
           headers: { Authorization: `Bearer ${cachedAuthToken}` },
           params: { langCode: langCode, roleId: roleId, isMighty: isMighty },
         })

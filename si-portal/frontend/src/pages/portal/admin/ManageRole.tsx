@@ -168,7 +168,7 @@ const ManageRole: React.FC = () => {
 
         // API 호출
         const res = await axios.get(
-          `${process.env.BACKEND_IP}/admin/api/get-roles-list`,
+          `${process.env.REACT_APP_BACKEND_IP}/admin/api/get-roles-list`,
           {
             headers: {
               Authorization: `Bearer ${cachedAuthToken}`,
@@ -236,7 +236,7 @@ const ManageRole: React.FC = () => {
       const roleName = selectedRole ? selectedRole.roleName : "";
 
       const response = await axios.get(
-        `${process.env.BACKEND_IP}/admin/api/get-roles`,
+        `${process.env.REACT_APP_BACKEND_IP}/admin/api/get-roles`,
         {
           headers: { Authorization: `Bearer ${cachedAuthToken}` },
           params: { roleName: roleName },
@@ -319,7 +319,7 @@ const ManageRole: React.FC = () => {
         console.log("-----------------------:", payload);
 
         const response = await axios.post<SaveRolesResponse>(
-          `${process.env.BACKEND_IP}/admin/api/save-roles`,
+          `${process.env.REACT_APP_BACKEND_IP}/admin/api/save-roles`,
           payload,
           {
             headers: { Authorization: `Bearer ${cachedAuthToken}` },
@@ -385,7 +385,7 @@ const ManageRole: React.FC = () => {
       console.log("Prepared payload for savePopup:", payload); // 로그 확인
 
       const response = await axios.post<SaveRolesResponse>(
-        `${process.env.BACKEND_IP}/admin/api/save-roles`,
+        `${process.env.REACT_APP_BACKEND_IP}/admin/api/save-roles`,
         payload,
         {
           headers: { Authorization: `Bearer ${cachedAuthToken}` },

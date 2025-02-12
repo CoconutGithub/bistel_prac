@@ -39,7 +39,7 @@ const Settings: React.FC = () => {
       comAPIContext.showProgressBar();
       axios
         .post(
-          `${process.env.BACKEND_IP}/api/update-settings`,
+          `${process.env.REACT_APP_BACKEND_IP}/api/update-settings`,
           {
             userId: state.user.userId,
             footerYn: isShowFooter ? "Y" : "N",

@@ -50,7 +50,7 @@ const Profile: React.FC = () => {
 
   const getPageTitleImage = () => {
     axios
-      .get(`${process.env.BACKEND_IP}/admin/api/user-profile-image`, {
+      .get(`${process.env.REACT_APP_BACKEND_IP}/admin/api/user-profile-image`, {
         headers: { Authorization: `Bearer ${cachedAuthToken}` },
         params: { userId },
       })
@@ -91,7 +91,7 @@ const Profile: React.FC = () => {
 
     axios
       .post(
-        `${process.env.BACKEND_IP}/admin/api/change-password`,
+        `${process.env.REACT_APP_BACKEND_IP}/admin/api/change-password`,
         { userId, newPassword },
         { headers: { Authorization: `Bearer ${cachedAuthToken}` } }
       )
@@ -157,7 +157,7 @@ const Profile: React.FC = () => {
 
     axios
       .post(
-        `${process.env.BACKEND_IP}/admin/api/update-profile-image`,
+        `${process.env.REACT_APP_BACKEND_IP}/admin/api/update-profile-image`,
         formData,
         {
           headers: {
@@ -199,10 +199,14 @@ const Profile: React.FC = () => {
     comAPIContext.showProgressBar();
 
     axios
-      .post(`${process.env.BACKEND_IP}/admin/api/update-phone-number`, null, {
-        params: { userId, phoneNumber: updatedPhoneNumber },
-        headers: { Authorization: `Bearer ${cachedAuthToken}` },
-      })
+      .post(
+        `${process.env.REACT_APP_BACKEND_IP}/admin/api/update-phone-number`,
+        null,
+        {
+          params: { userId, phoneNumber: updatedPhoneNumber },
+          headers: { Authorization: `Bearer ${cachedAuthToken}` },
+        }
+      )
       .then((response) => {
         comAPIContext.showToast("전화번호가 업데이트되었습니다!", "success");
         dispatch(setPhoneNumber(updatedPhoneNumber)); // Redux 상태 업데이트
@@ -218,10 +222,14 @@ const Profile: React.FC = () => {
 
   const handleLangCodeUpdate = () => {
     axios
-      .post(`${process.env.BACKEND_IP}/admin/api/update-lang-code`, null, {
-        params: { userId, langCode: pageLangCode },
-        headers: { Authorization: `Bearer ${cachedAuthToken}` },
-      })
+      .post(
+        `${process.env.REACT_APP_BACKEND_IP}/admin/api/update-lang-code`,
+        null,
+        {
+          params: { userId, langCode: pageLangCode },
+          headers: { Authorization: `Bearer ${cachedAuthToken}` },
+        }
+      )
       .then(() => {
         dispatch(setLangCode({ langCode: pageLangCode } as any));
         comAPIContext.showToast("언어 코드가 업데이트되었습니다.", "success");
@@ -239,7 +247,7 @@ const Profile: React.FC = () => {
   const handlePaginationSizeUpdate = () => {
     axios
       .post(
-        `${process.env.BACKEND_IP}/admin/api/update-pagination-size`,
+        `${process.env.REACT_APP_BACKEND_IP}/admin/api/update-pagination-size`,
         null,
         {
           params: { userId, paginationSize: pagePaginationSize },

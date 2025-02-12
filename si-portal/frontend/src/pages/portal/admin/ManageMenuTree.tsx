@@ -72,7 +72,7 @@ const ManageMenuTree: React.FC<{ onMenuClick: any; refreshTree: boolean }> = ({
       try {
         comAPIContext.showProgressBar();
         const res = await axios.get(
-          `${process.env.BACKEND_IP}/admin/api/get-menu-tree`,
+          `${process.env.REACT_APP_BACKEND_IP}/admin/api/get-menu-tree`,
           {
             headers: { Authorization: `Bearer ${cachedAuthToken}` },
             params: { langCode: langCode } as any,
@@ -231,7 +231,7 @@ const ManageMenuTree: React.FC<{ onMenuClick: any; refreshTree: boolean }> = ({
         };
 
         const res = await axios.post(
-          `${process.env.BACKEND_IP}/admin/api/delete-menu`,
+          `${process.env.REACT_APP_BACKEND_IP}/admin/api/delete-menu`,
           data,
           {
             headers: {
@@ -247,7 +247,7 @@ const ManageMenuTree: React.FC<{ onMenuClick: any; refreshTree: boolean }> = ({
           try {
             comAPIContext.showProgressBar();
             const res = await axios.get(
-              `${process.env.BACKEND_IP}/admin/api/get-menu-tree`,
+              `${process.env.REACT_APP_BACKEND_IP}/admin/api/get-menu-tree`,
               {
                 headers: { Authorization: `Bearer ${cachedAuthToken}` },
                 params: { langCode: langCode } as any,
@@ -307,7 +307,7 @@ const ManageMenuTree: React.FC<{ onMenuClick: any; refreshTree: boolean }> = ({
       try {
         comAPIContext.showProgressBar();
         const res = await axios.post(
-          `${process.env.BACKEND_IP}/admin/api/insert-menu`,
+          `${process.env.REACT_APP_BACKEND_IP}/admin/api/insert-menu`,
           data,
           {
             headers: {
@@ -325,7 +325,7 @@ const ManageMenuTree: React.FC<{ onMenuClick: any; refreshTree: boolean }> = ({
           try {
             comAPIContext.showProgressBar();
             const res = await axios.get(
-              `${process.env.BACKEND_IP}/admin/api/get-menu-tree`,
+              `${process.env.REACT_APP_BACKEND_IP}/admin/api/get-menu-tree`,
               {
                 headers: { Authorization: `Bearer ${cachedAuthToken}` },
                 params: { langCode: langCode } as any,

@@ -102,7 +102,7 @@ const ManageSchedule: React.FC = () => {
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     axios
-      .get(`${process.env.BACKEND_IP}/admin/api/get-schedule`, {
+      .get(`${process.env.REACT_APP_BACKEND_IP}/admin/api/get-schedule`, {
         headers: { Authorization: `Bearer ${cachedAuthToken}` },
         params: { jobName: inputRef.current?.value || "", status: "" },
       })
@@ -285,7 +285,7 @@ const ManageSchedule: React.FC = () => {
       console.log("realUpdateList:", realUpdateList);
 
       const response = await axios.post(
-        `${process.env.BACKEND_IP}/admin/api/update-schedule`,
+        `${process.env.REACT_APP_BACKEND_IP}/admin/api/update-schedule`,
         payload,
         {
           headers: { Authorization: `Bearer ${cachedAuthToken}` },

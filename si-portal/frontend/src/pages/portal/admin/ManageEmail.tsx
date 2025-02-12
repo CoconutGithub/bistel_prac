@@ -84,7 +84,7 @@ const ManageEmail: React.FC = () => {
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     axios
-      .get(`${process.env.BACKEND_IP}/admin/api/get-email-history`, {
+      .get(`${process.env.REACT_APP_BACKEND_IP}/admin/api/get-email-history`, {
         headers: { Authorization: `Bearer ${cachedAuthToken}` },
         params: { sendUser: inputRef.current?.value || "" },
       })

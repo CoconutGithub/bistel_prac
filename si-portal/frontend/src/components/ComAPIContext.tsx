@@ -85,7 +85,7 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
   const getMessages = async () => {
     // 메시지 가져오기
     await axios
-      .get(`${process.env.BACKEND_IP}/admin/api/get-msg-list2}`)
+      .get(`${process.env.REACT_APP_BACKEND_IP}/admin/api/get-msg-list2}`)
       .then((res) => {
         console.log("res", res);
         messages.current = res.data;

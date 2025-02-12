@@ -139,7 +139,7 @@ const RoleRegistPopup: React.FC<MessageSelectPopupProps> = ({
   useEffect(() => {
     comAPIContext.showProgressBar();
     axios
-      .get(`${process.env.BACKEND_IP}/admin/api/get-msg-type`, {
+      .get(`${process.env.REACT_APP_BACKEND_IP}/admin/api/get-msg-type`, {
         headers: { Authorization: `Bearer ${cachedAuthToken}` },
         params: { status: "ACTIVE" },
       })
@@ -166,7 +166,7 @@ const RoleRegistPopup: React.FC<MessageSelectPopupProps> = ({
     console.log("params:", params);
 
     axios
-      .get(`${process.env.BACKEND_IP}/admin/api/get-msg-list`, {
+      .get(`${process.env.REACT_APP_BACKEND_IP}/admin/api/get-msg-list`, {
         headers: { Authorization: `Bearer ${cachedAuthToken}` },
         params: params,
       })

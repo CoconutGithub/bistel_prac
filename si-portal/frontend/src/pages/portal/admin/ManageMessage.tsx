@@ -156,7 +156,7 @@ const ManageMessage: React.FC = () => {
   useEffect(() => {
     comAPIContext.showProgressBar();
     axios
-      .get(`${process.env.BACKEND_IP}/admin/api/get-msg-type`, {
+      .get(`${process.env.REACT_APP_BACKEND_IP}/admin/api/get-msg-type`, {
         headers: { Authorization: `Bearer ${cachedAuthToken}` },
         params: { status: "ACTIVE" },
       })
@@ -193,7 +193,7 @@ const ManageMessage: React.FC = () => {
     console.log("params:", params);
 
     axios
-      .get(`${process.env.BACKEND_IP}/admin/api/get-msg-list`, {
+      .get(`${process.env.REACT_APP_BACKEND_IP}/admin/api/get-msg-list`, {
         headers: { Authorization: `Bearer ${cachedAuthToken}` },
         params: params,
       })
@@ -297,7 +297,7 @@ const ManageMessage: React.FC = () => {
       console.log("payload:", payload);
 
       const response = await axios.post(
-        `${process.env.BACKEND_IP}/admin/api/update-msg-list`,
+        `${process.env.REACT_APP_BACKEND_IP}/admin/api/update-msg-list`,
         payload,
         {
           headers: { Authorization: `Bearer ${cachedAuthToken}` },

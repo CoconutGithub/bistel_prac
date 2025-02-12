@@ -268,7 +268,7 @@ const ManageMenuContent: React.FC<{
     try {
       comAPIContext.showProgressBar();
       const res = await axios.get<Role[]>(
-        `${process.env.BACKEND_IP}/admin/api/get-roles-list`,
+        `${process.env.REACT_APP_BACKEND_IP}/admin/api/get-roles-list`,
         {
           headers: {
             Authorization: `Bearer ${cachedAuthToken}`,
@@ -324,7 +324,7 @@ const ManageMenuContent: React.FC<{
       comAPIContext.showProgressBar();
       if (chooseMenuData !== null) {
         const response = await axios.get(
-          `${process.env.BACKEND_IP}/admin/api/get-menu-role`,
+          `${process.env.REACT_APP_BACKEND_IP}/admin/api/get-menu-role`,
           {
             headers: {
               Authorization: `Bearer ${cachedAuthToken}`,
@@ -379,7 +379,7 @@ const ManageMenuContent: React.FC<{
     try {
       comAPIContext.showProgressBar();
       const res = await axios.post(
-        `${process.env.BACKEND_IP}/admin/api/update-menu-content`,
+        `${process.env.REACT_APP_BACKEND_IP}/admin/api/update-menu-content`,
         data,
         {
           headers: { Authorization: `Bearer ${cachedAuthToken}` },
@@ -480,7 +480,7 @@ const ManageMenuContent: React.FC<{
       };
 
       await axios.post(
-        `${process.env.BACKEND_IP}/admin/api/update-menu-role`,
+        `${process.env.REACT_APP_BACKEND_IP}/admin/api/update-menu-role`,
         payload,
         {
           headers: { Authorization: `Bearer ${cachedAuthToken}` },

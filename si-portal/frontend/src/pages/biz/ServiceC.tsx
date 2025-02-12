@@ -42,7 +42,7 @@ function ServiceC() {
     try {
       comAPIContext.showProgressBar();
       const response = await axios.post(
-        `${process.env.BACKEND_IP}/admin/api/send-email`,
+        `${process.env.REACT_APP_BACKEND_IP}/admin/api/send-email`,
         emailData,
         {
           headers: { Authorization: `Bearer ${cachedAuthToken}` },

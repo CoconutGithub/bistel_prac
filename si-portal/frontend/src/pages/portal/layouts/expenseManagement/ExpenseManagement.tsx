@@ -12,7 +12,7 @@ let cachedAuthToken: string | null = sessionStorage.getItem("authToken");
 async function getPresignedUrl(file: File): Promise<{ presignedUrl: string }> {
   try {
     const response = await axios.post(
-      `${process.env.BACKEND_IP}/api/minio/get-presigned-url`,
+      `${process.env.REACT_APP_BACKEND_IP}/api/minio/get-presigned-url`,
       null,
       {
         params: { fileName: encodeURIComponent(file.name) },
@@ -117,7 +117,7 @@ const ExpenseManagement: React.FC = () => {
 
     try {
       const response = await axios.post(
-        `${process.env.BACKEND_IP}/api/expense/create`,
+        `${process.env.REACT_APP_BACKEND_IP}/api/expense/create`,
         createData,
         {
           headers: {
