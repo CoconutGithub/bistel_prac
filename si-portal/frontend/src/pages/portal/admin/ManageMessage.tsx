@@ -114,7 +114,7 @@ const columnDefs = [
 ];
 
 const ManageMessage: React.FC = () => {
-  console.log("ManageSchedule 생성됨.");
+  console.log("ManageMessage 생성됨.");
 
   //==start: 여기는 무조건 공통으로 받는다고 생각하자
   const state = useSelector((state: RootState) => state.auth);
