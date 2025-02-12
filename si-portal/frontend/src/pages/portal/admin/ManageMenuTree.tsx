@@ -14,6 +14,7 @@ interface ManageMenuTreeProps {
 interface MenuItem {
     parentMenuId: number;
     menuId: number;
+    msgId: number;
     depth: number;
     path: string;
     position: number;
@@ -132,6 +133,7 @@ const ManageMenuTree: React.FC<{ onMenuClick: any, refreshTree: boolean }> = ({ 
                 path: "/",
                 position: 0,
                 menuName: "Root",
+                msgId: -1,
                 status: 'ACTIVE',
                 parentMenuName: "",
                 children: treeData,

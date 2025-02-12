@@ -11,6 +11,7 @@ public interface MenuDto {
     Integer getDepth();
     String getChildYn();
     String getStatus();
+    Integer getMsgId();
 
     String getMenuName();
     String getParentMenuName();
