@@ -756,7 +756,9 @@ public class AdminService {
 
     public ResponseEntity<?> deleteMenu(@RequestBody Map<String, Object> result) {
         try {
-            adminMapper.deleteMenu(result);
+            Integer menuId = (Integer) result.get("menuId");
+            permissionRepository.deleteMenu(menuId);
+            menuRepository.deleteByMenuId(menuId);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
