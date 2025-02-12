@@ -122,16 +122,16 @@ const ManageUser: React.FC = () => {
   //=== 설정된 값 및 버튼 정보, 공통함수 가져옴-start ===
   const comAPIContext = useContext(ComAPIContext);
   const canCreate = useSelector(
-      (state: RootState) => state.auth.pageButtonAuth.canCreate
+    (state: RootState) => state.auth.pageButtonAuth.canCreate
   );
   const canDelete = useSelector(
-      (state: RootState) => state.auth.pageButtonAuth.canDelete
+    (state: RootState) => state.auth.pageButtonAuth.canDelete
   );
   const canUpdate = useSelector(
-      (state: RootState) => state.auth.pageButtonAuth.canUpdate
+    (state: RootState) => state.auth.pageButtonAuth.canUpdate
   );
   const canRead = useSelector(
-      (state: RootState) => state.auth.pageButtonAuth.canRead
+    (state: RootState) => state.auth.pageButtonAuth.canRead
   );
   //=== 설정된 값 및 버튼 정보, 공통함수 가져옴-end ===
 
@@ -143,30 +143,39 @@ const ManageUser: React.FC = () => {
   const [dynamicColumnDefs, setDynamicColumnDefs] = useState(columnDefs); // 컬럼 정보
 
   useEffect(() => {
-
     const setDefColumn = () => {
-
       columnDefs.forEach((column) => {
         if (column.headerName === "이름") {
-          column.headerName = comAPIContext.$msg("label", "name", "이름")
+          column.headerName = comAPIContext.$msg("label", "name", "이름");
         } else if (column.headerName === "역할") {
-          column.headerName = comAPIContext.$msg("label", "role", "역할")
+          column.headerName = comAPIContext.$msg("label", "role", "역할");
         } else if (column.headerName === "상태") {
-          column.headerName = comAPIContext.$msg("label", "status", "상태")
+          column.headerName = comAPIContext.$msg("label", "status", "상태");
         } else if (column.headerName === "언어코드") {
-          column.headerName = comAPIContext.$msg("label", "status", "언어코드")
+          column.headerName = comAPIContext.$msg("label", "status", "언어코드");
         } else if (column.headerName === "최근접속일") {
-          column.headerName = comAPIContext.$msg("label", "latest_login", "최근접속일")
+          column.headerName = comAPIContext.$msg(
+            "label",
+            "latest_login",
+            "최근접속일"
+          );
         } else if (column.headerName === "생성일") {
-          column.headerName = comAPIContext.$msg("label", "create_date", "생성일")
+          column.headerName = comAPIContext.$msg(
+            "label",
+            "create_date",
+            "생성일"
+          );
         } else if (column.headerName === "수정일") {
-          column.headerName = comAPIContext.$msg("label", "update_date", "수정일")
+          column.headerName = comAPIContext.$msg(
+            "label",
+            "update_date",
+            "수정일"
+          );
         } else if (column.headerName === "수정자") {
-          column.headerName = comAPIContext.$msg("label", "editor", "수정자")
+          column.headerName = comAPIContext.$msg("label", "editor", "수정자");
         }
       });
-
-    }
+    };
     setDefColumn();
 
     const getRoleList = async () => {
@@ -175,12 +184,12 @@ const ManageUser: React.FC = () => {
 
         // API 호출
         const res = await axios.get(
-            "http://localhost:8080/admin/api/get-roles-list",
-            {
-              headers: {
-                Authorization: `Bearer ${cachedAuthToken}`,
-              },
-            }
+          `${process.env.BACKEND_IP}/admin/api/get-roles-list`,
+          {
+            headers: {
+              Authorization: `Bearer ${cachedAuthToken}`,
+            },
+          }
         );
 
         if (res && res.data) {
@@ -205,8 +214,8 @@ const ManageUser: React.FC = () => {
         const error = err as Error; // 타입 단언
         console.error("Error fetching data:", err);
         comAPIContext.showToast(
-            "Error fetching roles: " + error.message,
-            "danger"
+          "Error fetching roles: " + error.message,
+          "danger"
         );
       } finally {
         comAPIContext.hideProgressBar();
@@ -219,27 +228,33 @@ const ManageUser: React.FC = () => {
   const handleSearch = () => {
     comAPIContext.showProgressBar();
     axios
-        .get("http://localhost:8080/admin/api/get-user", {
-          headers: { Authorization: `Bearer ${cachedAuthToken}` },
-          params: { userName: inputRef.current?.value || "" },
-        })
-        .then((res) => {
-          console.log("응답 데이터:", res.data); // 응답 데이터 콘솔 출력
+      .get(`${process.env.BACKEND_IP}/admin/api/get-user`, {
+        headers: { Authorization: `Bearer ${cachedAuthToken}` },
+        params: { userName: inputRef.current?.value || "" },
+      })
+      .then((res) => {
+        console.log("응답 데이터:", res.data); // 응답 데이터 콘솔 출력
 
-          if (gridRef.current) {
-            gridRef.current.setRowData(res.data); // 데이터를 AgGridWrapper에 설정
-          }
-          comAPIContext.hideProgressBar();
-          comAPIContext.showToast(comAPIContext.$msg("message", "search_complete", "조회가 완료됐습니다."), "success");
-
-        })
-        .catch((err) => {
-          console.error("Error fetching data:", err);
-          comAPIContext.showToast("Error User Search: " + err, "danger");
-        })
-        .finally(() => {
-          comAPIContext.hideProgressBar();
-        });
+        if (gridRef.current) {
+          gridRef.current.setRowData(res.data); // 데이터를 AgGridWrapper에 설정
+        }
+        comAPIContext.hideProgressBar();
+        comAPIContext.showToast(
+          comAPIContext.$msg(
+            "message",
+            "search_complete",
+            "조회가 완료됐습니다."
+          ),
+          "success"
+        );
+      })
+      .catch((err) => {
+        console.error("Error fetching data:", err);
+        comAPIContext.showToast("Error User Search: " + err, "danger");
+      })
+      .finally(() => {
+        comAPIContext.hideProgressBar();
+      });
   };
 
   const openPopup = useCallback(() => {
@@ -255,126 +270,147 @@ const ManageUser: React.FC = () => {
   }, []);
 
   const handleSave = useCallback(
-      (lists: { deleteList: any[]; updateList: any[] }) => {
-        if (!gridRef.current) return;
+    (lists: { deleteList: any[]; updateList: any[] }) => {
+      if (!gridRef.current) return;
 
-        if (lists.deleteList.length === 0 && lists.updateList.length === 0) {
-          comAPIContext.showToast(comAPIContext.$msg("message", "no_save_data", "저장할 데이터가 없습니다."), "dark");
-          return;
+      if (lists.deleteList.length === 0 && lists.updateList.length === 0) {
+        comAPIContext.showToast(
+          comAPIContext.$msg(
+            "message",
+            "no_save_data",
+            "저장할 데이터가 없습니다."
+          ),
+          "dark"
+        );
+        return;
+      }
+
+      try {
+        comAPIContext.showProgressBar();
+        // console.log("1.update 행들:", lists);
+        // console.log("2.delete 행들:", lists);
+
+        if (lists.updateList.length !== 0) {
+          if (roleKind !== null) {
+            lists.updateList.forEach((e) => {
+              const roleData: any = roleKind.find(
+                (r: any) => r.roleName === e.roleName
+              );
+              e.roleId = roleData.roleId;
+            });
+          }
         }
 
-        try {
-          comAPIContext.showProgressBar();
-          // console.log("1.update 행들:", lists);
-          // console.log("2.delete 행들:", lists);
+        // 전송 데이터 구성
+        const payload = {
+          updateList: lists.updateList,
+          deleteList: lists.deleteList,
+        };
 
-          if (lists.updateList.length !== 0) {
-            if (roleKind !== null) {
-              lists.updateList.forEach((e) => {
-                const roleData: any = roleKind.find(
-                    (r: any) => r.roleName === e.roleName
-                );
-                e.roleId = roleData.roleId;
-              });
-            }
-          }
-
-          // 전송 데이터 구성
-          const payload = {
-            updateList: lists.updateList,
-            deleteList: lists.deleteList,
-          };
-
-          axios.post(
-              "http://localhost:8080/admin/api/update-user",
-              payload,
-              {
-                headers: { Authorization: `Bearer ${cachedAuthToken}` },
-              }
-          ).then((res) => {
-            if (res.data.messageCode === 'success') {
-              comAPIContext.showToast(comAPIContext.$msg("message", "save_complete", "저장이 완료됐습니다."
-                  + `(update: ${res.data.updatedUsersCnt}, delete: ${res.data.deletedUsersCnt})`
-              ), "success");
+        axios
+          .post(`${process.env.BACKEND_IP}/admin/api/update-user`, payload, {
+            headers: { Authorization: `Bearer ${cachedAuthToken}` },
+          })
+          .then((res) => {
+            if (res.data.messageCode === "success") {
+              comAPIContext.showToast(
+                comAPIContext.$msg(
+                  "message",
+                  "save_complete",
+                  "저장이 완료됐습니다." +
+                    `(update: ${res.data.updatedUsersCnt}, delete: ${res.data.deletedUsersCnt})`
+                ),
+                "success"
+              );
 
               handleSearch(); // 저장 후 최신 데이터 조회
             }
           });
-
-        } catch (err) {
-          console.error("Error saving data:", err);
-          comAPIContext.showToast(comAPIContext.$msg("message", "save_fail", "저장이 실패했습니다."), "danger");
-          handleSearch();
-        } finally {
-          comAPIContext.hideProgressBar();
-        }
-      },
-      []
+      } catch (err) {
+        console.error("Error saving data:", err);
+        comAPIContext.showToast(
+          comAPIContext.$msg("message", "save_fail", "저장이 실패했습니다."),
+          "danger"
+        );
+        handleSearch();
+      } finally {
+        comAPIContext.hideProgressBar();
+      }
+    },
+    []
   );
 
   const registerButton = useCallback(() => {
     return (
-        <>
-          <ComButton
-              size="sm"
-              className="me-2"
-              variant="primary"
-              onClick={openPopup}
-              disabled={!canCreate}
-          >
-            { comAPIContext.$msg("label", "user_regist", "사용자 등록") }
-          </ComButton>
-        </>
+      <>
+        <ComButton
+          size="sm"
+          className="me-2"
+          variant="primary"
+          onClick={openPopup}
+          disabled={!canCreate}
+        >
+          {comAPIContext.$msg("label", "user_regist", "사용자 등록")}
+        </ComButton>
+      </>
     );
   }, [openPopup, canCreate]);
 
   return (
-      <Container fluid>
-        <Row className="mb-3">
-          <Col>
-            <h2>{comAPIContext.$msg("menu", "manage_user", "사용자 관리")}</h2>
-          </Col>
-        </Row>
-        <Row className="mb-3">
-          <Col lg={9}>
-            <Form.Group as={Row}>
-              <Form.Label column sm={1} className="text-center">
-                { comAPIContext.$msg("label", "user_name", "사용자 이름") }
-              </Form.Label>
-              <Col sm={2}>
-                <Form.Control
-                    ref={inputRef}
-                    type="text"
-                    placeholder={comAPIContext.$msg("message", "typing_user_name", "사용자 이름을 입력하세요.") }
-                />
-              </Col>
-            </Form.Group>
-          </Col>
-          <Col lg={3} className="d-flex justify-content-end">
-            <ComButton size="sm" variant="primary" onClick={handleSearch}>
-              { comAPIContext.$msg("label", "search", "검색") }
-            </ComButton>
-          </Col>
-        </Row>
-        <div style={{ borderTop: "1px solid black", margin: "15px 0" }}></div>
-        <Row>
-          <Col>
-            <AgGridWrapper
-                ref={gridRef} // forwardRef를 통해 연결된 ref
-                showButtonArea={true}
-                canCreate={false}
-                canDelete={canDelete}
-                canUpdate={canUpdate}
-                columnDefs={dynamicColumnDefs}
-                enableCheckbox={true}
-                onSave={handleSave} // 저장 버튼 동작z`
-            >
-              {registerButton()}
-            </AgGridWrapper>
-          </Col>
-        </Row>
-        <UserRegistPopup onResearchUser={refreshData} ref={userRegisterRef} isManager={true}/>
-      </Container>
+    <Container fluid>
+      <Row className="mb-3">
+        <Col>
+          <h2>{comAPIContext.$msg("menu", "manage_user", "사용자 관리")}</h2>
+        </Col>
+      </Row>
+      <Row className="mb-3">
+        <Col lg={9}>
+          <Form.Group as={Row}>
+            <Form.Label column sm={1} className="text-center">
+              {comAPIContext.$msg("label", "user_name", "사용자 이름")}
+            </Form.Label>
+            <Col sm={2}>
+              <Form.Control
+                ref={inputRef}
+                type="text"
+                placeholder={comAPIContext.$msg(
+                  "message",
+                  "typing_user_name",
+                  "사용자 이름을 입력하세요."
+                )}
+              />
+            </Col>
+          </Form.Group>
+        </Col>
+        <Col lg={3} className="d-flex justify-content-end">
+          <ComButton size="sm" variant="primary" onClick={handleSearch}>
+            {comAPIContext.$msg("label", "search", "검색")}
+          </ComButton>
+        </Col>
+      </Row>
+      <div style={{ borderTop: "1px solid black", margin: "15px 0" }}></div>
+      <Row>
+        <Col>
+          <AgGridWrapper
+            ref={gridRef} // forwardRef를 통해 연결된 ref
+            showButtonArea={true}
+            canCreate={false}
+            canDelete={canDelete}
+            canUpdate={canUpdate}
+            columnDefs={dynamicColumnDefs}
+            enableCheckbox={true}
+            onSave={handleSave} // 저장 버튼 동작z`
+          >
+            {registerButton()}
+          </AgGridWrapper>
+        </Col>
+      </Row>
+      <UserRegistPopup
+        onResearchUser={refreshData}
+        ref={userRegisterRef}
+        isManager={true}
+      />
+    </Container>
   );
 };
 

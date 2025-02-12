@@ -57,7 +57,7 @@ export const refreshToken = createAsyncThunk<
   console.log("--->refreshToken수행하려함:", token);
 
   try {
-    const response = await fetch("http://localhost:8080/refresh-token", {
+    const response = await fetch(`${process.env.BACKEND_IP}/refresh-token`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -112,7 +112,7 @@ export const chkButtonAuth = createAsyncThunk<
   }
 
   try {
-    const response = await axios.get("http://localhost:8080/page-auth", {
+    const response = await axios.get(`${process.env.BACKEND_IP}/page-auth`, {
       headers: { Authorization: `Bearer ${token}` },
       params: { roleId: state.auth.user.roleId, path: pathName },
     });

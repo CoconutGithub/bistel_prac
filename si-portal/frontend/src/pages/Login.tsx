@@ -36,7 +36,7 @@ const Login = () => {
     e.preventDefault();
 
     axios
-      .post("http://localhost:8080/login", {
+      .post(`${process.env.BACKEND_IP}/login`, {
         userId: userId,
         password: password,
       })
