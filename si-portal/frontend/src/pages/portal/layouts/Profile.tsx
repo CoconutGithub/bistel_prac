@@ -254,7 +254,7 @@ const Profile: React.FC = () => {
                     </p>
                     <p>
                         <strong>{comAPIContext.$msg("label", "email", "이메일")}: </strong>
-                        {email === null || email === undefined || email.toLowerCase() === "null" ? "NULL" : email}
+                        {email === null || email === undefined || email.toLowerCase() === "null" ? "-" : email}
                     </p>
                     <p>
                         <strong>{comAPIContext.$msg("label", "lang_code", "언어코드")}: </strong>

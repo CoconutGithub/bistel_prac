@@ -322,11 +322,6 @@ const UserRegistPopup = React.memo(
       }, [userId]);
 
       useEffect(() => {
-        setIsTested(false);
-        setIsAvailableId(false);
-      }, [userId]);
-
-      useEffect(() => {
         if (userName && userId && isAvailableId && password && email) {
           setIsButtonDisabled(false);
         } else {
