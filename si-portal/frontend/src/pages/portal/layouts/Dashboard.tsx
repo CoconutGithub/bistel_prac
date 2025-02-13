@@ -109,7 +109,13 @@ const Dashboard: React.FC = () => {
                                 className="border p-2 mb-4"
                             >
                                 <option value="llama3.2">LLaMA3.2</option>
-                                <option value="deepseek-r1">DeepSeek R1</option>
+                                <option value="
+
+
+
+
+
+">DeepSeek R1</option>
                             </select>
                         </div>
                         <div>
