@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "~store/Store";
 import { removeLoginToken } from "~store/AuthSlice";
 import { cachedAuthToken } from "~store/AuthSlice";
+import { resetTab } from "~store/RootTabs";
 
 const Header = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -23,7 +24,7 @@ const Header = () => {
   useEffect(() => {
     const fetchMenuData = () => {
       axios
-        .get("http://localhost:8080/menu", {
+        .get(`${process.env.REACT_APP_BACKEND_IP}/menu`, {
           headers: { Authorization: `Bearer ${cachedAuthToken}` },
           params: { roleId: roleId, isMighty: isMighty },
         })
@@ -44,6 +45,7 @@ const Header = () => {
 
   const handleLogout = () => {
     console.log("Logging out...");
+    dispatch(resetTab());
     dispatch(removeLoginToken());
     // 로그아웃 처리 로직
     navigate("/");

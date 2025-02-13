@@ -10,7 +10,7 @@ import java.util.*;
 
 
 @RestController
-@CrossOrigin(origins = "http://localhost:9090")
+@CrossOrigin(origins = {"http://192.168.7.37:9090", "http://localhost:9090"})
 @RequestMapping("/admin") // API 기본 경로
 @Transactional
 public class AdminController {
@@ -214,5 +214,15 @@ public class AdminController {
         return adminService.updateLangCode(userId, langCode);
     }
 
+    @GetMapping("/api/get-pagination-size")
+    public ResponseEntity<?> getPaginationSize(@RequestParam("userId") String userId) {
+        return adminService.getPaginationSize(userId);
+    }
+
+    @PostMapping("/api/update-pagination-size")
+    public ResponseEntity<?> updatePaginationSize(@RequestParam("userId") String userId,
+                                                  @RequestParam("paginationSize") Integer paginationSize) {
+        return adminService.updatePaginationSize(userId, paginationSize);
+    }
 
 }

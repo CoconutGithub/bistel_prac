@@ -5,7 +5,73 @@
   .main {
     width: calc(100% - 240px);
     height: 100%;
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    & > :global(#ROOT_TABS) {
+      width: 100%;
+      height: 42px;
+      order: 2;
+      border-top: 1px solid #d9d9d9;
+      box-sizing: border-box;
+      background-color: #fff;
+      & > li {
+        border-right: 1px solid #d9d9d9;
+        & > button {
+          border: none;
+          color: rgba(0, 0, 0, 0.88);
+          transition: none;
+          padding: 8px 8px 8px 22px;
+          .rootTab_close_button {
+            color: rgba(0, 0, 0, 0.75);
+            visibility: hidden;
+          }
+          &:hover:not(:global(.active)) {
+            color: rgba(0, 0, 0, 0.65);
+            .rootTab_close_button {
+              color: rgba(0, 0, 0, 0.65);
+            }
+          }
+          &:global(.active) {
+            color: #1677ff;
+            .rootTab_close_button {
+              color: #4096ff;
+            }
+            &:hover {
+              color: #69b1ff;
+              .rootTab_close_button {
+                color: #69b1ff;
+              }
+            }
+          }
+          &:hover {
+            .rootTab_close_button {
+              visibility: visible;
+            }
+          }
+        }
+      }
+    }
+    & > :global(.tab-content) {
+      order: 1;
+      width: 100%;
+      height: calc(100% - 42px);
+      & > div:global(.tab-pane) {
+        width: 100%;
+        height: 100%;
+        overflow-y: auto;
+      }
+    }
+    .rootTab_tile_area {
+      display: flex;
+      gap: 4px;
+      .rootTab_title {
+        .rootTab_close_button {
+          display: block;
+          width: 14px;
+          height: 14px;
+        }
+      }
+    }
     .container {
       width: 100%;
       max-width: 100%;

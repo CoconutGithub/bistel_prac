@@ -19,6 +19,8 @@ import ComButton from "~pages/portal/buttons/ComButton";
 import cn from "classnames";
 import "./AgGridWrapper.scss";
 import styles from "./AgGridWrapper.module.scss";
+import {useSelector} from "react-redux";
+import {RootState} from "~store/Store";
 
 //##################### type 지정-start #######################
 // Props 타입 정의
@@ -47,6 +49,7 @@ interface AgGridWrapperProps {
   onCellEditingStopped?: (event: any) => void;
   onCellValueChanged?: (event: any) => void;
   onCellEditingStarted?: (event: any) => void;
+  onCellDoubleClicked?: (event: any) => void;
 }
 
 //##################### type 지정-end #######################
@@ -76,11 +79,14 @@ const defaultSettings = {
   onCellEditingStopped: () => {},
   onCellValueChanged: () => {},
   onCellEditingStarted: () => {},
+  onCellDoubleClicked: () => {},
 };
+
 
 const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
   (props, ref) => {
-    const settings = { ...defaultSettings, ...props };
+    const paginationSize = useSelector((state: RootState) => state.auth.user.paginationSize || 50);
+    const settings = { ...defaultSettings, ...props, paginationPageSize: paginationSize };
     const {
       children,
       showButtonArea,
@@ -183,6 +189,12 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
     const handleCellEditingStarted = (event: any) => {
       if (onCellEditingStarted) {
         onCellEditingStarted(event);
+      }
+    };
+
+    const handleCellDoubleClick = (event: any) => {
+      if (settings.onCellDoubleClicked) {
+      settings.onCellDoubleClicked(event);
       }
     };
 
@@ -324,6 +336,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
               onGridReady={onGridReady}
               onCellEditingStopped={handleCellEditingStopped}
               onCellEditingStarted={handleCellEditingStarted}
+              onCellDoubleClicked={handleCellDoubleClick}
               className={cn(
                 "ag-theme-alpine",
                 "siportal-theme-grid",

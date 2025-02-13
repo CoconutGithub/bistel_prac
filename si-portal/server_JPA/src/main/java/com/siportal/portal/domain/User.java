@@ -62,4 +62,7 @@ public class User {
     @Column(name = "LANG_CODE", length = 2)
     private String langCode = "KO";
 
+    @Column(name = "PAGINATION_SIZE", nullable = false, columnDefinition = "INT DEFAULT 50")
+    private Integer paginationSize = 50;
+
 }

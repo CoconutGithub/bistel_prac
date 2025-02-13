@@ -1,26 +1,28 @@
-import { Container, Button, Modal, Form } from 'react-bootstrap';
+import { Container, Button, Modal, Form } from "react-bootstrap";
 import { ComAPIContext } from "~components/ComAPIContext";
-import React, { useState, useRef, useContext } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useState, useRef, useContext } from "react";
+import { useSelector } from "react-redux";
 import { RootState } from "~store/Store";
-import axios from 'axios';
-import ComButton from '../portal/buttons/ComButton';
-import {cachedAuthToken} from "~store/AuthSlice";
+import axios from "axios";
+import ComButton from "../portal/buttons/ComButton";
+import { cachedAuthToken } from "~store/AuthSlice";
 
 function ServiceC() {
   const state = useSelector((state: RootState) => state.auth);
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [sendUser, setSendUser] = useState<string | null | undefined>(state.user?.userName);
-  const [email, setEmail] = useState<string>('');
-  const [subject, setSubject] = useState<string>('');
-  const [message, setMessage] = useState<string>('');
+  const [sendUser, setSendUser] = useState<string | null | undefined>(
+    state.user?.userName
+  );
+  const [email, setEmail] = useState<string>("");
+  const [subject, setSubject] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
   const comAPIContext = useContext(ComAPIContext);
 
   // 모달을 열 때 폼 초기화
   const handleShowModal = () => {
-    setEmail('');      // 이메일 초기화
-    setSubject('');    // 제목 초기화
-    setMessage('');    // 메시지 초기화
+    setEmail(""); // 이메일 초기화
+    setSubject(""); // 제목 초기화
+    setMessage(""); // 메시지 초기화
     setShowModal(true); // 모달 열기
   };
 
@@ -34,22 +36,26 @@ function ServiceC() {
       sendUser,
       email,
       subject,
-      message
+      message,
     };
 
     try {
       comAPIContext.showProgressBar();
-      const response = await axios.post('http://localhost:8080/admin/api/send-email', emailData, {
-        headers: { Authorization: `Bearer ${cachedAuthToken}` },
-      });
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_IP}/admin/api/send-email`,
+        emailData,
+        {
+          headers: { Authorization: `Bearer ${cachedAuthToken}` },
+        }
+      );
 
       console.log(response);
       comAPIContext.hideProgressBar();
-      alert('Email sent successfully!');
+      alert("Email sent successfully!");
       handleCloseModal(); // 이메일 전송 후 모달 닫기
     } catch (error) {
-      console.error('Error sending email:', error);
-      alert('Failed to send email');
+      console.error("Error sending email:", error);
+      alert("Failed to send email");
     }
   };
 
@@ -63,7 +69,11 @@ function ServiceC() {
       </ComButton>
 
       {/* Cancel 버튼 */}
-      <ComButton variant="outline-danger" style={{ marginLeft: '10px' }} onClick={handleCloseModal}>
+      <ComButton
+        variant="outline-danger"
+        style={{ marginLeft: "10px" }}
+        onClick={handleCloseModal}
+      >
         Cancel
       </ComButton>
 
