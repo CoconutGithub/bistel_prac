@@ -16,9 +16,16 @@ const ExpenseManagement = React.lazy(
 const ManageSchedule = React.lazy(
   () => import("~pages/portal/admin/ManageSchedule")
 );
+const Managecode = React.lazy(
+  () => import("~pages/portal/admin/ManageCode")
+);
 const ManageMessage = React.lazy(
   () => import("~pages/portal/admin/ManageMessage")
 );
+const handleModalClose = (value: number) => {
+  
+  console.log("Received value from modal:", value);
+};
 
 export default function PortalRoutes(): RouteObject[] {
   return [
@@ -108,10 +115,19 @@ export default function PortalRoutes(): RouteObject[] {
       loader: checkBtnAuthLoader,
     },
     {
+      path: "/main/manage-code",
+      element: (
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <Managecode />
+        </React.Suspense>
+      ),
+      loader: checkBtnAuthLoader,
+    },
+    {
       path: "/main/manage-message",
       element: (
         <React.Suspense fallback={<div>Loading...</div>}>
-          <ManageMessage />
+          <ManageMessage onClose={handleModalClose} isModal={false} show={false}/>
         </React.Suspense>
       ),
       loader: checkBtnAuthLoader,

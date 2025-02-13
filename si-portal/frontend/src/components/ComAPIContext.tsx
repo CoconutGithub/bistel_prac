@@ -126,25 +126,27 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
     setProgressBarVisible(false);
   }, []);
 
-  // $msg 메서드
-  const $msg = useCallback(
-    (type: string, message: string, text: string) => {
-      console.log("$msg lang : ", lang);
-      const foundMessage = messages.current.find(
-        (msg) => msg.msgType === type && msg.msgName === message
-      );
-      if (!foundMessage) {
-        return text;
-      } else {
-        switch (lang.toUpperCase()) {
-          case "KO":
-            return foundMessage.koLangText;
-          case "EN":
-            return foundMessage.enLangText;
-          case "CN":
-            return foundMessage.cnLangText;
-          default:
-            return foundMessage.msgDefault;
+    const hideProgressBar = useCallback(() => {
+        setProgressBarVisible(false);
+    }, []);
+
+    // $msg 메서드
+    const $msg = useCallback((type: string, message: string, text: string) => {
+        // console.log("$msg lang : ", lang);
+        const foundMessage = messages.current.find((msg) => msg.msgType === type && msg.msgName === message);
+        if (!foundMessage) {
+            return text;
+        } else {
+            switch (lang.toUpperCase()) {
+                case "KO":
+                    return foundMessage.koLangText;
+                case "EN":
+                    return foundMessage.enLangText;
+                case "CN":
+                    return foundMessage.cnLangText;
+                default:
+                    return foundMessage.msgDefault;
+            }
         }
       }
     },
