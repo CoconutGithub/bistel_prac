@@ -24,7 +24,7 @@ const Header = () => {
   useEffect(() => {
     const fetchMenuData = () => {
       axios
-        .get("http://localhost:8080/menu", {
+        .get(`${process.env.REACT_APP_BACKEND_IP}/menu`, {
           headers: { Authorization: `Bearer ${cachedAuthToken}` },
           params: { roleId: roleId, isMighty: isMighty },
         })

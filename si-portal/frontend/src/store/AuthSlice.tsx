@@ -57,14 +57,17 @@ export const refreshToken = createAsyncThunk<
   console.log("--->refreshToken수행하려함:", token);
 
   try {
-    const response = await fetch("http://localhost:8080/refresh-token", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ userId: state.auth.user.userId, token: token }),
-    });
+    const response = await fetch(
+      `${process.env.REACT_APP_BACKEND_IP}/refresh-token`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId: state.auth.user.userId, token: token }),
+      }
+    );
 
     if (!response.ok) {
       return rejectWithValue("Failed to refresh token");
@@ -112,10 +115,13 @@ export const chkButtonAuth = createAsyncThunk<
   }
 
   try {
-    const response = await axios.get("http://localhost:8080/page-auth", {
-      headers: { Authorization: `Bearer ${token}` },
-      params: { roleId: state.auth.user.roleId, path: pathName },
-    });
+    const response = await axios.get(
+      `${process.env.REACT_APP_BACKEND_IP}/page-auth`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { roleId: state.auth.user.roleId, path: pathName },
+      }
+    );
 
     if (!response.data || response.data.length === 0) {
       // 권한이 없는 경우 false 반환

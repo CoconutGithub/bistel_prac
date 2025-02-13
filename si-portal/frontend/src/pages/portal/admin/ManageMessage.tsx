@@ -1,4 +1,11 @@
-import React, {useState, useContext, useRef, useCallback, useEffect, useMemo,} from "react";
+import React, {
+  useState,
+  useContext,
+  useRef,
+  useCallback,
+  useEffect,
+  useMemo,
+} from "react";
 import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import { ComAPIContext } from "~components/ComAPIContext";
 import AgGridWrapper from "~components/agGridWrapper/AgGridWrapper";
@@ -149,7 +156,7 @@ const ManageMessage: React.FC = () => {
   useEffect(() => {
     comAPIContext.showProgressBar();
     axios
-      .get("http://localhost:8080/admin/api/get-msg-type", {
+      .get(`${process.env.REACT_APP_BACKEND_IP}/admin/api/get-msg-type`, {
         headers: { Authorization: `Bearer ${cachedAuthToken}` },
         params: { status: "ACTIVE" },
       })
@@ -168,22 +175,26 @@ const ManageMessage: React.FC = () => {
 
   const handleSearch = async () => {
     console.log("state", state);
-    console.log("메세지 가져오기 테스트: ", comAPIContext.$msg( "label", "cancel", "취소얌"));
+    console.log(
+      "메세지 가져오기 테스트: ",
+      comAPIContext.$msg("label", "cancel", "취소얌")
+    );
     comAPIContext.showProgressBar();
     await new Promise((resolve) => setTimeout(resolve, 500));
-    const params = { msgType: selectedType
-      , status: selectedStatus
-      , msgName: msgNameRef.current?.value
-      , msgDefault: msgDefaulteRef.current?.value
-      , koLangText: koLangTextRef.current?.value
-      , enLangText: enLangTextRef.current?.value
-      , cnLangText: cnLangTextRef.current?.value
+    const params = {
+      msgType: selectedType,
+      status: selectedStatus,
+      msgName: msgNameRef.current?.value,
+      msgDefault: msgDefaulteRef.current?.value,
+      koLangText: koLangTextRef.current?.value,
+      enLangText: enLangTextRef.current?.value,
+      cnLangText: cnLangTextRef.current?.value,
     };
     console.log("params:", params);
 
     axios
-      .get("http://localhost:8080/admin/api/get-msg-list", {
-        headers: { Authorization: `Bearer ${cachedAuthToken}` },        
+      .get(`${process.env.REACT_APP_BACKEND_IP}/admin/api/get-msg-list`, {
+        headers: { Authorization: `Bearer ${cachedAuthToken}` },
         params: params,
       })
       .then((res) => {
@@ -242,11 +253,14 @@ const ManageMessage: React.FC = () => {
             obj.msgDefault === undefined ||
             obj.msgDefault === null ||
             typeof obj.msgDefault !== "string" ||
-            obj.msgDefault.trim().length == 0 
+            obj.msgDefault.trim().length == 0
           ) {
-            comAPIContext.showToast("타입, 메세지명, 기본값 항목을 모두 입력해주세요.", "dark");
+            comAPIContext.showToast(
+              "타입, 메세지명, 기본값 항목을 모두 입력해주세요.",
+              "dark"
+            );
             return;
-          }          
+          }
         }
       }
       if (lists.createList?.length > 0) {
@@ -263,11 +277,14 @@ const ManageMessage: React.FC = () => {
             obj.msgDefault === undefined ||
             obj.msgDefault === null ||
             typeof obj.msgDefault !== "string" ||
-            obj.msgDefault.trim().length == 0 
+            obj.msgDefault.trim().length == 0
           ) {
-            comAPIContext.showToast("타입, 메세지명, 기본값 항목을 모두 입력해주세요.", "dark");
+            comAPIContext.showToast(
+              "타입, 메세지명, 기본값 항목을 모두 입력해주세요.",
+              "dark"
+            );
             return;
-          }   
+          }
         }
       }
       // 전송 데이터 구성
@@ -280,7 +297,7 @@ const ManageMessage: React.FC = () => {
       console.log("payload:", payload);
 
       const response = await axios.post(
-        "http://localhost:8080/admin/api/update-msg-list",
+        `${process.env.REACT_APP_BACKEND_IP}/admin/api/update-msg-list`,
         payload,
         {
           headers: { Authorization: `Bearer ${cachedAuthToken}` },
@@ -300,10 +317,7 @@ const ManageMessage: React.FC = () => {
       handleSearch(); // 저장 후 최신 데이터 조회
     } catch (err) {
       console.error("Error saving data:", err);
-      comAPIContext.showToast(
-        "저장 중 오류가 발생했습니다.",
-        "danger"
-      );
+      comAPIContext.showToast("저장 중 오류가 발생했습니다.", "danger");
     } finally {
       comAPIContext.hideProgressBar();
     }
@@ -334,13 +348,13 @@ const ManageMessage: React.FC = () => {
             <Col sm={2}>
               <Form.Select value={selectedType} onChange={handleTypeChange}>
                 <option value="">타입 선택</option>
-                {typeList.map((option:string, index:any) => (
+                {typeList.map((option: string, index: any) => (
                   <option key={index} value={option}>
                     {option}
                   </option>
                 ))}
               </Form.Select>
-            </Col>            
+            </Col>
             <Form.Label column sm={1} className="text-center">
               메세지명
             </Form.Label>
@@ -351,7 +365,11 @@ const ManageMessage: React.FC = () => {
               기본값
             </Form.Label>
             <Col sm={2}>
-              <Form.Control ref={msgDefaulteRef} type="text" placeholder="status" />
+              <Form.Control
+                ref={msgDefaulteRef}
+                type="text"
+                placeholder="status"
+              />
             </Col>
             <Form.Label column sm={1} className="text-center">
               적용 상태
@@ -359,7 +377,7 @@ const ManageMessage: React.FC = () => {
             <Col sm={2}>
               <Form.Select value={selectedStatus} onChange={handleStatusChange}>
                 <option value="">상태 선택</option>
-                {["ACTIVE", "INACTIVE"].map((option:string, index:any) => (
+                {["ACTIVE", "INACTIVE"].map((option: string, index: any) => (
                   <option key={index} value={option}>
                     {option}
                   </option>
@@ -370,19 +388,31 @@ const ManageMessage: React.FC = () => {
               한국어
             </Form.Label>
             <Col sm={2}>
-              <Form.Control ref={koLangTextRef} type="text" placeholder="한국어" />
+              <Form.Control
+                ref={koLangTextRef}
+                type="text"
+                placeholder="한국어"
+              />
             </Col>
             <Form.Label column sm={1} className="text-center">
               영어
             </Form.Label>
             <Col sm={2}>
-              <Form.Control ref={enLangTextRef} type="text" placeholder="English" />
+              <Form.Control
+                ref={enLangTextRef}
+                type="text"
+                placeholder="English"
+              />
             </Col>
             <Form.Label column sm={1} className="text-center">
               중국어
             </Form.Label>
             <Col sm={2}>
-              <Form.Control ref={cnLangTextRef} type="text" placeholder="中国话" />
+              <Form.Control
+                ref={cnLangTextRef}
+                type="text"
+                placeholder="中国话"
+              />
             </Col>
           </Form.Group>
         </Col>

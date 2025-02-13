@@ -84,7 +84,7 @@ const ManageEmail: React.FC = () => {
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     axios
-      .get("http://localhost:8080/admin/api/get-email-history", {
+      .get(`${process.env.REACT_APP_BACKEND_IP}/admin/api/get-email-history`, {
         headers: { Authorization: `Bearer ${cachedAuthToken}` },
         params: { sendUser: inputRef.current?.value || "" },
       })
@@ -93,7 +93,14 @@ const ManageEmail: React.FC = () => {
           gridRef.current.setRowData(res.data); // 데이터를 AgGridWrapper에 설정
         }
         comAPIContext.hideProgressBar();
-        comAPIContext.showToast(comAPIContext.$msg("message", "search_complete", "조회가 완료됐습니다."), "success");
+        comAPIContext.showToast(
+          comAPIContext.$msg(
+            "message",
+            "search_complete",
+            "조회가 완료됐습니다."
+          ),
+          "success"
+        );
       })
       .catch((err) => {
         console.error("Error fetching data:", err);
@@ -129,7 +136,7 @@ const ManageEmail: React.FC = () => {
         </Col>
         <Col lg={1}>
           <ComButton size="sm" variant="primary" onClick={handleSearch}>
-            { comAPIContext.$msg("label", "search", "검색") }
+            {comAPIContext.$msg("label", "search", "검색")}
           </ComButton>
         </Col>
       </Row>
