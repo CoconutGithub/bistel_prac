@@ -37,6 +37,11 @@ public class AdminController {
         return adminService.getMenuTree4ManageMenu(langCode);
     }
 
+    @GetMapping("/api/get-code-tree")
+    public ResponseEntity<?> getCodeTree4ManageCode() {
+        return adminService.getCodeTree4ManageCode();
+    }
+
     @GetMapping("/api/get-schedule")
     public ResponseEntity<?> getScheduleList(@RequestParam String jobName, @RequestParam String status) {
         return adminService.getScheduleList(jobName, status);
@@ -134,6 +139,16 @@ public class AdminController {
     @PostMapping("/api/update-menu-content")
     public ResponseEntity<?> updateMenuContent(@RequestBody Map<String, Object> result) {
         return adminService.updateMenuContent(result);
+    }
+
+    @PostMapping("/api/delete-code")
+    public ResponseEntity<?> deleteCode(@RequestBody Map<String, Object> result) {
+        return adminService.deleteCode(result);
+    }
+
+    @PostMapping("/api/insert-code")
+    public ResponseEntity<?> insertCode(@RequestBody Map<String, Object> result) {
+        return adminService.insertCode(result);
     }
 
     @GetMapping("/api/get-roles")

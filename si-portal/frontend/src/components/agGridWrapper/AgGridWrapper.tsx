@@ -262,6 +262,9 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
       getRowData: () => {
         return rowData; // 현재 데이터 반환
       },
+      getApi: () => {
+        return gridRef.current?.api
+      },
     }));
 
     return (

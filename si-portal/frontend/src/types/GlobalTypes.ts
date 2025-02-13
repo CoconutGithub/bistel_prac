@@ -9,4 +9,5 @@ export interface AuthContextType {
 export interface AgGridWrapperHandle {
   setRowData: (data: any[]) => void;
   getRowData: () => any[];
+  getApi: () => any;
 }
