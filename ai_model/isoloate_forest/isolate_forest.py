@@ -9,7 +9,11 @@ import uvicorn
 
 # CSV 파일과 모델 파일 경로 (Windows 환경)
 CSV_FILE_PATH = r"D:\bistelligence\gitRepository\ai_model\isoloate_forest\learndata\sensor_data.csv"
-MODEL_FILE_PATH = r"D:\bistelligence\gitRepository\ai_model\isoloate_forest\model\anomaly_model.pkl"
+MODEL_FILE_PATH = r"D:\bistelligence\gitRepository\ai_model\isoloate_forest\model\isolateForest.pkl"
+
+if os.path.exists(MODEL_FILE_PATH):
+    os.remove(MODEL_FILE_PATH)
+    print("0.기존 모델 삭제 완료")
 
 # FastAPI 인스턴스 생성
 app = FastAPI(title="Sensor Anomaly Detection API", description="센서 데이터 이상 탐지 API", version="1.0")
