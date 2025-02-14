@@ -1,17 +1,13 @@
-import React, { useMemo } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { RootState } from "~store/Store";
 import MainLayout from "~pages/portal/layouts/mainLayout/MainLayout";
 import Login from "~pages/Login";
-import NotFound from "~pages/portal/NotFound";
 import DefaultRoutes from "~routes/DefaultRoutes";
 import PortalRoutes from "~routes/PortalRoutes";
+import NotFound from "~pages/portal/NotFound";
 
 export default function AppRoutes() {
   // isAuthenticated 상태에 따라 라우터 생성
   const routes = [
-    { path: "/", element: <Login /> },
     { path: "/login", element: <Login /> },
     {
       path: "/main",

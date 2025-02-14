@@ -5,12 +5,13 @@ import React, {
   useCallback,
   useState,
   useEffect,
+  useMemo,
 } from "react";
 import { useNavigate } from "react-router-dom";
 import { ComAPIContext } from "~components/ComAPIContext";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "~store/Store";
-import { setLoginToken } from "~store/AuthSlice";
+import { removeLoginToken, setLoginToken } from "~store/AuthSlice";
 import SiUserIcon from "~components/icons/SiUserIcon";
 import SiLockIcon from "~components/icons/SiLockIcon";
 import Toast from "react-bootstrap/Toast";
@@ -19,6 +20,9 @@ import axios from "axios";
 
 import styles from "./Login.module.scss";
 import UserRegistPopup from "~pages/portal/admin/UserRegistPopup";
+import RootTabs, { resetTab } from "~store/RootTabs";
+import DefaultRoutes from "~routes/DefaultRoutes";
+import PortalRoutes from "~routes/PortalRoutes";
 
 const Login = () => {
   const [toastShow, setToastShow] = useState(false);
@@ -95,6 +99,29 @@ const Login = () => {
     if (userId && password) setLoginButtonDisable(false);
     else setLoginButtonDisable(true);
   }, [userId, password]);
+
+  useEffect(() => {
+    const authToken = sessionStorage.getItem("authToken");
+    const rootTabsData = sessionStorage.getItem("persist:rootTabs");
+    if (authToken && rootTabsData) {
+      const parsedData = JSON.parse(rootTabsData);
+      const activeTabKey = JSON.parse(parsedData.activeKey);
+      const cachedTabs = JSON.parse(parsedData.tabs);
+      if (activeTabKey && cachedTabs) {
+        for (const tab of cachedTabs) {
+          if (tab.key === activeTabKey) {
+            navigate(tab.path, { replace: true });
+          }
+        }
+      } else {
+        dispatch(resetTab());
+        navigate("/main/home", { replace: true });
+      }
+    } else {
+      dispatch(resetTab());
+      dispatch(removeLoginToken());
+    }
+  }, [window.location.pathname]);
 
   return (
     <div className={styles.start}>

@@ -11,6 +11,7 @@ import { addTab, setActiveTab, removeTab, resetTab } from "~store/RootTabs";
 import DefaultRoutes from "~routes/DefaultRoutes";
 import PortalRoutes from "~routes/PortalRoutes";
 import SiCancelIcon from "~components/icons/SiCancelIcon";
+import NotFound from "../../NotFound";
 
 const useRouteComponents = () => {
   return useMemo(() => {
@@ -49,9 +50,20 @@ const MainLayout = () => {
 
   const handleSelectTab = useCallback(
     (tab: { key: string; label: string; path: string }) => {
-      dispatch(addTab(tab));
-      dispatch(setActiveTab(tab.key));
-      navigate(tab.path);
+      const rootTabsData = sessionStorage.getItem("persist:rootTabs");
+      if (rootTabsData) {
+        const parsedData = JSON.parse(rootTabsData);
+        const cachedTabs = JSON.parse(parsedData.tabs);
+
+        if (cachedTabs.length === 8) {
+          alert("최대 8개의 탭만 열 수 있습니다.");
+          return;
+        } else {
+          dispatch(addTab(tab));
+          dispatch(setActiveTab(tab.key));
+          navigate(tab.path);
+        }
+      }
     },
     [dispatch, navigate]
   );
@@ -133,7 +145,7 @@ const MainLayout = () => {
             >
               <Container className={styles.container}>
                 {/* <Outlet /> */}
-                {routeComponents[tab.path] || <div>Not Found</div>}
+                {routeComponents[tab.path] || <NotFound />}
               </Container>
             </Tab>
           ))}
