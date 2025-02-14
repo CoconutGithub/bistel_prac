@@ -1,11 +1,4 @@
-import React, {
-  useState,
-  useContext,
-  useRef,
-  useCallback,
-  useEffect,
-  useMemo,
-} from "react";
+import React, {useState, useContext, useRef, useCallback, useEffect, useMemo,} from "react";
 import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import { ComAPIContext } from "~components/ComAPIContext";
 import AgGridWrapper from "~components/agGridWrapper/AgGridWrapper";
@@ -121,7 +114,7 @@ const columnDefs = [
 ];
 
 const ManageMessage: React.FC = () => {
-  console.log("ManageSchedule 생성됨.");
+  console.log("ManageMessage 생성됨.");
 
   //==start: 여기는 무조건 공통으로 받는다고 생각하자
   const state = useSelector((state: RootState) => state.auth);
@@ -348,13 +341,13 @@ const ManageMessage: React.FC = () => {
             <Col sm={2}>
               <Form.Select value={selectedType} onChange={handleTypeChange}>
                 <option value="">타입 선택</option>
-                {typeList.map((option: string, index: any) => (
+                {typeList.map((option:string, index:any) => (
                   <option key={index} value={option}>
                     {option}
                   </option>
                 ))}
               </Form.Select>
-            </Col>
+            </Col>            
             <Form.Label column sm={1} className="text-center">
               메세지명
             </Form.Label>
@@ -365,11 +358,7 @@ const ManageMessage: React.FC = () => {
               기본값
             </Form.Label>
             <Col sm={2}>
-              <Form.Control
-                ref={msgDefaulteRef}
-                type="text"
-                placeholder="status"
-              />
+              <Form.Control ref={msgDefaulteRef} type="text" placeholder="status" />
             </Col>
             <Form.Label column sm={1} className="text-center">
               적용 상태
@@ -377,7 +366,7 @@ const ManageMessage: React.FC = () => {
             <Col sm={2}>
               <Form.Select value={selectedStatus} onChange={handleStatusChange}>
                 <option value="">상태 선택</option>
-                {["ACTIVE", "INACTIVE"].map((option: string, index: any) => (
+                {["ACTIVE", "INACTIVE"].map((option:string, index:any) => (
                   <option key={index} value={option}>
                     {option}
                   </option>
@@ -388,31 +377,19 @@ const ManageMessage: React.FC = () => {
               한국어
             </Form.Label>
             <Col sm={2}>
-              <Form.Control
-                ref={koLangTextRef}
-                type="text"
-                placeholder="한국어"
-              />
+              <Form.Control ref={koLangTextRef} type="text" placeholder="한국어" />
             </Col>
             <Form.Label column sm={1} className="text-center">
               영어
             </Form.Label>
             <Col sm={2}>
-              <Form.Control
-                ref={enLangTextRef}
-                type="text"
-                placeholder="English"
-              />
+              <Form.Control ref={enLangTextRef} type="text" placeholder="English" />
             </Col>
             <Form.Label column sm={1} className="text-center">
               중국어
             </Form.Label>
             <Col sm={2}>
-              <Form.Control
-                ref={cnLangTextRef}
-                type="text"
-                placeholder="中国话"
-              />
+              <Form.Control ref={cnLangTextRef} type="text" placeholder="中国话" />
             </Col>
           </Form.Group>
         </Col>
