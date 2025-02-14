@@ -132,7 +132,7 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
 
     // $msg 메서드
     const $msg = useCallback((type: string, message: string, text: string) => {
-        // console.log("$msg lang : ", lang);
+        console.log("$msg lang : ", lang);
         const foundMessage = messages.current.find((msg) => msg.msgType === type && msg.msgName === message);
         if (!foundMessage) {
             return text;
