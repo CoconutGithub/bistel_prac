@@ -35,8 +35,8 @@ logging.info("==Start Logistics LOSS Prediction API by Isolation Forest ==\n")
 
 
 # CSV 파일과 모델 파일 경로 (Windows 환경)
-CSV_FILE_PATH = r"/isoloate_forest/learndata/logistics_loss_data.csv"
-MODEL_FILE_PATH = r"/isoloate_forest/model/logistics_loss_data.pkl"
+CSV_FILE_PATH = r"D:\bistelligence\gitRepository\ai_model\isoloate_forest\learndata\logistics_loss_data.csv"
+MODEL_FILE_PATH = r"D:\bistelligence\gitRepository\ai_model\isoloate_forest\model\logistics_loss_data.pkl"
 
 # 기존 모델이 있으면 삭제
 if os.path.exists(MODEL_FILE_PATH):
