@@ -126,10 +126,6 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
     setProgressBarVisible(false);
   }, []);
 
-    const hideProgressBar = useCallback(() => {
-        setProgressBarVisible(false);
-    }, []);
-
     // $msg 메서드
     const $msg = useCallback((type: string, message: string, text: string) => {
         // console.log("$msg lang : ", lang);
@@ -148,10 +144,7 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
                     return foundMessage.msgDefault;
             }
         }
-      }
-    },
-    [lang]
-  );
+    }, [lang]);
 
   // useMemo를 사용하여 value 메모이제이션
   const contextValue = useMemo(
