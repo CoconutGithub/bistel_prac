@@ -48,7 +48,7 @@ const Header = () => {
     dispatch(resetTab());
     dispatch(removeLoginToken());
     // 로그아웃 처리 로직
-    navigate("/");
+    navigate("/login");
   };
 
   return (

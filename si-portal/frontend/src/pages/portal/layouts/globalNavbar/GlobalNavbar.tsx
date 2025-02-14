@@ -57,7 +57,7 @@ const GlobalNavbar = ({
     console.log("Logging out...");
     dispatch(resetTab());
     dispatch(removeLoginToken());
-    navigate("/");
+    navigate("/login");
   };
 
   return (
