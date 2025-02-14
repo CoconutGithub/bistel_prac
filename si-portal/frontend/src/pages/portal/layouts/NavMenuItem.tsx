@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Nav, Dropdown } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { MenuItem } from "~types/LayoutTypes";
@@ -23,9 +23,21 @@ const RecursiveDropdown = ({
   // 메뉴 클릭 핸들러
   const handleNavigate = (path: string | undefined) => {
     if (path) {
-      setShow(false);
-      onSelectTab({ key: item.menuId, label: item.title, path });
-      navigate(path);
+      const rootTabsData = sessionStorage.getItem("persist:rootTabs");
+
+      if (rootTabsData) {
+        const parsedData = JSON.parse(rootTabsData);
+        const cachedTabs = JSON.parse(parsedData.tabs);
+
+        if (cachedTabs.length === 8) {
+          alert("최대 8개의 탭만 열 수 있습니다.");
+          return;
+        } else {
+          setShow(false);
+          onSelectTab({ key: item.menuId, label: item.title, path });
+          navigate(path);
+        }
+      }
     }
   };
 
@@ -92,6 +104,18 @@ const NavMenuItem = ({
   onSelectTab,
 }: NavMenuItemProps) => {
   const navigate = useNavigate();
+  const [tabDisable, setTabDisable] = useState<boolean>(false);
+
+  useEffect(() => {
+    const rootTabsData = sessionStorage.getItem("persist:rootTabs");
+    console.log("tab1");
+    if (rootTabsData) {
+      const parsedData = JSON.parse(rootTabsData);
+      const tabsArray = JSON.parse(parsedData.tabs);
+      if (tabsArray.length === 8) setTabDisable(true);
+      console.log("tab2");
+    }
+  }, []);
 
   // 하위 메뉴가 있는 경우 RecursiveDropdown 사용
   if (item.children && item.children.length > 0) {
@@ -104,15 +128,15 @@ const NavMenuItem = ({
       {/*<Nav.Link as={Link} to={item.path || '/'} className="p-2" onClick={() => item.path && navigate(item.path)}>*/}
       <Nav.Link
         as={AsComponent}
-        to={item.path || "/"}
+        to={tabDisable ? undefined : item.path || "/"}
         className={cn("p-2", navLinkClass && navLinkClass)}
-        onClick={() =>
+        onClick={(e) => {
           onSelectTab({
             key: item.menuId,
             label: item.title,
             path: item.path || "/",
-          })
-        }
+          });
+        }}
       >
         {item.title}
       </Nav.Link>

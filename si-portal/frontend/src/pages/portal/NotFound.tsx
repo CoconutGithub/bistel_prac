@@ -1,21 +1,27 @@
-import React from 'react';
-import { Container, Row, Col, Button } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { Container, Row, Col, Button } from "react-bootstrap";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import ComButton from "~pages/portal/buttons/ComButton";
+import { addTab, resetTab, setActiveTab } from "~store/RootTabs";
 
 const NotFound: React.FC = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleGoHome = () => {
-    navigate('/'); // 홈으로 돌아가는 함수
+    dispatch(resetTab());
+    dispatch(addTab({ key: "home", label: "Home", path: "/main/home" }));
+    dispatch(setActiveTab("home"));
+    navigate("/main/home");
   };
 
   return (
-    <Container className="text-center" style={{ marginTop: '50px' }}>
+    <Container className="text-center" style={{ marginTop: "50px" }}>
       <Row>
         <Col>
           <h1>404 - Page Not Found</h1>
-          <p>Sorry, the page you are looking for does not exist.</p>
+          <p>Sorry, the page you are looking for doesnot exist.</p>
           <ComButton variant="primary" onClick={handleGoHome}>
             Go to Home
           </ComButton>
