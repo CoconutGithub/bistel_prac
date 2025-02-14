@@ -88,9 +88,6 @@ const Header = () => {
                 <NavDropdown.Item as={Link} to="/main/manage-message">
                   메세지 관리
                 </NavDropdown.Item>
-                <NavDropdown.Item as={Link} to="/main/manage-code">
-                  코드 관리
-                </NavDropdown.Item>
               </NavDropdown>
             )}
           </Nav>

@@ -50,7 +50,6 @@ public class AdminService {
     private final SchedulerRepository schedulerRepository;
     private final MsgMainRepository msgMainRepository;
     private final MsgDetailRepository msgDetailRepository;
-    private final CodeRepository codeRepository;
 
     @Autowired
     public AdminService(AdminMapper adminMapper, JavaMailSender emailSender
@@ -64,7 +63,6 @@ public class AdminService {
         , SchedulerRepository schedulerRepository
         , MsgMainRepository msgMainRepository
         , MsgDetailRepository msgDetailRepository
-        , CodeRepository codeRepository
     ) {
         this.adminMapper = adminMapper;
         this.emailSender = emailSender;
@@ -81,7 +79,6 @@ public class AdminService {
         this.schedulerRepository = schedulerRepository;
         this.msgMainRepository = msgMainRepository;
         this.msgDetailRepository = msgDetailRepository;
-        this.codeRepository = codeRepository;
     }
 
     public ResponseEntity<?> getMenuId() {
@@ -119,16 +116,6 @@ public class AdminService {
     public ResponseEntity<?> getMenuTree4ManageMenu(String langCode) {
         try {
             List<MenuDto> result = this.menuRepository.getMenuTree4ManageMenu(langCode);
-            return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
-                    .body("Error occurred: " + e.getMessage());
-        }
-    }
-
-    public ResponseEntity<?> getCodeTree4ManageCode() {
-        try {
-            List<Code> result = this.codeRepository.findAll();
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
@@ -813,35 +800,7 @@ public class AdminService {
         }
     }
 
-    public ResponseEntity<?> deleteCode(@RequestBody Map<String, Object> result) {
-        try {
-            Integer codeId = (Integer) result.get("codeId");
-            codeRepository.deleteCode(codeId);
-            return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
-                    .body("Error occurred: " + e.getMessage());
-        }
-    }
 
-    public  ResponseEntity<?> insertCode(@RequestBody Map<String, Object> result) {
-        try {
-            Code code = new Code();
-            code.setParentId((Integer)result.get("parentId"));
-            code.setDefaultText((String)result.get("defaultText"));
-            code.setLevel((Integer)result.get("level"));
-            code.setCodeOrder((Integer) result.get("childYn"));
-            code.setStatus((String)result.get("status"));
-            code.setCreateBy((String)result.get("createBy"));
-            code.setCreateDate(LocalDateTime.now());
-            codeRepository.save(code);
-
-            return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
-                    .body("Error occurred: " + e.getMessage());
-        }
-    }
 
     private void saveEmailHistory(String sendUser, String sendReceiver, String title, String content) {
         String sql = "INSERT INTO dev.p_email_history (send_user, send_reciver, title, content, read_yn, creation_time) " +
