@@ -259,23 +259,6 @@ const GlobalNavbar = ({
                   </NavDropdown.Item>
                   <NavDropdown.Item
                     as={Link}
-                    to="/main/manage-code"
-                    onClick={() =>
-                      onSelectTab({
-                        key: "manage-code",
-                        label: "Manage schedule",
-                        path: "/main/manage-code",
-                      })
-                    }
-                  >
-                    {comAPIContext.$msg(
-                      "label",
-                      "manage_code",
-                      "코드 관리"
-                    )}
-                  </NavDropdown.Item>
-                  <NavDropdown.Item
-                    as={Link}
                     to="/main/manage-message"
                     onClick={() =>
                       onSelectTab({
