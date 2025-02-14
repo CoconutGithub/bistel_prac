@@ -1,5 +1,5 @@
 import React, {useState, useContext, useRef, useCallback, useEffect, useMemo,} from "react";
-import { Button, Col, Container, Form, Row } from "react-bootstrap";
+import { Button, Col, Container, Form, Row, Modal } from "react-bootstrap";
 import { ComAPIContext } from "~components/ComAPIContext";
 import AgGridWrapper from "~components/agGridWrapper/AgGridWrapper";
 import axios from "axios";
@@ -8,6 +8,12 @@ import { RootState } from "~store/Store";
 import { AgGridWrapperHandle } from "~types/GlobalTypes"; // 팝업 컴포넌트 가져오기
 import ComButton from "../buttons/ComButton";
 import { cachedAuthToken } from "~store/AuthSlice";
+
+interface ManageMessageModalProps {
+  onClose: (value: number) => void;  // 부모로 값을 전달할 콜백 함수
+  isModal: boolean;
+  show: boolean; // 팝업 표시 여부
+}
 
 const columnDefs = [
   {
@@ -113,7 +119,7 @@ const columnDefs = [
   },
 ];
 
-const ManageMessage: React.FC = () => {
+const ManageMessage: React.FC<ManageMessageModalProps> = ({ onClose, isModal, show}) => {
   console.log("ManageMessage 생성됨.");
 
   //==start: 여기는 무조건 공통으로 받는다고 생각하자
@@ -325,95 +331,242 @@ const ManageMessage: React.FC = () => {
     console.log("event.target.value:", event.target.value);
     console.log("selectedStatus:", selectedStatus);
   };
+  const handleApply = () => {
+    if (!gridRef.current) return;    
+    
+    const selectedRows = gridRef.current.getApi().getSelectedRows();
+    if(selectedRows.length != 1) {
+      comAPIContext.showToast("한 개만 선택할 수 있습니다.", "dark");
+      return;
+    }
+    console.log('selectedRows[0].msgId', selectedRows[0].msgId)
+    onClose(selectedRows[0].msgId );
+    show = false;  // 모달 닫기
+  };
+  const registerButton = useMemo(
+    () => (
+      <>
+        <ComButton
+          size="sm"
+          className="me-2"
+          variant="primary"
+          onClick={handleApply}
+          disabled={!isModal}
+        >
+          { comAPIContext.$msg("label", "apply", "적용") }
+        </ComButton>
+      </>
+    ),
+    []
+  );
   return (
     <Container fluid>
-      <Row className="mb-3">
-        <Col>
-          <h2>메세지 관리</h2>
-        </Col>
-      </Row>
-      <Row className="mb-3">
-        <Col lg={11}>
-          <Form.Group as={Row}>
-            <Form.Label column sm={1} className="text-center">
-              메세지 타입
-            </Form.Label>
-            <Col sm={2}>
-              <Form.Select value={selectedType} onChange={handleTypeChange}>
-                <option value="">타입 선택</option>
-                {typeList.map((option:string, index:any) => (
-                  <option key={index} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </Form.Select>
-            </Col>            
-            <Form.Label column sm={1} className="text-center">
-              메세지명
-            </Form.Label>
-            <Col sm={2}>
-              <Form.Control ref={msgNameRef} type="text" placeholder="status" />
-            </Col>
-            <Form.Label column sm={1} className="text-center">
-              기본값
-            </Form.Label>
-            <Col sm={2}>
-              <Form.Control ref={msgDefaulteRef} type="text" placeholder="status" />
-            </Col>
-            <Form.Label column sm={1} className="text-center">
-              적용 상태
-            </Form.Label>
-            <Col sm={2}>
-              <Form.Select value={selectedStatus} onChange={handleStatusChange}>
-                <option value="">상태 선택</option>
-                {["ACTIVE", "INACTIVE"].map((option:string, index:any) => (
-                  <option key={index} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </Form.Select>
-            </Col>
-            <Form.Label column sm={1} className="text-center">
-              한국어
-            </Form.Label>
-            <Col sm={2}>
-              <Form.Control ref={koLangTextRef} type="text" placeholder="한국어" />
-            </Col>
-            <Form.Label column sm={1} className="text-center">
-              영어
-            </Form.Label>
-            <Col sm={2}>
-              <Form.Control ref={enLangTextRef} type="text" placeholder="English" />
-            </Col>
-            <Form.Label column sm={1} className="text-center">
-              중국어
-            </Form.Label>
-            <Col sm={2}>
-              <Form.Control ref={cnLangTextRef} type="text" placeholder="中国话" />
-            </Col>
-          </Form.Group>
-        </Col>
-        <Col lg={1}>
-          <ComButton size="sm" variant="primary" onClick={handleSearch}>
-            검색
-          </ComButton>
-        </Col>
-      </Row>
-      <div style={{ borderTop: "1px solid black", margin: "15px 0" }}></div>
-      <Row>
-        <Col>
-          <AgGridWrapper
-            ref={gridRef} // forwardRef를 통해 연결된 ref
-            showButtonArea={true}
-            canCreate={canCreate}
-            canDelete={canDelete}
-            canUpdate={canUpdate}
-            columnDefs={columnDefs}
-            enableCheckbox={true}
-            onSave={handleSave} // 저장 버튼 동작
-          />
-        </Col>
-      </Row>
+      { isModal ?  (
+      <>
+      <Modal
+            show={show}
+            centered
+            size="lg"
+        >
+            <Modal.Header>
+                <Modal.Title>
+                </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <Row className="mb-3">
+                <Col>
+                  <h2>메세지 관리</h2>
+                </Col>
+              </Row>
+              <Row className="mb-3">
+                <Col lg={11}>
+                  <Form.Group as={Row}>
+                    <Form.Label column sm={1} className="text-center">
+                      메세지 타입
+                    </Form.Label>
+                    <Col sm={2}>
+                      <Form.Select value={selectedType} onChange={handleTypeChange}>
+                        <option value="">타입 선택</option>
+                        {typeList.map((option:string, index:any) => (
+                          <option key={index} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </Form.Select>
+                    </Col>            
+                    <Form.Label column sm={1} className="text-center">
+                      메세지명
+                    </Form.Label>
+                    <Col sm={2}>
+                      <Form.Control ref={msgNameRef} type="text" placeholder="status" />
+                    </Col>
+                    <Form.Label column sm={1} className="text-center">
+                      기본값
+                    </Form.Label>
+                    <Col sm={2}>
+                      <Form.Control ref={msgDefaulteRef} type="text" placeholder="status" />
+                    </Col>
+                    <Form.Label column sm={1} className="text-center">
+                      적용 상태
+                    </Form.Label>
+                    <Col sm={2}>
+                      <Form.Select value={selectedStatus} onChange={handleStatusChange}>
+                        <option value="">상태 선택</option>
+                        {["ACTIVE", "INACTIVE"].map((option:string, index:any) => (
+                          <option key={index} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </Form.Select>
+                    </Col>
+                    <Form.Label column sm={1} className="text-center">
+                      한국어
+                    </Form.Label>
+                    <Col sm={2}>
+                      <Form.Control ref={koLangTextRef} type="text" placeholder="한국어" />
+                    </Col>
+                    <Form.Label column sm={1} className="text-center">
+                      영어
+                    </Form.Label>
+                    <Col sm={2}>
+                      <Form.Control ref={enLangTextRef} type="text" placeholder="English" />
+                    </Col>
+                    <Form.Label column sm={1} className="text-center">
+                      중국어
+                    </Form.Label>
+                    <Col sm={2}>
+                      <Form.Control ref={cnLangTextRef} type="text" placeholder="中国话" />
+                    </Col>
+                  </Form.Group>
+                </Col>
+                <Col lg={1}>
+                  <ComButton size="sm" variant="primary" onClick={handleSearch}>
+                    검색
+                  </ComButton>
+                </Col>
+              </Row>
+              <div style={{ borderTop: "1px solid black", margin: "15px 0" }}></div>
+              <Row>
+                <Col>
+                  <AgGridWrapper
+                    ref={gridRef} // forwardRef를 통해 연결된 ref
+                    showButtonArea={true}
+                    canCreate={canCreate}
+                    canDelete={canDelete}
+                    canUpdate={canUpdate}
+                    columnDefs={columnDefs}
+                    enableCheckbox={true}
+                    onSave={handleSave} // 저장 버튼 동작
+                  > {registerButton}
+                  </AgGridWrapper>
+                </Col>
+              </Row>
+            </Modal.Body>
+            <Modal.Footer>
+                <ComButton variant="primary" onClick={handleApply}>
+                    { comAPIContext.$msg("label", "apply", "적용") }
+                </ComButton>
+                <ComButton variant="secondary" onClick={() => { 
+                    // setRoleName(''); // Close 버튼 클릭 시 roleName 초기화
+                    onClose(-1);
+                }}>
+                    Close
+                </ComButton>
+            </Modal.Footer>
+        </Modal>
+        </>
+      ) : (
+        <>
+        <Row className="mb-3">
+          <Col>
+            <h2>메세지 관리</h2>
+          </Col>
+        </Row>
+        <Row className="mb-3">
+          <Col lg={11}>
+            <Form.Group as={Row}>
+              <Form.Label column sm={1} className="text-center">
+                메세지 타입
+              </Form.Label>
+              <Col sm={2}>
+                <Form.Select value={selectedType} onChange={handleTypeChange}>
+                  <option value="">타입 선택</option>
+                  {typeList.map((option:string, index:any) => (
+                    <option key={index} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Col>            
+              <Form.Label column sm={1} className="text-center">
+                메세지명
+              </Form.Label>
+              <Col sm={2}>
+                <Form.Control ref={msgNameRef} type="text" placeholder="status" />
+              </Col>
+              <Form.Label column sm={1} className="text-center">
+                기본값
+              </Form.Label>
+              <Col sm={2}>
+                <Form.Control ref={msgDefaulteRef} type="text" placeholder="status" />
+              </Col>
+              <Form.Label column sm={1} className="text-center">
+                적용 상태
+              </Form.Label>
+              <Col sm={2}>
+                <Form.Select value={selectedStatus} onChange={handleStatusChange}>
+                  <option value="">상태 선택</option>
+                  {["ACTIVE", "INACTIVE"].map((option:string, index:any) => (
+                    <option key={index} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Col>
+              <Form.Label column sm={1} className="text-center">
+                한국어
+              </Form.Label>
+              <Col sm={2}>
+                <Form.Control ref={koLangTextRef} type="text" placeholder="한국어" />
+              </Col>
+              <Form.Label column sm={1} className="text-center">
+                영어
+              </Form.Label>
+              <Col sm={2}>
+                <Form.Control ref={enLangTextRef} type="text" placeholder="English" />
+              </Col>
+              <Form.Label column sm={1} className="text-center">
+                중국어
+              </Form.Label>
+              <Col sm={2}>
+                <Form.Control ref={cnLangTextRef} type="text" placeholder="中国话" />
+              </Col>
+            </Form.Group>
+          </Col>
+          <Col lg={1}>
+            <ComButton size="sm" variant="primary" onClick={handleSearch}>
+              검색
+            </ComButton>
+          </Col>
+        </Row>
+        <div style={{ borderTop: "1px solid black", margin: "15px 0" }}></div>
+        <Row>
+          <Col>
+            <AgGridWrapper
+              ref={gridRef} // forwardRef를 통해 연결된 ref
+              showButtonArea={true}
+              canCreate={canCreate}
+              canDelete={canDelete}
+              canUpdate={canUpdate}
+              columnDefs={columnDefs}
+              enableCheckbox={true}
+              onSave={handleSave} // 저장 버튼 동작
+            >
+            </AgGridWrapper>
+          </Col>
+        </Row>
+        </>
+      )}
     </Container>
   );
 };
