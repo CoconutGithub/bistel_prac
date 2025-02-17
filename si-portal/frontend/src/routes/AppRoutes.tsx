@@ -8,6 +8,7 @@ import NotFound from "~pages/portal/NotFound";
 export default function AppRoutes() {
   // isAuthenticated 상태에 따라 라우터 생성
   const routes = [
+    { path: "/", element: <Login /> },
     { path: "/login", element: <Login /> },
     {
       path: "/main",
