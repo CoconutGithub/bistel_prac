@@ -189,7 +189,7 @@ const ManageMessage: React.FC<ManageMessageModalProps> = ({ onClose, isModal, sh
     console.log("params:", params);
 
     axios
-      .get(`${process.env.REACT_APP_BACKEND_IP}/admin/api/get-msg-list2`, {
+      .get(`${process.env.REACT_APP_BACKEND_IP}/admin/api/get-msg-list`, {
         headers: { Authorization: `Bearer ${cachedAuthToken}` },        
         params: params,
       })
