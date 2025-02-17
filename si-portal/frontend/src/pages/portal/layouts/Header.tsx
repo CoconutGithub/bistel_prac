@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Navbar, Nav, Container, NavDropdown } from "react-bootstrap";
 import NavMenuItem from "~pages/portal/layouts/NavMenuItem";
 import { MenuItem } from "~types/LayoutTypes";
@@ -9,8 +9,10 @@ import { AppDispatch, RootState } from "~store/Store";
 import { removeLoginToken } from "~store/AuthSlice";
 import { cachedAuthToken } from "~store/AuthSlice";
 import { resetTab } from "~store/RootTabs";
+import { ComAPIContext } from "~components/ComAPIContext";
 
 const Header = () => {
+  const comAPIContext = useContext(ComAPIContext);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const isMighty = useSelector((state: RootState) => state.auth.user.isMighty);
   const roleId = useSelector((state: RootState) => state.auth.user.roleId);
@@ -87,6 +89,9 @@ const Header = () => {
                 </NavDropdown.Item>
                 <NavDropdown.Item as={Link} to="/main/manage-message">
                   메세지 관리
+                </NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/main/manage-code">
+                  {comAPIContext.$msg("menu", "manage_code", "코드 관리")}
                 </NavDropdown.Item>
               </NavDropdown>
             )}

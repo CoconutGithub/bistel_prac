@@ -21,7 +21,7 @@ public interface MsgMainRepository extends JpaRepository<MsgMain, Integer> {
             "           JOIN DEV.P_MSG_MAIN C\n" +
             "           ON A.MSG_ID = C.MSG_ID\n" +
             "           ORDER BY 1',\n" +
-            "           'VALUES (''KO''), (''EN''), (''CN'')'  -- 예상되는 LANG_CODE 값\n" +
+            "           'VALUES (''KO''), (''EN''), (''CN'')' \n" +
             "           ) AS CT(MSG_ID INT, MSG_TYPE TEXT, MSG_NAME TEXT, MSG_DEFAULT TEXT, STATUS TEXT, KO_LANG_TEXT TEXT, EN_LANG_TEXT TEXT, CN_LANG_TEXT TEXT)\n" +
             "        WHERE\n" +
             "            1 = 1\n" +

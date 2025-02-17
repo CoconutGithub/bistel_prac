@@ -54,7 +54,6 @@ const GlobalNavbar = ({
   }, []);
 
   const handleLogout = () => {
-    console.log("Logging out...");
     dispatch(resetTab());
     dispatch(removeLoginToken());
     navigate("/login");
@@ -255,6 +254,23 @@ const GlobalNavbar = ({
                       "label",
                       "manage_schedule",
                       "스케줄 관리"
+                    )}
+                  </NavDropdown.Item>
+                  <NavDropdown.Item
+                    as={Link}
+                    to="/main/manage-code"
+                    onClick={() =>
+                      onSelectTab({
+                        key: "manage-code",
+                        label: "Manage schedule",
+                        path: "/main/manage-code",
+                      })
+                    }
+                  >
+                    {comAPIContext.$msg(
+                      "menu",
+                      "manage_code",
+                      "코드 관리"
                     )}
                   </NavDropdown.Item>
                   <NavDropdown.Item

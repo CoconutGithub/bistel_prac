@@ -50,6 +50,7 @@ public class AdminService {
     private final SchedulerRepository schedulerRepository;
     private final MsgMainRepository msgMainRepository;
     private final MsgDetailRepository msgDetailRepository;
+    private final CodeRepository codeRepository;
 
     @Autowired
     public AdminService(AdminMapper adminMapper, JavaMailSender emailSender
@@ -63,6 +64,7 @@ public class AdminService {
         , SchedulerRepository schedulerRepository
         , MsgMainRepository msgMainRepository
         , MsgDetailRepository msgDetailRepository
+        , CodeRepository codeRepository
     ) {
         this.adminMapper = adminMapper;
         this.emailSender = emailSender;
@@ -79,6 +81,7 @@ public class AdminService {
         this.schedulerRepository = schedulerRepository;
         this.msgMainRepository = msgMainRepository;
         this.msgDetailRepository = msgDetailRepository;
+        this.codeRepository = codeRepository;
     }
 
     public ResponseEntity<?> getMenuId() {
@@ -123,6 +126,16 @@ public class AdminService {
         }
     }
 
+    public ResponseEntity<?> getCodeTree4ManageCode() {
+        try {
+            List<Code> result = this.codeRepository.findAll();
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
+
     public ResponseEntity<?> getMsgTypeList(@RequestParam String status) {
 
         try {
@@ -154,7 +167,15 @@ public class AdminService {
     public ResponseEntity<?> getMsgList(@RequestParam Map<String, String> params) {
 
         try {
-            List<ComResultMap> result = adminMapper.getMsgList(params);
+            HashMap<String,String> req = new HashMap<String,String>();
+            req.put("msgType", params.get("msgType") == null ? "" : params.get("msgType") );
+            req.put("msgName", params.get("msgName") == null ? "" : params.get("msgName") );
+            req.put("msgDefault", params.get("msgDefault") == null ? "" : params.get("msgDefault") );
+            req.put("status", params.get("status") == null ? "" : params.get("status") );
+            req.put("koLangText", params.get("koLangText") == null ? "" : params.get("koLangText") );
+            req.put("enLangText", params.get("enLangText") == null ? "" : params.get("enLangText") );
+            req.put("cnLangText", params.get("cnLangText") == null ? "" : params.get("cnLangText") );
+            List<ComResultMap> result = msgMainRepository.getMsgList(req);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
@@ -800,7 +821,62 @@ public class AdminService {
         }
     }
 
+    public ResponseEntity<?> deleteCode(@RequestBody Map<String, Object> result) {
+        try {
+            Integer codeId = (Integer) result.get("codeId");
+            codeRepository.deleteCode(codeId);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
 
+    public  ResponseEntity<?> insertCode(@RequestBody Map<String, Object> result) {
+        try {
+            Code code = new Code();
+            code.setParentId((Integer)result.get("parentId"));
+            code.setDefaultText((String)result.get("defaultText"));
+            code.setLevel((Integer)result.get("level"));
+            code.setCodeOrder((Integer) result.get("childYn"));
+            code.setStatus((String)result.get("status"));
+            code.setCreateBy((String)result.get("createBy"));
+            code.setCreateDate(LocalDateTime.now());
+            codeRepository.save(code);
+
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
+
+    public  ResponseEntity<?> updateCode(@RequestBody Map<String, Object> result) {
+        try {
+            Code code = new Code();
+            code.setCodeId((Integer)result.get("codeId"));
+            code.setParentId((Integer)result.get("parentId"));
+            code.setCodeName((String)result.get("codeName"));
+            code.setDefaultText((String)result.get("defaultText"));
+            code.setMsgId((Integer) result.get("msgId"));
+            code.setLevel((Integer)result.get("level"));
+            code.setCodeOrder((Integer)result.get("codeOrder"));
+            code.setStatus((String)result.get("status"));
+            code.setUpdateBy((String)result.get("updateBy"));
+            code.setUpdateDate(LocalDateTime.now());
+            code.setACode((String)result.get("aCode"));
+            code.setBCode((String)result.get("bCode"));
+            code.setCCode((String)result.get("cCode"));
+            code.setDCode((String)result.get("dCode"));
+            code.setECode((String)result.get("eCode"));
+            codeRepository.save(code);
+
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
 
     private void saveEmailHistory(String sendUser, String sendReceiver, String title, String content) {
         String sql = "INSERT INTO dev.p_email_history (send_user, send_reciver, title, content, read_yn, creation_time) " +

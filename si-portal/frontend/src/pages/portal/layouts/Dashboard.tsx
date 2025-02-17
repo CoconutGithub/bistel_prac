@@ -31,31 +31,31 @@ const Dashboard: React.FC = () => {
 
       comAPIContext.showProgressBar();
 
-      //   const res = await fetch("http://localhost:11434/api/generate", {
-      //     method: "POST",
-      //     headers: {
-      //       "Content-Type": "application/json",
-      //     },
-      //     body: JSON.stringify({
-      //       model: selectedModel,
-      //       prompt: inputText,
-      //     }),
-      //   });
-
-      const res = await fetch("http://192.168.7.37:11434/api/generate", {
+      const res = await fetch("http://localhost:11434/api/generate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        // body: JSON.stringify({
-        //     model: 'llama3.2',
-        //     prompt: inputText,
-        // }),
         body: JSON.stringify({
           model: selectedModel,
           prompt: inputText,
         }),
       });
+
+      // const res = await fetch("http://192.168.7.37:11434/api/generate", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   // body: JSON.stringify({
+      //   //     model: 'llama3.2',
+      //   //     prompt: inputText,
+      //   // }),
+      //   body: JSON.stringify({
+      //     model: selectedModel,
+      //     prompt: inputText,
+      //   }),
+      // });
 
       if (!res.ok) {
         throw new Error("서버 응답 오류");

@@ -108,12 +108,10 @@ const NavMenuItem = ({
 
   useEffect(() => {
     const rootTabsData = sessionStorage.getItem("persist:rootTabs");
-    console.log("tab1");
     if (rootTabsData) {
       const parsedData = JSON.parse(rootTabsData);
       const tabsArray = JSON.parse(parsedData.tabs);
       if (tabsArray.length === 8) setTabDisable(true);
-      console.log("tab2");
     }
   }, []);
 
