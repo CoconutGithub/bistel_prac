@@ -134,7 +134,6 @@ const ExpenseManagement: React.FC = () => {
 
   const columns = [
     {
-      filed: "gridRowId",
       field: "user",
       headerName: "User",
       editable: true,
@@ -148,7 +147,6 @@ const ExpenseManagement: React.FC = () => {
       },
     },
     {
-      filed: "gridRowId",
       field: "category",
       headerName: "Category",
       editable: true,
@@ -162,7 +160,6 @@ const ExpenseManagement: React.FC = () => {
       },
     },
     {
-      filed: "gridRowId",
       field: "item",
       headerName: "Item",
       editable: true,
@@ -176,7 +173,6 @@ const ExpenseManagement: React.FC = () => {
       },
     },
     {
-      filed: "gridRowId",
       field: "price",
       headerName: "Price",
       editable: true,
@@ -201,7 +197,6 @@ const ExpenseManagement: React.FC = () => {
       },
     },
     {
-      filed: "gridRowId",
       field: "fileAttachment",
       headerName: "File Attachment",
       cellRenderer: (params: any) => {
