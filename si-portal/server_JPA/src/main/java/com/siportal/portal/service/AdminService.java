@@ -167,7 +167,15 @@ public class AdminService {
     public ResponseEntity<?> getMsgList(@RequestParam Map<String, String> params) {
 
         try {
-            List<ComResultMap> result = adminMapper.getMsgList(params);
+            HashMap<String,String> req = new HashMap<String,String>();
+            req.put("msgType", params.get("msgType") == null ? "" : params.get("msgType") );
+            req.put("msgName", params.get("msgName") == null ? "" : params.get("msgName") );
+            req.put("msgDefault", params.get("msgDefault") == null ? "" : params.get("msgDefault") );
+            req.put("status", params.get("status") == null ? "" : params.get("status") );
+            req.put("koLangText", params.get("koLangText") == null ? "" : params.get("koLangText") );
+            req.put("enLangText", params.get("enLangText") == null ? "" : params.get("enLangText") );
+            req.put("cnLangText", params.get("cnLangText") == null ? "" : params.get("cnLangText") );
+            List<ComResultMap> result = msgMainRepository.getMsgList(req);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)

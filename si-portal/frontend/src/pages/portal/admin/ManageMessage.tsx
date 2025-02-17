@@ -189,7 +189,7 @@ const ManageMessage: React.FC<ManageMessageModalProps> = ({ onClose, isModal, sh
     console.log("params:", params);
 
     axios
-      .get(`${process.env.REACT_APP_BACKEND_IP}/admin/api/get-msg-list2`, {
+      .get(`${process.env.REACT_APP_BACKEND_IP}/admin/api/get-msg-list`, {
         headers: { Authorization: `Bearer ${cachedAuthToken}` },        
         params: params,
       })
@@ -372,18 +372,22 @@ const ManageMessage: React.FC<ManageMessageModalProps> = ({ onClose, isModal, sh
             <Modal.Body>
               <Row className="mb-3">
                 <Col>
-                  <h2>메세지 관리</h2>
+                  <h2>{comAPIContext.$msg(
+                      "label",
+                      "manage_message",
+                      "메세지 관리"
+                    )}</h2>
                 </Col>
               </Row>
               <Row className="mb-3">
                 <Col lg={11}>
                   <Form.Group as={Row}>
                     <Form.Label column sm={1} className="text-center">
-                      메세지 타입
+                      {comAPIContext.$msg("label", "msg_type", "메세지 타입")}
                     </Form.Label>
                     <Col sm={2}>
                       <Form.Select value={selectedType} onChange={handleTypeChange}>
-                        <option value="">타입 선택</option>
+                        <option value="">{comAPIContext.$msg("label", "msg_type", "메세지 타입")}</option>
                         {typeList.map((option:string, index:any) => (
                           <option key={index} value={option}>
                             {option}
@@ -392,23 +396,23 @@ const ManageMessage: React.FC<ManageMessageModalProps> = ({ onClose, isModal, sh
                       </Form.Select>
                     </Col>            
                     <Form.Label column sm={1} className="text-center">
-                      메세지명
+                      {comAPIContext.$msg("label", "msg_name", "메세지명")}
                     </Form.Label>
                     <Col sm={2}>
-                      <Form.Control ref={msgNameRef} type="text" placeholder="status" />
+                      <Form.Control ref={msgNameRef} type="text" placeholder={comAPIContext.$msg("label", "msg_name", "메세지명")} />
                     </Col>
                     <Form.Label column sm={1} className="text-center">
-                      기본값
+                      {comAPIContext.$msg("label", "default", "기본값")}
                     </Form.Label>
                     <Col sm={2}>
-                      <Form.Control ref={msgDefaulteRef} type="text" placeholder="status" />
+                      <Form.Control ref={msgDefaulteRef} type="text" placeholder={comAPIContext.$msg("label", "default", "기본값")} />
                     </Col>
                     <Form.Label column sm={1} className="text-center">
-                      적용 상태
+                      {comAPIContext.$msg("label", "status", "상태")}
                     </Form.Label>
                     <Col sm={2}>
                       <Form.Select value={selectedStatus} onChange={handleStatusChange}>
-                        <option value="">상태 선택</option>
+                        <option value="">{comAPIContext.$msg("label", "status", "상태")}</option>
                         {["ACTIVE", "INACTIVE"].map((option:string, index:any) => (
                           <option key={index} value={option}>
                             {option}
@@ -417,28 +421,28 @@ const ManageMessage: React.FC<ManageMessageModalProps> = ({ onClose, isModal, sh
                       </Form.Select>
                     </Col>
                     <Form.Label column sm={1} className="text-center">
-                      한국어
+                      {comAPIContext.$msg("label", "KO", "한국어")}
                     </Form.Label>
                     <Col sm={2}>
-                      <Form.Control ref={koLangTextRef} type="text" placeholder="한국어" />
+                      <Form.Control ref={koLangTextRef} type="text" placeholder={comAPIContext.$msg("label", "KO", "한국어")} />
                     </Col>
                     <Form.Label column sm={1} className="text-center">
-                      영어
+                      {comAPIContext.$msg("label", "EN", "영어")}
                     </Form.Label>
                     <Col sm={2}>
-                      <Form.Control ref={enLangTextRef} type="text" placeholder="English" />
+                      <Form.Control ref={enLangTextRef} type="text" placeholder={comAPIContext.$msg("label", "EN", "영어")} />
                     </Col>
                     <Form.Label column sm={1} className="text-center">
-                      중국어
+                      {comAPIContext.$msg("label", "CN", "중국어")}
                     </Form.Label>
                     <Col sm={2}>
-                      <Form.Control ref={cnLangTextRef} type="text" placeholder="中国话" />
+                      <Form.Control ref={cnLangTextRef} type="text" placeholder={comAPIContext.$msg("label", "CN", "중국어")} />
                     </Col>
                   </Form.Group>
                 </Col>
                 <Col lg={1}>
                   <ComButton size="sm" variant="primary" onClick={handleSearch}>
-                    검색
+                    {comAPIContext.$msg("label", "search", "검색")}
                   </ComButton>
                 </Col>
               </Row>
@@ -476,18 +480,22 @@ const ManageMessage: React.FC<ManageMessageModalProps> = ({ onClose, isModal, sh
         <>
         <Row className="mb-3">
           <Col>
-            <h2>메세지 관리</h2>
+            <h2>{comAPIContext.$msg(
+                      "label",
+                      "manage_message",
+                      "메세지 관리"
+                    )}</h2>
           </Col>
         </Row>
         <Row className="mb-3">
           <Col lg={11}>
             <Form.Group as={Row}>
               <Form.Label column sm={1} className="text-center">
-                메세지 타입
+                {comAPIContext.$msg("label", "msg_type", "메세지 타입")}
               </Form.Label>
               <Col sm={2}>
                 <Form.Select value={selectedType} onChange={handleTypeChange}>
-                  <option value="">타입 선택</option>
+                  <option value="">{comAPIContext.$msg("label", "msg_type", "메세지 타입")}</option>
                   {typeList.map((option:string, index:any) => (
                     <option key={index} value={option}>
                       {option}
@@ -496,23 +504,23 @@ const ManageMessage: React.FC<ManageMessageModalProps> = ({ onClose, isModal, sh
                 </Form.Select>
               </Col>            
               <Form.Label column sm={1} className="text-center">
-                메세지명
+                {comAPIContext.$msg("label", "msg_name", "메세지명")}
               </Form.Label>
               <Col sm={2}>
-                <Form.Control ref={msgNameRef} type="text" placeholder="status" />
+                <Form.Control ref={msgNameRef} type="text" placeholder={comAPIContext.$msg("label", "msg_name", "메세지명")} />
               </Col>
               <Form.Label column sm={1} className="text-center">
-                기본값
+                {comAPIContext.$msg("label", "default", "기본값")}
               </Form.Label>
               <Col sm={2}>
-                <Form.Control ref={msgDefaulteRef} type="text" placeholder="status" />
+                <Form.Control ref={msgDefaulteRef} type="text" placeholder={comAPIContext.$msg("label", "default", "기본값")} />
               </Col>
               <Form.Label column sm={1} className="text-center">
-                적용 상태
+                {comAPIContext.$msg("label", "status", "상태")}
               </Form.Label>
               <Col sm={2}>
                 <Form.Select value={selectedStatus} onChange={handleStatusChange}>
-                  <option value="">상태 선택</option>
+                  <option value="">{comAPIContext.$msg("label", "status", "상태")}</option>
                   {["ACTIVE", "INACTIVE"].map((option:string, index:any) => (
                     <option key={index} value={option}>
                       {option}
@@ -521,28 +529,28 @@ const ManageMessage: React.FC<ManageMessageModalProps> = ({ onClose, isModal, sh
                 </Form.Select>
               </Col>
               <Form.Label column sm={1} className="text-center">
-                한국어
+                {comAPIContext.$msg("label", "KO", "한국어")}
               </Form.Label>
               <Col sm={2}>
-                <Form.Control ref={koLangTextRef} type="text" placeholder="한국어" />
+                <Form.Control ref={koLangTextRef} type="text" placeholder={comAPIContext.$msg("label", "KO", "한국어")} />
               </Col>
               <Form.Label column sm={1} className="text-center">
-                영어
+                {comAPIContext.$msg("label", "EN", "영어")}
               </Form.Label>
               <Col sm={2}>
-                <Form.Control ref={enLangTextRef} type="text" placeholder="English" />
+                <Form.Control ref={enLangTextRef} type="text" placeholder={comAPIContext.$msg("label", "EN", "영어")} />
               </Col>
               <Form.Label column sm={1} className="text-center">
-                중국어
+                {comAPIContext.$msg("label", "CN", "중국어")}
               </Form.Label>
               <Col sm={2}>
-                <Form.Control ref={cnLangTextRef} type="text" placeholder="中国话" />
+                <Form.Control ref={cnLangTextRef} type="text" placeholder={comAPIContext.$msg("label", "CN", "중국어")} />
               </Col>
             </Form.Group>
           </Col>
           <Col lg={1}>
             <ComButton size="sm" variant="primary" onClick={handleSearch}>
-              검색
+              {comAPIContext.$msg("label", "search", "검색")}
             </ComButton>
           </Col>
         </Row>
