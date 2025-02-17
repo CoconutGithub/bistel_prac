@@ -19,8 +19,8 @@ import ComButton from "~pages/portal/buttons/ComButton";
 import cn from "classnames";
 import "./AgGridWrapper.scss";
 import styles from "./AgGridWrapper.module.scss";
-import {useSelector} from "react-redux";
-import {RootState} from "~store/Store";
+import { useSelector } from "react-redux";
+import { RootState } from "~store/Store";
 
 //##################### type 지정-start #######################
 // Props 타입 정의
@@ -39,6 +39,7 @@ interface AgGridWrapperProps {
   pagination?: boolean;
   paginationPageSize?: number;
   tableHeight?: any;
+  useNoColumn?: boolean;
 
   onDelete?: (selectedRows: any[]) => void;
   onSave?: (lists: {
@@ -73,6 +74,7 @@ const defaultSettings = {
   pagination: true,
   paginationPageSize: 50,
   tableHeight: "600px",
+  useNoColumn: true,
 
   onDelete: () => {},
   onSave: () => {},
@@ -82,11 +84,16 @@ const defaultSettings = {
   onCellDoubleClicked: () => {},
 };
 
-
 const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
   (props, ref) => {
-    const paginationSize = useSelector((state: RootState) => state.auth.user.paginationSize || 50);
-    const settings = { ...defaultSettings, ...props, paginationPageSize: paginationSize };
+    const paginationSize = useSelector(
+      (state: RootState) => state.auth.user.paginationSize || 50
+    );
+    const settings = {
+      ...defaultSettings,
+      ...props,
+      paginationPageSize: paginationSize,
+    };
     const {
       children,
       showButtonArea,
@@ -100,6 +107,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
       pagination,
       paginationPageSize,
       tableHeight,
+      useNoColumn,
 
       onDelete,
       onSave,
@@ -139,13 +147,21 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
         : columnDefs;
 
       // 행 번호 컬럼 추가
-      baseColumnDefs.unshift({
-        headerName: "No",
-        valueGetter: "node.rowIndex + 1",
-        width: 90,
-        suppressSizeToFit: true,
-        cellStyle: { display: "flex", alignItems: "center" },
-      });
+      if (useNoColumn) {
+        const hasNoColumn = baseColumnDefs.some(
+          (col) => "headerName" in col && col.headerName === "No"
+        );
+
+        if (!hasNoColumn) {
+          baseColumnDefs.unshift({
+            headerName: "No",
+            valueGetter: "node.rowIndex + 1",
+            width: 90,
+            suppressSizeToFit: true,
+            cellStyle: { display: "flex", alignItems: "center" },
+          });
+        }
+      }
 
       return baseColumnDefs.map((colDef) => ({
         ...colDef,
@@ -194,7 +210,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
 
     const handleCellDoubleClick = (event: any) => {
       if (settings.onCellDoubleClicked) {
-      settings.onCellDoubleClicked(event);
+        settings.onCellDoubleClicked(event);
       }
     };
 
@@ -277,6 +293,8 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
       gridApi: gridRef.current?.api,
     }));
 
+    console.log("AgGridWrapper 렌더링됨");
+
     return (
       <div className={cn(styles.start)}>
         <Container fluid className={styles.container}>
@@ -293,7 +311,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
                   variant="outline-danger"
                   onClick={handleDelete}
                 >
-                  { comAPIContext.$msg("label", "delete", "삭제") }
+                  {comAPIContext.$msg("label", "delete", "삭제")}
                 </ComButton>
                 <ComButton
                   size="sm"
@@ -301,7 +319,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
                   variant="outline-primary"
                   onClick={handleAddRow}
                 >
-                  { comAPIContext.$msg("label", "add", "추가") }
+                  {comAPIContext.$msg("label", "add", "추가")}
                 </ComButton>
                 <ComButton
                   size="sm"
@@ -309,7 +327,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
                   variant="primary"
                   onClick={handleSave}
                 >
-                  { comAPIContext.$msg("label", "save", "저장") }
+                  {comAPIContext.$msg("label", "save", "저장")}
                 </ComButton>
               </Col>
             )}

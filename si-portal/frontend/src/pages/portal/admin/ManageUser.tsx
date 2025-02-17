@@ -360,6 +360,8 @@ const ManageUser: React.FC = () => {
     );
   }, [openPopup, canCreate]);
 
+  console.log("렌더링 횟수");
+
   return (
     <Container fluid>
       <Row className="mb-3">

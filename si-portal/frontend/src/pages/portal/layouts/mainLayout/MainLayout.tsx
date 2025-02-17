@@ -5,7 +5,7 @@ import GlobalNavbar from "~pages/portal/layouts/globalNavbar/GlobalNavbar";
 import { removeLoginToken } from "~store/AuthSlice";
 import styles from "./MainLayout.module.scss";
 import { useDispatch, useSelector } from "react-redux";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { RootState } from "~store/Store";
 import { addTab, setActiveTab, removeTab, resetTab } from "~store/RootTabs";
 import DefaultRoutes from "~routes/DefaultRoutes";
