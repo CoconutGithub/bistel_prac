@@ -269,7 +269,7 @@ const GlobalNavbar = ({
                     }
                   >
                     {comAPIContext.$msg(
-                      "label",
+                      "menu",
                       "manage_code",
                       "코드 관리"
                     )}

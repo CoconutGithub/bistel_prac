@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import { ChooseCodeData } from "@/types/ChooseCodeData";
 import ManageCodeTree from '~pages/portal/admin/ManageCodeTree';
 import ManageCodeContent from '~pages/portal/admin/ManageCodeContent';
+import { ComAPIContext } from "~components/ComAPIContext";
 
 const ManageCode: React.FC = () => {
+  const comAPIContext = useContext(ComAPIContext);
   const [chooseCodeData, setChooseCodeData] = useState<ChooseCodeData | null>(null);
   const [refreshTree, setRefreshTree] = useState(false);
 
@@ -16,7 +18,7 @@ const ManageCode: React.FC = () => {
       <Container fluid className="h-100">
           <Row className="mb-3">
               <Col>
-                  <h2>코드 관리</h2>
+                  <h2>{comAPIContext.$msg("menu", "manage_code", "코드 관리")}</h2>
               </Col>
           </Row>
           <div style={{borderTop: '1px solid black', margin: '5px 0'}}></div>
