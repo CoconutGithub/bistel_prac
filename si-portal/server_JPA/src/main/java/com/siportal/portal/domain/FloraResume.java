@@ -40,12 +40,14 @@ public class FloraResume {
     private String skills;
 
     @Lob
-    private byte[] resumeFiles;
+    @Column(name = "resume_file")
+    private byte[] resumeFile;
 
     @Column(length = 255)
     private String resumeFilename;
 
     @Column(updatable = false)
+    @Builder.Default
     private LocalDateTime createDate = LocalDateTime.now();
 
     @Column(length = 100)
