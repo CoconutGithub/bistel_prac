@@ -89,12 +89,12 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
     await axios
       .get(`${process.env.REACT_APP_BACKEND_IP}/admin/api/get-msg-list2`)
       .then((res) => {
-        console.log("res", res);
+        // console.log("res", res);
         messages.current = res.data;
-        console.log("messages", messages);
+        // console.log("messages", messages);
       })
       .catch((err) => {
-        console.log("err", err);
+        // console.log("err", err);
       })
       .finally(() => {});
   };
@@ -130,7 +130,7 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
 
     // $msg 메서드
     const $msg = useCallback((type: string, message: string, text: string) => {
-        console.log("$msg lang : ", lang);
+        // console.log("$msg lang : ", lang);
         const foundMessage = messages.current.find((msg) => msg.msgType === type && msg.msgName === message);
         if (!foundMessage) {
             return text;
@@ -150,11 +150,11 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
 
     // $msgDefault 메서드
     const $msgDefault = useCallback((id: number) => {
-      console.log("$msgDefault lang : ", lang);
-      console.log('messages.current : ', messages.current)
-      console.log('id : ', id)
+      // console.log("$msgDefault lang : ", lang);
+      // console.log('messages.current : ', messages.current)
+      // console.log('id : ', id)
       const foundMessage = messages.current.find((msg) => msg.msgId === id);
-      console.log('foundMessage', foundMessage)
+      // console.log('foundMessage', foundMessage)
       if (!foundMessage) {
           return '';
       } else {
