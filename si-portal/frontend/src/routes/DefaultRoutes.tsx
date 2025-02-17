@@ -10,7 +10,7 @@ const SubServiceA1 = React.lazy(() => import("~pages/biz/SubServiceA1"));
 const SubServiceB1 = React.lazy(() => import("~pages/biz/SubServiceB1"));
 const SubServiceA1A1 = React.lazy(() => import("~pages/biz/SubServiceA1A1"));
 
-const ChoBiz = React.lazy(() => import("~pages/biz/ChoBiz"));
+const ChoResume = React.lazy(() => import("~pages/biz/CshResume"));
 
 export default function DefaultRoutes(): RouteObject[] {
   return [
@@ -77,7 +77,7 @@ export default function DefaultRoutes(): RouteObject[] {
       path: "/main/service/cho-biz",
       element: (
         <React.Suspense fallback={<div>Loading...</div>}>
-          <ChoBiz />
+          <ChoResume />
         </React.Suspense>
       ),
       loader: checkBtnAuthLoader,
