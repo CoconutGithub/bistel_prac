@@ -293,8 +293,6 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
       gridApi: gridRef.current?.api,
     }));
 
-    console.log("AgGridWrapper 렌더링됨");
-
     return (
       <div className={cn(styles.start)}>
         <Container fluid className={styles.container}>
