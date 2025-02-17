@@ -11,6 +11,9 @@ const SubServiceB1 = React.lazy(() => import("~pages/biz/SubServiceB1"));
 const SubServiceA1A1 = React.lazy(() => import("~pages/biz/SubServiceA1A1"));
 
 const ChoBiz = React.lazy(() => import("~pages/biz/ChoBiz"));
+const FloraResumeList = React.lazy(
+  () => import("~pages/biz/floraResume/floraResumeList/FloraResumeList")
+);
 
 export default function DefaultRoutes(): RouteObject[] {
   return [
@@ -78,6 +81,15 @@ export default function DefaultRoutes(): RouteObject[] {
       element: (
         <React.Suspense fallback={<div>Loading...</div>}>
           <ChoBiz />
+        </React.Suspense>
+      ),
+      loader: checkBtnAuthLoader,
+    },
+    {
+      path: "/main/flora-resume",
+      element: (
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <FloraResumeList />
         </React.Suspense>
       ),
       loader: checkBtnAuthLoader,
