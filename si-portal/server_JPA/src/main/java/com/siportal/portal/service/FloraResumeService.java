@@ -1,5 +1,6 @@
 package com.siportal.portal.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.siportal.portal.domain.Resume;
 import com.siportal.portal.dto.FloraResumeDto;
 import com.siportal.portal.repository.FloraResumeRepository;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 public class FloraResumeService {
 
     private final FloraResumeRepository floraResumeRepository;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public FloraResumeService(FloraResumeRepository floraResumeRepository) {
         this.floraResumeRepository = floraResumeRepository;
@@ -32,9 +34,9 @@ public class FloraResumeService {
                 .email(resume.getEmail())
                 .phone(resume.getPhone())
                 .summary(resume.getSummary())
-                .experience(resume.getExperience())
-                .education(resume.getEducation())
-                .skills(resume.getSkills())
+                .experience(Resume.toJson(resume.getExperience()))
+                .education(Resume.toJson(resume.getEducation()))
+                .skills(Resume.toJson(resume.getSkills()))
                 .resumeFile(resume.getResumeFile())
                 .resumeFilename(resume.getResumeFilename())
                 .createDate(resume.getCreateDate())

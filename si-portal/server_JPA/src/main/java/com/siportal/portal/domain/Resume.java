@@ -1,9 +1,15 @@
 package com.siportal.portal.domain;
 
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Type;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table(name="resumes")
@@ -30,14 +36,17 @@ public class Resume {
     @Column(columnDefinition = "TEXT")
     private String summary;
 
+    @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
-    private String experience;
+    private List<Map<String, Object>> experience;
 
+    @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
-    private String education;
+    private List<Map<String, Object>> education;
 
+    @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
-    private String skills;
+    private List<Map<String, Object>> skills;
 
     @Lob
     @Column(name = "resume_file")
@@ -72,5 +81,24 @@ public class Resume {
 
     @Column(length = 255)
     private String jobTitle;
+
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    public static String toJson(List<Map<String, Object>> list) {
+        try {
+            return objectMapper.writeValueAsString(list);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("JSON 변환 오류", e);
+        }
+    }
+
+    public static List<Map<String, Object>> fromJson(String json) {
+        try {
+            return objectMapper.readValue(json, List.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("JSON 변환 오류", e);
+        }
+    }
 
 }
