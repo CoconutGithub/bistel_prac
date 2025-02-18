@@ -127,7 +127,7 @@ const FloraResumeList = () => {
             handleSelectTab({
               key: "create-flora-resume",
               label: "Create resume",
-              path: "/main/create-flora-resume",
+              path: "/main/flora-resume/create",
             })
           }
           size="sm"
