@@ -10,13 +10,7 @@ const SubServiceA1 = React.lazy(() => import("~pages/biz/SubServiceA1"));
 const SubServiceB1 = React.lazy(() => import("~pages/biz/SubServiceB1"));
 const SubServiceA1A1 = React.lazy(() => import("~pages/biz/SubServiceA1A1"));
 
-const ChoBiz = React.lazy(() => import("~pages/biz/ChoBiz"));
-const FloraResumeList = React.lazy(
-  () => import("~pages/biz/floraResume/floraResumeList/FloraResumeList")
-);
-const FloraResumeCreate = React.lazy(
-  () => import("~pages/biz/floraResume/floraResumeCreate/FloraResumeCreate")
-);
+const ChoResume = React.lazy(() => import("~pages/biz/CshResume"));
 
 export default function DefaultRoutes(): RouteObject[] {
   return [
@@ -83,25 +77,7 @@ export default function DefaultRoutes(): RouteObject[] {
       path: "/main/service/cho-biz",
       element: (
         <React.Suspense fallback={<div>Loading...</div>}>
-          <ChoBiz />
-        </React.Suspense>
-      ),
-      loader: checkBtnAuthLoader,
-    },
-    {
-      path: "/main/flora-resume",
-      element: (
-        <React.Suspense fallback={<div>Loading...</div>}>
-          <FloraResumeList />
-        </React.Suspense>
-      ),
-      loader: checkBtnAuthLoader,
-    },
-    {
-      path: "/main/create-flora-resume",
-      element: (
-        <React.Suspense fallback={<div>Loading...</div>}>
-          <FloraResumeCreate />
+          <ChoResume />
         </React.Suspense>
       ),
       loader: checkBtnAuthLoader,

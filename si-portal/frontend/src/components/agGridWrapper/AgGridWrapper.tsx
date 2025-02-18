@@ -51,6 +51,7 @@ interface AgGridWrapperProps {
   onCellValueChanged?: (event: any) => void;
   onCellEditingStarted?: (event: any) => void;
   onCellDoubleClicked?: (event: any) => void;
+  onGridLoaded?: () => void;
 }
 
 //##################### type 지정-end #######################
@@ -114,6 +115,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
       onCellEditingStopped,
       onCellValueChanged,
       onCellEditingStarted,
+      onGridLoaded,
     } = settings;
 
     console.log("======create AgGridWrapper======");
@@ -172,8 +174,14 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
     };
 
     const onGridReady = useCallback(() => {
-      //console.log('Grid is ready');
-    }, []);
+      console.log("✅ AG Grid 렌더링 완료!");
+
+      // 부모 컴포넌트의 메서드 호출 (Grid가 준비된 후)
+      if (onGridLoaded) {
+        onGridLoaded();
+      }
+    }, [onGridLoaded]);
+
 
     const handleCellValueChange = (event: any) => {
       const { data } = event; // 변경된 행 데이터 가져오기
