@@ -8,6 +8,96 @@ import { AgGridWrapperHandle } from "~types/GlobalTypes";
 import cn from "classnames";
 import axios from "axios";
 
+let cachedAuthToken: string | null = sessionStorage.getItem("authToken");
+
+const eduColumns = [
+  {
+    field: "schoolName",
+    headerName: "학교명",
+    editable: true,
+    flex: 2,
+    autoHeight: true,
+    wrapText: true,
+    cellStyle: { display: "flex", alignItems: "center" },
+  },
+  {
+    field: "educationLevel",
+    headerName: "학교 유형",
+    editable: true,
+    autoHeight: true,
+    flex: 2,
+    wrapText: true,
+    cellStyle: { display: "flex", alignItems: "center" },
+  },
+  {
+    field: "period",
+    headerName: "재학 기간",
+    editable: true,
+    autoHeight: true,
+    flex: 2,
+    wrapText: true,
+    cellStyle: { display: "flex", alignItems: "center" },
+  },
+  {
+    field: "status",
+    headerName: "졸업 상태",
+    editable: true,
+    autoHeight: true,
+    flex: 2,
+    wrapText: true,
+    cellStyle: { display: "flex", alignItems: "center" },
+  },
+];
+const certificationColumns = [
+  {
+    field: "certificationName",
+    headerName: "자격증명",
+    editable: true,
+    flex: 2,
+    autoHeight: true,
+    wrapText: true,
+    cellStyle: { display: "flex", alignItems: "center" },
+  },
+  {
+    field: "certificationDate",
+    headerName: "취득일",
+    editable: true,
+    autoHeight: true,
+    flex: 2,
+    wrapText: true,
+    cellStyle: { display: "flex", alignItems: "center" },
+  },
+];
+const workColumns = [
+  {
+    field: "companyName",
+    headerName: "회사명",
+    editable: true,
+    flex: 2,
+    autoHeight: true,
+    wrapText: true,
+    cellStyle: { display: "flex", alignItems: "center" },
+  },
+  {
+    field: "workPeriod",
+    headerName: "기간",
+    editable: true,
+    autoHeight: true,
+    flex: 2,
+    wrapText: true,
+    cellStyle: { display: "flex", alignItems: "center" },
+  },
+  {
+    field: "workDetail",
+    headerName: "담당 업무",
+    editable: true,
+    autoHeight: true,
+    flex: 2,
+    wrapText: true,
+    cellStyle: { display: "flex", alignItems: "center" },
+  },
+];
+
 const FloraResumeCreate = () => {
   const [formData, setFormData] = useState({
     fullName: "",
@@ -25,94 +115,6 @@ const FloraResumeCreate = () => {
   const eduGridRef = useRef<AgGridWrapperHandle>(null);
   const certGridRef = useRef<AgGridWrapperHandle>(null);
   const workGridRef = useRef<AgGridWrapperHandle>(null);
-
-  const eduColumns = [
-    {
-      field: "schoolName",
-      headerName: "학교명",
-      editable: true,
-      flex: 2,
-      autoHeight: true,
-      wrapText: true,
-      cellStyle: { display: "flex", alignItems: "center" },
-    },
-    {
-      field: "educationLevel",
-      headerName: "학교 유형",
-      editable: true,
-      autoHeight: true,
-      flex: 2,
-      wrapText: true,
-      cellStyle: { display: "flex", alignItems: "center" },
-    },
-    {
-      field: "period",
-      headerName: "재학 기간",
-      editable: true,
-      autoHeight: true,
-      flex: 2,
-      wrapText: true,
-      cellStyle: { display: "flex", alignItems: "center" },
-    },
-    {
-      field: "status",
-      headerName: "졸업 상태",
-      editable: true,
-      autoHeight: true,
-      flex: 2,
-      wrapText: true,
-      cellStyle: { display: "flex", alignItems: "center" },
-    },
-  ];
-  const certificationColumns = [
-    {
-      field: "certificationName",
-      headerName: "자격증명",
-      editable: true,
-      flex: 2,
-      autoHeight: true,
-      wrapText: true,
-      cellStyle: { display: "flex", alignItems: "center" },
-    },
-    {
-      field: "certificationDate",
-      headerName: "취득일",
-      editable: true,
-      autoHeight: true,
-      flex: 2,
-      wrapText: true,
-      cellStyle: { display: "flex", alignItems: "center" },
-    },
-  ];
-  const workColumns = [
-    {
-      field: "companyName",
-      headerName: "회사명",
-      editable: true,
-      flex: 2,
-      autoHeight: true,
-      wrapText: true,
-      cellStyle: { display: "flex", alignItems: "center" },
-    },
-    {
-      field: "workPeriod",
-      headerName: "기간",
-      editable: true,
-      autoHeight: true,
-      flex: 2,
-      wrapText: true,
-      cellStyle: { display: "flex", alignItems: "center" },
-    },
-    {
-      field: "workDetail",
-      headerName: "담당 업무",
-      editable: true,
-      autoHeight: true,
-      flex: 2,
-      wrapText: true,
-      cellStyle: { display: "flex", alignItems: "center" },
-    },
-  ];
 
   const handleInputChange = (e: any) => {
     const { id, value } = e.target;
@@ -136,7 +138,7 @@ const FloraResumeCreate = () => {
     const certificationData = certGridRef.current?.getRowData() || [];
     const workExperienceData = workGridRef.current?.getRowData() || [];
 
-    const resumeDate = {
+    const resumeData = {
       ...formData,
       education: educationData,
       experience: workExperienceData,
@@ -146,13 +148,20 @@ const FloraResumeCreate = () => {
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_BACKEND_IP}/biz/flora-resumes/create`,
-        resumeDate
+        resumeData,
+        {
+          headers: {
+            Authorization: `Bearer ${cachedAuthToken}`,
+          },
+        }
       );
       console.log("response", response);
     } catch (error) {
       console.error("이력서 저장에 실패했습니다.", error);
     }
   };
+
+  console.log("cachedAuthToken", cachedAuthToken);
 
   return (
     <div className={styles.start}>
