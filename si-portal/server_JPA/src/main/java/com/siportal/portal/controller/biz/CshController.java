@@ -22,7 +22,6 @@ public class CshController {
     @PostMapping("/updatResume")
     public ResponseEntity<?> updateResume(@RequestBody Map<String, Object> requestData) {
         System.out.println( requestData);
-
         return cshService.updateResume(requestData);
     }
 

@@ -15,7 +15,7 @@ interface CshResumePopupProps {
 
 interface ResumeData {
     id: number;
-    full_name: string;
+    fullName: string;
     email: string;
     phone?: string;
     summary?: string;
@@ -91,7 +91,7 @@ const CshResumePopup: React.FC<CshResumePopupProps> = ({ show, onClose }) => {
     useEffect(() => {
         setResume({
             id: 1,
-            full_name: "김간희",
+            fullName: "김간희",
             email: "jully@example.com",
             phone: "010-1234-5678",
             summary: "백엔드 개발자, 5년 경력.",
@@ -222,74 +222,74 @@ const CshResumePopup: React.FC<CshResumePopupProps> = ({ show, onClose }) => {
         const jsonEduData = JSON.stringify(gridEduData, (key, value) => {
             if (key === 'gridRowId') return undefined;
             else return value;
-        },2);
+        },0);
 
         // 자격증
         const gridLicenseData = gridRefLicense.current!.getRowData();
         const jsonLicenseData = JSON.stringify(gridLicenseData, (key, value) => {
             if (key === 'gridRowId') return undefined;
             else return value;
-        },2);
+        },0);
 
         // 경력사항
         const gridCarrierData = gridRefCarrier.current!.getRowData();
         const jsonCarrierData = JSON.stringify(gridCarrierData, (key, value) => {
             if (key === 'gridRowId') return undefined;
             else return value;
-        },2);
+        },0);
 
         // 교육사항
         const gridTrainingData = gridRefTraining.current!.getRowData();
         const jsonTrainingData = JSON.stringify(gridTrainingData, (key, value) => {
             if (key === 'gridRowId') return undefined;
             else return value;
-        },2);
+        },0);
 
         // 사용 기술
         const gridSkillData = gridRefSkill.current!.getRowData();
         const jsonSkillData = JSON.stringify(gridSkillData, (key, value) => {
             if (key === 'gridRowId') return undefined;
             else return value;
-        },2);
+        },0);
 
-        // comAPIContext.showProgressBar();
-        // axios.post(`${process.env.REACT_APP_BACKEND_IP}/biz/cho/updatResume`, {
-        //     id: 1,
-        //     full_name: resume?.full_name,
-        //     email: resume?.email,
-        //     phone: resume?.phone,
-        //     summary: resume?.summary,
-        //     education: jsonEduData,
-        //     experience: jsonCarrierData,
-        //     skills: jsonSkillData,
-        //     resume_filename: '',
-        // },
-        // {
-        //     headers: {
-        //         "Content-Type": "application/json",
-        //         Authorization: `Bearer ${cachedAuthToken}`,
-        //     }
-        // }).then((response) => {
-        //     comAPIContext.showToast(
-        //         comAPIContext.$msg(
-        //             "message",
-        //             "save_success",
-        //             "저장이 완료되었습니다."
-        //         ),
-        //         "success"
-        //     );
-        // }).catch(() => {
-        //     comAPIContext.showToast(
-        //         comAPIContext.$msg(
-        //             "message",
-        //             "save_fail",
-        //             "저장이 실패했습니다."
-        //         ),
-        //         "danger"
-        //     );
-        // }).finally(() => {
-        //     comAPIContext.hideProgressBar();
-        // });
+        comAPIContext.showProgressBar();
+        axios.post(`${process.env.REACT_APP_BACKEND_IP}/biz/csh/updatResume`, {
+            id: 1,
+           fullName: resume?.fullName,
+            email: resume?.email,
+            phone: resume?.phone,
+            summary: resume?.summary,
+            education: jsonEduData,
+            experience: jsonCarrierData,
+            skills: jsonSkillData,
+            resume_filename: '',
+        },
+        {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${cachedAuthToken}`,
+            }
+        }).then((response) => {
+            comAPIContext.showToast(
+                comAPIContext.$msg(
+                    "message",
+                    "save_success",
+                    "저장이 완료되었습니다."
+                ),
+                "success"
+            );
+        }).catch(() => {
+            comAPIContext.showToast(
+                comAPIContext.$msg(
+                    "message",
+                    "save_fail",
+                    "저장이 실패했습니다."
+                ),
+                "danger"
+            );
+        }).finally(() => {
+            comAPIContext.hideProgressBar();
+        });
 
     };
 
@@ -312,7 +312,7 @@ const CshResumePopup: React.FC<CshResumePopupProps> = ({ show, onClose }) => {
                         <tbody>
                         <tr>
                             <th className="bg-warning">성 명</th>
-                            <td>{resume?.full_name || ""}</td>
+                            <td>{resume?.fullName || ""}</td>
                             <th className="bg-warning">주민등록번호</th>
                             <td>XXXXXX-1</td>
                             <th className="bg-warning">성 별</th>
