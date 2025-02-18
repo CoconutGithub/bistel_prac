@@ -4,6 +4,8 @@ import { ComAPIContext } from "~components/ComAPIContext";
 import AgGridWrapper from "~components/agGridWrapper/AgGridWrapper";
 import {AgGridWrapperHandle} from "~types/GlobalTypes";
 import { useReactToPrint } from "react-to-print";
+import axios from "axios";
+import {cachedAuthToken} from "~store/AuthSlice";
 
 
 interface CshResumePopupProps {
@@ -72,6 +74,7 @@ const CshResumePopup: React.FC<CshResumePopupProps> = ({ show, onClose }) => {
 
     console.log("@@@@@@@@@@@@@    CshResumePopup 수행됨...........");
 
+    const comAPIContext = useContext(ComAPIContext);
     const [resume, setResume] = useState<ResumeData | null>(null);
 
     const gridRefEdu = useRef<AgGridWrapperHandle>(null);
@@ -83,24 +86,26 @@ const CshResumePopup: React.FC<CshResumePopupProps> = ({ show, onClose }) => {
     const contentRef = useRef<HTMLDivElement>(null);
     const componentRef = useRef(null);
 
+
+
     useEffect(() => {
-        // setResume({
-        //     id: 1,
-        //     full_name: "김간희",
-        //     email: "jully@example.com",
-        //     phone: "010-1234-5678",
-        //     summary: "백엔드 개발자, 5년 경력.",
-        //     experience: [
-        //         { company: "ABC Corp", position: "백엔드 개발자", start_date: "2018-06-01", end_date: "2023-12-31", responsibilities: ["API 개발", "DB 설계", "AWS 배포"] }
-        //     ],
-        //     education: '[{"school": "서울대학교", "degree": "컴퓨터공학", "year": "2017"}]',
-        //     skills: ["Python", "Django", "PostgreSQL", "AWS"],
-        //     resume_filename: "resume_hong.pdf",
-        //     create_date: "2024-02-15",
-        //     create_by: "admin",
-        //     update_date: "2024-02-16",
-        //     update_by: "admin"
-        // });
+        setResume({
+            id: 1,
+            full_name: "김간희",
+            email: "jully@example.com",
+            phone: "010-1234-5678",
+            summary: "백엔드 개발자, 5년 경력.",
+            experience: [
+                { company: "ABC Corp", position: "백엔드 개발자", start_date: "2018-06-01", end_date: "2023-12-31", responsibilities: ["API 개발", "DB 설계", "AWS 배포"] }
+            ],
+            education: '[{"school": "서울대학교", "degree": "컴퓨터공학", "year": "2017"}]',
+            skills: ["Python", "Django", "PostgreSQL", "AWS"],
+            resume_filename: "resume_hong.pdf",
+            create_date: "2024-02-15",
+            create_by: "admin",
+            update_date: "2024-02-16",
+            update_by: "admin"
+        });
     }, [show]);
 
     const setEducationData = () => {
@@ -113,8 +118,7 @@ const CshResumePopup: React.FC<CshResumePopupProps> = ({ show, onClose }) => {
         ];
 
         console.log("setEducationData")
-
-        // gridRefEdu.current!.setRowData(educationData);
+        gridRefEdu.current!.setRowData(educationData);
     }
 
     const setLicenseData = () => {
@@ -125,7 +129,7 @@ const CshResumePopup: React.FC<CshResumePopupProps> = ({ show, onClose }) => {
             {"gridRowId":4, "licenseName": '경매1급', "certifiedDate": "1990-03-01"},
         ];
         console.log("setLicenseData")
-        // gridRefLicense.current!.setRowData(licenseData);
+        gridRefLicense.current!.setRowData(licenseData);
     }
 
     const setCarrierData = () => {
@@ -138,7 +142,7 @@ const CshResumePopup: React.FC<CshResumePopupProps> = ({ show, onClose }) => {
         ];
 
         console.log("setCarrierData")
-        //gridRefCarrier.current!.setRowData(carrierData);
+        gridRefCarrier.current!.setRowData(carrierData);
     }
 
     const setTrainingData = () => {
@@ -146,7 +150,7 @@ const CshResumePopup: React.FC<CshResumePopupProps> = ({ show, onClose }) => {
             {"gridRowId":1, "training": '최고인력' ,"trainingStart": "2002-01-01", "trainingEnd": "2002-12-31", "institue": "평생교육원"},
         ];
         console.log("setTrainingData")
-        //gridRefTraining.current!.setRowData(trainingData);
+        gridRefTraining.current!.setRowData(trainingData);
     }
 
     const setSkillData = () => {
@@ -157,7 +161,7 @@ const CshResumePopup: React.FC<CshResumePopupProps> = ({ show, onClose }) => {
             {"gridRowId":4, "skill": 'javascript'   ,"skillLevel": "하"},
         ];
         console.log("setSkillData")
-        //gridRefSkill.current!.setRowData(skillData);
+        gridRefSkill.current!.setRowData(skillData);
     }
 
 
@@ -172,16 +176,22 @@ const CshResumePopup: React.FC<CshResumePopupProps> = ({ show, onClose }) => {
         if (!contentRef.current) return;
 
         const styles = `
-        <style>
-            table { width: 100%; border-collapse: collapse; }
-            th, td { border: 1px solid black; padding: 8px; text-align: left; }
-            .bg-warning { background-color: yellow; }
-        </style>
-    `;
+            <style>
+                table { width: 100%; border-collapse: collapse; }
+                th, td { border: 1px solid black; padding: 8px; text-align: left; }
+                .bg-warning { background-color: yellow; }
+            </style>
+        `;
 
         // html-docx-js를 동적으로 로드
         const htmlDocx = (await import("html-docx-js/dist/html-docx")).default;
 
+        // const elementEdu = gridRefEdu.current!.getGui(); // getGui() → AG Grid의 HTML 가져오기
+
+        // if (elementEdu) {
+        //     console.log(elementEdu.outerHTML); // ✅ HTML 출력
+        //     return elementEdu.outerHTML;
+        // }
 
         // HTML 내용을 가져오기
         const contentHtml =  styles + contentRef.current.innerHTML;
@@ -205,6 +215,84 @@ const CshResumePopup: React.FC<CshResumePopupProps> = ({ show, onClose }) => {
         // documentTitle: "이력서",
     });
 
+    const handleSave = () => {
+
+        // 학력사항
+        const gridEduData = gridRefEdu.current!.getRowData();
+        const jsonEduData = JSON.stringify(gridEduData, (key, value) => {
+            if (key === 'gridRowId') return undefined;
+            else return value;
+        },2);
+
+        // 자격증
+        const gridLicenseData = gridRefLicense.current!.getRowData();
+        const jsonLicenseData = JSON.stringify(gridLicenseData, (key, value) => {
+            if (key === 'gridRowId') return undefined;
+            else return value;
+        },2);
+
+        // 경력사항
+        const gridCarrierData = gridRefCarrier.current!.getRowData();
+        const jsonCarrierData = JSON.stringify(gridCarrierData, (key, value) => {
+            if (key === 'gridRowId') return undefined;
+            else return value;
+        },2);
+
+        // 교육사항
+        const gridTrainingData = gridRefTraining.current!.getRowData();
+        const jsonTrainingData = JSON.stringify(gridTrainingData, (key, value) => {
+            if (key === 'gridRowId') return undefined;
+            else return value;
+        },2);
+
+        // 사용 기술
+        const gridSkillData = gridRefSkill.current!.getRowData();
+        const jsonSkillData = JSON.stringify(gridSkillData, (key, value) => {
+            if (key === 'gridRowId') return undefined;
+            else return value;
+        },2);
+
+        // comAPIContext.showProgressBar();
+        // axios.post(`${process.env.REACT_APP_BACKEND_IP}/biz/cho/updatResume`, {
+        //     id: 1,
+        //     full_name: resume?.full_name,
+        //     email: resume?.email,
+        //     phone: resume?.phone,
+        //     summary: resume?.summary,
+        //     education: jsonEduData,
+        //     experience: jsonCarrierData,
+        //     skills: jsonSkillData,
+        //     resume_filename: '',
+        // },
+        // {
+        //     headers: {
+        //         "Content-Type": "application/json",
+        //         Authorization: `Bearer ${cachedAuthToken}`,
+        //     }
+        // }).then((response) => {
+        //     comAPIContext.showToast(
+        //         comAPIContext.$msg(
+        //             "message",
+        //             "save_success",
+        //             "저장이 완료되었습니다."
+        //         ),
+        //         "success"
+        //     );
+        // }).catch(() => {
+        //     comAPIContext.showToast(
+        //         comAPIContext.$msg(
+        //             "message",
+        //             "save_fail",
+        //             "저장이 실패했습니다."
+        //         ),
+        //         "danger"
+        //     );
+        // }).finally(() => {
+        //     comAPIContext.hideProgressBar();
+        // });
+
+    };
+
     return (
         <Modal show={show} onHide={onClose} centered size="xl">
             <Modal.Header closeButton>
@@ -213,7 +301,7 @@ const CshResumePopup: React.FC<CshResumePopupProps> = ({ show, onClose }) => {
             </Modal.Header>
             <Modal.Body style={{ maxHeight: "70vh", overflowY: "auto" }}>
                 <div className="mb-3 d-flex justify-content-end">
-                    <Button className="ms-3" variant="primary" onClick={() => console.log("저장 로직 추가 예정")}>저장</Button>
+                    <Button className="ms-3" variant="primary" onClick={handleSave}>저장</Button>
                     <Button className="ms-3" variant="success" onClick={handleSaveAsWord}>워드로 저장</Button>
                     <Button className="ms-3" variant="success" onClick={() => {handlePrint()}}>PDF 저장</Button>
                 </div>
@@ -256,7 +344,6 @@ const CshResumePopup: React.FC<CshResumePopupProps> = ({ show, onClose }) => {
                         </tr>
                         </tbody>
                     </table>
-
                     {/* 학력사항 */}
                     <h5 className="mt-4">학력사항</h5>
                     <AgGridWrapper

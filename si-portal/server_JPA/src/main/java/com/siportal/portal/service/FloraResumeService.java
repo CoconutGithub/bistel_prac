@@ -1,6 +1,6 @@
 package com.siportal.portal.service;
 
-import com.siportal.portal.domain.FloraResume;
+import com.siportal.portal.domain.Resume;
 import com.siportal.portal.dto.FloraResumeDto;
 import com.siportal.portal.repository.FloraResumeRepository;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ public class FloraResumeService {
                 .collect(Collectors.toList());
     }
 
-    private FloraResumeDto convertToDto(FloraResume resume) {
+    private FloraResumeDto convertToDto(Resume resume) {
         return FloraResumeDto.builder()
                 .id(resume.getId())
                 .fullName(resume.getFullName())
