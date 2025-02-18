@@ -41,15 +41,18 @@ public class Resume {
     @Column(columnDefinition = "TEXT")
     private String summary;
 
+    @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
     @JdbcTypeCode(SqlTypes.JSON) // Hibernate 6.x에서 JSONB 타입을 올바르게 매핑
     private List<Map<String, Object>> experience;
 
+    @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
     @JdbcTypeCode(SqlTypes.JSON) // Hibernate 6.x에서 JSONB 타입을 올바르게 매핑
     private List<Map<String, Object>> education;
 
 
+    @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
     @JdbcTypeCode(SqlTypes.JSON) // Hibernate 6.x에서 JSONB 타입을 올바르게 매핑
     private List<Object> skills;
