@@ -2,6 +2,7 @@ package com.siportal.portal.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.siportal.portal.domain.Resume;
+import com.siportal.portal.dto.CshResumeDto;
 import com.siportal.portal.repository.CshResumeRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,11 @@ public class CshService {
         this.objectMapper = objectMapper;
     }
 
+    public ResponseEntity<?> getResumeById(Integer resumeId) {
+        CshResumeDto dto = repository.findResumeById(resumeId);
+        return ResponseEntity.ok(dto);
+    }
+
     public ResponseEntity<?> getResumeList() {
         try {
             List<Object[]> sqlResult = repository.findResumeDefaultData();
@@ -36,11 +42,12 @@ public class CshService {
                 Map<String, String> map = new HashMap<>();
                 map.put("gridRowId", String.valueOf(seq));
                 map.put("id", row[0].toString());
-                map.put("fullnAME", row[1].toString());
+                map.put("fullName", row[1].toString());
                 map.put("summary", row[2].toString());
                 map.put("email", row[3].toString());
                 map.put("phone", row[4].toString());
                 map.put("gender", row[5].toString());
+                map.put("carrierMonth", row[6].toString() + " 개월");
                 mappedResults.add(map);
 
                 seq++;

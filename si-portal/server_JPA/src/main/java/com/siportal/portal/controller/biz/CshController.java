@@ -24,6 +24,11 @@ public class CshController {
         return cshService.getResumeList();
     }
 
+    @GetMapping("/getResumeById")
+    public ResponseEntity<?> getResumeById(@RequestParam String resumeId) {
+        return cshService.getResumeById(Integer.parseInt(resumeId));
+    }
+
     @PostMapping("/updatResume")
     public ResponseEntity<?> updateResume(@RequestBody Map<String, Object> requestData) {
         System.out.println( requestData);

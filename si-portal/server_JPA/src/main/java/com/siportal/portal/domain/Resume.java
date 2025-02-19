@@ -88,6 +88,17 @@ public class Resume {
     @Column(length = 255)
     private String jobTitle;
 
+    @Column(length = 300)
+    private String address;
+
+    @Column(name="carrier_month")
+    private Integer carrierMonth;
+
+    @Column(name="resident_number")
+    private String residentNumber;
+
+    @Column(name="military_service")
+    private String militaryService;
 
     public String getExperience() {
         try {
