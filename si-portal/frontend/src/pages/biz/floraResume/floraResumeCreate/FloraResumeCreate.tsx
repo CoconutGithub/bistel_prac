@@ -112,9 +112,6 @@ const FloraResumeCreate = () => {
     education: [],
     skills: [],
   });
-  const eduGridRef = useRef<AgGridWrapperHandle>(null);
-  const certGridRef = useRef<AgGridWrapperHandle>(null);
-  const workGridRef = useRef<AgGridWrapperHandle>(null);
 
   const handleInputChange = (e: any) => {
     const { id, value } = e.target;
@@ -122,6 +119,43 @@ const FloraResumeCreate = () => {
       ...prev,
       [id]: value,
     }));
+  };
+
+  const handleCellValueChange = (event: any, type: any) => {
+    const { data } = event;
+
+    const validFields = new Set(eduColumns.map((col) => col.field));
+    const filteredData: Record<string, any> = {};
+
+    validFields.forEach((key) => {
+      if (!key) return;
+
+      if (data.hasOwnProperty(key)) {
+        filteredData[key] = data[key] ?? "";
+      } else {
+        filteredData[key] = "";
+      }
+    });
+
+    if (data.isCreated === true) {
+      setFormData((prev: any) => {
+        const existingEducationMap = new Map(
+          Array.isArray(prev.education)
+            ? prev.education.map((entry: any) => [entry.gridRowId, entry])
+            : []
+        );
+
+        existingEducationMap.set(data.gridRowId, filteredData);
+
+        return {
+          ...prev,
+          education: Array.from(existingEducationMap.values()),
+        };
+      });
+    } else {
+      data.isUpdated = true;
+      console.log("Update List:", data);
+    }
   };
 
   const handleSave = async () => {
@@ -134,34 +168,23 @@ const FloraResumeCreate = () => {
       return;
     }
 
-    const educationData = eduGridRef.current?.getRowData() || [];
-    const certificationData = certGridRef.current?.getRowData() || [];
-    const workExperienceData = workGridRef.current?.getRowData() || [];
+    console.log("formData", formData);
 
-    const resumeData = {
-      ...formData,
-      education: educationData,
-      experience: workExperienceData,
-      skills: certificationData,
-    };
-
-    try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_BACKEND_IP}/biz/flora-resumes/create`,
-        resumeData,
-        {
-          headers: {
-            Authorization: `Bearer ${cachedAuthToken}`,
-          },
-        }
-      );
-      console.log("response", response);
-    } catch (error) {
-      console.error("이력서 저장에 실패했습니다.", error);
-    }
+    // try {
+    //   const response = await axios.post(
+    //     `${process.env.REACT_APP_BACKEND_IP}/biz/flora-resumes/create`,
+    //     resumeData,
+    //     {
+    //       headers: {
+    //         Authorization: `Bearer ${cachedAuthToken}`,
+    //       },
+    //     }
+    //   );
+    //   console.log("response", response);
+    // } catch (error) {
+    //   console.error("이력서 저장에 실패했습니다.", error);
+    // }
   };
-
-  console.log("cachedAuthToken", cachedAuthToken);
 
   return (
     <div className={styles.start}>
@@ -274,7 +297,6 @@ const FloraResumeCreate = () => {
           <div className={styles.table_form}>
             <label className={styles.label}>학력 사항</label>
             <AgGridWrapper
-              ref={eduGridRef}
               enableCheckbox={false}
               showButtonArea={true}
               canCreate={true}
@@ -283,12 +305,12 @@ const FloraResumeCreate = () => {
               columnDefs={eduColumns}
               tableHeight="400px"
               useNoColumn={true}
+              onCellValueChanged={(e) => handleCellValueChange(e, "education")}
             />
           </div>
           <div className={styles.table_form}>
             <label className={styles.label}>자격증</label>
             <AgGridWrapper
-              ref={certGridRef}
               enableCheckbox={false}
               showButtonArea={true}
               canCreate={true}
@@ -303,7 +325,6 @@ const FloraResumeCreate = () => {
         <div className={cn(styles.table_form, styles.wide)}>
           <label className={styles.label}>프로젝트 경험(경력 사항)</label>
           <AgGridWrapper
-            ref={workGridRef}
             enableCheckbox={false}
             showButtonArea={true}
             canCreate={true}

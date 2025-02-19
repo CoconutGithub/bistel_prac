@@ -182,7 +182,6 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
       }
     }, [onGridLoaded]);
 
-
     const handleCellValueChange = (event: any) => {
       const { data } = event; // 변경된 행 데이터 가져오기
       if (data.isCreated === true) {
@@ -289,6 +288,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
     // useImperativeHandle로 외부에서 접근 가능한 메서드 정의
     useImperativeHandle(ref, () => ({
       setRowData: (newData: any[]) => {
+        console.log("newData", newData);
         setRowData(newData); // 데이터 설정
         gridRef.current?.api.deselectAll();
         updateList.current.clear();
