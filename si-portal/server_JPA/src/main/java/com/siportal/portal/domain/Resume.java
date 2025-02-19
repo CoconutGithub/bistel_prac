@@ -49,12 +49,20 @@ public class Resume {
     @JdbcTypeCode(SqlTypes.JSON) // Hibernate 6.x에서 JSONB 타입을 올바르게 매핑
     private List<Map<String, Object>> education;
 
+    @Column(columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON) // Hibernate 6.x에서 JSONB 타입을 올바르게 매핑
+    private List<Map<String, Object>> license;
 
     @Column(columnDefinition = "jsonb")
     @JdbcTypeCode(SqlTypes.JSON) // Hibernate 6.x에서 JSONB 타입을 올바르게 매핑
     private List<Map<String, Object>> skills;
 
 
+    @Column(columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON) // Hibernate 6.x에서 JSONB 타입을 올바르게 매핑
+    private List<Object> training;
+
+    @Lob
     @Column(name = "resume_file")
     private byte[] resumeFile;
 
@@ -124,6 +132,26 @@ public class Resume {
         try {
             // List<Map<String, Object>> → JSON 문자열 변환
             return objectMapper.writeValueAsString(skills);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return null;  // 변환 실패 시 null 반환 (예외 처리 가능)
+        }
+    }
+
+    public String getLicense() {
+        try {
+            // List<Map<String, Object>> → JSON 문자열 변환
+            return objectMapper.writeValueAsString(license);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return null;  // 변환 실패 시 null 반환 (예외 처리 가능)
+        }
+    }
+
+    public String getLTraining() {
+        try {
+            // List<Map<String, Object>> → JSON 문자열 변환
+            return objectMapper.writeValueAsString(training);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
             return null;  // 변환 실패 시 null 반환 (예외 처리 가능)
