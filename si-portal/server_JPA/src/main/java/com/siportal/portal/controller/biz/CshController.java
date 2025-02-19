@@ -19,6 +19,11 @@ public class CshController {
         this.cshService = cshService;
     }
 
+    @GetMapping("/getResumeList")
+    public ResponseEntity<?> getResumeList() {
+        return cshService.getResumeList();
+    }
+
     @PostMapping("/updatResume")
     public ResponseEntity<?> updateResume(@RequestBody Map<String, Object> requestData) {
         System.out.println( requestData);

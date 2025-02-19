@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,34 @@ public class CshService {
     public CshService(CshResumeRepository repository, ObjectMapper objectMapper) {
         this.repository = repository;
         this.objectMapper = objectMapper;
+    }
+
+    public ResponseEntity<?> getResumeList() {
+        try {
+            List<Object[]> sqlResult = repository.findResumeDefaultData();
+            List<Map<String, String>> mappedResults = new ArrayList<>();
+
+            int seq = 0;
+            for (Object[] row : sqlResult) {
+                Map<String, String> map = new HashMap<>();
+                map.put("gridRowId", String.valueOf(seq));
+                map.put("id", row[0].toString());
+                map.put("fullnAME", row[1].toString());
+                map.put("summary", row[2].toString());
+                map.put("email", row[3].toString());
+                map.put("phone", row[4].toString());
+                map.put("gender", row[5].toString());
+                mappedResults.add(map);
+
+                seq++;
+            }
+
+            return ResponseEntity.ok(mappedResults);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                .body("Error occurred: " + e.getMessage());
+        }
     }
 
     public ResponseEntity<?> updateResume(Map<String, Object> requestData) {
