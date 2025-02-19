@@ -34,7 +34,7 @@ const eduColumns = [
     headerName: "재학 기간",
     editable: true,
     autoHeight: true,
-    flex: 2,
+    flex: 3,
     wrapText: true,
     cellStyle: { display: "flex", alignItems: "center" },
   },
@@ -112,6 +112,9 @@ const FloraResumeCreate = () => {
     education: [],
     skills: [],
   });
+  const [eduData, setEduData] = useState(new Map<string, any>());
+  const [experienceData, setExperienceData] = useState(new Map<string, any>());
+  const [skillsData, setSkillsData] = useState(new Map<string, any>());
 
   const handleInputChange = (e: any) => {
     const { id, value } = e.target;
@@ -124,34 +127,73 @@ const FloraResumeCreate = () => {
   const handleCellValueChange = (event: any, type: any) => {
     const { data } = event;
 
-    const validFields = new Set(eduColumns.map((col) => col.field));
-    const filteredData: Record<string, any> = {};
+    const eduFilteredData: Record<string, any> = {};
+    const skillsFilteredData: Record<string, any> = {};
+    const experienceFilteredData: Record<string, any> = {};
 
-    validFields.forEach((key) => {
-      if (!key) return;
+    if (type === "education") {
+      const eduValidFields = new Set(eduColumns.map((col) => col.field));
+      eduValidFields.forEach((key) => {
+        if (!key) return;
 
-      if (data.hasOwnProperty(key)) {
-        filteredData[key] = data[key] ?? "";
-      } else {
-        filteredData[key] = "";
-      }
-    });
+        if (data.hasOwnProperty(key)) {
+          eduFilteredData[key] = data[key] ?? "";
+        } else {
+          eduFilteredData[key] = "";
+        }
+      });
+    }
+
+    if (type === "skills") {
+      const skillsValidFields = new Set(
+        certificationColumns.map((col) => col.field)
+      );
+      skillsValidFields.forEach((key) => {
+        if (!key) return;
+
+        if (data.hasOwnProperty(key)) {
+          skillsFilteredData[key] = data[key] ?? "";
+        } else {
+          skillsFilteredData[key] = "";
+        }
+      });
+    }
+
+    if (type === "experience") {
+      const experienceValidFields = new Set(
+        workColumns.map((col) => col.field)
+      );
+      experienceValidFields.forEach((key) => {
+        if (!key) return;
+
+        if (data.hasOwnProperty(key)) {
+          experienceFilteredData[key] = data[key] ?? "";
+        } else {
+          experienceFilteredData[key] = "";
+        }
+      });
+    }
 
     if (data.isCreated === true) {
-      setFormData((prev: any) => {
-        const existingEducationMap = new Map(
-          Array.isArray(prev.education)
-            ? prev.education.map((entry: any) => [entry.gridRowId, entry])
-            : []
-        );
-
-        existingEducationMap.set(data.gridRowId, filteredData);
-
-        return {
-          ...prev,
-          education: Array.from(existingEducationMap.values()),
-        };
-      });
+      if (type === "education") {
+        setEduData((prev) => {
+          const newMap = new Map(prev);
+          newMap.set(data.gridRowId, eduFilteredData);
+          return newMap;
+        });
+      } else if (type === "experience") {
+        setExperienceData((prev) => {
+          const newMap = new Map(prev);
+          newMap.set(data.gridRowId, experienceFilteredData);
+          return newMap;
+        });
+      } else if (type === "skills") {
+        setSkillsData((prev) => {
+          const newMap = new Map(prev);
+          newMap.set(data.gridRowId, skillsFilteredData);
+          return newMap;
+        });
+      }
     } else {
       data.isUpdated = true;
       console.log("Update List:", data);
@@ -168,22 +210,31 @@ const FloraResumeCreate = () => {
       return;
     }
 
-    console.log("formData", formData);
+    const eduArray = Array.from(eduData.values());
+    const experienceArray = Array.from(experienceData.values());
+    const skillsArray = Array.from(skillsData.values());
 
-    // try {
-    //   const response = await axios.post(
-    //     `${process.env.REACT_APP_BACKEND_IP}/biz/flora-resumes/create`,
-    //     resumeData,
-    //     {
-    //       headers: {
-    //         Authorization: `Bearer ${cachedAuthToken}`,
-    //       },
-    //     }
-    //   );
-    //   console.log("response", response);
-    // } catch (error) {
-    //   console.error("이력서 저장에 실패했습니다.", error);
-    // }
+    const resumeData = {
+      ...formData,
+      education: eduArray,
+      experience: experienceArray,
+      skills: skillsArray,
+    };
+
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_IP}/biz/flora-resumes/create`,
+        resumeData,
+        {
+          headers: {
+            Authorization: `Bearer ${cachedAuthToken}`,
+          },
+        }
+      );
+      console.log("response", response);
+    } catch (error) {
+      console.error("이력서 저장에 실패했습니다.", error);
+    }
   };
 
   return (
@@ -319,6 +370,7 @@ const FloraResumeCreate = () => {
               columnDefs={certificationColumns}
               tableHeight="400px"
               useNoColumn={true}
+              onCellValueChanged={(e) => handleCellValueChange(e, "skills")}
             />
           </div>
         </div>
@@ -333,6 +385,7 @@ const FloraResumeCreate = () => {
             columnDefs={workColumns}
             tableHeight={"600px"}
             useNoColumn={true}
+            onCellValueChanged={(e) => handleCellValueChange(e, "experience")}
           />
         </div>
       </main>

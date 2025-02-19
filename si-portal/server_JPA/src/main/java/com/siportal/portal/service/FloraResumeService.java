@@ -1,6 +1,7 @@
 package com.siportal.portal.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.siportal.portal.domain.Resume;
 import com.siportal.portal.dto.FloraResumeDto;
 import com.siportal.portal.repository.FloraResumeRepository;
@@ -30,7 +31,6 @@ public class FloraResumeService {
     }
 
     public void createResume(FloraResumeDto resumeDto) {
-
         try {
             System.out.println("testtestsetsetsetsetsetest");
             Resume resume = convertToEntity(resumeDto);
@@ -49,10 +49,10 @@ public class FloraResumeService {
                 .email(resume.getEmail())
                 .phone(resume.getPhone())
                 .summary(resume.getSummary())
-                .experience(resume.getExperience())
-                .education(resume.getEducation())
-                .skills(resume.getSkills())
-                .resumeFile(resume.getResumeFile())
+                .experience(parseJson(resume.getExperience(), new TypeReference<List<Map<String, Object>>>() {}))
+                .education(parseJson(resume.getEducation(), new TypeReference<List<Map<String, Object>>>() {}))
+                .skills(parseJson(resume.getSkills(), new TypeReference<List<Map<String, Object>>>() {}))
+                .resumeFile(Optional.ofNullable(resume.getResumeFile()))
                 .resumeFilename(resume.getResumeFilename())
                 .createDate(resume.getCreateDate())
                 .createBy(resume.getCreateBy())
@@ -63,6 +63,10 @@ public class FloraResumeService {
                 .department(resume.getDepartment())
                 .position(resume.getPosition())
                 .jobTitle(resume.getJobTitle())
+                .address(resume.getAddress())
+                .carrierMonth(resume.getCarrierMonth())
+                .residentNumber(resume.getResidentNumber())
+                .militaryService(resume.getMilitaryService())
                 .build();
     }
 
@@ -72,9 +76,9 @@ public class FloraResumeService {
                 .email(dto.getEmail())
                 .phone(dto.getPhone())
                 .summary(dto.getSummary())
-                .experience((List<Map<String, Object>>) dto.getExperience())
-                .education((List<Map<String, Object>>) dto.getEducation())
-                .skills((List<Map<String, Object>>) dto.getSkills())
+                .experience(dto.getExperience())
+                .education(dto.getEducation())
+                .skills(dto.getSkills())
                 .resumeFile(dto.getResumeFile().orElse(new byte[0]))
                 .resumeFilename(dto.getResumeFilename() != null ? dto.getResumeFilename() : "")
                 .createBy(dto.getCreateBy())
@@ -84,6 +88,19 @@ public class FloraResumeService {
                 .department(dto.getDepartment())
                 .position(dto.getPosition())
                 .jobTitle(dto.getJobTitle())
+                .address(dto.getAddress())
+                .carrierMonth(dto.getCarrierMonth())
+                .residentNumber(dto.getResidentNumber())
+                .militaryService(dto.getMilitaryService())
                 .build();
+    }
+
+    private <T> T parseJson(String json, TypeReference<T> typeReference) {
+        try {
+            return objectMapper.readValue(json, typeReference);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
