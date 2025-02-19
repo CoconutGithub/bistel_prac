@@ -25,6 +25,9 @@ public class CshResumeDto {
     private String residentNumber;
     private String militaryService;
     private List<Map<String, Object>> education;
+    private List<Map<String, Object>> license;
+    private List<Map<String, Object>> skills;
+    private List<Map<String, Object>> training;
     private List<Map<String, Object>> experience;
 
 }
