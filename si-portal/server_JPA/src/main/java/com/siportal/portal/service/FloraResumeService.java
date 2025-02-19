@@ -52,7 +52,7 @@ public class FloraResumeService {
                 .experience(resume.getExperience())
                 .education(resume.getEducation())
                 .skills(resume.getSkills())
-                .resumeFile(Optional.ofNullable(resume.getResumeFile()))
+                .resumeFile(resume.getResumeFile())
                 .resumeFilename(resume.getResumeFilename())
                 .createDate(resume.getCreateDate())
                 .createBy(resume.getCreateBy())

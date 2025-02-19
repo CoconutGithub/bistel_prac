@@ -1,12 +1,11 @@
 package com.siportal.portal.domain;
 
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
-import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.Type;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
@@ -20,7 +19,11 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@DynamicUpdate
 public class Resume {
+
+    // JSON 변환을 위한 ObjectMapper 인스턴스 생성 (static으로 선언하여 재사용 가능)
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,17 +41,18 @@ public class Resume {
     @Column(columnDefinition = "TEXT", nullable = true)
     private String summary;
 
-    @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON) // Hibernate 6.x에서 JSONB 타입을 올바르게 매핑
     private List<Map<String, Object>> experience;
 
-    @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON) // Hibernate 6.x에서 JSONB 타입을 올바르게 매핑
     private List<Map<String, Object>> education;
 
-    @Type(JsonBinaryType.class)
+
     @Column(columnDefinition = "jsonb")
-    private List<Map<String, Object>> skills;
+    @JdbcTypeCode(SqlTypes.JSON) // Hibernate 6.x에서 JSONB 타입을 올바르게 매핑
+    private List<Object> skills;
 
 
     @Column(name = "resume_file")
@@ -84,22 +88,45 @@ public class Resume {
     @Column(length = 255, nullable = true)
     private String jobTitle;
 
+    @Column(length = 300)
+    private String address;
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    @Column(name="carrier_month")
+    private Integer carrierMonth;
 
-    public static String toJson(List<Map<String, Object>> list) {
+    @Column(name="resident_number")
+    private String residentNumber;
+
+    @Column(name="military_service")
+    private String militaryService;
+
+    public String getExperience() {
         try {
-            return objectMapper.writeValueAsString(list);
+            // List<Map<String, Object>> → JSON 문자열 변환
+            return objectMapper.writeValueAsString(experience);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("JSON 변환 오류", e);
+            e.printStackTrace();
+            return null;  // 변환 실패 시 null 반환 (예외 처리 가능)
         }
     }
 
-    public static List<Map<String, Object>> fromJson(String json) {
+    public String getEducation() {
         try {
-            return objectMapper.readValue(json, List.class);
+            // List<Map<String, Object>> → JSON 문자열 변환
+            return objectMapper.writeValueAsString(education);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("JSON 변환 오류", e);
+            e.printStackTrace();
+            return null;  // 변환 실패 시 null 반환 (예외 처리 가능)
+        }
+    }
+
+    public String getSkills() {
+        try {
+            // List<Map<String, Object>> → JSON 문자열 변환
+            return objectMapper.writeValueAsString(skills);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return null;  // 변환 실패 시 null 반환 (예외 처리 가능)
         }
     }
 

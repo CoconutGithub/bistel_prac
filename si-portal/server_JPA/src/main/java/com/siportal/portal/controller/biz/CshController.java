@@ -19,10 +19,19 @@ public class CshController {
         this.cshService = cshService;
     }
 
+    @GetMapping("/getResumeList")
+    public ResponseEntity<?> getResumeList() {
+        return cshService.getResumeList();
+    }
+
+    @GetMapping("/getResumeById")
+    public ResponseEntity<?> getResumeById(@RequestParam String resumeId) {
+        return cshService.getResumeById(Integer.parseInt(resumeId));
+    }
+
     @PostMapping("/updatResume")
     public ResponseEntity<?> updateResume(@RequestBody Map<String, Object> requestData) {
         System.out.println( requestData);
-
         return cshService.updateResume(requestData);
     }
 
