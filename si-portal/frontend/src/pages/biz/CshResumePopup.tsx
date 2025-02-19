@@ -1,4 +1,4 @@
-﻿import { Modal, Button } from "react-bootstrap";
+﻿import { Modal, Button, Form } from "react-bootstrap";
 import React, {useContext, useEffect, useRef, useState} from "react";
 import { ComAPIContext } from "~components/ComAPIContext";
 import AgGridWrapper from "~components/agGridWrapper/AgGridWrapper";
@@ -16,6 +16,14 @@ interface CshResumePopupProps {
 interface ResumeData {
     id: number;
     fullName: string;
+    residentNumber: string;
+    gender: string;
+    address: string
+    company: string;
+    companyStart: string;
+    department: string;
+    position: string;
+    army: string;
     email: string;
     phone?: string;
     summary?: string;
@@ -75,7 +83,40 @@ const CshResumePopup: React.FC<CshResumePopupProps> = ({ show, onClose }) => {
     console.log("@@@@@@@@@@@@@    CshResumePopup 수행됨...........");
 
     const comAPIContext = useContext(ComAPIContext);
-    const [resume, setResume] = useState<ResumeData | null>(null);
+    const inputRefName = useRef<HTMLInputElement>(null);
+    const [resume, setResume] = useState<ResumeData | null>(() => {
+        return {
+            id: 1,
+            fullName: "김간희",
+            residentNumber: "20221215-1",
+            address: "LA downtown 88-BA, California, USA",
+            gender: "woman",
+            company: "다한다SI",
+            companyStart: "2022-01-01",
+            department: "용역1분",
+            position: "미장 기공",
+            army: "군필",
+            email: "jully@example.com",
+            phone: "010-1234-5678",
+            summary: "백엔드 개발자, 5년 경력.",
+            experience: [
+                {
+                    company: "ABC Corp",
+                    position: "백엔드 개발자",
+                    start_date: "2018-06-01",
+                    end_date: "2023-12-31",
+                    responsibilities: ["API 개발", "DB 설계", "AWS 배포"]
+                }
+            ],
+            education: '[{"school": "서울대학교", "degree": "컴퓨터공학", "year": "2017"}]',
+            skills: ["Python", "Django", "PostgreSQL", "AWS"],
+            resume_filename: "resume_hong.pdf",
+            create_date: "2024-02-15",
+            create_by: "admin",
+            update_date: "2024-02-16",
+            update_by: "admin"
+        };
+    });
 
     const gridRefEdu = useRef<AgGridWrapperHandle>(null);
     const gridRefLicense = useRef<AgGridWrapperHandle>(null);
@@ -89,23 +130,39 @@ const CshResumePopup: React.FC<CshResumePopupProps> = ({ show, onClose }) => {
 
 
     useEffect(() => {
-        setResume({
-            id: 1,
-            fullName: "김간희",
-            email: "jully@example.com",
-            phone: "010-1234-5678",
-            summary: "백엔드 개발자, 5년 경력.",
-            experience: [
-                { company: "ABC Corp", position: "백엔드 개발자", start_date: "2018-06-01", end_date: "2023-12-31", responsibilities: ["API 개발", "DB 설계", "AWS 배포"] }
-            ],
-            education: '[{"school": "서울대학교", "degree": "컴퓨터공학", "year": "2017"}]',
-            skills: ["Python", "Django", "PostgreSQL", "AWS"],
-            resume_filename: "resume_hong.pdf",
-            create_date: "2024-02-15",
-            create_by: "admin",
-            update_date: "2024-02-16",
-            update_by: "admin"
-        });
+        // if (resume === null) { // 기존 resume 값이 없을 때만 설정
+        //     setResume({
+        //         id: 1,
+        //         fullName: "김간희",
+        //         residentNumber: "20221215-1",
+        //         address: "LA downtown 88-BA, California, USA",
+        //         gender: "woman",
+        //         company: "다한다SI",
+        //         companyStart: "2022-01-01",
+        //         department: "용역1분",
+        //         position: "미장 기공",
+        //         army: "군필",
+        //         email: "jully@example.com",
+        //         phone: "010-1234-5678",
+        //         summary: "백엔드 개발자, 5년 경력.",
+        //         experience: [
+        //             {
+        //                 company: "ABC Corp",
+        //                 position: "백엔드 개발자",
+        //                 start_date: "2018-06-01",
+        //                 end_date: "2023-12-31",
+        //                 responsibilities: ["API 개발", "DB 설계", "AWS 배포"]
+        //             }
+        //         ],
+        //         education: '[{"school": "서울대학교", "degree": "컴퓨터공학", "year": "2017"}]',
+        //         skills: ["Python", "Django", "PostgreSQL", "AWS"],
+        //         resume_filename: "resume_hong.pdf",
+        //         create_date: "2024-02-15",
+        //         create_by: "admin",
+        //         update_date: "2024-02-16",
+        //         update_by: "admin"
+        //     });
+        // }
     }, [show]);
 
     const setEducationData = () => {
@@ -255,7 +312,8 @@ const CshResumePopup: React.FC<CshResumePopupProps> = ({ show, onClose }) => {
         comAPIContext.showProgressBar();
         axios.post(`${process.env.REACT_APP_BACKEND_IP}/biz/csh/updatResume`, {
             id: 1,
-           fullName: resume?.fullName,
+            fullName: resume?.fullName,
+            residentNumber: resume?.residentNumber,
             email: resume?.email,
             phone: resume?.phone,
             summary: resume?.summary,
@@ -312,35 +370,51 @@ const CshResumePopup: React.FC<CshResumePopupProps> = ({ show, onClose }) => {
                         <tbody>
                         <tr>
                             <th className="bg-warning">성 명</th>
-                            <td>{resume?.fullName || ""}</td>
+                            <td>
+                                <Form.Control
+                                    type="text"
+                                    defaultValue={resume?.fullName}
+                                    ref={inputRefName} // useRef 연결
+                                />
+                            </td>
                             <th className="bg-warning">주민등록번호</th>
-                            <td>XXXXXX-1</td>
+                            <td><Form.Control type="text" defaultValue={resume?.residentNumber} /></td>
                             <th className="bg-warning">성 별</th>
-                            <td>남</td>
+                            <td>
+                                <Form.Select
+                                    value={resume?.gender}
+                                    onChange={(e) => setResume(prev => prev ? { ...prev, gender: e.target.value } : null)}
+                                >
+                                    <option value="man">남</option>
+                                    <option value="woman">여</option>
+                                </Form.Select>
+                            </td>
                         </tr>
                         <tr>
                             <th className="bg-warning">소속회사</th>
-                            <td>영산 제1 뱅크</td>
+                            <td><Form.Control type="text" defaultValue={resume?.company}/></td>
                             <th className="bg-warning">입사일</th>
-                            <td colSpan={3}></td>
+                            <td><Form.Control type="text" defaultValue={resume?.companyStart}/></td>
+                            <th className="bg-warning">부 서</th>
+                            <td><Form.Control type="text" defaultValue={resume?.department}/></td>
                         </tr>
                         <tr>
                             <th className="bg-warning">부 서</th>
-                            <td>SI</td>
+                            <td><Form.Control type="text" defaultValue={resume?.department} /></td>
                             <th className="bg-warning">직 위</th>
-                            <td>차장</td>
+                            <td><Form.Control type="text" defaultValue={resume?.position} /></td>
                             <th className="bg-warning">군경력</th>
-                            <td>군필</td>
+                            <td><Form.Control type="text" defaultValue={resume?.army} /></td>
                         </tr>
                         <tr>
                             <th className="bg-warning">전화</th>
-                            <td>{resume?.phone || ""}</td>
+                            <td><Form.Control type="text" defaultValue={resume?.phone} /></td>
                             <th className="bg-warning">E-Mail</th>
-                            <td colSpan={3}>{resume?.email || ""}</td>
+                            <td colSpan={3}><Form.Control type="text" defaultValue={resume?.email} /></td>
                         </tr>
                         <tr>
                             <th className="bg-warning">주소</th>
-                            <td colSpan={5}>서울 강남구 역삼동</td>
+                            <td colSpan={5}><Form.Control type="text" defaultValue={resume?.address} /></td>
                         </tr>
                         </tbody>
                     </table>

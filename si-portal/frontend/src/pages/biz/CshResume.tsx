@@ -1,16 +1,33 @@
-import {Container, Row} from 'react-bootstrap';
+import {Col, Container, Row} from 'react-bootstrap';
 import {ComAPIContext} from "~components/ComAPIContext";
 import React, {useState, useRef, useContext} from 'react';
 import {useSelector} from 'react-redux';
 import {RootState} from "~store/Store";
 import ComButton from '../portal/buttons/ComButton';
 import CshResumePopup from './CshResumePopup';
+import axios from "axios";
+import AgGridWrapper from "~components/agGridWrapper/AgGridWrapper";
+import {AgGridWrapperHandle} from "~types/GlobalTypes";
+import {cachedAuthToken} from "~store/AuthSlice";
 
-const CshResume: React.FC = () => {
+const columResume = [
+    {headerName: "ID", field: "id", width: 100},
+    {headerName: "이름", field: "fullName", width: 150},
+    {headerName: "요약", field: "summary", width: 300},
+    {headerName: "Email", field:"email", width:150 },
+    {headerName: "Phone", field:"phone", width:150 },
+    {headerName: "셩별", field:"gender", width:100 },
+]
+
+interface CshResumeProps {
+}
+
+const CshResume: React.FC<CshResumeProps> = () => {
 
     const comAPIContext = useContext(ComAPIContext);
-
     const [showPopup, setShowPopup] = useState(false);
+    const canCreate = useSelector((state: RootState) => state.auth.pageButtonAuth.canCreate);
+    const gridRefResume = useRef<AgGridWrapperHandle>(null);
 
     const handleOpenPopup = () => {
         setShowPopup(true);
@@ -19,15 +36,53 @@ const CshResume: React.FC = () => {
         setShowPopup(false);
     };
 
-    const canCreate = useSelector((state: RootState) => state.auth.pageButtonAuth.canCreate);
+
+    const handleSearch = () => {
+        comAPIContext.showProgressBar();
+        axios.get(`${process.env.REACT_APP_BACKEND_IP}/biz/csh/getResumeList`, {
+            headers: {
+                Authorization: `Bearer ${cachedAuthToken}`
+            }
+        }).then((res) => {
+            if (gridRefResume.current) {
+                gridRefResume.current.setRowData(res.data);
+            }
+
+        }).catch((err) => {
+            console.log(err);
+        }).finally(() => {
+            comAPIContext.hideProgressBar();
+        });
+    };
+
+    const onCellDoubleClicked = (event: any) => {
+        handleOpenPopup();
+    }
 
     return (
-        <Container className="mt-5">
+        <Container fluid>
+            <Row className="mb-3">
+                <Col>
+                    <h2>이력서관리</h2>
+                </Col>
+            </Row>
+            <Row className="mb-3">
+                <Col lg={12} className="d-flex justify-content-end">
+                    <ComButton size="sm" variant="primary" onClick={handleSearch}>
+                        {comAPIContext.$msg("label", "search", "검색")}
+                    </ComButton>
+                </Col>
+            </Row>
             <Row>
-                {/* 생성 버튼 */}
-                <ComButton className="ms-3" disabled={!canCreate} variant="primary" onClick={handleOpenPopup}>
-                    {comAPIContext.$msg("label", "registration", "등록")}
-                </ComButton>
+                <AgGridWrapper
+                    ref={gridRefResume}
+                    tableHeight="600px"
+                    pagination={false}
+                    showButtonArea={false}
+                    columnDefs={columResume}
+                    onCellDoubleClicked={onCellDoubleClicked}
+                    rowSelection="single"
+                />
             </Row>
             {showPopup && (
                 <CshResumePopup
