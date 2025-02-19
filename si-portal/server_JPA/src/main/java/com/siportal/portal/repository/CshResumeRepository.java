@@ -44,6 +44,9 @@ public interface CshResumeRepository extends JpaRepository<Resume, Integer> {
             "r.residentNumber," +
             "r.militaryService," +
             "r.education," +
+            "r.license," +
+            "r.skills," +
+            "r.training," +
             "r.experience) " +
             "FROM Resume r WHERE r.id = :resumeId")
     CshResumeDto findResumeById(Integer resumeId);

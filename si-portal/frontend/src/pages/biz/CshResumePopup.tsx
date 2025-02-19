@@ -30,8 +30,10 @@ interface ResumeData {
     phone?: string;
     summary?: string;
     experience?: any[];
-    education?: string;
+    education?: any[];
+    license?: any[];
     skills?: any[];
+    training?: any[];
     resume_filename?: string;
     create_date?: string;
     create_by?: string;
@@ -101,60 +103,53 @@ const CshResumePopup: React.FC<CshResumePopupProps> = ({ show, resumeData, onClo
     }, [show]);
 
     const setEducationData = () => {
-        const educationData = [
-            {"gridRowId":1, "school": '도마국민학교', "schoolStart": "1984-03-01", "schoolEnd": "1990-02-28", "graduateYn": "Y"},
-            {"gridRowId":2, "school": 'sanitbbara 중학교', "schoolStart": "1990-03-01", "schoolEnd": "1993-02-28", "graduateYn": "Y"},
-            {"gridRowId":3, "school": '오산고등학교', "schoolStart": "1993-03-01", "schoolEnd": "1995-02-28", "graduateYn": "Y"},
-            {"gridRowId":4, "school": '서울대학교', "schoolStart": "1995-03-01", "schoolEnd": "2000-02-28", "graduateYn": "Y"},
-            {"gridRowId":5, "school": '하버드대학교', "schoolStart": "2000-03-01", "schoolEnd": "2004-02-28", "graduateYn": "N"},
-        ];
+        if (resumeData.education ){
+            resumeData.education.forEach((item: any, index: any) => {
+                item.gridRowId = index;
+            });
+            gridRefEdu.current!.setRowData(resumeData.education);
+        }
 
-        console.log("setEducationData")
-        gridRefEdu.current!.setRowData(educationData);
+    }
+
+    const setExperienceData = () => {
+        if (resumeData.experience ){
+            resumeData.experience.forEach((item: any, index: any) => {
+                item.gridRowId = index;
+            });
+            gridRefCarrier.current!.setRowData(resumeData.experience);
+        }
+
     }
 
     const setLicenseData = () => {
-        const licenseData = [
-            {"gridRowId":1, "licenseName": '바리스타2급', "certifiedDate": "1984-03-01"},
-            {"gridRowId":2, "licenseName": '운전면허증', "certifiedDate": "1990-03-01"},
-            {"gridRowId":3, "licenseName": '도배장판1급', "certifiedDate": "1990-03-01"},
-            {"gridRowId":4, "licenseName": '경매1급', "certifiedDate": "1990-03-01"},
-        ];
-        console.log("setLicenseData")
-        gridRefLicense.current!.setRowData(licenseData);
-    }
-
-    const setCarrierData = () => {
-        const carrierData = [
-            {"gridRowId":1, "company": '최고인력'       ,"companyStart": "2002-01-01", "companyEnd": "2002-12-31", "position": "사원"},
-            {"gridRowId":2, "company": '가자노가다'     ,"companyStart": "2003-01-01", "companyEnd": "2003-12-31", "position": "선임"},
-            {"gridRowId":3, "company": '됩니다SI'      ,"companyStart": "2004-01-01", "companyEnd": "2004-12-31", "position": "책임"},
-            {"gridRowId":4, "company": '머든한다컴'     ,"companyStart": "2005-01-01", "companyEnd": "2005-12-31", "position": "부장"},
-            {"gridRowId":5, "company": '팔아요컴'     ,"companyStart": "2005-01-01", "companyEnd": "", "position": "상무"},
-        ];
-
-        console.log("setCarrierData")
-        gridRefCarrier.current!.setRowData(carrierData);
-    }
-
-    const setTrainingData = () => {
-        const trainingData = [
-            {"gridRowId":1, "training": '최고인력' ,"trainingStart": "2002-01-01", "trainingEnd": "2002-12-31", "institue": "평생교육원"},
-        ];
-        console.log("setTrainingData")
-        gridRefTraining.current!.setRowData(trainingData);
+        if (resumeData.license ){
+            resumeData.license.forEach((item: any, index: any) => {
+                item.gridRowId = index;
+            });
+            gridRefLicense.current!.setRowData(resumeData.license);
+        }
     }
 
     const setSkillData = () => {
-        const skillData = [
-            {"gridRowId":1, "skill": 'java'         ,"skillLevel": "하"},
-            {"gridRowId":2, "skill": 'oracle'       ,"skillLevel": "하"},
-            {"gridRowId":3, "skill": 'sql'          ,"skillLevel": "하"},
-            {"gridRowId":4, "skill": 'javascript'   ,"skillLevel": "하"},
-        ];
-        console.log("setSkillData")
-        gridRefSkill.current!.setRowData(skillData);
+        if (resumeData.skills ){
+            resumeData.skills.forEach((item: any, index: any) => {
+                item.gridRowId = index;
+            });
+            gridRefSkill.current!.setRowData(resumeData.skills);
+        }
     }
+
+    const setTrainingData = () => {
+        if (resumeData.training ){
+            resumeData.training.forEach((item: any, index: any) => {
+                item.gridRowId = index;
+            });
+            gridRefTraining.current!.setRowData(resumeData.training);
+        }
+    }
+
+
 
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -292,7 +287,7 @@ const CshResumePopup: React.FC<CshResumePopupProps> = ({ show, resumeData, onClo
                 <Modal.Title>개인 이력 카드</Modal.Title>
 
             </Modal.Header>
-            <Modal.Body style={{ maxHeight: "70vh", overflowY: "auto" }}>
+            <Modal.Body style={{ overflowY: "auto" }}>
                 <div className="mb-3 d-flex justify-content-end">
                     <Button className="ms-3" variant="primary" onClick={handleSave}>저장</Button>
                     <Button className="ms-3" variant="success" onClick={handleSaveAsWord}>워드로 저장</Button>
@@ -300,6 +295,7 @@ const CshResumePopup: React.FC<CshResumePopupProps> = ({ show, resumeData, onClo
                 </div>
                 <div ref={contentRef} className="p-3 border">
 
+                    <h5 className="mt-4">기본정보</h5>
                     {/* 기본 정보 */}
                     <table className="table table-bordered">
                         <tbody>
@@ -313,7 +309,7 @@ const CshResumePopup: React.FC<CshResumePopupProps> = ({ show, resumeData, onClo
                                 />
                             </td>
                             <th className="bg-warning">주민등록번호</th>
-                            <td><Form.Control type="text" defaultValue={resumeData?.residentNumber} /></td>
+                            <td><Form.Control type="text" defaultValue={resumeData?.residentNumber}/></td>
                             <th className="bg-warning">성 별</th>
                             <td>
                                 <Form.Select
@@ -329,7 +325,9 @@ const CshResumePopup: React.FC<CshResumePopupProps> = ({ show, resumeData, onClo
                             <th className="bg-warning">소속회사</th>
                             <td><Form.Control type="text" defaultValue={resumeData?.company}/></td>
                             <th className="bg-warning">경력</th>
-                            <td><Form.Control type="text" style={{width: "150px", display:"inline-block"}} defaultValue={resumeData?.carrierMonth}/>개월</td>
+                            <td><Form.Control type="text" style={{width: "150px", display: "inline-block"}}
+                                              defaultValue={resumeData?.carrierMonth}/>개월
+                            </td>
                             <th className="bg-warning">부 서</th>
                             <td><Form.Control type="text" defaultValue={resumeData?.department}/></td>
                         </tr>
@@ -350,26 +348,59 @@ const CshResumePopup: React.FC<CshResumePopupProps> = ({ show, resumeData, onClo
                         </tr>
                         </tbody>
                     </table>
-                    {/* 학력사항 */}
-                    <h5 className="mt-4">학력사항</h5>
-                    <AgGridWrapper
-                        ref={gridRefEdu}
-                        tableHeight="300px"
-                        pagination={false}
-                        columnDefs={columEducation}
-                        canCreate canUpdate canDelete
-                        onGridLoaded={setEducationData}
-                    />
-                    {/* 자격증 */}
-                    <h5 className="mt-4">자격증</h5>
-                    <AgGridWrapper
-                        ref={gridRefLicense}
-                        tableHeight="300px"
-                        pagination={false}
-                        columnDefs={columLicense}
-                        canCreate canUpdate canDelete
-                        onGridLoaded={setLicenseData}
-                    />
+
+                    <div style={{display: "flex", width: "100%"}}>
+                        <div style={{width: "50%", padding: "10px"}}>
+                            {/* 학력사항 */}
+                            <h5 className="mt-4">학력사항</h5>
+                            <AgGridWrapper
+                                ref={gridRefEdu}
+                                tableHeight="300px"
+                                pagination={false}
+                                columnDefs={columEducation}
+                                canCreate canUpdate canDelete
+                                onGridLoaded={setEducationData}
+                            />
+                        </div>
+                        <div style={{width: "50%", padding: "10px"}}>
+                            {/* 교육사항 */}
+                            <h5 className="mt-4">교육사항</h5>
+                            <AgGridWrapper
+                                ref={gridRefTraining}
+                                tableHeight="300px"
+                                pagination={false}
+                                columnDefs={columTraining}
+                                canCreate canUpdate canDelete
+                                onGridLoaded={setTrainingData}
+                            />
+                        </div>
+                    </div>
+                    <div style={{display: "flex", width: "100%"}}>
+                        <div style={{width: "50%", padding: "10px"}}>
+                            {/* 자격증 */}
+                            <h5 className="mt-4">자격증</h5>
+                            <AgGridWrapper
+                                ref={gridRefLicense}
+                                tableHeight="300px"
+                                pagination={false}
+                                columnDefs={columLicense}
+                                canCreate canUpdate canDelete
+                                onGridLoaded={setLicenseData}
+                            />
+                        </div>
+                        <div style={{width: "50%", padding: "10px"}}>
+                            {/* 사용 기술 */}
+                            <h5 className="mt-4">사용 기술</h5>
+                            <AgGridWrapper
+                                ref={gridRefSkill}
+                                tableHeight="300px"
+                                pagination={false}
+                                columnDefs={columSkill}
+                                canCreate canUpdate canDelete
+                                onGridLoaded={setSkillData}
+                            />
+                        </div>
+                    </div>
 
                     {/* 경력사항 */}
                     <h5 className="mt-4">경력사항</h5>
@@ -379,34 +410,13 @@ const CshResumePopup: React.FC<CshResumePopupProps> = ({ show, resumeData, onClo
                         pagination={false}
                         columnDefs={columCarrier}
                         canCreate canUpdate canDelete
-                        onGridLoaded={setCarrierData}
-                    />
-
-                    {/* 교육사항 */}
-                    <h5 className="mt-4">교육사항</h5>
-                    <AgGridWrapper
-                        ref={gridRefTraining}
-                        tableHeight="300px"
-                        pagination={false}
-                        columnDefs={columTraining}
-                        canCreate canUpdate canDelete
-                        onGridLoaded={setTrainingData}
-                    />
-
-                    {/* 사용 기술 */}
-                    <h5 className="mt-4">사용 기술</h5>
-                    <AgGridWrapper
-                        ref={gridRefSkill}
-                        tableHeight="300px"
-                        pagination={false}
-                        columnDefs={columSkill}
-                        canCreate canUpdate canDelete
-                        onGridLoaded={setSkillData}
+                        onGridLoaded={setExperienceData}
                     />
                 </div>
+
             </Modal.Body>
         </Modal>
-    );
+);
 
 };
 
