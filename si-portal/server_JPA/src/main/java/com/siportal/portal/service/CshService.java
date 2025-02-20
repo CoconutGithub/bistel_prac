@@ -9,10 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @Service
@@ -41,13 +38,13 @@ public class CshService {
             for (Object[] row : sqlResult) {
                 Map<String, String> map = new HashMap<>();
                 map.put("gridRowId", String.valueOf(seq));
-                map.put("id", row[0].toString());
-                map.put("fullName", row[1].toString());
-                map.put("summary", row[2].toString());
-                map.put("email", row[3].toString());
-                map.put("phone", row[4].toString());
-                map.put("gender", row[5].toString());
-                map.put("carrierMonth", row[6].toString() + " 개월");
+                map.put("id", Objects.toString(row[0], ""));
+                map.put("fullName", Objects.toString(row[1], ""));
+                map.put("summary", Objects.toString(row[2], ""));
+                map.put("email", Objects.toString(row[3], ""));
+                map.put("phone", Objects.toString(row[4], ""));
+                map.put("gender", Objects.toString(row[5], ""));
+                map.put("carrierMonth", Objects.toString(row[6], "0") + " 개월");
                 mappedResults.add(map);
 
                 seq++;
