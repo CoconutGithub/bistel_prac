@@ -1,6 +1,7 @@
 package com.siportal.portal.controller.biz;
 
 import com.siportal.portal.dto.FloraResumeDto;
+import com.siportal.portal.dto.FloraResumeProjection;
 import com.siportal.portal.service.FloraResumeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,13 +30,13 @@ public class FloraResumeController {
     }
 
     @GetMapping
-    public ResponseEntity<List<FloraResumeDto>> getAllResumes() {
+    public ResponseEntity<List<FloraResumeProjection>> getAllResumes() {
+
         return ResponseEntity.ok(floraResumeService.getAllResumes());
     }
 
     @PostMapping("/create")
     public ResponseEntity<String> createResume(@RequestBody FloraResumeDto resumeDto) {
-        logger.info("🚀 createResume 요청이 들어옴: {}", resumeDto);
 
         if (resumeDto.getResumeFile() == null) {
             resumeDto.setResumeFile(Optional.of(new byte[0]));

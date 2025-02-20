@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.siportal.portal.domain.Resume;
 import com.siportal.portal.dto.FloraResumeDto;
+import com.siportal.portal.dto.FloraResumeProjection;
 import com.siportal.portal.repository.FloraResumeRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,20 +25,16 @@ public class FloraResumeService {
         this.floraResumeRepository = floraResumeRepository;
     }
 
-    public List<FloraResumeDto> getAllResumes() {
-        return floraResumeRepository.findAll().stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+    public List<FloraResumeProjection> getAllResumes() {
+        
+        return floraResumeRepository.findAllProjectedBy();
     }
 
     public void createResume(FloraResumeDto resumeDto) {
         try {
-            System.out.println("testtestsetsetsetsetsetest");
             Resume resume = convertToEntity(resumeDto);
-            System.out.println("여기여긱여ㅣㄱ");
             floraResumeRepository.save(resume);
         } catch (Exception e) {
-            System.err.println("오류 발생" + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -63,10 +60,6 @@ public class FloraResumeService {
                 .department(resume.getDepartment())
                 .position(resume.getPosition())
                 .jobTitle(resume.getJobTitle())
-                .address(resume.getAddress())
-                .carrierMonth(resume.getCarrierMonth())
-                .residentNumber(resume.getResidentNumber())
-                .militaryService(resume.getMilitaryService())
                 .build();
     }
 
@@ -88,10 +81,6 @@ public class FloraResumeService {
                 .department(dto.getDepartment())
                 .position(dto.getPosition())
                 .jobTitle(dto.getJobTitle())
-                .address(dto.getAddress())
-                .carrierMonth(dto.getCarrierMonth())
-                .residentNumber(dto.getResidentNumber())
-                .militaryService(dto.getMilitaryService())
                 .build();
     }
 

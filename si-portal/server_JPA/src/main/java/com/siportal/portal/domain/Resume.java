@@ -60,7 +60,7 @@ public class Resume {
 
     @Column(columnDefinition = "jsonb")
     @JdbcTypeCode(SqlTypes.JSON) // Hibernate 6.x에서 JSONB 타입을 올바르게 매핑
-    private List<Object> training;
+    private List<Map<String, Object>> training;
 
     @Lob
     @Column(name = "resume_file")

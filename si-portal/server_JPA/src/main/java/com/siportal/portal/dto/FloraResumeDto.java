@@ -36,8 +36,4 @@ public class FloraResumeDto {
     private String department;
     private String position;
     private String jobTitle;
-    private String address;
-    private Integer carrierMonth;
-    private String residentNumber;
-    private String militaryService;
 }
