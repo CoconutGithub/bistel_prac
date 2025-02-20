@@ -35,10 +35,10 @@ public class Resume {
     @Column(nullable = false, length = 255)
     private String email;
 
-    @Column(nullable = false, length = 20)
+    @Column(nullable = true, length = 20)
     private String phone;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", nullable = true)
     private String summary;
 
     @Column(columnDefinition = "jsonb")
@@ -55,17 +55,18 @@ public class Resume {
 
     @Column(columnDefinition = "jsonb")
     @JdbcTypeCode(SqlTypes.JSON) // Hibernate 6.x에서 JSONB 타입을 올바르게 매핑
-    private List<Object> skills;
+    private List<Map<String, Object>> skills;
+
 
     @Column(columnDefinition = "jsonb")
     @JdbcTypeCode(SqlTypes.JSON) // Hibernate 6.x에서 JSONB 타입을 올바르게 매핑
-    private List<Object> training;
+    private List<Map<String, Object>> training;
 
     @Lob
     @Column(name = "resume_file")
     private byte[] resumeFile;
 
-    @Column(length = 255)
+    @Column(length = 255, nullable = true)
     private String resumeFilename;
 
     @Column(updatable = false)
@@ -80,19 +81,19 @@ public class Resume {
     @Column(length = 100)
     private String updateBy;
 
-    @Column(length = 10)
+    @Column(length = 10, nullable = true)
     private String gender;
 
-    @Column(length = 255)
+    @Column(length = 255, nullable = true)
     private String company;
 
-    @Column(length = 255)
+    @Column(length = 255, nullable = true)
     private String department;
 
-    @Column(length = 255)
+    @Column(length = 255, nullable = true)
     private String position;
 
-    @Column(length = 255)
+    @Column(length = 255, nullable = true)
     private String jobTitle;
 
     @Column(length = 300)

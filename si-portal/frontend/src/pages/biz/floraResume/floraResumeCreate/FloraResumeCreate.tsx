@@ -8,6 +8,96 @@ import { AgGridWrapperHandle } from "~types/GlobalTypes";
 import cn from "classnames";
 import axios from "axios";
 
+let cachedAuthToken: string | null = sessionStorage.getItem("authToken");
+
+const eduColumns = [
+  {
+    field: "schoolName",
+    headerName: "학교명",
+    editable: true,
+    flex: 2,
+    autoHeight: true,
+    wrapText: true,
+    cellStyle: { display: "flex", alignItems: "center" },
+  },
+  {
+    field: "educationLevel",
+    headerName: "학교 유형",
+    editable: true,
+    autoHeight: true,
+    flex: 2,
+    wrapText: true,
+    cellStyle: { display: "flex", alignItems: "center" },
+  },
+  {
+    field: "period",
+    headerName: "재학 기간",
+    editable: true,
+    autoHeight: true,
+    flex: 3,
+    wrapText: true,
+    cellStyle: { display: "flex", alignItems: "center" },
+  },
+  {
+    field: "status",
+    headerName: "졸업 상태",
+    editable: true,
+    autoHeight: true,
+    flex: 2,
+    wrapText: true,
+    cellStyle: { display: "flex", alignItems: "center" },
+  },
+];
+const certificationColumns = [
+  {
+    field: "certificationName",
+    headerName: "자격증명",
+    editable: true,
+    flex: 2,
+    autoHeight: true,
+    wrapText: true,
+    cellStyle: { display: "flex", alignItems: "center" },
+  },
+  {
+    field: "certificationDate",
+    headerName: "취득일",
+    editable: true,
+    autoHeight: true,
+    flex: 2,
+    wrapText: true,
+    cellStyle: { display: "flex", alignItems: "center" },
+  },
+];
+const workColumns = [
+  {
+    field: "companyName",
+    headerName: "회사명",
+    editable: true,
+    flex: 2,
+    autoHeight: true,
+    wrapText: true,
+    cellStyle: { display: "flex", alignItems: "center" },
+  },
+  {
+    field: "workPeriod",
+    headerName: "기간",
+    editable: true,
+    autoHeight: true,
+    flex: 2,
+    wrapText: true,
+    cellStyle: { display: "flex", alignItems: "center" },
+  },
+  {
+    field: "workDetail",
+    headerName: "담당 업무",
+    editable: true,
+    autoHeight: true,
+    flex: 2,
+    wrapText: true,
+    cellStyle: { display: "flex", alignItems: "center" },
+  },
+];
+
 const FloraResumeCreate = () => {
   const [formData, setFormData] = useState({
     fullName: "",
@@ -22,97 +112,9 @@ const FloraResumeCreate = () => {
     education: [],
     skills: [],
   });
-  const eduGridRef = useRef<AgGridWrapperHandle>(null);
-  const certGridRef = useRef<AgGridWrapperHandle>(null);
-  const workGridRef = useRef<AgGridWrapperHandle>(null);
-
-  const eduColumns = [
-    {
-      field: "schoolName",
-      headerName: "학교명",
-      editable: true,
-      flex: 2,
-      autoHeight: true,
-      wrapText: true,
-      cellStyle: { display: "flex", alignItems: "center" },
-    },
-    {
-      field: "educationLevel",
-      headerName: "학교 유형",
-      editable: true,
-      autoHeight: true,
-      flex: 2,
-      wrapText: true,
-      cellStyle: { display: "flex", alignItems: "center" },
-    },
-    {
-      field: "period",
-      headerName: "재학 기간",
-      editable: true,
-      autoHeight: true,
-      flex: 2,
-      wrapText: true,
-      cellStyle: { display: "flex", alignItems: "center" },
-    },
-    {
-      field: "status",
-      headerName: "졸업 상태",
-      editable: true,
-      autoHeight: true,
-      flex: 2,
-      wrapText: true,
-      cellStyle: { display: "flex", alignItems: "center" },
-    },
-  ];
-  const certificationColumns = [
-    {
-      field: "certificationName",
-      headerName: "자격증명",
-      editable: true,
-      flex: 2,
-      autoHeight: true,
-      wrapText: true,
-      cellStyle: { display: "flex", alignItems: "center" },
-    },
-    {
-      field: "certificationDate",
-      headerName: "취득일",
-      editable: true,
-      autoHeight: true,
-      flex: 2,
-      wrapText: true,
-      cellStyle: { display: "flex", alignItems: "center" },
-    },
-  ];
-  const workColumns = [
-    {
-      field: "companyName",
-      headerName: "회사명",
-      editable: true,
-      flex: 2,
-      autoHeight: true,
-      wrapText: true,
-      cellStyle: { display: "flex", alignItems: "center" },
-    },
-    {
-      field: "workPeriod",
-      headerName: "기간",
-      editable: true,
-      autoHeight: true,
-      flex: 2,
-      wrapText: true,
-      cellStyle: { display: "flex", alignItems: "center" },
-    },
-    {
-      field: "workDetail",
-      headerName: "담당 업무",
-      editable: true,
-      autoHeight: true,
-      flex: 2,
-      wrapText: true,
-      cellStyle: { display: "flex", alignItems: "center" },
-    },
-  ];
+  const [eduData, setEduData] = useState(new Map<string, any>());
+  const [experienceData, setExperienceData] = useState(new Map<string, any>());
+  const [skillsData, setSkillsData] = useState(new Map<string, any>());
 
   const handleInputChange = (e: any) => {
     const { id, value } = e.target;
@@ -120,6 +122,82 @@ const FloraResumeCreate = () => {
       ...prev,
       [id]: value,
     }));
+  };
+
+  const handleCellValueChange = (event: any, type: any) => {
+    const { data } = event;
+
+    const eduFilteredData: Record<string, any> = {};
+    const skillsFilteredData: Record<string, any> = {};
+    const experienceFilteredData: Record<string, any> = {};
+
+    if (type === "education") {
+      const eduValidFields = new Set(eduColumns.map((col) => col.field));
+      eduValidFields.forEach((key) => {
+        if (!key) return;
+
+        if (data.hasOwnProperty(key)) {
+          eduFilteredData[key] = data[key] ?? "";
+        } else {
+          eduFilteredData[key] = "";
+        }
+      });
+    }
+
+    if (type === "skills") {
+      const skillsValidFields = new Set(
+        certificationColumns.map((col) => col.field)
+      );
+      skillsValidFields.forEach((key) => {
+        if (!key) return;
+
+        if (data.hasOwnProperty(key)) {
+          skillsFilteredData[key] = data[key] ?? "";
+        } else {
+          skillsFilteredData[key] = "";
+        }
+      });
+    }
+
+    if (type === "experience") {
+      const experienceValidFields = new Set(
+        workColumns.map((col) => col.field)
+      );
+      experienceValidFields.forEach((key) => {
+        if (!key) return;
+
+        if (data.hasOwnProperty(key)) {
+          experienceFilteredData[key] = data[key] ?? "";
+        } else {
+          experienceFilteredData[key] = "";
+        }
+      });
+    }
+
+    if (data.isCreated === true) {
+      if (type === "education") {
+        setEduData((prev) => {
+          const newMap = new Map(prev);
+          newMap.set(data.gridRowId, eduFilteredData);
+          return newMap;
+        });
+      } else if (type === "experience") {
+        setExperienceData((prev) => {
+          const newMap = new Map(prev);
+          newMap.set(data.gridRowId, experienceFilteredData);
+          return newMap;
+        });
+      } else if (type === "skills") {
+        setSkillsData((prev) => {
+          const newMap = new Map(prev);
+          newMap.set(data.gridRowId, skillsFilteredData);
+          return newMap;
+        });
+      }
+    } else {
+      data.isUpdated = true;
+      console.log("Update List:", data);
+    }
   };
 
   const handleSave = async () => {
@@ -132,21 +210,26 @@ const FloraResumeCreate = () => {
       return;
     }
 
-    const educationData = eduGridRef.current?.getRowData() || [];
-    const certificationData = certGridRef.current?.getRowData() || [];
-    const workExperienceData = workGridRef.current?.getRowData() || [];
+    const eduArray = Array.from(eduData.values());
+    const experienceArray = Array.from(experienceData.values());
+    const skillsArray = Array.from(skillsData.values());
 
-    const resumeDate = {
+    const resumeData = {
       ...formData,
-      education: educationData,
-      experience: workExperienceData,
-      skills: certificationData,
+      education: eduArray,
+      experience: experienceArray,
+      skills: skillsArray,
     };
 
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_BACKEND_IP}/biz/flora-resumes/create`,
-        resumeDate
+        resumeData,
+        {
+          headers: {
+            Authorization: `Bearer ${cachedAuthToken}`,
+          },
+        }
       );
       console.log("response", response);
     } catch (error) {
@@ -265,7 +348,6 @@ const FloraResumeCreate = () => {
           <div className={styles.table_form}>
             <label className={styles.label}>학력 사항</label>
             <AgGridWrapper
-              ref={eduGridRef}
               enableCheckbox={false}
               showButtonArea={true}
               canCreate={true}
@@ -274,12 +356,12 @@ const FloraResumeCreate = () => {
               columnDefs={eduColumns}
               tableHeight="400px"
               useNoColumn={true}
+              onCellValueChanged={(e) => handleCellValueChange(e, "education")}
             />
           </div>
           <div className={styles.table_form}>
             <label className={styles.label}>자격증</label>
             <AgGridWrapper
-              ref={certGridRef}
               enableCheckbox={false}
               showButtonArea={true}
               canCreate={true}
@@ -288,13 +370,13 @@ const FloraResumeCreate = () => {
               columnDefs={certificationColumns}
               tableHeight="400px"
               useNoColumn={true}
+              onCellValueChanged={(e) => handleCellValueChange(e, "skills")}
             />
           </div>
         </div>
         <div className={cn(styles.table_form, styles.wide)}>
           <label className={styles.label}>프로젝트 경험(경력 사항)</label>
           <AgGridWrapper
-            ref={workGridRef}
             enableCheckbox={false}
             showButtonArea={true}
             canCreate={true}
@@ -303,6 +385,7 @@ const FloraResumeCreate = () => {
             columnDefs={workColumns}
             tableHeight={"600px"}
             useNoColumn={true}
+            onCellValueChanged={(e) => handleCellValueChange(e, "experience")}
           />
         </div>
       </main>

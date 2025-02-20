@@ -1,25 +1,31 @@
 package com.siportal.portal.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class FloraResumeDto {
-
     private Integer id;
     private String fullName;
     private String email;
     private String phone;
     private String summary;
-    private String experience;
-    private String education;
-    private String skills;
-    private byte[] resumeFile;
+    private List<Map<String, Object>> experience;
+    private List<Map<String, Object>> education;
+    private List<Map<String, Object>> skills;
+    private Optional<byte[]> resumeFile;
     private String resumeFilename;
     private LocalDateTime createDate;
     private String createBy;

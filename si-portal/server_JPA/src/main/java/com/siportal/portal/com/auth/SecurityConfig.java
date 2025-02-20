@@ -3,6 +3,7 @@ package com.siportal.portal.com.auth;
 import com.siportal.portal.mapper.PortalMapper;
 import com.siportal.portal.repository.LoginRepository;
 import com.siportal.portal.repository.UserRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -38,7 +39,13 @@ public class SecurityConfig {
                         .requestMatchers("/admin/api/register-user").permitAll() // 인증 없이 허용
                         .requestMatchers("/admin/api/register-user2").permitAll() // 인증 없이 허용
                         .requestMatchers("/admin/api/get-msg-list2").permitAll() // 인증 없이 허용
+                        .requestMatchers("/biz/flora-resumes/**").permitAll()// 인증 없이 허용
                         .anyRequest().authenticated()
+                )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+                        }) // ✅ 인증되지 않은 요청 시 401 에러 반환
                 )
                 .addFilter(new LoginFilter(authenticationManager, loginRepository, title, databaseType))
                 .addFilter(new AfterLoginFilter(authenticationManager))
