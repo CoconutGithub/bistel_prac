@@ -2,10 +2,13 @@ package com.siportal.portal.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.siportal.portal.controller.biz.FloraResumeController;
 import com.siportal.portal.domain.Resume;
 import com.siportal.portal.dto.FloraResumeDto;
 import com.siportal.portal.dto.FloraResumeProjection;
 import com.siportal.portal.repository.FloraResumeRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +20,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class FloraResumeService {
+    private static final Logger logger = LoggerFactory.getLogger(FloraResumeController.class);
 
     private final FloraResumeRepository floraResumeRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -32,64 +36,39 @@ public class FloraResumeService {
 
     public void createResume(FloraResumeDto resumeDto) {
         try {
-            Resume resume = convertToEntity(resumeDto);
-            floraResumeRepository.save(resume);
+
+            String experienceJson = objectMapper.writeValueAsString(resumeDto.getExperience());
+            String educationJson = objectMapper.writeValueAsString(resumeDto.getEducation());
+            String skillsJson = objectMapper.writeValueAsString(resumeDto.getSkills());
+
+            Integer insertedId = floraResumeRepository.insertResume(
+                    resumeDto.getFullName(),
+                    resumeDto.getEmail(),
+                    resumeDto.getPhone(),
+                    resumeDto.getSummary(),
+                    experienceJson,
+                    educationJson,
+                    skillsJson,
+                    resumeDto.getCreateDate(),
+                    resumeDto.getCreateBy(),
+                    resumeDto.getUpdateDate(),
+                    resumeDto.getUpdateBy(),
+                    resumeDto.getGender(),
+                    resumeDto.getCompany(),
+                    resumeDto.getDepartment(),
+                    resumeDto.getPosition(),
+                    resumeDto.getJobTitle()
+            );
+
+            if (insertedId == null || insertedId <= 0) {
+                throw new RuntimeException("데이터 저장 실패: 반환된 ID가 유효하지 않음");
+            }
+
+            logger.info("✅✅ INSERT 완료! ID: {}", insertedId);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("❌ INSERT 실패: {}", e.getMessage(), e);
+            throw new RuntimeException("이력서 저장 중 오류 발생: " + e.getMessage());
         }
     }
 
-    private FloraResumeDto convertToDto(Resume resume) {
-        return FloraResumeDto.builder()
-                .id(resume.getId())
-                .fullName(resume.getFullName())
-                .email(resume.getEmail())
-                .phone(resume.getPhone())
-                .summary(resume.getSummary())
-                .experience(parseJson(resume.getExperience(), new TypeReference<List<Map<String, Object>>>() {}))
-                .education(parseJson(resume.getEducation(), new TypeReference<List<Map<String, Object>>>() {}))
-                .skills(parseJson(resume.getSkills(), new TypeReference<List<Map<String, Object>>>() {}))
-                .resumeFile(Optional.ofNullable(resume.getResumeFile()))
-                .resumeFilename(resume.getResumeFilename())
-                .createDate(resume.getCreateDate())
-                .createBy(resume.getCreateBy())
-                .updateDate(resume.getUpdateDate())
-                .updateBy(resume.getUpdateBy())
-                .gender(resume.getGender())
-                .company(resume.getCompany())
-                .department(resume.getDepartment())
-                .position(resume.getPosition())
-                .jobTitle(resume.getJobTitle())
-                .build();
-    }
-
-    private Resume convertToEntity(FloraResumeDto dto) {
-        return Resume.builder()
-                .fullName(dto.getFullName())
-                .email(dto.getEmail())
-                .phone(dto.getPhone())
-                .summary(dto.getSummary())
-                .experience(dto.getExperience())
-                .education(dto.getEducation())
-                .skills(dto.getSkills())
-                .resumeFile(dto.getResumeFile().orElse(new byte[0]))
-                .resumeFilename(dto.getResumeFilename() != null ? dto.getResumeFilename() : "")
-                .createBy(dto.getCreateBy())
-                .updateBy(dto.getUpdateBy())
-                .gender(dto.getGender())
-                .company(dto.getCompany())
-                .department(dto.getDepartment())
-                .position(dto.getPosition())
-                .jobTitle(dto.getJobTitle())
-                .build();
-    }
-
-    private <T> T parseJson(String json, TypeReference<T> typeReference) {
-        try {
-            return objectMapper.readValue(json, typeReference);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 }

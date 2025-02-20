@@ -37,12 +37,12 @@ public class FloraResumeController {
 
     @PostMapping("/create")
     public ResponseEntity<String> createResume(@RequestBody FloraResumeDto resumeDto) {
-
-        if (resumeDto.getResumeFile() == null) {
-            resumeDto.setResumeFile(Optional.of(new byte[0]));
+        try {
+            floraResumeService.createResume(resumeDto);
+            return ResponseEntity.ok("✅ 이력서가 성공적으로 저장되었습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("❌ 이력서 저장 실패: " + e.getMessage());
         }
-
-        floraResumeService.createResume(resumeDto);
-        return ResponseEntity.ok("이력서가 성공적으로 저장되었습니다.");
     }
+
 }

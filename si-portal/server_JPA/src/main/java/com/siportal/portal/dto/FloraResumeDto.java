@@ -25,8 +25,6 @@ public class FloraResumeDto {
     private List<Map<String, Object>> experience;
     private List<Map<String, Object>> education;
     private List<Map<String, Object>> skills;
-    private Optional<byte[]> resumeFile;
-    private String resumeFilename;
     private LocalDateTime createDate;
     private String createBy;
     private LocalDateTime updateDate;

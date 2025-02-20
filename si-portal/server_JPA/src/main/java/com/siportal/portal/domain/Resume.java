@@ -63,7 +63,7 @@ public class Resume {
     private List<Map<String, Object>> training;
 
     @Lob
-    @Column(name = "resume_file")
+    @Column(name = "resume_file", columnDefinition = "bytea", nullable = true)
     private byte[] resumeFile;
 
     @Column(length = 255, nullable = true)
@@ -96,16 +96,16 @@ public class Resume {
     @Column(length = 255, nullable = true)
     private String jobTitle;
 
-    @Column(length = 300)
+    @Column(length = 300, nullable = true)
     private String address;
 
-    @Column(name="carrier_month")
+    @Column(name="carrier_month", nullable = true)
     private Integer carrierMonth;
 
-    @Column(name="resident_number")
+    @Column(name="resident_number", nullable = true)
     private String residentNumber;
 
-    @Column(name="military_service")
+    @Column(name="military_service", nullable = true)
     private String militaryService;
 
     public String getExperience() {
