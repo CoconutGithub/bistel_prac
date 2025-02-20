@@ -1,15 +1,18 @@
 package com.siportal.portal.controller.biz;
 
 import com.siportal.portal.dto.FloraResumeDto;
+import com.siportal.portal.dto.FloraResumeProjection;
 import com.siportal.portal.service.FloraResumeService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/biz/flora-resumes")
@@ -17,14 +20,29 @@ import java.util.List;
 @Transactional
 public class FloraResumeController {
 
-    private final FloraResumeService floraResumeService;
+    @Autowired
+    private FloraResumeService floraResumeService;
+
+    private static final Logger logger = LoggerFactory.getLogger(FloraResumeController.class);
 
     public FloraResumeController(FloraResumeService floraResumeService) {
         this.floraResumeService = floraResumeService;
     }
 
     @GetMapping
-    public ResponseEntity<List<FloraResumeDto>> getAllResumes() {
+    public ResponseEntity<List<FloraResumeProjection>> getAllResumes() {
+
         return ResponseEntity.ok(floraResumeService.getAllResumes());
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<String> createResume(@RequestBody FloraResumeDto resumeDto) {
+
+        if (resumeDto.getResumeFile() == null) {
+            resumeDto.setResumeFile(Optional.of(new byte[0]));
+        }
+
+        floraResumeService.createResume(resumeDto);
+        return ResponseEntity.ok("이력서가 성공적으로 저장되었습니다.");
     }
 }
