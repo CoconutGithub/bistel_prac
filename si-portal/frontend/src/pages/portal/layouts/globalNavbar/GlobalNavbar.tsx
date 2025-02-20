@@ -266,7 +266,7 @@ const GlobalNavbar = ({
                     onClick={() =>
                       onSelectTab({
                         key: "manage-code",
-                        label: "Manage schedule",
+                        label: "Manage code",
                         path: "/main/manage-code",
                       })
                     }
