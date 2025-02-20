@@ -113,6 +113,8 @@ const FloraResumeList = () => {
       }
     };
     loadResumes();
+
+    console.log("dd");
   }, []);
 
   return (

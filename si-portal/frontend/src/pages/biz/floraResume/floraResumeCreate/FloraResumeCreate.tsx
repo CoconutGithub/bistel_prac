@@ -3,100 +3,12 @@ import styles from "./FloraResumeCreate.module.scss";
 import AgGridWrapper from "~components/agGridWrapper/AgGridWrapper";
 import ComButton from "~pages/portal/buttons/ComButton";
 import SiCheckIcon from "~components/icons/SiCheckIcon";
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AgGridWrapperHandle } from "~types/GlobalTypes";
 import cn from "classnames";
 import axios from "axios";
 
 let cachedAuthToken: string | null = sessionStorage.getItem("authToken");
-
-const eduColumns = [
-  {
-    field: "schoolName",
-    headerName: "학교명",
-    editable: true,
-    flex: 2,
-    autoHeight: true,
-    wrapText: true,
-    cellStyle: { display: "flex", alignItems: "center" },
-  },
-  {
-    field: "educationLevel",
-    headerName: "학교 유형",
-    editable: true,
-    autoHeight: true,
-    flex: 2,
-    wrapText: true,
-    cellStyle: { display: "flex", alignItems: "center" },
-  },
-  {
-    field: "period",
-    headerName: "재학 기간",
-    editable: true,
-    autoHeight: true,
-    flex: 3,
-    wrapText: true,
-    cellStyle: { display: "flex", alignItems: "center" },
-  },
-  {
-    field: "status",
-    headerName: "졸업 상태",
-    editable: true,
-    autoHeight: true,
-    flex: 2,
-    wrapText: true,
-    cellStyle: { display: "flex", alignItems: "center" },
-  },
-];
-const certificationColumns = [
-  {
-    field: "certificationName",
-    headerName: "자격증명",
-    editable: true,
-    flex: 2,
-    autoHeight: true,
-    wrapText: true,
-    cellStyle: { display: "flex", alignItems: "center" },
-  },
-  {
-    field: "certificationDate",
-    headerName: "취득일",
-    editable: true,
-    autoHeight: true,
-    flex: 2,
-    wrapText: true,
-    cellStyle: { display: "flex", alignItems: "center" },
-  },
-];
-const workColumns = [
-  {
-    field: "companyName",
-    headerName: "회사명",
-    editable: true,
-    flex: 2,
-    autoHeight: true,
-    wrapText: true,
-    cellStyle: { display: "flex", alignItems: "center" },
-  },
-  {
-    field: "workPeriod",
-    headerName: "기간",
-    editable: true,
-    autoHeight: true,
-    flex: 2,
-    wrapText: true,
-    cellStyle: { display: "flex", alignItems: "center" },
-  },
-  {
-    field: "workDetail",
-    headerName: "담당 업무",
-    editable: true,
-    autoHeight: true,
-    flex: 2,
-    wrapText: true,
-    cellStyle: { display: "flex", alignItems: "center" },
-  },
-];
 
 const FloraResumeCreate = () => {
   const [formData, setFormData] = useState({
@@ -116,15 +28,114 @@ const FloraResumeCreate = () => {
   const [experienceData, setExperienceData] = useState(new Map<string, any>());
   const [skillsData, setSkillsData] = useState(new Map<string, any>());
 
-  const handleInputChange = (e: any) => {
+  const eduColumns = useMemo(
+    () => [
+      {
+        field: "schoolName",
+        headerName: "학교명",
+        editable: true,
+        flex: 2,
+        autoHeight: true,
+        wrapText: true,
+        cellStyle: { display: "flex", alignItems: "center" },
+      },
+      {
+        field: "educationLevel",
+        headerName: "학교 유형",
+        editable: true,
+        autoHeight: true,
+        flex: 2,
+        wrapText: true,
+        cellStyle: { display: "flex", alignItems: "center" },
+      },
+      {
+        field: "period",
+        headerName: "재학 기간",
+        editable: true,
+        autoHeight: true,
+        flex: 3,
+        wrapText: true,
+        cellStyle: { display: "flex", alignItems: "center" },
+      },
+      {
+        field: "status",
+        headerName: "졸업 상태",
+        editable: true,
+        autoHeight: true,
+        flex: 2,
+        wrapText: true,
+        cellStyle: { display: "flex", alignItems: "center" },
+      },
+    ],
+    []
+  );
+
+  const certificationColumns = useMemo(
+    () => [
+      {
+        field: "certificationName",
+        headerName: "자격증명",
+        editable: true,
+        flex: 2,
+        autoHeight: true,
+        wrapText: true,
+        cellStyle: { display: "flex", alignItems: "center" },
+      },
+      {
+        field: "certificationDate",
+        headerName: "취득일",
+        editable: true,
+        autoHeight: true,
+        flex: 2,
+        wrapText: true,
+        cellStyle: { display: "flex", alignItems: "center" },
+      },
+    ],
+    []
+  );
+
+  const workColumns = useMemo(
+    () => [
+      {
+        field: "companyName",
+        headerName: "회사명",
+        editable: true,
+        flex: 2,
+        autoHeight: true,
+        wrapText: true,
+        cellStyle: { display: "flex", alignItems: "center" },
+      },
+      {
+        field: "workPeriod",
+        headerName: "기간",
+        editable: true,
+        autoHeight: true,
+        flex: 2,
+        wrapText: true,
+        cellStyle: { display: "flex", alignItems: "center" },
+      },
+      {
+        field: "workDetail",
+        headerName: "담당 업무",
+        editable: true,
+        autoHeight: true,
+        flex: 2,
+        wrapText: true,
+        cellStyle: { display: "flex", alignItems: "center" },
+      },
+    ],
+    []
+  );
+
+  const handleInputChange = useCallback((e: any) => {
     const { id, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [id]: value,
     }));
-  };
+  }, []);
 
-  const handleCellValueChange = (event: any, type: any) => {
+  const handleCellValueChange = useCallback((event: any, type: any) => {
     const { data } = event;
 
     const eduFilteredData: Record<string, any> = {};
@@ -198,9 +209,22 @@ const FloraResumeCreate = () => {
       data.isUpdated = true;
       console.log("Update List:", data);
     }
-  };
+  }, []);
 
-  const handleSave = async () => {
+  const handleEducationCellChange = useCallback(
+    (e: any) => handleCellValueChange(e, "education"),
+    [handleCellValueChange]
+  );
+  const handleSkillsCellChange = useCallback(
+    (e: any) => handleCellValueChange(e, "skills"),
+    [handleCellValueChange]
+  );
+  const handleExperienceCellChange = useCallback(
+    (e: any) => handleCellValueChange(e, "experience"),
+    [handleCellValueChange]
+  );
+
+  const handleSave = useCallback(async () => {
     if (!formData.fullName.trim()) {
       alert("성명을 입력해주세요.");
       return;
@@ -235,7 +259,7 @@ const FloraResumeCreate = () => {
     } catch (error) {
       console.error("이력서 저장에 실패했습니다.", error);
     }
-  };
+  }, []);
 
   return (
     <div className={styles.start}>
@@ -356,7 +380,7 @@ const FloraResumeCreate = () => {
               columnDefs={eduColumns}
               tableHeight="400px"
               useNoColumn={true}
-              onCellValueChanged={(e) => handleCellValueChange(e, "education")}
+              onCellValueChanged={handleEducationCellChange}
             />
           </div>
           <div className={styles.table_form}>
@@ -370,7 +394,7 @@ const FloraResumeCreate = () => {
               columnDefs={certificationColumns}
               tableHeight="400px"
               useNoColumn={true}
-              onCellValueChanged={(e) => handleCellValueChange(e, "skills")}
+              onCellValueChanged={handleSkillsCellChange}
             />
           </div>
         </div>
@@ -385,7 +409,7 @@ const FloraResumeCreate = () => {
             columnDefs={workColumns}
             tableHeight={"600px"}
             useNoColumn={true}
-            onCellValueChanged={(e) => handleCellValueChange(e, "experience")}
+            onCellValueChanged={handleExperienceCellChange}
           />
         </div>
       </main>
