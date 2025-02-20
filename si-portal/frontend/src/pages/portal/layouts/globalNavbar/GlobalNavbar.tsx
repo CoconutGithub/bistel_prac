@@ -171,9 +171,13 @@ const GlobalNavbar = ({
         <div className={styles.user_area}>
           <div className={styles.user_info_wrap}>
             <div className={styles.icon}>
-              <SiUserIcon fillColor="#fff" width={20} height={20} />
+            <img
+              alt="사용자 아이콘콘"
+              src={`${process.env.REACT_APP_PUBLIC_URL}/assets/icons/user-circle.svg`}
+              className={styles.logo}
+            />
             </div>
-            <div>
+            <div className={styles.user_info_text}>
               <p className={styles.status}>{roleName}</p>
               <p className={styles.userid}>{userName}</p>
             </div>
