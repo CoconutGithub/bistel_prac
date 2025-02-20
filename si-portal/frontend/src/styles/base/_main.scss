@@ -84,19 +84,41 @@ code {
     h2 {margin-bottom: 0; font-size: 20px; font-weight: bold; color: #fff;}
   }
   .container_contents {
+    display: flex;
     width: calc(100% - 40px);
     height: calc(100% - 86px);
     margin: auto;
     padding: 20px;
     background-color: #fff;
     border-radius: 4px;
+    gap: 0 20px;
+    flex: unset;
     .menutree_wrap {
+      width: 300px;
       padding: 20px;
       border: 1px solid #ddd;
     }
     .contents_wrap {
-      padding: 0 0 0 20px;
+      width: calc(100% - 320px);
+      padding: 0;
       overflow: auto;
+      &> .container-fluid {padding: 20px 0;}
+      .cnt_title {margin: 0; font-size: 20px; font-weight: bold;}
+      form {
+        display: flex;
+        flex-direction: column;
+        margin-top: 20px;
+        gap: 20px;
+        .form_group {
+          display: flex; gap: 0 20px;
+          label.form-label {padding: 0; font-size: 14px;}
+          input.form-control {height: 30px; min-height: 30px; font-size: 14px;}
+          button.btn {height: 30px; padding: 0 12px; font-size: 14px;}
+          .btn_wrap button.w-100 {
+            margin-left: 20px;
+          }
+        }
+      }
     }
   }
 }

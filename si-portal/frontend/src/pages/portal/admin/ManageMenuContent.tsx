@@ -507,12 +507,12 @@ const ManageMenuContent: React.FC<{
     <Container fluid>
       {chooseMenuData && chooseMenuData.menuName !== "Root" ? (
         <>
-          <h4 className="mb-4">
+          <h4 className="cnt_title">
             {chooseMenuData.isAdd === true ? "Add Menu" : "Selected Menu"}
           </h4>
           <Form>
             {/* Menu ID */}
-            <Form.Group as={Row} className="align-items-center mb-2">
+            <Form.Group className="form_group align-items-center">
               <Form.Label column sm={2}>
                 Menu ID:
               </Form.Label>
@@ -527,7 +527,7 @@ const ManageMenuContent: React.FC<{
               </Col>
             </Form.Group>
             {/* Parent Menu ID */}
-            <Form.Group as={Row} className="align-items-center mb-2">
+            <Form.Group className="form_group align-items-center">
               <Form.Label column sm={2}>
                 Parent Menu ID:
               </Form.Label>
@@ -542,7 +542,7 @@ const ManageMenuContent: React.FC<{
               </Col>
             </Form.Group>
 
-            <Form.Group as={Row} className="align-items-center mb-2">
+            <Form.Group className="form_group align-items-center">
               <Form.Label column sm={2}>
                 Position:
               </Form.Label>
@@ -558,7 +558,7 @@ const ManageMenuContent: React.FC<{
             </Form.Group>
 
             {/* Menu Name */}
-            <Form.Group as={Row} className="align-items-center mb-2">
+            <Form.Group className="form_group align-items-center">
               <Form.Label column sm={2}>
                 Menu Name:
               </Form.Label>
@@ -580,7 +580,7 @@ const ManageMenuContent: React.FC<{
             </Form.Group>
 
             {/* Msg Id */}
-            <Form.Group as={Row} className="align-items-center mb-2">
+            <Form.Group className="form_group align-items-center">
               <Form.Label column sm={2}>
                 Msg Id:
               </Form.Label>
@@ -596,7 +596,7 @@ const ManageMenuContent: React.FC<{
             </Form.Group>
 
             {/* Menu Path */}
-            <Form.Group as={Row} className="align-items-center mb-2">
+            <Form.Group className="form_group align-items-center">
               <Form.Label column sm={2}>
                 Menu Path:
               </Form.Label>
@@ -615,7 +615,7 @@ const ManageMenuContent: React.FC<{
             </Form.Group>
 
             {/* Status */}
-            <Form.Group as={Row} className="align-items-center mb-2">
+            <Form.Group className="form_group align-items-center">
               <Form.Label column sm={2}>
                 Status:
               </Form.Label>
@@ -636,15 +636,15 @@ const ManageMenuContent: React.FC<{
               </Col>
             </Form.Group>
             {/* 저장 버튼 */}
-            <Form.Group as={Row} className="mt-4">
-              <Col sm={{ span: 4, offset: 2 }}>
-                <ComButton onClick={handleSave}>
+            <Form.Group className="form_group">
+              <Col sm={{ span: 4, offset: 2 }} className="btn_wrap">
+                <ComButton onClick={handleSave} className="w-100">
                   {comAPIContext.$msg("label", "save", "저장")}
                 </ComButton>
               </Col>
             </Form.Group>
           </Form>
-          <h4 className="mt-4">
+          <h4 className="cnt_title">
             {comAPIContext.$msg("label", "role", "역할") +
               comAPIContext.$msg("label", "add", "추가")}
           </h4>

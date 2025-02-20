@@ -22,12 +22,12 @@ const ManageMenu: React.FC = () => {
             </Row>
             <Row className="container_contents">
                 {/* 좌측 메뉴 */}
-                <Col style={{flex: '0 0 30%'}} className="menutree_wrap h-100">
+                <Col className="menutree_wrap h-100">
                     <ManageMenuTree onMenuClick={setChooseMenuData} refreshTree={refreshTree} />
                 </Col>
 
                 {/* 우측 콘텐츠 */}
-                <Col style={{flex: '0 0 70%'}} className="h-100 contents_wrap">
+                <Col className="h-100 contents_wrap">
                     <ManageMenuContent chooseMenuData={chooseMenuData} onSave={handleRefreshTree}/>
                 </Col>
             </Row>
