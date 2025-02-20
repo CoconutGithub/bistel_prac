@@ -14,21 +14,20 @@ const ManageMenu: React.FC = () => {
     };
 
     return (
-        <Container fluid className="h-100">
-            <Row className="mb-3">
+        <Container fluid className="h-100 container_bg">
+            <Row className="container_title">
                 <Col>
                     <h2>메뉴 관리</h2>
                 </Col>
             </Row>
-            <div style={{borderTop: '1px solid black', margin: '5px 0'}}></div>
-            <Row className="h-100">
+            <Row className="container_contents">
                 {/* 좌측 메뉴 */}
-                <Col style={{flex: '0 0 30%'}} className="border-end h-100">
+                <Col style={{flex: '0 0 30%'}} className="menutree_wrap h-100">
                     <ManageMenuTree onMenuClick={setChooseMenuData} refreshTree={refreshTree} />
                 </Col>
 
                 {/* 우측 콘텐츠 */}
-                <Col style={{flex: '0 0 70%'}} className="h-100">
+                <Col style={{flex: '0 0 70%'}} className="h-100 contents_wrap">
                     <ManageMenuContent chooseMenuData={chooseMenuData} onSave={handleRefreshTree}/>
                 </Col>
             </Row>

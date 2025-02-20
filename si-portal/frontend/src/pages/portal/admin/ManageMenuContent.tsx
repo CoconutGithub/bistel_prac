@@ -504,7 +504,7 @@ const ManageMenuContent: React.FC<{
   };
 
   return (
-    <Container fluid className="p-4">
+    <Container fluid>
       {chooseMenuData && chooseMenuData.menuName !== "Root" ? (
         <>
           <h4 className="mb-4">
