@@ -153,7 +153,7 @@ code {
       }
     }
     .contents_wrap {
-      // 컨테츠영역역
+      // 컨테츠영역
       width: calc(100% - 320px);
       padding: 0;
       overflow: auto;
@@ -167,7 +167,11 @@ code {
         .form_group {
           display: flex; gap: 0 20px;
           label.form-label {padding: 0; font-size: 14px;}
-          input.form-control {height: 30px; min-height: 30px; font-size: 14px;}
+          input.form-control {
+            height: 30px; min-height: 30px; font-size: 14px;
+            &:disabled {background-color: #E9ECEF; color: #999;}
+            &:focus {box-shadow: unset; border-color: #034EA2;}
+          }
           button.btn {height: 30px; padding: 0 12px; font-size: 14px;}
           .btn_wrap button.w-100 {
             margin-left: 20px;

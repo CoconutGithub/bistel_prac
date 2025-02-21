@@ -8,7 +8,7 @@
     height: 100%;
     .tableInfo {
       margin: 0;
-      height: 31px;
+      height: 30px;
       .countColumn {
         padding: 0;
         display: flex;
@@ -31,11 +31,13 @@
           padding-left: 12px;
           padding-right: 12px;
           min-width: 50px;
+          height: 30px;
+          font-size: 14px;
         }
       }
     }
     .tableArea {
-      margin-top: 4px;
+      margin-top: 10px;
       width: 100%;
       --bs-gutter-x: 0px;
       .grid {
@@ -43,6 +45,11 @@
         padding: 0;
         margin: 0;
         --bs-gutter-x: 0;
+        & > :global(.ag-root-wrapper) {
+          border-radius: 0;
+          border-left: 0;
+          border-right: 0;
+        }
       }
     }
   }
