@@ -53,9 +53,10 @@ code {
 }
 
 
-// 기본 전체 레이아웃 스타일 커스텀텀
+// 기본 전체 레이아웃 스타일 커스텀
 .container-fluid.container_bg {
   position: relative;
+  padding: 0;
   &::before {
     content: "";
     position: absolute;
@@ -79,6 +80,7 @@ code {
   .container_title {
     display: flex;
     height: 66px;
+    margin: 0;
     padding: 0 20px;
     align-items: center;
     h2 {margin-bottom: 0; font-size: 20px; font-weight: bold; color: #fff;}
@@ -94,12 +96,64 @@ code {
     gap: 0 20px;
     flex: unset;
     .menutree_wrap {
+      // 좌측 메뉴트리
       width: 300px;
       padding: 20px;
       border: 1px solid #ddd;
       flex: unset;
+      overflow: auto;
+      &> div > .container > .list-unstyled-item > .list-group-item > .list-item {
+        &::before, &::after {display: none;}
+      }
+      .list-group-item {
+        &:first-child {
+          // border: 1px solid #000;
+          &>.list-item::after {
+            height: 20px;
+            top: -9px;
+          }
+        }
+        .list-item::before {
+          content: "";
+          position: absolute;
+          width: 10px;
+          height: 1px;
+          background-color: #ddd;
+          top: 50%;
+          left: -20px;
+        }
+        .list-item::after {
+          content: "";
+          position: absolute;
+          width: 1px;
+          height: 32px;
+          background-color: #ddd;
+          top: -20px;
+          left: -20px;
+        }
+      }
+      .list-item {
+        position: relative;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        span.tree_polygon {
+          display: flex;
+          width: 28px;
+          height: 24px;
+          padding-left: 6px;
+          align-items: center;
+          img {}
+        }
+        &[style*="color: blue"] {color: #39B1BD !important; font-weight: bold;}
+        & + .container {
+          .list-group-item {margin-top: 10px;}
+        }
+        span {font-size: 14px;}
+      }
     }
     .contents_wrap {
+      // 컨테츠영역역
       width: calc(100% - 320px);
       padding: 0;
       overflow: auto;

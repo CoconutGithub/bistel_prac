@@ -372,7 +372,7 @@ const ManageMenuTree: React.FC<{ onMenuClick: any; refreshTree: boolean }> = ({
             <li
               key={node.menuId}
               className="list-group-item" // mb-3를 제거
-              style={{ marginBottom: 0 }} // 인라인 스타일로 margin-bottom: 0 설정
+              //style={{ marginBottom: 0 }} // 인라인 스타일로 margin-bottom: 0 설정
               // onContextMenu={(event) => handleContextMenu(event, node)}
             >
               <div
@@ -384,12 +384,9 @@ const ManageMenuTree: React.FC<{ onMenuClick: any; refreshTree: boolean }> = ({
                     }, 0);
                   }
                 }}
+                className="list-item"
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  cursor: "pointer",
                   marginLeft: `${level * 25}px`,
-                  fontWeight: "bold",
                   color:
                     selectedMenuId !== null && node.menuId === selectedMenuId
                       ? "blue"
@@ -399,12 +396,16 @@ const ManageMenuTree: React.FC<{ onMenuClick: any; refreshTree: boolean }> = ({
                 {node.children?.length! > 0 && (
                   <span
                     onClick={() => toggleMenuVisibility(node.menuId)}
-                    style={{
-                      marginRight: "5px",
-                      cursor: "pointer",
-                    }}
+                    className="tree_polygon"
                   >
-                    {visibleMenuIds.includes(node.menuId) ? "▼" : "▶"}
+                    {visibleMenuIds.includes(node.menuId) ? 
+                    <img
+                      alt="아래화살표"
+                      src={`${process.env.REACT_APP_PUBLIC_URL}/assets/icons/polygon_down.svg`}
+                    /> : <img
+                      alt="우측측화살표"
+                      src={`${process.env.REACT_APP_PUBLIC_URL}/assets/icons/polygon_right.svg`}
+                    />}
                   </span>
                 )}
                 <span
