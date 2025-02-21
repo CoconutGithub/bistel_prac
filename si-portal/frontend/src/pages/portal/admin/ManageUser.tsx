@@ -363,53 +363,54 @@ const ManageUser: React.FC = () => {
   console.log("렌더링 횟수");
 
   return (
-    <Container fluid>
-      <Row className="mb-3">
+    <Container fluid className="h-100 container_bg">
+      <Row className="container_title">
         <Col>
           <h2>{comAPIContext.$msg("menu", "manage_user", "사용자 관리")}</h2>
         </Col>
       </Row>
-      <Row className="mb-3">
-        <Col lg={9}>
-          <Form.Group as={Row}>
-            <Form.Label column sm={1} className="text-center">
-              {comAPIContext.$msg("label", "user_name", "사용자 이름")}
-            </Form.Label>
-            <Col sm={2}>
-              <Form.Control
-                ref={inputRef}
-                type="text"
-                placeholder={comAPIContext.$msg(
-                  "message",
-                  "typing_user_name",
-                  "사용자 이름을 입력하세요."
-                )}
-              />
-            </Col>
-          </Form.Group>
-        </Col>
-        <Col lg={3} className="d-flex justify-content-end">
-          <ComButton size="sm" variant="primary" onClick={handleSearch}>
-            {comAPIContext.$msg("label", "search", "검색")}
-          </ComButton>
-        </Col>
-      </Row>
-      <div style={{ borderTop: "1px solid black", margin: "15px 0" }}></div>
-      <Row>
-        <Col>
-          <AgGridWrapper
-            ref={gridRef} // forwardRef를 통해 연결된 ref
-            showButtonArea={true}
-            canCreate={false}
-            canDelete={canDelete}
-            canUpdate={canUpdate}
-            columnDefs={dynamicColumnDefs}
-            enableCheckbox={true}
-            onSave={handleSave} // 저장 버튼 동작z`
-          >
-            {registerButton()}
-          </AgGridWrapper>
-        </Col>
+      <Row className="container_contents">
+        <Row className="search_wrap">
+          <Col className="search_cnt">
+            <Form.Group as={Row}>
+              <Form.Label column sm={1}>
+                {comAPIContext.$msg("label", "user_name", "사용자 이름")}
+              </Form.Label>
+              <Col sm={2}>
+                <Form.Control
+                  ref={inputRef}
+                  type="text"
+                  placeholder={comAPIContext.$msg(
+                    "message",
+                    "typing_user_name",
+                    "사용자 이름을 입력하세요."
+                  )}
+                />
+              </Col>
+            </Form.Group>
+          </Col>
+          <Col className="search_btn">
+            <ComButton size="sm" variant="primary" onClick={handleSearch}>
+              {comAPIContext.$msg("label", "search", "검색")}
+            </ComButton>
+          </Col>
+        </Row>
+        <Row className="contents_wrap">
+          <Col>
+            <AgGridWrapper
+              ref={gridRef} // forwardRef를 통해 연결된 ref
+              showButtonArea={true}
+              canCreate={false}
+              canDelete={canDelete}
+              canUpdate={canUpdate}
+              columnDefs={dynamicColumnDefs}
+              enableCheckbox={true}
+              onSave={handleSave} // 저장 버튼 동작z`
+            >
+              {registerButton()}
+            </AgGridWrapper>
+          </Col>
+        </Row>
       </Row>
       <UserRegistPopup
         onResearchUser={refreshData}

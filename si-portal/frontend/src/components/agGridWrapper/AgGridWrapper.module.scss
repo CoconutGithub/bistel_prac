@@ -49,6 +49,15 @@
           border-radius: 0;
           border-left: 0;
           border-right: 0;
+          :global(.ag-root) {
+            :global(.ag-header) {
+              :global(.ag-header-container) {
+                :global(.ag-header-cell) {
+                  padding: 0 14px;
+                }
+              }
+            }
+          }
         }
       }
     }

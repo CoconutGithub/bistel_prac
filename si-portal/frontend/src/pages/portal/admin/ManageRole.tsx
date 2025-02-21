@@ -434,54 +434,56 @@ const ManageRole: React.FC = () => {
     );
   } else {
     return (
-      <Container fluid>
-        <Row className="mb-3">
+      <Container fluid className="h-100 container_bg">
+        <Row className="container_title">
           <Col>
             <h2>{comAPIContext.$msg("menu", "manage_role", "역할 관리")}</h2>
           </Col>
         </Row>
-        <Row className="mb-3">
-          <Col lg={11}>
-            <Form.Group as={Row}>
-              <Form.Label column sm={1} className="text-center">
-                {comAPIContext.$msg("label", "role", "역할")}
-              </Form.Label>
-              <Col sm={2}>
-                <Form.Select onChange={handleRoleChange} value={selectedRoleId}>
-                  <option value="">select</option>
-                  {roleList.map((role: Role) => (
-                    <option
-                      key={role.roleId ?? `new-${role.roleName}`}
-                      value={role.roleId ?? ""}
-                    >
-                      {role.roleName}
-                    </option>
-                  ))}
-                </Form.Select>
-              </Col>
-            </Form.Group>
-          </Col>
-          <Col lg={1}>
-            <ComButton size="sm" variant="primary" onClick={handleSearch}>
-              {comAPIContext.$msg("label", "search", "검색")}
-            </ComButton>
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <AgGridWrapper
-              ref={gridRef} // forwardRef를 통해 연결된 ref
-              showButtonArea={true}
-              canCreate={false}
-              canDelete={canDelete}
-              canUpdate={canUpdate}
-              columnDefs={dynamicColumnDefs}
-              enableCheckbox={true}
-              onSave={handleSave} // 저장 버튼 동작`
-            >
-              {registerButton}
-            </AgGridWrapper>
-          </Col>
+        <Row className="container_contents">
+          <Row className="search_wrap">
+            <Col className="search_cnt">
+              <Form.Group as={Row}>
+                <Form.Label column sm={1}>
+                  {comAPIContext.$msg("label", "role", "역할")}
+                </Form.Label>
+                <Col sm={2}>
+                  <Form.Select onChange={handleRoleChange} value={selectedRoleId}>
+                    <option value="">select</option>
+                    {roleList.map((role: Role) => (
+                      <option
+                        key={role.roleId ?? `new-${role.roleName}`}
+                        value={role.roleId ?? ""}
+                      >
+                        {role.roleName}
+                      </option>
+                    ))}
+                  </Form.Select>
+                </Col>
+              </Form.Group>
+            </Col>
+            <Col className="search_btn">
+              <ComButton size="sm" variant="primary" onClick={handleSearch}>
+                {comAPIContext.$msg("label", "search", "검색")}
+              </ComButton>
+            </Col>
+          </Row>
+          <Row className="contents_wrap">
+            <Col>
+              <AgGridWrapper
+                ref={gridRef} // forwardRef를 통해 연결된 ref
+                showButtonArea={true}
+                canCreate={false}
+                canDelete={canDelete}
+                canUpdate={canUpdate}
+                columnDefs={dynamicColumnDefs}
+                enableCheckbox={true}
+                onSave={handleSave} // 저장 버튼 동작`
+              >
+                {registerButton}
+              </AgGridWrapper>
+            </Col>
+          </Row>
         </Row>
         <RoleRegistPopup
           show={showPopup}

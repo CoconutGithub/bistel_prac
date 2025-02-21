@@ -20,7 +20,7 @@ const ManageMenu: React.FC = () => {
                     <h2>메뉴 관리</h2>
                 </Col>
             </Row>
-            <Row className="container_contents">
+            <Row className="container_contents divide">
                 {/* 좌측 메뉴 */}
                 <Col className="menutree_wrap h-100">
                     <ManageMenuTree onMenuClick={setChooseMenuData} refreshTree={refreshTree} />

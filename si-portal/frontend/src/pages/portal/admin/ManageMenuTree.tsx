@@ -366,7 +366,7 @@ const ManageMenuTree: React.FC<{ onMenuClick: any; refreshTree: boolean }> = ({
       <Container>
         <ul
           className="list-unstyled-item"
-          style={{ marginBottom: 0, marginLeft: -40 }}
+          style={{ marginBottom: 0, marginLeft: -30 }}
         >
           {nodes.map((node) => (
             <li
@@ -386,7 +386,7 @@ const ManageMenuTree: React.FC<{ onMenuClick: any; refreshTree: boolean }> = ({
                 }}
                 className="list-item"
                 style={{
-                  marginLeft: `${level * 25}px`,
+                  marginLeft: `${level * 20}px`,
                   color:
                     selectedMenuId !== null && node.menuId === selectedMenuId
                       ? "blue"
