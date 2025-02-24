@@ -1,25 +1,28 @@
-import SiTableIcon from "~components/icons/SiTableIcon";
-import styles from "./FloraResumeCreate.module.scss";
-import AgGridWrapper from "~components/agGridWrapper/AgGridWrapper";
-import ComButton from "~pages/portal/buttons/ComButton";
-import SiCheckIcon from "~components/icons/SiCheckIcon";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { AgGridWrapperHandle } from "~types/GlobalTypes";
-import cn from "classnames";
-import axios from "axios";
+import SiTableIcon from '~components/icons/SiTableIcon';
+import styles from './FloraResumeCreate.module.scss';
+import AgGridWrapper from '~components/agGridWrapper/AgGridWrapper';
+import ComButton from '~pages/portal/buttons/ComButton';
+import SiCheckIcon from '~components/icons/SiCheckIcon';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AgGridWrapperHandle } from '~types/GlobalTypes';
+import cn from 'classnames';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { addTab, setActiveTab } from '~store/RootTabs';
+import axios from 'axios';
 
-let cachedAuthToken: string | null = sessionStorage.getItem("authToken");
+let cachedAuthToken: string | null = sessionStorage.getItem('authToken');
 
 const FloraResumeCreate = () => {
   const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
-    gender: "",
-    company: "",
-    department: "",
-    position: "",
-    jobTitle: "",
+    fullName: '',
+    email: '',
+    phone: '',
+    gender: '',
+    company: '',
+    department: '',
+    position: '',
+    jobTitle: '',
     experience: [],
     education: [],
     skills: [],
@@ -27,44 +30,46 @@ const FloraResumeCreate = () => {
   const [eduData, setEduData] = useState(new Map<string, any>());
   const [experienceData, setExperienceData] = useState(new Map<string, any>());
   const [skillsData, setSkillsData] = useState(new Map<string, any>());
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const eduColumns = useMemo(
     () => [
       {
-        field: "schoolName",
-        headerName: "학교명",
+        field: 'schoolName',
+        headerName: '학교명',
         editable: true,
         flex: 2,
         autoHeight: true,
         wrapText: true,
-        cellStyle: { display: "flex", alignItems: "center" },
+        cellStyle: { display: 'flex', alignItems: 'center' },
       },
       {
-        field: "educationLevel",
-        headerName: "학교 유형",
+        field: 'educationLevel',
+        headerName: '학교 유형',
         editable: true,
         autoHeight: true,
         flex: 2,
         wrapText: true,
-        cellStyle: { display: "flex", alignItems: "center" },
+        cellStyle: { display: 'flex', alignItems: 'center' },
       },
       {
-        field: "period",
-        headerName: "재학 기간",
+        field: 'period',
+        headerName: '재학 기간',
         editable: true,
         autoHeight: true,
         flex: 3,
         wrapText: true,
-        cellStyle: { display: "flex", alignItems: "center" },
+        cellStyle: { display: 'flex', alignItems: 'center' },
       },
       {
-        field: "status",
-        headerName: "졸업 상태",
+        field: 'status',
+        headerName: '졸업 상태',
         editable: true,
         autoHeight: true,
         flex: 2,
         wrapText: true,
-        cellStyle: { display: "flex", alignItems: "center" },
+        cellStyle: { display: 'flex', alignItems: 'center' },
       },
     ],
     []
@@ -73,22 +78,22 @@ const FloraResumeCreate = () => {
   const certificationColumns = useMemo(
     () => [
       {
-        field: "certificationName",
-        headerName: "자격증명",
+        field: 'certificationName',
+        headerName: '자격증명',
         editable: true,
         flex: 2,
         autoHeight: true,
         wrapText: true,
-        cellStyle: { display: "flex", alignItems: "center" },
+        cellStyle: { display: 'flex', alignItems: 'center' },
       },
       {
-        field: "certificationDate",
-        headerName: "취득일",
+        field: 'certificationDate',
+        headerName: '취득일',
         editable: true,
         autoHeight: true,
         flex: 2,
         wrapText: true,
-        cellStyle: { display: "flex", alignItems: "center" },
+        cellStyle: { display: 'flex', alignItems: 'center' },
       },
     ],
     []
@@ -97,31 +102,31 @@ const FloraResumeCreate = () => {
   const workColumns = useMemo(
     () => [
       {
-        field: "companyName",
-        headerName: "회사명",
+        field: 'companyName',
+        headerName: '회사명',
         editable: true,
         flex: 2,
         autoHeight: true,
         wrapText: true,
-        cellStyle: { display: "flex", alignItems: "center" },
+        cellStyle: { display: 'flex', alignItems: 'center' },
       },
       {
-        field: "workPeriod",
-        headerName: "기간",
+        field: 'workPeriod',
+        headerName: '기간',
         editable: true,
         autoHeight: true,
         flex: 2,
         wrapText: true,
-        cellStyle: { display: "flex", alignItems: "center" },
+        cellStyle: { display: 'flex', alignItems: 'center' },
       },
       {
-        field: "workDetail",
-        headerName: "담당 업무",
+        field: 'workDetail',
+        headerName: '담당 업무',
         editable: true,
         autoHeight: true,
         flex: 2,
         wrapText: true,
-        cellStyle: { display: "flex", alignItems: "center" },
+        cellStyle: { display: 'flex', alignItems: 'center' },
       },
     ],
     []
@@ -142,20 +147,20 @@ const FloraResumeCreate = () => {
     const skillsFilteredData: Record<string, any> = {};
     const experienceFilteredData: Record<string, any> = {};
 
-    if (type === "education") {
+    if (type === 'education') {
       const eduValidFields = new Set(eduColumns.map((col) => col.field));
       eduValidFields.forEach((key) => {
         if (!key) return;
 
         if (data.hasOwnProperty(key)) {
-          eduFilteredData[key] = data[key] ?? "";
+          eduFilteredData[key] = data[key] ?? '';
         } else {
-          eduFilteredData[key] = "";
+          eduFilteredData[key] = '';
         }
       });
     }
 
-    if (type === "skills") {
+    if (type === 'skills') {
       const skillsValidFields = new Set(
         certificationColumns.map((col) => col.field)
       );
@@ -163,14 +168,14 @@ const FloraResumeCreate = () => {
         if (!key) return;
 
         if (data.hasOwnProperty(key)) {
-          skillsFilteredData[key] = data[key] ?? "";
+          skillsFilteredData[key] = data[key] ?? '';
         } else {
-          skillsFilteredData[key] = "";
+          skillsFilteredData[key] = '';
         }
       });
     }
 
-    if (type === "experience") {
+    if (type === 'experience') {
       const experienceValidFields = new Set(
         workColumns.map((col) => col.field)
       );
@@ -178,27 +183,27 @@ const FloraResumeCreate = () => {
         if (!key) return;
 
         if (data.hasOwnProperty(key)) {
-          experienceFilteredData[key] = data[key] ?? "";
+          experienceFilteredData[key] = data[key] ?? '';
         } else {
-          experienceFilteredData[key] = "";
+          experienceFilteredData[key] = '';
         }
       });
     }
 
     if (data.isCreated === true) {
-      if (type === "education") {
+      if (type === 'education') {
         setEduData((prev) => {
           const newMap = new Map(prev);
           newMap.set(data.gridRowId, eduFilteredData);
           return newMap;
         });
-      } else if (type === "experience") {
+      } else if (type === 'experience') {
         setExperienceData((prev) => {
           const newMap = new Map(prev);
           newMap.set(data.gridRowId, experienceFilteredData);
           return newMap;
         });
-      } else if (type === "skills") {
+      } else if (type === 'skills') {
         setSkillsData((prev) => {
           const newMap = new Map(prev);
           newMap.set(data.gridRowId, skillsFilteredData);
@@ -207,30 +212,51 @@ const FloraResumeCreate = () => {
       }
     } else {
       data.isUpdated = true;
-      console.log("Update List:", data);
+      console.log('Update List:', data);
     }
   }, []);
 
   const handleEducationCellChange = useCallback(
-    (e: any) => handleCellValueChange(e, "education"),
+    (e: any) => handleCellValueChange(e, 'education'),
     [handleCellValueChange]
   );
   const handleSkillsCellChange = useCallback(
-    (e: any) => handleCellValueChange(e, "skills"),
+    (e: any) => handleCellValueChange(e, 'skills'),
     [handleCellValueChange]
   );
   const handleExperienceCellChange = useCallback(
-    (e: any) => handleCellValueChange(e, "experience"),
+    (e: any) => handleCellValueChange(e, 'experience'),
     [handleCellValueChange]
   );
 
-  const handleSave = useCallback(async () => {
+  const handleSelectTab = useCallback(
+    (tab: { key: string; label: string; path: string }) => {
+      const rootTabsData = sessionStorage.getItem('persist:rootTabs');
+      if (rootTabsData) {
+        const parsedData = JSON.parse(rootTabsData);
+        const cachedTabs = JSON.parse(parsedData.tabs);
+
+        if (cachedTabs.length === 8) {
+          alert('최대 8개의 탭만 열 수 있습니다.');
+          return;
+        } else {
+          dispatch(addTab(tab));
+          dispatch(setActiveTab(tab.key));
+          navigate(tab.path);
+        }
+      }
+    },
+    []
+  );
+
+  const handleSave = async () => {
     if (!formData.fullName.trim()) {
-      alert("성명을 입력해주세요.");
+      console.log('formData.fullName', formData.fullName);
+      alert('성명을 입력해주세요.');
       return;
     }
     if (!formData.email.trim()) {
-      alert("이메일을 입력해주세요.");
+      alert('이메일을 입력해주세요.');
       return;
     }
 
@@ -255,11 +281,16 @@ const FloraResumeCreate = () => {
           },
         }
       );
-      console.log("response", response);
+      handleSelectTab({
+        key: 'list-flora-resume',
+        label: 'Flora resume',
+        path: '/main/flora-resume',
+      });
     } catch (error) {
-      console.error("이력서 저장에 실패했습니다.", error);
+      console.error('이력서 저장에 실패했습니다.', error);
+      alert('이력서 저장에 실패했습니다.');
     }
-  }, []);
+  };
 
   return (
     <div className={styles.start}>
@@ -407,7 +438,7 @@ const FloraResumeCreate = () => {
             canDelete={false}
             canUpdate={false}
             columnDefs={workColumns}
-            tableHeight={"600px"}
+            tableHeight={'600px'}
             useNoColumn={true}
             onCellValueChanged={handleExperienceCellChange}
           />

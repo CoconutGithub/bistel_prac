@@ -1,15 +1,16 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import SiTableIcon from "~components/icons/SiTableIcon";
-import styles from "./FloraResumeList.module.scss";
-import AgGridWrapper from "~components/agGridWrapper/AgGridWrapper";
-import { AgGridWrapperHandle } from "~types/GlobalTypes";
-import axios from "axios";
-import { cachedAuthToken } from "~store/AuthSlice";
-import ComButton from "~pages/portal/buttons/ComButton";
-import SiNewIcon from "~components/icons/SiNewIcon";
-import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { addTab, setActiveTab } from "~store/RootTabs";
+import { useCallback, useEffect, useRef, useState } from 'react';
+import SiTableIcon from '~components/icons/SiTableIcon';
+import styles from './FloraResumeList.module.scss';
+import AgGridWrapper from '~components/agGridWrapper/AgGridWrapper';
+import { AgGridWrapperHandle } from '~types/GlobalTypes';
+import axios from 'axios';
+import { cachedAuthToken } from '~store/AuthSlice';
+import ComButton from '~pages/portal/buttons/ComButton';
+import SiNewIcon from '~components/icons/SiNewIcon';
+import SiRefreshIcon from '~components/icons/SiRefreshIcon';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { addTab, setActiveTab } from '~store/RootTabs';
 
 const fetchResumes = async () => {
   try {
@@ -23,7 +24,7 @@ const fetchResumes = async () => {
     );
     return response.data;
   } catch (error) {
-    console.error("Failed to fetch resumes", error);
+    console.error('Failed to fetch resumes', error);
     return [];
   }
 };
@@ -35,61 +36,61 @@ const FloraResumeList = () => {
 
   const columns = [
     {
-      field: "fullName",
-      headerName: "User Name",
+      field: 'fullName',
+      headerName: 'User Name',
       editable: false,
       flex: 1,
       autoHeight: true,
       wrapText: true,
-      cellStyle: { display: "flex", alignItems: "center" },
+      cellStyle: { display: 'flex', alignItems: 'center' },
     },
     {
-      field: "company",
-      headerName: "Company",
+      field: 'company',
+      headerName: 'Company',
       editable: false,
       autoHeight: true,
       flex: 2,
       wrapText: true,
-      cellStyle: { display: "flex", alignItems: "center" },
+      cellStyle: { display: 'flex', alignItems: 'center' },
     },
     {
-      field: "department",
-      headerName: "Department",
+      field: 'department',
+      headerName: 'Department',
       editable: false,
       autoHeight: true,
       flex: 2,
       wrapText: true,
-      cellStyle: { display: "flex", alignItems: "center" },
+      cellStyle: { display: 'flex', alignItems: 'center' },
     },
     {
-      field: "position",
-      headerName: "Position",
+      field: 'position',
+      headerName: 'Position',
       editable: false,
       autoHeight: true,
       flex: 2,
       wrapText: true,
-      cellStyle: { display: "flex", alignItems: "center" },
+      cellStyle: { display: 'flex', alignItems: 'center' },
     },
     {
-      field: "jobTitle",
-      headerName: "Job Title",
+      field: 'jobTitle',
+      headerName: 'Job Title',
       editable: false,
       autoHeight: true,
       flex: 2,
       wrapText: true,
-      cellStyle: { display: "flex", alignItems: "center" },
+      cellStyle: { display: 'flex', alignItems: 'center' },
     },
   ];
 
   const handleSelectTab = useCallback(
     (tab: { key: string; label: string; path: string }) => {
-      const rootTabsData = sessionStorage.getItem("persist:rootTabs");
+      const rootTabsData = sessionStorage.getItem('persist:rootTabs');
       if (rootTabsData) {
         const parsedData = JSON.parse(rootTabsData);
         const cachedTabs = JSON.parse(parsedData.tabs);
 
         if (cachedTabs.length === 8) {
-          alert("최대 8개의 탭만 열 수 있습니다.");
+          alert('최대 8개의 탭만 열 수 있습니다.');
           return;
         } else {
           dispatch(addTab(tab));
@@ -100,6 +101,10 @@ const FloraResumeList = () => {
     },
     []
   );
+
+  const handleRefresh = useCallback(() => {
+    window.location.reload();
+  }, []);
 
   useEffect(() => {
     const loadResumes = async () => {
@@ -114,7 +119,7 @@ const FloraResumeList = () => {
     };
     loadResumes();
 
-    console.log("dd");
+    console.log('dd');
   }, []);
 
   return (
@@ -124,20 +129,31 @@ const FloraResumeList = () => {
           <SiTableIcon width={12} height={12} fillColor="#00000073" />
           <p className={styles.title}>Resume List</p>
         </div>
-        <ComButton
-          onClick={() =>
-            handleSelectTab({
-              key: "create-flora-resume",
-              label: "Create resume",
-              path: "/main/flora-resume/create",
-            })
-          }
-          size="sm"
-          className={styles.button}
-        >
-          <SiNewIcon width={14} height={14} currentFill={true} />
-          New
-        </ComButton>
+        <div className={styles.button_area}>
+          <ComButton
+            onClick={handleRefresh}
+            size="sm"
+            className={styles.button}
+            variant="secondary"
+          >
+            <SiRefreshIcon width={14} height={14} currentFill={true} />
+            Refresh
+          </ComButton>
+          <ComButton
+            onClick={() =>
+              handleSelectTab({
+                key: 'create-flora-resume',
+                label: 'Create resume',
+                path: '/main/flora-resume/create',
+              })
+            }
+            size="sm"
+            className={styles.button}
+          >
+            <SiNewIcon width={14} height={14} currentFill={true} />
+            New
+          </ComButton>
+        </div>
       </header>
       <main className={styles.main}>
         <AgGridWrapper
@@ -148,7 +164,7 @@ const FloraResumeList = () => {
           canDelete={false}
           canUpdate={false}
           columnDefs={columns}
-          tableHeight={"calc(100% - 35px)"}
+          tableHeight={'calc(100% - 35px)'}
           useNoColumn={true}
         />
       </main>
