@@ -348,48 +348,49 @@ const ManageSchedule: React.FC = () => {
   };
 
   return (
-    <Container fluid>
-      <Row className="mb-3">
+    <Container fluid className="h-100 container_bg">
+      <Row className="container_title">
         <Col>
           <h2>
             {comAPIContext.$msg("menu", "manage_schedule", "스케줄 관리")}
           </h2>
         </Col>
       </Row>
-      <Row className="mb-3">
-        <Col lg={11}>
-          <Form.Group as={Row}>
-            <Form.Label column sm={1} className="text-center">
-              JOB NAME
-            </Form.Label>
-            <Col sm={4}>
-              <Form.Control ref={inputRef} type="text" placeholder="Job Name" />
-            </Col>
-          </Form.Group>
-        </Col>
-        <Col lg={1}>
-          <ComButton size="sm" variant="primary" onClick={handleSearch}>
-            {comAPIContext.$msg("label", "search", "검색")}
-          </ComButton>
-        </Col>
-      </Row>
-      <div style={{ borderTop: "1px solid black", margin: "15px 0" }}></div>
-      <Row>
-        <Col>
-          <AgGridWrapper
-            ref={gridRef} // forwardRef를 통해 연결된 ref
-            showButtonArea={true}
-            canCreate={canCreate}
-            canDelete={canDelete}
-            canUpdate={canUpdate}
-            columnDefs={columnDefs}
-            enableCheckbox={true}
-            onSave={handleSave} // 저장 버튼 동작
-            onCellEditingStopped={onCellEditingStopped} // 셀편집마침 이벤트 핸들러 등록
-            onCellEditingStarted={onCellEditingStarted} // 셀편집시작
-            onCellValueChanged={onCellValueChanged} // 셀변경
-          />
-        </Col>
+      <Row className="container_contents">
+        <Row className="search_wrap">
+          <Col className="search_cnt">
+            <Form.Group as={Row}>
+              <Form.Label column sm={1}>
+                JOB NAME
+              </Form.Label>
+              <Col sm={4}>
+                <Form.Control ref={inputRef} type="text" placeholder="Job Name" />
+              </Col>
+            </Form.Group>
+          </Col>
+          <Col className="search_btn">
+            <ComButton size="sm" variant="primary" onClick={handleSearch}>
+              {comAPIContext.$msg("label", "search", "검색")}
+            </ComButton>
+          </Col>
+        </Row>
+        <Row className="contents_wrap">
+          <Col>
+            <AgGridWrapper
+              ref={gridRef} // forwardRef를 통해 연결된 ref
+              showButtonArea={true}
+              canCreate={canCreate}
+              canDelete={canDelete}
+              canUpdate={canUpdate}
+              columnDefs={columnDefs}
+              enableCheckbox={true}
+              onSave={handleSave} // 저장 버튼 동작
+              onCellEditingStopped={onCellEditingStopped} // 셀편집마침 이벤트 핸들러 등록
+              onCellEditingStarted={onCellEditingStarted} // 셀편집시작
+              onCellValueChanged={onCellValueChanged} // 셀변경
+            />
+          </Col>
+        </Row>
       </Row>
     </Container>
   );

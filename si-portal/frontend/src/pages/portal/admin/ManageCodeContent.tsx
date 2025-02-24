@@ -112,15 +112,15 @@ const ManageCodeContent: React.FC<{
   };
 
   return(
-    <Container fluid className="p-4">
+    <Container fluid>
       {chooseCodeData && chooseCodeData.defaultText !== "Root" ? (
         <>
-          <h4 className="mb-4">
+          <h4 className="cnt_title">
             {chooseCodeData.isAdd === true ? "Add Code" : "Selected Code"}
           </h4>
           <Form>
             {/* Code ID */}
-            <Form.Group as={Row} className="align-items-center mb-2">
+            <Form.Group as={Row} className="form_group align-items-center">
               <Form.Label column sm={2}>
                 Code ID:
               </Form.Label>
@@ -135,7 +135,7 @@ const ManageCodeContent: React.FC<{
               </Col>
             </Form.Group>
             {/* Parent Code ID */}
-            <Form.Group as={Row} className="align-items-center mb-2">
+            <Form.Group as={Row} className="form_group align-items-center">
               <Form.Label column sm={2}>
                 Parent Code ID:
               </Form.Label>
@@ -150,7 +150,7 @@ const ManageCodeContent: React.FC<{
               </Col>
             </Form.Group>
 
-            <Form.Group as={Row} className="align-items-center mb-2">
+            <Form.Group as={Row} className="form_group align-items-center">
               <Form.Label column sm={2}>
                 Code Order:
               </Form.Label>
@@ -166,7 +166,7 @@ const ManageCodeContent: React.FC<{
             </Form.Group>
 
             {/* code Name */}
-            <Form.Group as={Row} className="align-items-center mb-2">
+            <Form.Group as={Row} className="form_group align-items-center">
               <Form.Label column sm={2}>
                 Code Name:
               </Form.Label>
@@ -184,7 +184,7 @@ const ManageCodeContent: React.FC<{
             </Form.Group>
 
             {/* default Text */}
-            <Form.Group as={Row} className="align-items-center mb-2">
+            <Form.Group as={Row} className="form_group align-items-center">
               <Form.Label column sm={2}>
                 Default Text:
               </Form.Label>
@@ -207,7 +207,7 @@ const ManageCodeContent: React.FC<{
             </Form.Group>
 
             {/* A Code Text */}
-            <Form.Group as={Row} className="align-items-center mb-2">
+            <Form.Group as={Row} className="form_group align-items-center">
               <Form.Label column sm={2}>
                 A Code:
               </Form.Label>
@@ -225,7 +225,7 @@ const ManageCodeContent: React.FC<{
             </Form.Group>
 
             {/* B Code Text */}
-            <Form.Group as={Row} className="align-items-center mb-2">
+            <Form.Group as={Row} className="form_group align-items-center">
               <Form.Label column sm={2}>
                 B Code:
               </Form.Label>
@@ -243,7 +243,7 @@ const ManageCodeContent: React.FC<{
             </Form.Group>
 
             {/* C Code Text */}
-            <Form.Group as={Row} className="align-items-center mb-2">
+            <Form.Group as={Row} className="form_group align-items-center">
               <Form.Label column sm={2}>
                 C Code:
               </Form.Label>
@@ -261,7 +261,7 @@ const ManageCodeContent: React.FC<{
             </Form.Group>
 
             {/* D Code Text */}
-            <Form.Group as={Row} className="align-items-center mb-2">
+            <Form.Group as={Row} className="form_group align-items-center">
               <Form.Label column sm={2}>
                 D Code:
               </Form.Label>
@@ -279,7 +279,7 @@ const ManageCodeContent: React.FC<{
             </Form.Group>
 
             {/* E Code Text */}
-            <Form.Group as={Row} className="align-items-center mb-2">
+            <Form.Group as={Row} className="form_group align-items-center">
               <Form.Label column sm={2}>
                 E Code:
               </Form.Label>
@@ -297,7 +297,7 @@ const ManageCodeContent: React.FC<{
             </Form.Group>
 
             {/* Status */}
-            <Form.Group as={Row} className="align-items-center mb-2">
+            <Form.Group as={Row} className="form_group align-items-center">
               <Form.Label column sm={2}>
                 Status:
               </Form.Label>
@@ -318,9 +318,9 @@ const ManageCodeContent: React.FC<{
               </Col>
             </Form.Group>
             {/* 저장 버튼 */}
-            <Form.Group as={Row} className="mt-4">
-              <Col sm={{ span: 4, offset: 2 }}>
-                <ComButton onClick={handleSave}>
+            <Form.Group className="form_group">
+              <Col sm={{ span: 4, offset: 2 }} className="btn_wrap">
+                <ComButton onClick={handleSave} className="w-100">
                   { comAPIContext.$msg("label", "save", "저장") }
                 </ComButton>
               </Col>
