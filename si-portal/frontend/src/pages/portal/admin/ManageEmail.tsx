@@ -112,8 +112,8 @@ const ManageEmail: React.FC = () => {
   };
 
   return (
-    <Container fluid>
-      <Row className="mb-3">
+    <Container fluid className="h-100 container_bg">
+      <Row className="container_title">
         <Col>
           <h2>{comAPIContext.$msg("menu", "manage_email", "이메일 관리")} </h2>
         </Col>
