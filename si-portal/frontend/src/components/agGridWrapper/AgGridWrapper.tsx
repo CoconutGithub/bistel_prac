@@ -87,6 +87,10 @@ const defaultSettings = {
   onRowClicked: () => {},
 };
 
+interface AgGridWrapperProps {
+  onRowClicked?: (event: any) => void;
+}
+
 const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
   (props, ref) => {
     const paginationSize = useSelector(
