@@ -5,22 +5,22 @@ import React, {
   forwardRef,
   useCallback,
   useContext,
-} from "react";
-import { AgGridReact } from "@ag-grid-community/react";
-import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
-import { Container, Row, Col } from "react-bootstrap";
-import { ColDef, CellClassParams } from "@ag-grid-community/core";
-import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-alpine.css";
-import "~styles/components/grid.scss";
-import { ComAPIContext } from "~components/ComAPIContext";
-import { AgGridWrapperHandle } from "~types/GlobalTypes";
-import ComButton from "~pages/portal/buttons/ComButton";
-import cn from "classnames";
-import "./AgGridWrapper.scss";
-import styles from "./AgGridWrapper.module.scss";
-import { useSelector } from "react-redux";
-import { RootState } from "~store/Store";
+} from 'react';
+import { AgGridReact } from '@ag-grid-community/react';
+import { ClientSideRowModelModule } from '@ag-grid-community/client-side-row-model';
+import { Container, Row, Col } from 'react-bootstrap';
+import { ColDef, CellClassParams } from '@ag-grid-community/core';
+import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-alpine.css';
+import '~styles/components/grid.scss';
+import { ComAPIContext } from '~components/ComAPIContext';
+import { AgGridWrapperHandle } from '~types/GlobalTypes';
+import ComButton from '~pages/portal/buttons/ComButton';
+import cn from 'classnames';
+import './AgGridWrapper.scss';
+import styles from './AgGridWrapper.module.scss';
+import { useSelector } from 'react-redux';
+import { RootState } from '~store/Store';
 
 //##################### type 지정-start #######################
 // Props 타입 정의
@@ -34,7 +34,7 @@ interface AgGridWrapperProps {
   columnDefs: ColDef[];
   enableCheckbox?: boolean;
   rowNumberColumn?: boolean;
-  rowSelection?: "multiple" | "single"; // 타입 제한 적용
+  rowSelection?: 'multiple' | 'single'; // 타입 제한 적용
   rowHeight?: number;
   pagination?: boolean;
   paginationPageSize?: number;
@@ -51,6 +51,7 @@ interface AgGridWrapperProps {
   onCellValueChanged?: (event: any) => void;
   onCellEditingStarted?: (event: any) => void;
   onCellDoubleClicked?: (event: any) => void;
+  onRowClicked?: (event: any) => void;
   onGridLoaded?: () => void;
 }
 
@@ -58,8 +59,8 @@ interface AgGridWrapperProps {
 
 // 수정된 행에 스타일을 적용하는 규칙
 const rowClassRules = {
-  "ag-row-deleted": (params: any) => params.data?.isDeleted === true, // isDeleted가 true인 경우
-  "ag-row-updated": (params: any) => params.data?.isUpdated === true, // isUpdated가 true인 경우
+  'ag-row-deleted': (params: any) => params.data?.isDeleted === true, // isDeleted가 true인 경우
+  'ag-row-updated': (params: any) => params.data?.isUpdated === true, // isUpdated가 true인 경우
 };
 
 const defaultSettings = {
@@ -70,11 +71,11 @@ const defaultSettings = {
   canUpdate: false,
   columnDefs: [],
   enableCheckbox: false,
-  rowSelection: "multiple" as "multiple",
+  rowSelection: 'multiple' as 'multiple',
   rowHeight: 40,
   pagination: true,
   paginationPageSize: 50,
-  tableHeight: "600px",
+  tableHeight: '600px',
   useNoColumn: true,
 
   onDelete: () => {},
@@ -83,6 +84,7 @@ const defaultSettings = {
   onCellValueChanged: () => {},
   onCellEditingStarted: () => {},
   onCellDoubleClicked: () => {},
+  onRowClicked: () => {},
 };
 
 const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
@@ -116,9 +118,10 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
       onCellValueChanged,
       onCellEditingStarted,
       onGridLoaded,
+      onRowClicked,
     } = settings;
 
-    console.log("======create AgGridWrapper======");
+    console.log('======create AgGridWrapper======');
     const comAPIContext = useContext(ComAPIContext);
     const gridRef = useRef<AgGridReact>(null); // AgGrid 참조
     const [rowData, setRowData] = useState<any[]>([]);
@@ -142,7 +145,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
               headerCheckboxSelection: true,
               checkboxSelection: true,
               width: 50,
-              cellStyle: { display: "flex", alignItems: "center" },
+              cellStyle: { display: 'flex', alignItems: 'center' },
             },
             ...columnDefs,
           ]
@@ -151,16 +154,16 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
       // 행 번호 컬럼 추가
       if (useNoColumn) {
         const hasNoColumn = baseColumnDefs.some(
-          (col) => "headerName" in col && col.headerName === "No"
+          (col) => 'headerName' in col && col.headerName === 'No'
         );
 
         if (!hasNoColumn) {
           baseColumnDefs.unshift({
-            headerName: "No",
-            valueGetter: "node.rowIndex + 1",
+            headerName: 'No',
+            valueGetter: 'node.rowIndex + 1',
             width: 90,
             suppressSizeToFit: true,
-            cellStyle: { display: "flex", alignItems: "center" },
+            cellStyle: { display: 'flex', alignItems: 'center' },
           });
         }
       }
@@ -168,13 +171,13 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
       return baseColumnDefs.map((colDef) => ({
         ...colDef,
         cellClass: (params: CellClassParams) => {
-          return "ag-row-default";
+          return 'ag-row-default';
         },
       }));
     };
 
     const onGridReady = useCallback(() => {
-      console.log("✅ AG Grid 렌더링 완료!");
+      console.log('✅ AG Grid 렌더링 완료!');
 
       // 부모 컴포넌트의 메서드 호출 (Grid가 준비된 후)
       if (onGridLoaded) {
@@ -186,11 +189,11 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
       const { data } = event; // 변경된 행 데이터 가져오기
       if (data.isCreated === true) {
         createList.current.set(data.gridRowId, data); // 고유 ID를 키로 사용
-        console.log("createList:", createList.current);
+        console.log('createList:', createList.current);
       } else {
         data.isUpdated = true; // isUpdated 플래그 설정
         updateList.current.set(data.gridRowId || data.id, data); // 고유 ID를 키로 사용
-        console.log("updateList:", updateList.current);
+        console.log('updateList:', updateList.current);
       }
 
       // 변경된 행만 업데이트
@@ -221,13 +224,19 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
       }
     };
 
+    const handleRowClick = (event: any) => {
+      if (settings.onRowClicked) {
+        settings.onRowClicked(event);
+      }
+    };
+
     const handleDelete = () => {
       const selectedNodes = gridRef.current?.api.getSelectedNodes();
-      console.log("selectedNodes:", selectedNodes);
+      console.log('selectedNodes:', selectedNodes);
       if ((selectedNodes?.length ?? 0) === 0) {
         comAPIContext.showToast(
-          "삭제상태로 변경할 내용이 선택이 되지 않았습니다.",
-          "dark"
+          '삭제상태로 변경할 내용이 선택이 되지 않았습니다.',
+          'dark'
         );
       }
 
@@ -237,7 +246,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
 
       // 선택된 행에 isDeleted 플래그 추가
       selectedRows.forEach((row, index) => {
-        if (row.add === "add") {
+        if (row.add === 'add') {
           gridRef.current?.api.applyTransaction({ remove: [row] })!;
           selectedRows.splice(index, 1);
         } else {
@@ -246,7 +255,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
         }
       });
 
-      console.log("deleteList:", deleteList.current);
+      console.log('deleteList:', deleteList.current);
 
       // 선택된 행만 업데이트
       gridRef.current?.api.applyTransaction({ update: selectedRows });
@@ -270,7 +279,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
       const newRow = {
         isCreated: true,
         gridRowId: newRowId,
-        add: "add",
+        add: 'add',
       }; // 신규 행 데이터
       const gridApi = gridRef.current?.api;
 
@@ -288,7 +297,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
     // useImperativeHandle로 외부에서 접근 가능한 메서드 정의
     useImperativeHandle(ref, () => ({
       setRowData: (newData: any[]) => {
-        console.log("newData", newData);
+        console.log('newData', newData);
         setRowData(newData); // 데이터 설정
         gridRef.current?.api.deselectAll();
         updateList.current.clear();
@@ -317,7 +326,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
                   variant="outline-danger"
                   onClick={handleDelete}
                 >
-                  {comAPIContext.$msg("label", "delete", "삭제")}
+                  {comAPIContext.$msg('label', 'delete', '삭제')}
                 </ComButton>
                 <ComButton
                   size="sm"
@@ -325,7 +334,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
                   variant="outline-primary"
                   onClick={handleAddRow}
                 >
-                  {comAPIContext.$msg("label", "add", "추가")}
+                  {comAPIContext.$msg('label', 'add', '추가')}
                 </ComButton>
                 <ComButton
                   size="sm"
@@ -333,14 +342,14 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
                   variant="primary"
                   onClick={handleSave}
                 >
-                  {comAPIContext.$msg("label", "save", "저장")}
+                  {comAPIContext.$msg('label', 'save', '저장')}
                 </ComButton>
               </Col>
             )}
           </Row>
           <Row
             className={styles.tableArea}
-            style={{ height: tableHeight || "600px" }}
+            style={{ height: tableHeight || '600px' }}
           >
             <AgGridReact
               ref={gridRef}
@@ -354,14 +363,15 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
               modules={[ClientSideRowModelModule]}
               onCellValueChanged={handleCellValueChange}
               rowClassRules={rowClassRules} // 행 스타일 규칙 적용
-              getRowId={(params) => String(params.data.gridRowId || "id")} // GRID 에서 행별로 유일한 고유 ID 설정
+              getRowId={(params) => String(params.data.gridRowId || 'id')} // GRID 에서 행별로 유일한 고유 ID 설정
               onGridReady={onGridReady}
               onCellEditingStopped={handleCellEditingStopped}
               onCellEditingStarted={handleCellEditingStarted}
               onCellDoubleClicked={handleCellDoubleClick}
+              onRowClicked={handleRowClick}
               className={cn(
-                "ag-theme-alpine",
-                "siportal-theme-grid",
+                'ag-theme-alpine',
+                'siportal-theme-grid',
                 styles.grid
               )}
             />
