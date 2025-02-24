@@ -85,6 +85,10 @@ const defaultSettings = {
   onCellDoubleClicked: () => {},
 };
 
+interface AgGridWrapperProps {
+  onRowClicked?: (event: any) => void
+}
+
 const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
   (props, ref) => {
     const paginationSize = useSelector(
@@ -359,6 +363,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
               onCellEditingStopped={handleCellEditingStopped}
               onCellEditingStarted={handleCellEditingStarted}
               onCellDoubleClicked={handleCellDoubleClick}
+              onRowClicked={props.onRowClicked} // ✅ 이벤트 전달
               className={cn(
                 "ag-theme-alpine",
                 "siportal-theme-grid",

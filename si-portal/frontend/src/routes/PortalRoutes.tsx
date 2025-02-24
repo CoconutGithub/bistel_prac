@@ -10,6 +10,7 @@ const ManageMenu = React.lazy(() => import("~pages/portal/admin/MangeMenu"));
 const ManageRole = React.lazy(() => import("~pages/portal/admin/ManageRole"));
 const ManageEmail = React.lazy(() => import("~pages/portal/admin/ManageEmail"));
 const ManageUser = React.lazy(() => import("~pages/portal/admin/ManageUser"));
+const ResumeList_hdh = React.lazy(() => import("~pages/portal/layouts/ResumeList_hdh"));  // ✅ 추가
 const ExpenseManagement = React.lazy(
   () => import("~pages/portal/layouts/expenseManagement/ExpenseManagement")
 );
@@ -67,6 +68,15 @@ export default function PortalRoutes(): RouteObject[] {
         <React.Suspense fallback={<div>Loading...</div>}>
           <Profile />
         </React.Suspense>
+      ),
+    },
+
+    {
+      path: "/main/resume-list",
+      element: (
+          <React.Suspense fallback={<div>Loading...</div>}>
+            <ResumeList_hdh />
+          </React.Suspense>
       ),
     },
     {
