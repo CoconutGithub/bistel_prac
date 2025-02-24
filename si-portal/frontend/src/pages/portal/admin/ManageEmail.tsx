@@ -1,10 +1,10 @@
-import React, { useState, useContext, useEffect, useRef } from "react";
-import { Container, Button, Row, Col, Modal, Form } from "react-bootstrap";
+import React, { useContext, useEffect, useRef } from "react";
+import { Container, Row, Col, Form } from "react-bootstrap";
 import { ComAPIContext } from "~components/ComAPIContext";
 import AgGridWrapper from "~components/agGridWrapper/AgGridWrapper";
 import axios from "axios";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "~store/Store";
+import { useSelector } from "react-redux";
+import { RootState } from "~store/Store";
 import { AgGridWrapperHandle } from "~types/GlobalTypes";
 import ComButton from "~pages/portal/buttons/ComButton";
 import { cachedAuthToken } from "~store/AuthSlice";
@@ -112,43 +112,44 @@ const ManageEmail: React.FC = () => {
   };
 
   return (
-    <Container fluid>
-      <Row className="mb-3">
+    <Container fluid className="h-100 container_bg">
+      <Row className="container_title">
         <Col>
           <h2>{comAPIContext.$msg("menu", "manage_email", "이메일 관리")} </h2>
         </Col>
       </Row>
-
-      <Row className="mb-3">
-        <Col lg={11}>
-          <Form.Group as={Row}>
-            <Form.Label column sm={1} className="text-center">
-              보낸 사람
-            </Form.Label>
-            <Col sm={4}>
-              <Form.Control
-                ref={inputRef}
-                type="text"
-                placeholder="전송자 이름 입력"
-              />
-            </Col>
-          </Form.Group>
-        </Col>
-        <Col lg={1}>
-          <ComButton size="sm" variant="primary" onClick={handleSearch}>
-            {comAPIContext.$msg("label", "search", "검색")}
-          </ComButton>
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <AgGridWrapper
-            ref={gridRef}
-            showButtonArea={false}
-            columnDefs={columnDefs}
-            enableCheckbox={true}
-          />
-        </Col>
+      <Row className="container_contents">
+        <Row className="search_wrap">
+          <Col className="search_cnt">
+            <Form.Group as={Row}>
+              <Form.Label column sm={1} className="text-center">
+                보낸 사람
+              </Form.Label>
+              <Col sm={4}>
+                <Form.Control
+                  ref={inputRef}
+                  type="text"
+                  placeholder="전송자 이름 입력"
+                />
+              </Col>
+            </Form.Group>
+          </Col>
+          <Col className="search_btn">
+            <ComButton size="sm" variant="primary" onClick={handleSearch}>
+              {comAPIContext.$msg("label", "search", "검색")}
+            </ComButton>
+          </Col>
+        </Row>
+        <Row className="contents_wrap">
+          <Col>
+            <AgGridWrapper
+              ref={gridRef}
+              showButtonArea={false}
+              columnDefs={columnDefs}
+              enableCheckbox={true}
+            />
+          </Col>
+        </Row>
       </Row>
     </Container>
   );
