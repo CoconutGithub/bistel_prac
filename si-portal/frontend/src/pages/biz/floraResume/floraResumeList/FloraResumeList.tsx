@@ -106,6 +106,14 @@ const FloraResumeList = () => {
     window.location.reload();
   }, []);
 
+  const handleRowClick = (event: any) => {
+    handleSelectTab({
+      key: `detail-flora-resume-${event.data.id}`,
+      label: `Detail resume ${event.data.id}`,
+      path: `/main/flora-resume/detail/${event.data.id}`,
+    });
+  };
+
   useEffect(() => {
     const loadResumes = async () => {
       const raw = await fetchResumes();
@@ -166,6 +174,7 @@ const FloraResumeList = () => {
           columnDefs={columns}
           tableHeight={'calc(100% - 35px)'}
           useNoColumn={true}
+          onRowClicked={handleRowClick}
         />
       </main>
     </div>

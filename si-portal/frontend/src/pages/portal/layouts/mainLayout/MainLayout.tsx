@@ -1,21 +1,22 @@
-import { Container, Tab, Tabs } from "react-bootstrap";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import GlobalNavbar from "~pages/portal/layouts/globalNavbar/GlobalNavbar";
+import { Container, Tab, Tabs } from 'react-bootstrap';
+import { Outlet, matchPath, useLocation, useNavigate } from 'react-router-dom';
+import GlobalNavbar from '~pages/portal/layouts/globalNavbar/GlobalNavbar';
 
-import { removeLoginToken } from "~store/AuthSlice";
-import styles from "./MainLayout.module.scss";
-import { useDispatch, useSelector } from "react-redux";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { RootState } from "~store/Store";
-import { addTab, setActiveTab, removeTab, resetTab } from "~store/RootTabs";
-import DefaultRoutes from "~routes/DefaultRoutes";
-import PortalRoutes from "~routes/PortalRoutes";
-import SiCancelIcon from "~components/icons/SiCancelIcon";
-import NotFound from "../../NotFound";
+import { removeLoginToken } from '~store/AuthSlice';
+import styles from './MainLayout.module.scss';
+import { useDispatch, useSelector } from 'react-redux';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { RootState } from '~store/Store';
+import { addTab, setActiveTab, removeTab, resetTab } from '~store/RootTabs';
+import DefaultRoutes from '~routes/DefaultRoutes';
+import PortalRoutes from '~routes/PortalRoutes';
+import SiCancelIcon from '~components/icons/SiCancelIcon';
+import NotFound from '../../NotFound';
 
 const useRouteComponents = () => {
   return useMemo(() => {
     const routes: Record<string, React.ReactNode> = {};
+
     [...DefaultRoutes(), ...PortalRoutes()].forEach((route) => {
       if (route.path) {
         routes[route.path] = route.element;
@@ -44,19 +45,19 @@ const MainLayout = () => {
     timeoutRef.current = setTimeout(() => {
       dispatch(resetTab());
       dispatch(removeLoginToken()); // 10분간 비활성 상태일 경우 로그아웃
-      navigate("/login", { replace: true });
+      navigate('/login', { replace: true });
     }, 10 * 60 * 1000);
   };
 
   const handleSelectTab = useCallback(
     (tab: { key: string; label: string; path: string }) => {
-      const rootTabsData = sessionStorage.getItem("persist:rootTabs");
+      const rootTabsData = sessionStorage.getItem('persist:rootTabs');
       if (rootTabsData) {
         const parsedData = JSON.parse(rootTabsData);
         const cachedTabs = JSON.parse(parsedData.tabs);
 
         if (cachedTabs.length === 8) {
-          alert("최대 8개의 탭만 열 수 있습니다.");
+          alert('최대 8개의 탭만 열 수 있습니다.');
           return;
         } else {
           dispatch(addTab(tab));
@@ -79,13 +80,24 @@ const MainLayout = () => {
           remainingTabs.length > 0
             ? remainingTabs[remainingTabs.length - 1]
             : null;
-        dispatch(setActiveTab(lastTab ? lastTab.key : ""));
-        navigate(lastTab ? lastTab.path : "");
+        dispatch(setActiveTab(lastTab ? lastTab.key : ''));
+        navigate(lastTab ? lastTab.path : '');
       }
       dispatch(removeTab(tabKey));
     },
     [tabs, activeKey, dispatch, navigate]
   );
+
+  const matchedComponent = useMemo(() => {
+    for (const key in routeComponents) {
+      if (matchPath(key, location.pathname)) {
+        return routeComponents[key];
+      }
+    }
+
+    return <NotFound />;
+  }, [location.pathname, routeComponents]);
+
   useEffect(() => {
     const activeTab = tabs.find((tab) => tab.key === activeKey);
     if (activeTab) {
@@ -94,7 +106,7 @@ const MainLayout = () => {
   }, [activeKey, tabs, navigate]);
 
   useEffect(() => {
-    const events = ["mousemove", "keydown"];
+    const events = ['mousemove', 'keydown'];
     events.forEach((event) => window.addEventListener(event, resetLogoutTimer));
 
     resetLogoutTimer(); // 초기화
@@ -111,10 +123,10 @@ const MainLayout = () => {
 
   useEffect(() => {
     if (
-      location.pathname === "/main/home" &&
-      !tabs.some((tab) => tab.key === "home")
+      location.pathname === '/main/home' &&
+      !tabs.some((tab) => tab.key === 'home')
     ) {
-      dispatch(addTab({ key: "home", label: "Home", path: "/main/home" }));
+      dispatch(addTab({ key: 'home', label: 'Home', path: '/main/home' }));
     }
   }, []);
 
@@ -124,7 +136,7 @@ const MainLayout = () => {
       <main id="main-content-root" className={styles.main}>
         <Tabs
           id="ROOT_TABS"
-          activeKey={activeKey || ""}
+          activeKey={activeKey || ''}
           onSelect={(k) => dispatch(setActiveTab(k as string))}
         >
           {tabs.map((tab) => (
@@ -145,7 +157,8 @@ const MainLayout = () => {
             >
               <Container className={styles.container}>
                 {/* <Outlet /> */}
-                {routeComponents[tab.path] || <NotFound />}
+                {/* {routeComponents[tab.path] || <NotFound />} */}
+                {matchedComponent}
               </Container>
             </Tab>
           ))}
