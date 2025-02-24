@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
-import { Nav, Dropdown } from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom";
-import { MenuItem } from "~types/LayoutTypes";
-import cn from "classnames";
+import { useEffect, useState } from 'react';
+import { Nav, Dropdown } from 'react-bootstrap';
+import { Link, useNavigate } from 'react-router-dom';
+import { MenuItem } from '~types/LayoutTypes';
+import cn from 'classnames';
 
 interface NavMenuItemProps {
   item: MenuItem;
@@ -23,14 +23,14 @@ const RecursiveDropdown = ({
   // 메뉴 클릭 핸들러
   const handleNavigate = (path: string | undefined) => {
     if (path) {
-      const rootTabsData = sessionStorage.getItem("persist:rootTabs");
+      const rootTabsData = sessionStorage.getItem('persist:rootTabs');
 
       if (rootTabsData) {
         const parsedData = JSON.parse(rootTabsData);
         const cachedTabs = JSON.parse(parsedData.tabs);
 
         if (cachedTabs.length === 8) {
-          alert("최대 8개의 탭만 열 수 있습니다.");
+          alert('최대 8개의 탭만 열 수 있습니다.');
           return;
         } else {
           setShow(false);
@@ -51,13 +51,13 @@ const RecursiveDropdown = ({
         show={show}
         onMouseEnter={() => setShow(true)}
         onMouseLeave={() => setShow(false)}
-        drop={depth === 0 ? "down" : "end"}
-        className={`${depth === 0 ? "nav-item" : "position-relative w-100"}`}
+        drop={depth === 0 ? 'down' : 'end'}
+        className={`${depth === 0 ? 'nav-item' : 'position-relative w-100'}`}
       >
         <Dropdown.Toggle
           as={depth === 0 ? Nav.Link : Dropdown.Item}
           id={`dropdown-${item.menuId}`}
-          className={`${depth === 0 ? "p-2" : ""}`}
+          className={`${depth === 0 ? 'p-2' : ''}`}
         >
           {item.title}
         </Dropdown.Toggle>
@@ -107,7 +107,7 @@ const NavMenuItem = ({
   const [tabDisable, setTabDisable] = useState<boolean>(false);
 
   useEffect(() => {
-    const rootTabsData = sessionStorage.getItem("persist:rootTabs");
+    const rootTabsData = sessionStorage.getItem('persist:rootTabs');
     if (rootTabsData) {
       const parsedData = JSON.parse(rootTabsData);
       const tabsArray = JSON.parse(parsedData.tabs);
@@ -126,13 +126,13 @@ const NavMenuItem = ({
       {/*<Nav.Link as={Link} to={item.path || '/'} className="p-2" onClick={() => item.path && navigate(item.path)}>*/}
       <Nav.Link
         as={AsComponent}
-        to={tabDisable ? undefined : item.path || "/"}
-        className={cn("p-2", navLinkClass && navLinkClass)}
+        to={tabDisable ? undefined : item.path || '/'}
+        className={cn('p-2', navLinkClass && navLinkClass)}
         onClick={(e) => {
           onSelectTab({
-            key: item.menuId,
+            key: String(item.menuId),
             label: item.title,
-            path: item.path || "/",
+            path: item.path || '/',
           });
         }}
       >

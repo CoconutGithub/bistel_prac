@@ -282,7 +282,7 @@ const FloraResumeCreate = () => {
         }
       );
       handleSelectTab({
-        key: 'list-flora-resume',
+        key: '199',
         label: 'Flora resume',
         path: '/main/flora-resume',
       });
