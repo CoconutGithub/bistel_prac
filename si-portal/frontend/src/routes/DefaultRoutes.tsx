@@ -20,6 +20,7 @@ const FloraResumeCreate = React.lazy(
 const FloraResumeDetail = React.lazy(
   () => import('~pages/biz/floraResume/floraResumeDetail/FloraResumeDetail')
 );
+const YwkResume = React.lazy(() => import("~pages/biz/YwkResume"));
 
 export default function DefaultRoutes(): RouteObject[] {
   return [
@@ -117,6 +118,14 @@ export default function DefaultRoutes(): RouteObject[] {
         </React.Suspense>
       ),
       loader: checkBtnAuthLoader,
+    },
+    {
+      path: "/main/ywk-resume",
+      element: (
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <YwkResume />
+        </React.Suspense>
+      ),
     },
   ];
 }
