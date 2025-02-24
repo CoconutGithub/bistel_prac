@@ -357,7 +357,7 @@ useEffect(() => {
   const renderTree = (nodes: CodeItem[], level: number = 0) => {
     return (
         <Container>
-          <ul className="list-unstyled-item" style={{ marginBottom: 0, marginLeft: -40 }}>
+          <ul className="list-unstyled-item" style={{ marginBottom: 0, marginLeft: -30 }}>
               {nodes.map((node) => (
                 <li
                     key={node.codeId}
@@ -374,12 +374,9 @@ useEffect(() => {
                                 }, 0);
                             }
                         }}
+                        className="list-item"
                         style={{
-                            display: "flex",
-                            alignItems: "center",
-                            cursor: "pointer",
-                            marginLeft: `${level * 25}px`,
-                            fontWeight: "bold",
+                            marginLeft: `${level * 20}px`,
                             color:
                                 selectedCodeId !== null && node.codeId === selectedCodeId
                                     ? "blue"
@@ -389,12 +386,15 @@ useEffect(() => {
                         {node.children?.length! > 0 && (
                             <span
                                 onClick={() => toggleCodeVisibility(node.codeId)}
-                                style={{
-                                    marginRight: "5px",
-                                    cursor: "pointer",
-                                }}
+                                className="tree_polygon"
                             >
-                                {visibleCodeIds.includes(node.codeId) ? "▼" : "▶"}
+                                {visibleCodeIds.includes(node.codeId) ? <img
+                                    alt="아래화살표"
+                                    src={`${process.env.REACT_APP_PUBLIC_URL}/assets/icons/polygon_down.svg`}
+                                /> : <img
+                                    alt="우측측화살표"
+                                    src={`${process.env.REACT_APP_PUBLIC_URL}/assets/icons/polygon_right.svg`}
+                                />}
                             </span>
                         )}
                         <span

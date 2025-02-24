@@ -2,9 +2,6 @@ package com.siportal.portal.repository;
 
 import com.siportal.portal.domain.Resume;
 import com.siportal.portal.dto.FloraResumeProjection;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.transaction.Transactional;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -12,8 +9,6 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @Repository
 public interface FloraResumeRepository extends JpaRepository<Resume, Integer> {

@@ -9,8 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +18,6 @@ import org.slf4j.LoggerFactory;
 @Transactional
 public class FloraResumeController {
 
-    @Autowired
     private FloraResumeService floraResumeService;
 
     private static final Logger logger = LoggerFactory.getLogger(FloraResumeController.class);
