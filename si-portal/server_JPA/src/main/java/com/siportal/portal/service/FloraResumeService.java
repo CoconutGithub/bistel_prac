@@ -2,6 +2,7 @@ package com.siportal.portal.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.siportal.portal.controller.biz.FloraResumeController;
+import com.siportal.portal.domain.Resume;
 import com.siportal.portal.dto.FloraResumeDto;
 import com.siportal.portal.dto.FloraResumeProjection;
 import com.siportal.portal.repository.FloraResumeRepository;
@@ -64,6 +65,10 @@ public class FloraResumeService {
             logger.error("❌ INSERT 실패: {}", e.getMessage(), e);
             throw new RuntimeException("이력서 저장 중 오류 발생: " + e.getMessage());
         }
+    }
+
+    public Resume getResumeById(Integer id) {
+        return floraResumeRepository.findById(id).orElse(null);
     }
 
 }

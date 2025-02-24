@@ -1,5 +1,6 @@
 package com.siportal.portal.controller.biz;
 
+import com.siportal.portal.domain.Resume;
 import com.siportal.portal.dto.FloraResumeDto;
 import com.siportal.portal.dto.FloraResumeProjection;
 import com.siportal.portal.service.FloraResumeService;
@@ -39,6 +40,21 @@ public class FloraResumeController {
             return ResponseEntity.ok("✅ 이력서가 성공적으로 저장되었습니다.");
         } catch (Exception e) {
             return ResponseEntity.status(500).body("❌ 이력서 저장 실패: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/detail/{id}")
+    public ResponseEntity<Resume> getResume(@PathVariable Integer id) {
+        try {
+            Resume data = floraResumeService.getResumeById(id);
+
+            if (data == null) {
+                return ResponseEntity.status(404).body(null);
+            }
+
+            return ResponseEntity.ok(data);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
         }
     }
 
