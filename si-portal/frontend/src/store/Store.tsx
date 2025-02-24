@@ -5,6 +5,7 @@ import authReducer from "./AuthSlice"; // 기존 AuthSlice 가져오기
 import { PersistConfig } from "redux-persist"; // PersistConfig 타입 가져오기
 import { AuthState } from "~types/StateTypes";
 import rootTabsReducer from "./RootTabs";
+import resumeReducer from "~types/ResumeSlice";
 
 // Persist 설정 타입 정의
 const persistConfig: PersistConfig<AuthState> = {
@@ -20,6 +21,7 @@ export const store = configureStore({
   reducer: {
     auth: persistedReducer, // Persisted Reducer 사용
     rootTabs: rootTabsReducer,
+    resume: resumeReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

@@ -14,6 +14,7 @@ import { ComAPIContext } from "~components/ComAPIContext";
 import styles from "./GlobalNavbar.module.scss";
 import SiVerticalDot from "~components/icons/SiVerticalDot";
 import { resetTab } from "~store/RootTabs";
+import ResumeList_hdh from "~pages/portal/layouts/ResumeList_hdh";
 
 const GlobalNavbar = ({
   onSelectTab,
@@ -136,6 +137,12 @@ const GlobalNavbar = ({
             >
               Profile
             </Nav.Link>
+
+              <Nav.Link as={NavLink} to="/main/resume-list" className={styles.nav_link} onClick={() =>
+                  onSelectTab({ key: "resume-list", label: "Resume List", path: "/main/resume-list" })}>
+                  Resume List
+              </Nav.Link>
+
             <Nav.Link
               as={NavLink}
               to="/main/settings"
