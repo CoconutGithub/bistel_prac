@@ -20,16 +20,18 @@
         color: #00000073;
       }
     }
-    .button {
-      padding: 0;
-      padding: 0 12px;
-      border: 0;
-      height: 24px;
-      background-color: #1677ff;
+    .button_area {
       display: flex;
-      align-items: center;
-      gap: 8px;
-      color: white;
+      gap: 4px;
+      .button {
+        padding: 0;
+        padding: 0 12px;
+        // border: 0;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
     }
   }
   .main {

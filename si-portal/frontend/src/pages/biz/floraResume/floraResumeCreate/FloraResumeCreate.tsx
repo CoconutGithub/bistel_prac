@@ -292,6 +292,8 @@ const FloraResumeCreate = () => {
     }
   };
 
+  console.log('실행횟수');
+
   return (
     <div className={styles.start}>
       <header className={styles.header}>
