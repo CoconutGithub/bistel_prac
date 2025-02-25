@@ -39,7 +39,7 @@ const RoleRegistPopup: React.FC<RoleRegistPopupProps> = ({ show, onClose, onSave
             </Modal.Header>
             <Modal.Body>
                 <Form>
-                    <Form.Group as={Row} className="mb-3" controlId="name">
+                    <Form.Group as={Row} controlId="name">
                         <Form.Label column sm={3}><strong>{ comAPIContext.$msg("label", "role", "역할") }</strong></Form.Label>
                         <Col sm={9}>
                             <Form.Control
@@ -51,7 +51,7 @@ const RoleRegistPopup: React.FC<RoleRegistPopupProps> = ({ show, onClose, onSave
                         </Col>
                     </Form.Group>
 
-                    <Form.Group as={Row} className="mb-3" controlId="status">
+                    <Form.Group as={Row} controlId="status">
                         <Form.Label column sm={3}><strong>{ comAPIContext.$msg("label", "status", "상태") }</strong></Form.Label>
                         <Col sm={9}>
                             <Form.Select

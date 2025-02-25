@@ -230,42 +230,51 @@ const RoleRegistPopup: React.FC<MessageSelectPopupProps> = ({
       </Modal.Header>
       <Modal.Body>
         <Form>
-          <Form.Group as={Row} className="mb-3 d-flex align-items-center">
-            <Form.Label column sm={2} className="text-end">
-              <strong>
-                {comAPIContext.$msg("label", "MSG TYPE", "MSG TYPE")}
-              </strong>
-            </Form.Label>
-            <Col sm={3}>
-              <Form.Select value={selectedType} onChange={handleTypeChange}>
-                <option value="">타입 선택</option>
-                {typeList.map((option: string, index: any) => (
-                  <option key={index} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </Form.Select>
-            </Col>
-
-            <Form.Label column sm={2} className="text-end">
-              <strong>
-                {comAPIContext.$msg("label", "MESSAGE NAME", "MESSAGE NAME")}
-              </strong>
-            </Form.Label>
-            <Col sm={3} className="d-flex align-items-center">
-              <Form.Control
-                type="text"
-                ref={msgNameRef}
-                placeholder="Input Message Name"
-              />
-              <ComButton
-                variant="primary"
-                onClick={handleSearch}
-                className="ms-2"
-              >
-                {comAPIContext.$msg("label", "Search", "Search")}
-              </ComButton>
-            </Col>
+          <Form.Group as={Row} className="d-flex align-items-center">
+            <Row className="search_wrap">
+              <Col className="search_cnt">
+                <Col className="cnt_group">
+                  <Form.Label column sm={2} className="text-end">
+                    <strong>
+                      {comAPIContext.$msg("label", "MSG TYPE", "MSG TYPE")}
+                    </strong>
+                  </Form.Label>
+                  <Col sm={3}>
+                    <Form.Select value={selectedType} onChange={handleTypeChange}>
+                      <option value="">타입 선택</option>
+                      {typeList.map((option: string, index: any) => (
+                        <option key={index} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </Col>
+                </Col>
+                <Col className="cnt_group">
+                  <Form.Label column sm={2} className="text-end">
+                    <strong>
+                      {comAPIContext.$msg("label", "MESSAGE NAME", "MESSAGE NAME")}
+                    </strong>
+                  </Form.Label>
+                  <Col sm={3} className="d-flex align-items-center">
+                    <Form.Control
+                      type="text"
+                      ref={msgNameRef}
+                      placeholder="Input Message Name"
+                    />
+                    
+                  </Col>
+                </Col>
+              </Col>
+              <Col className="search_btn">
+                <ComButton
+                    variant="primary"
+                    onClick={handleSearch}
+                  >
+                    {comAPIContext.$msg("label", "Search", "Search")}
+                </ComButton>
+              </Col>
+            </Row>
             <Col>
               <AgGridWrapper
                 ref={gridRef} // forwardRef를 통해 연결된 ref

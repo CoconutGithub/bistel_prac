@@ -363,90 +363,102 @@ const ManageMessage: React.FC<ManageMessageModalProps> = ({ onClose, isModal, sh
       <Modal
             show={show}
             centered
-            size="lg"
+            size="xl"
         >
             <Modal.Header>
                 <Modal.Title>
+                  {comAPIContext.$msg("label", "manage_message", "메세지 관리")}
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              <Row className="mb-3">
+              {/* <Row className="mb-3">
                 <Col>
-                  <h2>{comAPIContext.$msg(
-                      "label",
-                      "manage_message",
-                      "메세지 관리"
-                    )}</h2>
+                  <h2>{comAPIContext.$msg("label", "manage_message", "메세지 관리")}</h2>
                 </Col>
-              </Row>
-              <Row className="mb-3">
-                <Col lg={11}>
-                  <Form.Group as={Row}>
-                    <Form.Label column sm={1} className="text-center">
-                      {comAPIContext.$msg("label", "msg_type", "메세지 타입")}
-                    </Form.Label>
-                    <Col sm={2}>
-                      <Form.Select value={selectedType} onChange={handleTypeChange}>
-                        <option value="">{comAPIContext.$msg("label", "msg_type", "메세지 타입")}</option>
-                        {typeList.map((option:string, index:any) => (
-                          <option key={index} value={option}>
-                            {option}
-                          </option>
-                        ))}
-                      </Form.Select>
-                    </Col>            
-                    <Form.Label column sm={1} className="text-center">
-                      {comAPIContext.$msg("label", "msg_name", "메세지명")}
-                    </Form.Label>
-                    <Col sm={2}>
-                      <Form.Control ref={msgNameRef} type="text" placeholder={comAPIContext.$msg("label", "msg_name", "메세지명")} />
-                    </Col>
-                    <Form.Label column sm={1} className="text-center">
-                      {comAPIContext.$msg("label", "default", "기본값")}
-                    </Form.Label>
-                    <Col sm={2}>
-                      <Form.Control ref={msgDefaulteRef} type="text" placeholder={comAPIContext.$msg("label", "default", "기본값")} />
-                    </Col>
-                    <Form.Label column sm={1} className="text-center">
-                      {comAPIContext.$msg("label", "status", "상태")}
-                    </Form.Label>
-                    <Col sm={2}>
-                      <Form.Select value={selectedStatus} onChange={handleStatusChange}>
-                        <option value="">{comAPIContext.$msg("label", "status", "상태")}</option>
-                        {["ACTIVE", "INACTIVE"].map((option:string, index:any) => (
-                          <option key={index} value={option}>
-                            {option}
-                          </option>
-                        ))}
-                      </Form.Select>
-                    </Col>
-                    <Form.Label column sm={1} className="text-center">
-                      {comAPIContext.$msg("label", "KO", "한국어")}
-                    </Form.Label>
-                    <Col sm={2}>
-                      <Form.Control ref={koLangTextRef} type="text" placeholder={comAPIContext.$msg("label", "KO", "한국어")} />
-                    </Col>
-                    <Form.Label column sm={1} className="text-center">
-                      {comAPIContext.$msg("label", "EN", "영어")}
-                    </Form.Label>
-                    <Col sm={2}>
-                      <Form.Control ref={enLangTextRef} type="text" placeholder={comAPIContext.$msg("label", "EN", "영어")} />
-                    </Col>
-                    <Form.Label column sm={1} className="text-center">
-                      {comAPIContext.$msg("label", "CN", "중국어")}
-                    </Form.Label>
-                    <Col sm={2}>
-                      <Form.Control ref={cnLangTextRef} type="text" placeholder={comAPIContext.$msg("label", "CN", "중국어")} />
-                    </Col>
-                  </Form.Group>
-                </Col>
-                <Col lg={1}>
-                  <ComButton size="sm" variant="primary" onClick={handleSearch}>
-                    {comAPIContext.$msg("label", "search", "검색")}
-                  </ComButton>
-                </Col>
-              </Row>
-              <div style={{ borderTop: "1px solid black", margin: "15px 0" }}></div>
+              </Row> */}
+              <Form>
+                <Row className="search_wrap">
+                  <Col className="search_cnt">
+                    <Form.Group as={Row}>
+                      <Col className="cnt_group">
+                        <Form.Label column sm={1}>
+                          {comAPIContext.$msg("label", "msg_type", "메세지 타입")}
+                        </Form.Label>
+                        <Col sm={2}>
+                          <Form.Select value={selectedType} onChange={handleTypeChange}>
+                            <option value="">{comAPIContext.$msg("label", "msg_type", "메세지 타입")}</option>
+                            {typeList.map((option:string, index:any) => (
+                              <option key={index} value={option}>
+                                {option}
+                              </option>
+                            ))}
+                          </Form.Select>
+                        </Col>            
+                      </Col>
+                      <Col className="cnt_group">
+                        <Form.Label column sm={1}>
+                          {comAPIContext.$msg("label", "msg_name", "메세지명")}
+                        </Form.Label>
+                        <Col sm={2}>
+                          <Form.Control ref={msgNameRef} type="text" placeholder={comAPIContext.$msg("label", "msg_name", "메세지명")} />
+                        </Col>
+                      </Col>
+                      <Col className="cnt_group">
+                        <Form.Label column sm={1}>
+                          {comAPIContext.$msg("label", "default", "기본값")}
+                        </Form.Label>
+                        <Col sm={2}>
+                          <Form.Control ref={msgDefaulteRef} type="text" placeholder={comAPIContext.$msg("label", "default", "기본값")} />
+                        </Col>
+                      </Col>
+                      <Col className="cnt_group">
+                        <Form.Label column sm={1}>
+                          {comAPIContext.$msg("label", "status", "상태")}
+                        </Form.Label>
+                        <Col sm={2}>
+                          <Form.Select value={selectedStatus} onChange={handleStatusChange}>
+                            <option value="">{comAPIContext.$msg("label", "status", "상태")}</option>
+                            {["ACTIVE", "INACTIVE"].map((option:string, index:any) => (
+                              <option key={index} value={option}>
+                                {option}
+                              </option>
+                            ))}
+                          </Form.Select>
+                        </Col>
+                      </Col>
+                      <Col className="cnt_group">
+                        <Form.Label column sm={1}>
+                          {comAPIContext.$msg("label", "KO", "한국어")}
+                        </Form.Label>
+                        <Col sm={2}>
+                          <Form.Control ref={koLangTextRef} type="text" placeholder={comAPIContext.$msg("label", "KO", "한국어")} />
+                        </Col>
+                      </Col>
+                      <Col className="cnt_group">
+                        <Form.Label column sm={1}>
+                          {comAPIContext.$msg("label", "EN", "영어")}
+                        </Form.Label>
+                        <Col sm={2}>
+                          <Form.Control ref={enLangTextRef} type="text" placeholder={comAPIContext.$msg("label", "EN", "영어")} />
+                        </Col>
+                      </Col>
+                      <Col className="cnt_group">
+                        <Form.Label column sm={1}>
+                          {comAPIContext.$msg("label", "CN", "중국어")}
+                        </Form.Label>
+                        <Col sm={2}>
+                          <Form.Control ref={cnLangTextRef} type="text" placeholder={comAPIContext.$msg("label", "CN", "중국어")} />
+                        </Col>
+                      </Col>
+                    </Form.Group>
+                  </Col>
+                  <Col className="search_btn">
+                    <ComButton size="sm" variant="primary" onClick={handleSearch}>
+                      {comAPIContext.$msg("label", "search", "검색")}
+                    </ComButton>
+                  </Col>
+                </Row>
+              </Form>
               <Row>
                 <Col>
                   <AgGridWrapper
