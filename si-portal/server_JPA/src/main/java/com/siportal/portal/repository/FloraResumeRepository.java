@@ -7,6 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import javax.swing.text.html.Option;
+import java.util.Optional;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -53,5 +56,16 @@ public interface FloraResumeRepository extends JpaRepository<Resume, Integer> {
             @Param("position") String position,
             @Param("jobTitle") String jobTitle
     );
+
+    @Query("""
+    SELECT r.id AS id, r.fullName AS fullName, r.email AS email, r.phone AS phone, r.summary AS summary,
+           r.experience AS experience, r.education AS education, r.skills AS skills,
+           r.createDate AS createDate, r.createBy AS createBy, r.updateDate AS updateDate, r.updateBy AS updateBy,
+           r.gender AS gender, r.company AS company, r.department AS department, r.position AS position,
+           r.jobTitle AS jobTitle
+        FROM Resume r
+        WHERE r.id = :id
+    """)
+    Optional<FloraResumeProjection> findProjectedById(@Param("id") Integer id);
 }
 

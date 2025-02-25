@@ -67,8 +67,8 @@ public class FloraResumeService {
         }
     }
 
-    public Resume getResumeById(Integer id) {
-        return floraResumeRepository.findById(id).orElse(null);
+    public FloraResumeProjection getResumeById(Integer id) {
+        return floraResumeRepository.findProjectedById(id).orElse(null);
     }
 
 }

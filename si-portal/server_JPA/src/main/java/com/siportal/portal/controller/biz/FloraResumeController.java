@@ -44,9 +44,11 @@ public class FloraResumeController {
     }
 
     @GetMapping("/detail/{id}")
-    public ResponseEntity<Resume> getResume(@PathVariable Integer id) {
+    public ResponseEntity<FloraResumeProjection> getResume(@PathVariable Integer id) {
+
         try {
-            Resume data = floraResumeService.getResumeById(id);
+
+            FloraResumeProjection data = floraResumeService.getResumeById(id);
 
             if (data == null) {
                 return ResponseEntity.status(404).body(null);

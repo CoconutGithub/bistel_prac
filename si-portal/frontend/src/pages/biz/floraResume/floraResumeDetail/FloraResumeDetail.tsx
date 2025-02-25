@@ -24,8 +24,6 @@ const fetchResume = async (id: any) => {
       }
     );
 
-    console.log('response.data', response.data);
-
     return response.data;
   } catch (error) {
     console.error('Failed to fetch resume', error);
@@ -157,8 +155,6 @@ const FloraResumeDetail = () => {
         gridRowId: index,
         ...row,
       }));
-
-      console.log('eduData', eduData);
       eduGridRef.current.setRowData(eduData);
     }
     if (workGridRef.current && formData.experience.length > 0) {
@@ -186,7 +182,7 @@ const FloraResumeDetail = () => {
           ...Object.keys(prev).reduce((acc, key) => {
             const typedKey = key as keyof typeof prev;
             if (typedKey === 'education' && initData['education']) {
-              const jsonArray = JSON.parse(initData[typedKey]);
+              const jsonArray = initData[typedKey];
 
               const formattedEducation = jsonArray.map((item: any) => {
                 return eduColumns.reduce((eduAcc: any, eduCol) => {
@@ -199,7 +195,7 @@ const FloraResumeDetail = () => {
 
               acc[typedKey] = formattedEducation;
             } else if (typedKey === 'skills' && initData['skills']) {
-              const jsonArray = JSON.parse(initData[typedKey]);
+              const jsonArray = initData[typedKey];
 
               const formattedSkills = jsonArray.map((item: any) => {
                 return certificationColumns.reduce(
@@ -214,7 +210,7 @@ const FloraResumeDetail = () => {
 
               acc[typedKey] = formattedSkills;
             } else if (typedKey === 'experience' && initData['experience']) {
-              const jsonArray = JSON.parse(initData[typedKey]);
+              const jsonArray = initData[typedKey];
 
               const formattedExperience = jsonArray.map((item: any) => {
                 return workColumns.reduce((workAcc: any, workCol) => {
