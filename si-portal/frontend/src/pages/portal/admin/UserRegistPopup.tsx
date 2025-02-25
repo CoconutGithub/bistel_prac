@@ -349,7 +349,7 @@ const UserRegistPopup = React.memo(
 
       return (
         <>
-          <Modal show={isVisible} onHide={() => handleModalClose()}>
+          <Modal show={isVisible} onHide={() => handleModalClose()} centered>
             <Modal.Header closeButton>
               <Modal.Title>
                 {comAPIContext.$msg("label", "user_regist", "사용자 등록")}
@@ -357,7 +357,7 @@ const UserRegistPopup = React.memo(
             </Modal.Header>
             <Modal.Body>
               <Form>
-                <Form.Group as={Row} className="mb-3" controlId="name">
+                <Form.Group as={Row} controlId="name">
                   <Form.Label column sm={3}>
                     <strong>
                       {comAPIContext.$msg("label", "name", "이름")}
@@ -375,7 +375,6 @@ const UserRegistPopup = React.memo(
 
                 <Form.Group
                   as={Row}
-                  className="mb-3"
                   controlId="id"
                   style={{ position: "relative" }}
                 >
@@ -391,11 +390,11 @@ const UserRegistPopup = React.memo(
                         onChange={handleUserId}
                       />
                       {mode === "register" ? (
-                        <ComButton className="ms-3" onClick={searchId}>
+                        <ComButton onClick={searchId}>
                           {comAPIContext.$msg("label", "search", "검색")}
                         </ComButton>
                       ) : (
-                        <ComButton className="ms-3" onClick={searchId}>
+                        <ComButton onClick={searchId}>
                           {comAPIContext.$msg("label", "search", "검색")}
                         </ComButton>
                       )}
@@ -434,7 +433,7 @@ const UserRegistPopup = React.memo(
                     </Col>
                   )}
                 </Form.Group>
-                <Form.Group as={Row} className="mb-3" controlId="password">
+                <Form.Group as={Row} controlId="password">
                   <Form.Label column sm={3}>
                     <strong>password</strong>
                   </Form.Label>
@@ -447,7 +446,7 @@ const UserRegistPopup = React.memo(
                     />
                   </Col>
                 </Form.Group>
-                <Form.Group as={Row} className="mb-3" controlId="email">
+                <Form.Group as={Row} controlId="email">
                   <Form.Label column sm={3}>
                     <strong>email</strong>
                   </Form.Label>
@@ -460,45 +459,47 @@ const UserRegistPopup = React.memo(
                     />
                   </Col>
                 </Form.Group>
-                <Form.Group as={Row} className="mb-3" controlId="phone">
+                <Form.Group as={Row} controlId="phone">
                   <Form.Label column sm={3}>
                     <strong>phone number</strong>
                   </Form.Label>
-                  <Col sm={3}>
-                    <Form.Control
-                      type="text"
-                      value={phoneParts[0]}
-                      onChange={(e) =>
-                        handlePhoneNumberChange(0, e.target.value)
-                      }
-                      maxLength={3}
-                      placeholder="XXX"
-                    />
-                  </Col>
-                  <Col sm={3}>
-                    <Form.Control
-                      type="text"
-                      value={phoneParts[1]}
-                      onChange={(e) =>
-                        handlePhoneNumberChange(1, e.target.value)
-                      }
-                      maxLength={4}
-                      placeholder="XXXX"
-                    />
-                  </Col>
-                  <Col sm={3}>
-                    <Form.Control
-                      type="text"
-                      value={phoneParts[2]}
-                      onChange={(e) =>
-                        handlePhoneNumberChange(2, e.target.value)
-                      }
-                      maxLength={4}
-                      placeholder="XXXX"
-                    />
+                  <Col className="cnt_group">
+                    <Col sm={4}>
+                      <Form.Control
+                        type="text"
+                        value={phoneParts[0]}
+                        onChange={(e) =>
+                          handlePhoneNumberChange(0, e.target.value)
+                        }
+                        maxLength={3}
+                        placeholder="XXX"
+                      />
+                    </Col>
+                    <Col sm={4}>
+                      <Form.Control
+                        type="text"
+                        value={phoneParts[1]}
+                        onChange={(e) =>
+                          handlePhoneNumberChange(1, e.target.value)
+                        }
+                        maxLength={4}
+                        placeholder="XXXX"
+                      />
+                    </Col>
+                    <Col sm={4}>
+                      <Form.Control
+                        type="text"
+                        value={phoneParts[2]}
+                        onChange={(e) =>
+                          handlePhoneNumberChange(2, e.target.value)
+                        }
+                        maxLength={4}
+                        placeholder="XXXX"
+                      />
+                    </Col>
                   </Col>
                 </Form.Group>
-                <Form.Group as={Row} className="mb-3" controlId="langCode">
+                <Form.Group as={Row} controlId="langCode">
                   <Form.Label column sm={3}>
                     <strong>
                       {comAPIContext.$msg("label", "language", "언어")}
@@ -515,7 +516,7 @@ const UserRegistPopup = React.memo(
 
                 {mode === "register" && (
                   <>
-                    <Form.Group as={Row} className="mb-3" controlId="role">
+                    <Form.Group as={Row} controlId="role">
                       <Form.Label column sm={3}>
                         <strong>
                           {comAPIContext.$msg("label", "role", "역할")}
@@ -534,7 +535,7 @@ const UserRegistPopup = React.memo(
                       </Col>
                     </Form.Group>
 
-                    <Form.Group as={Row} className="mb-3" controlId="status">
+                    <Form.Group as={Row} controlId="status">
                       <Form.Label column sm={3}>
                         <strong>
                           {comAPIContext.$msg("label", "status", "상태")}
@@ -551,7 +552,7 @@ const UserRegistPopup = React.memo(
                 )}
                 {mode === "signup" && (
                   <>
-                    <Form.Group as={Row} className="mb-3" controlId="status">
+                    <Form.Group as={Row} controlId="status">
                       <Form.Label column sm={3}>
                         <strong>
                           {comAPIContext.$msg("label", "status", "상태")}
@@ -565,7 +566,6 @@ const UserRegistPopup = React.memo(
                     </Form.Group>
                     <Form.Group
                       as={Row}
-                      className="mb-3"
                       controlId="profileImage"
                     >
                       <Form.Label column sm={3}>

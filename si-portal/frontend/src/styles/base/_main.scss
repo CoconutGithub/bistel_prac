@@ -223,3 +223,98 @@ code {
     }
   }
 }
+
+.modal {
+  .modal-content {
+    .modal-header {
+      margin: 0 20px;
+      padding: 20px 0 14px 0;
+      justify-content: space-between;
+      border-color: #ddd;
+      .modal-title {font-size: 1.25rem;}
+      button.btn-close {margin: 0;}
+    }
+    .modal-body {
+      padding: 20px;
+      form {
+        display: flex;
+        padding: 0 10px;
+        flex-direction: column;
+        gap: 10px;
+        .row {
+          // align-items: center;
+          label.col-form-label {
+            padding: 0; font-size: 0.875rem;
+            > * {font-weight: 500;}
+          }
+          div[class*="col-"] {
+            padding: 0;
+            input, select {
+              height: 30px;
+              padding: 0 12px;
+              font-size: 0.875rem;
+              &:focus {box-shadow: none; border-color: #034EA2;}
+            }
+            .input-group {
+              button.btn {height: 30px; padding: 0 12px; font-size: 0.875rem;}
+            }
+          }
+          label[for="phone"] {
+            &+div.cnt_group {
+              display: flex;
+              gap: 10px; justify-content: space-evenly;
+              div[class*="col-"] {width: calc(33.333% - 7px);}
+            }
+          }
+        }
+        div.col {padding: 0;}
+      }
+      .search_wrap {
+        display: flex;
+        gap: 20px;
+        padding: 0;
+        margin: 0;
+        margin-bottom: 14px;
+        padding-bottom: 14px;
+        border-bottom: 1px dashed #ddd;
+        .search_cnt {
+          display: flex;
+          width: calc(100% - 100px); 
+          padding: 0;
+          flex: unset;
+          align-items: center;
+          gap: 10px;
+          .row {
+            margin: 0; gap: 10px 0;
+            .cnt_group {
+              display: flex; align-items: center;
+              flex: unset;
+              width: 25%;
+              label {width: 80px; padding-left: 10px;}
+              div[class*="col-"] {width: calc(100% - 80px);}
+            }
+          }
+          .cnt_group {
+            display: flex; align-items: center;
+            flex: unset;
+            width: 33.333%;
+            label {width: 120px;}
+            div[class*="col-"] {width: calc(100% - 120px);}
+          }
+        }
+        .search_btn {
+          width: 80px; padding: 0; flex: unset;
+          button {width: 100%; height: 30px; padding: 0 12px; font-size: 0.875rem;}
+        }
+      }
+      
+    }
+    .modal-footer {
+      margin: 0 20px;
+      padding: 14px 0 20px 0;
+      gap: 10px;
+      border-color: #ddd;
+      button.btn {height: 30px; margin: 0; padding: 0 14px; font-size: 0.875rem;}
+    }
+  }
+}
