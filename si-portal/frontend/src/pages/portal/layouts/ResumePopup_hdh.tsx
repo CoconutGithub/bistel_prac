@@ -16,12 +16,16 @@ const ResumePopup_hdh = ({ show, resume, onClose }: any) => {
     const licenses = resume.license ? JSON.parse(resume.license) : [];
     const training = resume.training ? JSON.parse(resume.training) : [];
 
-    /** ✅ PDF 변환 및 인쇄 */
+    /** ✅ PDF 변환 및 인쇄 (한글 깨짐 해결 + 줄바꿈 적용 + 페이지 정렬) */
     const printPDF = () => {
-        const doc = new jsPDF();
-        doc.text(`이력서 - ${resume.fullName}`, 20, 10);
+        const doc = new jsPDF({ orientation: "p", unit: "mm", format: "a4" });
+        let lastY = 20; // 테이블 위치 저장
+
+        doc.setFont("helvetica"); // ✅ 한글 지원 폰트 설정
+        doc.text(`이력서 - ${resume.fullName}`, 10, lastY);
+
         autoTable(doc, {
-            startY: 20,
+            startY: lastY + 5,
             head: [["항목", "내용"]],
             body: [
                 ["이메일", resume.email || "정보 없음"],
@@ -32,11 +36,45 @@ const ResumePopup_hdh = ({ show, resume, onClose }: any) => {
                 ["부서", resume.department || "정보 없음"],
                 ["포지션", resume.position || "정보 없음"],
                 ["직무", resume.jobTitle || "정보 없음"],
+                ["군필 여부", resume.militaryService === "Y" ? "군필" : "미필"],
             ],
+            margin: { top: 25 },
+            styles: { font: "helvetica", fontSize: 10 },
+            didDrawPage: (data) => { lastY = data.cursor?.y ? data.cursor.y + 10 : lastY; } // ✅ TypeScript 오류 해결
         });
 
-        doc.autoPrint();
-        window.open(doc.output("bloburl"), "_blank");
+        doc.text("💼 경력", 10, lastY);
+        autoTable(doc, {
+            startY: lastY + 5,
+            head: [["회사", "직책", "기간", "주요 업무"]],
+            body: experiences.length > 0
+                ? experiences.map((exp: any) => [
+                    exp.company || "정보 없음",
+                    exp.position || "정보 없음",
+                    `${exp.start_date || "정보 없음"} ~ ${exp.end_date || "현재"}`,
+                    exp.responsibilities ? exp.responsibilities.join(", ") : "정보 없음"
+                ])
+                : [["경력 정보 없음", "", "", ""]],
+            styles: { font: "helvetica", fontSize: 10 },
+            didDrawPage: (data) => { lastY = data.cursor?.y ? data.cursor.y + 10 : lastY; }
+        });
+
+        doc.text("🎓 학력", 10, lastY);
+        autoTable(doc, {
+            startY: lastY + 5,
+            head: [["학교", "입학일", "졸업일", "졸업 여부"]],
+            body: education.length > 0
+                ? education.map((edu: any) => [
+                    edu.school || "정보 없음",
+                    edu.schoolStart || "정보 없음",
+                    edu.schoolEnd || "현재",
+                    edu.graduateYn === "Y" ? "졸업" : "미졸업"
+                ])
+                : [["학력 정보 없음", "", "", ""]],
+            styles: { font: "helvetica", fontSize: 10 }
+        });
+
+        doc.save(`이력서_${resume.fullName}.pdf`);
     };
 
     /** ✅ Excel 변환 후 다운로드 */
@@ -68,6 +106,7 @@ const ResumePopup_hdh = ({ show, resume, onClose }: any) => {
                 <p><strong>부서:</strong> ${resume.department || "정보 없음"}</p>
                 <p><strong>포지션:</strong> ${resume.position || "정보 없음"}</p>
                 <p><strong>직무:</strong> ${resume.jobTitle || "정보 없음"}</p>
+                <p><strong>군필 여부:</strong> ${resume.militaryService === "Y" ? "군필" : "미필"}</p>
             </body>
             </html>
         `;
