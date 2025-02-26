@@ -230,7 +230,9 @@ code {
 }
 
 .modal {
+  .modal-dialog {max-height: calc(100vh - 80px);}
   .modal-content {
+    max-height: calc(100vh - 80px);
     .modal-header {
       margin: 0 20px;
       padding: 20px 0 14px 0;
@@ -240,7 +242,7 @@ code {
       button.btn-close {margin: 0;}
     }
     .modal-body {
-      padding: 20px 30px;
+      height: calc(100% - 132px); padding: 20px 30px; overflow: auto;
       .row, div[class*="col"]:not([class*="offset"], [class*="column"]) {padding-left: 0; padding-right: 0; margin-left: 0; margin-right: 0;}
       form {
         display: flex;
@@ -248,7 +250,7 @@ code {
         gap: 20px 10px;
         .row {
           label.col-form-label {
-            display: flex; padding: 0; font-size: 0.875rem; align-items: center;
+            display: flex; padding: 0; font-size: 0.875rem; align-items: center; font-weight: bold;
             > * {font-weight: 500;}
           }
           div[class*="col"] {
@@ -257,6 +259,10 @@ code {
               padding: 0 12px;
               font-size: 0.875rem;
               line-height: 30px;
+              &:focus {box-shadow: none; border-color: #034EA2; background-color: #034ea20d;}
+            }
+            textarea {
+              padding: 6px 12px; font-size: 0.875rem;
               &:focus {box-shadow: none; border-color: #034EA2; background-color: #034ea20d;}
             }
             .input-group {
@@ -323,9 +329,47 @@ code {
   }
 }
 
+// 
+.lh30 {line-height: 30px;}
+.top-dash-line {margin-top: 20px; padding-top: 20px; border-top: 1px dashed #ddd;}
+
+// table
+.tabletitle {
+  height: 30px; margin-bottom: 6px; align-items: center;
+  label.form-label {margin: 0; font-size: 14px; font-weight: bold; }
+  &.withbtn {
+    .col + .col {display: flex; justify-content: flex-end;}
+  }
+}
+table, table.table {
+  thead tr th {
+    font-size: 0.875rem; background-color: #f4f4f6;
+  } 
+  tbody tr {
+    th {
+      background-color: #f4f4f6;
+      strong {font-size: 14px; font-weight: bold;}
+    }
+    td {
+      font-size: 0.875rem;
+      input, select {
+        height: 30px;
+        padding: 0 12px;
+        font-size: 0.875rem;
+        line-height: 30px;
+        &:focus {box-shadow: none; border-color: #034EA2; background-color: #034ea20d;}
+      }
+    }
+  } 
+}
+
+#resume {
+  h5 {font-size: 14px; font-weight: bold;}
+}
 
 // button
 button.btn {
+  height: 30px; padding: 0 12px; font-size: 14px; white-space: nowrap;
   &.btn-primary {
     background-color: #034EA2;
     border-color: #034EA2;
@@ -428,7 +472,7 @@ button.btn {
   }
 }
 
-.contents_wrap, .menutree_wrap {
+.contents_wrap, .menutree_wrap, .modal-body {
   &::-webkit-scrollbar {
     width: 14px;
   }

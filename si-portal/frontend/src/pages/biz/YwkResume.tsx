@@ -299,13 +299,13 @@ import React, {
         setRegist(false);
     };
     return (
-    <Container fluid>
-        <Row className="mb-3">
+    <Container fluid className="container_bg h-100">
+        <Row className="container_title">
             <Col>
                 <h2>{comAPIContext.$msg("menu", "resume_role", "이력서 관리")}</h2>
             </Col>
         </Row>
-        <Row>
+        <Row className="container_contents">
             <Col>
                 <AgGridWrapper
                 ref={gridRef} // forwardRef를 통해 연결된 ref
