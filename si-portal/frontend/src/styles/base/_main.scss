@@ -224,7 +224,7 @@ code {
     }
     // 
     select.form-select, input {
-      &:focus {box-shadow: none; border-color: #034EA2;}
+      &:focus {box-shadow: none; border-color: #034EA2; background: #034ea20d;}
     }
   }
 }
@@ -245,7 +245,7 @@ code {
       form {
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 20px 10px;
         .row {
           label.col-form-label {
             display: flex; padding: 0; font-size: 0.875rem; align-items: center;
@@ -256,7 +256,8 @@ code {
               height: 30px;
               padding: 0 12px;
               font-size: 0.875rem;
-              &:focus {box-shadow: none; border-color: #034EA2;}
+              line-height: 30px;
+              &:focus {box-shadow: none; border-color: #034EA2; background-color: #034ea20d;}
             }
             .input-group {
               button.btn {height: 30px; padding: 0 12px; font-size: 0.875rem;}
