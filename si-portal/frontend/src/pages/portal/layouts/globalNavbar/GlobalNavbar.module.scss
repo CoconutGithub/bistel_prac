@@ -54,7 +54,7 @@
             font-weight: 600;
             color: #39B1BD;
           }
-          &:hover {background-color: #ECF8F9;}
+          &:hover {background-color: #ECF8F9; border-radius: 4px;}
         }
         & > :global(.nav-item.dropdown) {
           & > :global(.nav-link) {

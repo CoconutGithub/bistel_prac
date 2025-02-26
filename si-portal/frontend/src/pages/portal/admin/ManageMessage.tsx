@@ -500,7 +500,7 @@ const ManageMessage: React.FC<ManageMessageModalProps> = ({ onClose, isModal, sh
           </Col>
         </Row>
         <Row className="container_contents">
-          <Row className="search_wrap">
+          <Row className="search_wrap row-2">
             <Col className="search_cnt">
               <Form.Group as={Row}>
                 <Col className="cnt_group">

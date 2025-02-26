@@ -644,11 +644,11 @@ const ManageMenuContent: React.FC<{
               </Col>
             </Form.Group>
           </Form>
-          <h4 className="cnt_title">
-            {comAPIContext.$msg("label", "role", "역할") +
-              comAPIContext.$msg("label", "add", "추가")}
-          </h4>
           <div>
+            <h4 className="cnt_title">
+              {comAPIContext.$msg("label", "role", "역할") +
+                comAPIContext.$msg("label", "add", "추가")}
+            </h4>
             <AgGridWrapper
               ref={gridRef}
               showButtonArea={true}

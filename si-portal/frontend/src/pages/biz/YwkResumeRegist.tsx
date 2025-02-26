@@ -140,8 +140,9 @@ const YwkResumeRegist: React.FC<any> = ({show, onClose, resumeData}) => {
     return (
         <Modal show={show} onHide={onClose} centered className="modal-lg">
             <Modal.Header closeButton>
-                {/* <Modal.Title> */}
-                <Row className="w-100 d-flex justify-content-between align-items-center">
+                <Modal.Title>
+                    {comAPIContext.$msg("label", "resumeResist", "이력서 등록")}
+                {/* <Row className="w-100 d-flex justify-content-between align-items-center">
                     <Col md={10} className="d-flex align-items-center">
                         <h5 style={{fontWeight: 'bold', fontSize: '25px', marginBottom: 0}}>
                             {comAPIContext.$msg("label", "resumeResist", "이력서 등록")}
@@ -150,16 +151,16 @@ const YwkResumeRegist: React.FC<any> = ({show, onClose, resumeData}) => {
                     <Col md={2} className="text-end d-flex align-items-center">
                         <ComButton onClick={onSubmit}>저장</ComButton>
                     </Col>
-                </Row>
-                {/* </Modal.Title> */}
+                </Row> */}
+                </Modal.Title>
             </Modal.Header>
-            <Modal.Body>
+            <Modal.Body> 
                 <Form>
                     {/* 기본 정보 */}
-                    <Row className="align-items-center mb-3">
+                    <Row>
                         <Col md={2}>
                             <Form.Group controlId="fullName">
-                                <Form.Label>이름</Form.Label>
+                                <Form.Label column className="lh30">이름</Form.Label>
                             </Form.Group>
                         </Col>
                         <Col md={10}>
@@ -172,10 +173,10 @@ const YwkResumeRegist: React.FC<any> = ({show, onClose, resumeData}) => {
                         </Col>
                     </Row>
 
-                    <Row className="align-items-center mb-3">
+                    <Row>
                         <Col md={2}>
                             <Form.Group controlId="email">
-                                <Form.Label>이메일</Form.Label>
+                                <Form.Label column className="lh30">이메일</Form.Label>
                             </Form.Group>
                         </Col>
                         <Col md={10}>
@@ -188,10 +189,10 @@ const YwkResumeRegist: React.FC<any> = ({show, onClose, resumeData}) => {
                         </Col>
                     </Row>
 
-                    <Row className="align-items-center mb-3">
+                    <Row>
                         <Col md={2}>
                             <Form.Group controlId="phone">
-                                <Form.Label>전화번호</Form.Label>
+                                <Form.Label column className="lh30">전화번호</Form.Label>
                             </Form.Group>
                         </Col>
                         <Col md={10}>
@@ -204,10 +205,10 @@ const YwkResumeRegist: React.FC<any> = ({show, onClose, resumeData}) => {
                         </Col>
                     </Row>
 
-                    <Row className="align-items-center mb-3">
+                    <Row>
                         <Col md={2}>
                             <Form.Group controlId="summary">
-                                <Form.Label>요약</Form.Label>
+                                <Form.Label column className="lh30">요약</Form.Label>
                             </Form.Group>
                         </Col>
                         <Col md={10}>
@@ -221,10 +222,19 @@ const YwkResumeRegist: React.FC<any> = ({show, onClose, resumeData}) => {
                         </Col>
                     </Row>
 
-                    {/* 경력 테이블 */}
-                    <Row className="mb-3">
-                        <Col md={12}>
-                            <Form.Label>경력</Form.Label>
+                    <div className="box">
+                        {/* 경력 테이블 */}
+                        <Row className="top-dash-line">
+                            <Row className="tabletitle withbtn">
+                                <Col>
+                                    <Form.Label>경력</Form.Label>
+                                </Col>
+                                <Col>
+                                    <Button variant="primary" onClick={() => handleAddItem('experience')}>
+                                        경력 추가
+                                    </Button>
+                                </Col>
+                            </Row>
                             <Table striped bordered hover>
                                 <thead>
                                 <tr>
@@ -285,16 +295,20 @@ const YwkResumeRegist: React.FC<any> = ({show, onClose, resumeData}) => {
                                 ))}
                                 </tbody>
                             </Table>
-                            <Button variant="primary" onClick={() => handleAddItem('experience')}>
-                                경력 추가
-                            </Button>
-                        </Col>
-                    </Row>
+                        </Row>
 
-                    {/* 학력 테이블 */}
-                    <Row className="mb-3">
-                        <Col md={12}>
-                            <Form.Label>학력</Form.Label>
+                        {/* 학력 테이블 */}
+                        <Row className="top-dash-line">
+                            <Row className="tabletitle withbtn">
+                                <Col>
+                                    <Form.Label>학력</Form.Label>
+                                </Col>
+                                <Col>
+                                    <Button variant="primary" onClick={() => handleAddItem('education')}>
+                                        학력 추가
+                                    </Button>
+                                </Col>
+                            </Row>
                             <Table striped bordered hover>
                                 <thead>
                                 <tr>
@@ -345,16 +359,20 @@ const YwkResumeRegist: React.FC<any> = ({show, onClose, resumeData}) => {
                                 ))}
                                 </tbody>
                             </Table>
-                            <Button variant="primary" onClick={() => handleAddItem('education')}>
-                                학력 추가
-                            </Button>
-                        </Col>
-                    </Row>
+                        </Row>
 
-                    {/* 기술 테이블 */}
-                    <Row className="mb-3">
-                        <Col md={12}>
-                            <Form.Label>기술 스택</Form.Label>
+                        {/* 기술 테이블 */}
+                        <Row className="top-dash-line">
+                            <Row className="tabletitle withbtn">
+                                <Col>
+                                    <Form.Label>기술 스택</Form.Label>
+                                </Col>
+                                <Col>
+                                    <Button variant="primary" onClick={() => handleAddItem('skills')}>
+                                        기술 추가
+                                    </Button>
+                                </Col>
+                            </Row>
                             <Table striped bordered hover>
                                 <thead>
                                 <tr>
@@ -404,30 +422,30 @@ const YwkResumeRegist: React.FC<any> = ({show, onClose, resumeData}) => {
                                 ))}
                                 </tbody>
                             </Table>
-                            <Button variant="primary" onClick={() => handleAddItem('skills')}>
-                                기술 추가
-                            </Button>
-                        </Col>
-                    </Row>
+                        </Row>
 
-                    {/* 첨부파일 */}
-                    <Row className="align-items-center mb-3">
-                        <Col md={2}>
-                            <Form.Group controlId="resumeFile">
-                                <Form.Label>첨부파일</Form.Label>
-                            </Form.Group>
-                        </Col>
-                        <Col md={10}>
-                            <Form.Control
-                                type="file"
-                                onChange={handleFileChange}
-                            />
-                            {resumeFilename && <div>첨부파일: {resumeFilename}</div>}
-                        </Col>
-                    </Row>
+                        {/* 첨부파일 */}
+                        <Row className="align-items-center top-dash-line">
+                            <Col md={2}>
+                                <Form.Group controlId="resumeFile">
+                                    <Form.Label column className="lh30">첨부파일</Form.Label>
+                                </Form.Group>
+                            </Col>
+                            <Col md={10}>
+                                <Form.Control
+                                    type="file"
+                                    onChange={handleFileChange}
+                                />
+                                {resumeFilename && <div>첨부파일: {resumeFilename}</div>}
+                            </Col>
+                        </Row>
+                    </div>
 
                 </Form>
             </Modal.Body>
+            <Modal.Footer>
+                <ComButton onClick={onSubmit}>저장</ComButton>
+            </Modal.Footer>
         </Modal>
     );
 };

@@ -57,6 +57,43 @@
                 }
               }
             }
+            :global(.ag-body) {
+              :global(.ag-center-cols-container) {
+                :global(.ag-row-selected), :global(.ag-row-hover) {
+                  &::before {
+                    background-color: #034ea21a !important;
+                  }
+                }
+                :global(.ag-row-hover.ag-row-selected::before) {
+                  background-image: unset;
+                  background-color: #034ea233 !important;
+                }
+                :global(.ag-row) {
+                  :global(.ag-cell) {
+                    padding: 0 14px;
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        & :global(.ag-overlay .ag-overlay-panel .ag-overlay-wrapper) {
+          & :global(.ag-overlay-no-rows-center) {
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            height: 140px;
+            color: #999;
+            &::before {
+              content: "";
+              position: absolute;
+              width: 101px;
+              height: 97px;
+              background: url(../../../public/assets/icons/no-data.svg);
+              top: 0;
+              opacity: 0.6;
+            }
           }
         }
       }
