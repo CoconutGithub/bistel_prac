@@ -21,6 +21,7 @@ const FloraResumeDetail = React.lazy(
   () => import('~pages/biz/floraResume/floraResumeDetail/FloraResumeDetail')
 );
 const YwkResume = React.lazy(() => import("~pages/biz/YwkResume"));
+const YoonResume = React.lazy(() => import("~pages/biz/YoonResume"));
 
 export default function DefaultRoutes(): RouteObject[] {
   return [
@@ -124,6 +125,14 @@ export default function DefaultRoutes(): RouteObject[] {
       element: (
         <React.Suspense fallback={<div>Loading...</div>}>
           <YwkResume />
+        </React.Suspense>
+      ),
+    },
+    {
+      path: "/main/yoon-resume",
+      element: (
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <YoonResume />
         </React.Suspense>
       ),
     },
