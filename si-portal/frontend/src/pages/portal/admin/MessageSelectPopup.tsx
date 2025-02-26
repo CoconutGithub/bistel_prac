@@ -234,7 +234,7 @@ const RoleRegistPopup: React.FC<MessageSelectPopupProps> = ({
             <Row className="search_wrap">
               <Col className="search_cnt">
                 <Col className="cnt_group">
-                  <Form.Label column sm={2} className="text-end">
+                  <Form.Label column sm={2}>
                     <strong>
                       {comAPIContext.$msg("label", "MSG TYPE", "MSG TYPE")}
                     </strong>
@@ -251,7 +251,7 @@ const RoleRegistPopup: React.FC<MessageSelectPopupProps> = ({
                   </Col>
                 </Col>
                 <Col className="cnt_group">
-                  <Form.Label column sm={2} className="text-end">
+                  <Form.Label column sm={2}>
                     <strong>
                       {comAPIContext.$msg("label", "MESSAGE NAME", "MESSAGE NAME")}
                     </strong>
@@ -294,7 +294,7 @@ const RoleRegistPopup: React.FC<MessageSelectPopupProps> = ({
           {comAPIContext.$msg("label", "select", "선택")}
         </ComButton>
         <ComButton
-          variant="secondary"
+          variant="outline-secondary"
           onClick={() => {
             setRoleName(""); // Close 버튼 클릭 시 roleName 초기화
             onClose();

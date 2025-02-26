@@ -59,6 +59,24 @@
             }
           }
         }
+
+        & :global(.ag-overlay .ag-overlay-panel .ag-overlay-wrapper) {
+          & :global(.ag-overlay-no-rows-center) {
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            height: 140px;
+            color: #999;
+            &::before {
+              content: "";
+              position: absolute;
+              width: 101px;
+              height: 97px;
+              background: url(../../../public/assets/icons/no-data.svg);
+              top: 0;
+            }
+          }
+        }
       }
     }
   }
