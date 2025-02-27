@@ -6,6 +6,7 @@ import lombok.Getter;
 
 @Getter
 public class YoonResumeListResponse {
+    int id;
     String fullName;
     String company;
     String position;
@@ -13,6 +14,7 @@ public class YoonResumeListResponse {
 
 
     public YoonResumeListResponse(YoonResumeListProjection projection){
+        id=projection.getId();
         fullName=projection.getFullName();
         company=projection.getCompany();
         position=projection.getPosition();
