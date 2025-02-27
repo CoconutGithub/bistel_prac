@@ -275,193 +275,195 @@ const Profile: React.FC = () => {
                 </Col>
             </Row>
             <Row className="container_contents">
-                <Form style={{width: "600px"}}>
-                    <div className="changephoto-wrap">
-                        <div className="changephoto">
-                            {profileImage ? (
-                                <img
-                                    src={`data:image/png;base64,${profileImage}`}
-                                    alt="프로필"
-                                />
-                            ) : (
-                                <div className="empty">
-                                    이미지 없음
-                                </div>
-                            )}
+                <Row className="h-100 contents_wrap">
+                    <Form style={{width: "600px"}}>
+                        <div className="changephoto-wrap">
+                            <div className="changephoto">
+                                {profileImage ? (
+                                    <img
+                                        src={`data:image/png;base64,${profileImage}`}
+                                        alt="프로필"
+                                    />
+                                ) : (
+                                    <div className="empty">
+                                        이미지 없음
+                                    </div>
+                                )}
+                            </div>
+                            <Form.Group as={Row} controlId="name">
+                                <Form.Label column sm={3}>
+                                    <strong>
+                                        {comAPIContext.$msg("label", "changePhoto", "사진변경")}
+                                    </strong>
+                                </Form.Label>
+                                <Col sm={9}>
+                                    <Form.Control
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleFileChange}
+                                    />
+                                </Col>
+                            </Form.Group>
                         </div>
                         <Form.Group as={Row} controlId="name">
                             <Form.Label column sm={3}>
                                 <strong>
-                                    {comAPIContext.$msg("label", "changePhoto", "사진변경")}
+                                    {comAPIContext.$msg("label", "name", "이름")}
                                 </strong>
                             </Form.Label>
                             <Col sm={9}>
                                 <Form.Control
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleFileChange}
+                                type="text"
+                                value={userName}
+                                disabled
                                 />
                             </Col>
                         </Form.Group>
-                    </div>
-                    <Form.Group as={Row} controlId="name">
-                        <Form.Label column sm={3}>
-                            <strong>
-                                {comAPIContext.$msg("label", "name", "이름")}
-                            </strong>
-                        </Form.Label>
-                        <Col sm={9}>
-                            <Form.Control
-                            type="text"
-                            value={userName}
-                            disabled
-                            />
-                        </Col>
-                    </Form.Group>
-                    <Form.Group as={Row} controlId="id">
-                        <Form.Label column sm={3}>
-                            <strong>
-                                {comAPIContext.$msg("label", "id", "ID")}
-                            </strong>
-                        </Form.Label>
-                        <Col sm={9}>
-                            <Form.Control
-                            type="text"
-                            value={userId}
-                            disabled
-                            />
-                        </Col>
-                    </Form.Group>
-                    <Form.Group as={Row} controlId="password">
-                        <Form.Label column sm={3}>
-                        <strong>password</strong>
-                        </Form.Label>
-                        <Col sm={9}>
-                            <Form.Control
-                                type="password"
-                                value={newPassword}
-                                onChange={(e) => setNewPassword(e.target.value)}
-                                placeholder="새 비밀번호 입력"
-                            />
-                            <ComButton size="sm" variant="primary" onClick={changePassword}>
-                                변경
-                            </ComButton>
-                        </Col>
-                    </Form.Group>
-                    <Form.Group as={Row} controlId="role">
-                        <Form.Label column sm={3}>
-                            <strong>
-                            {comAPIContext.$msg("label", "role", "역할")}
-                            </strong>
-                        </Form.Label>
-                        <Col sm={9}>
-                            <Form.Control
-                            type="text"
-                            value={roleName}
-                            disabled
-                            />
-                        </Col>
-                    </Form.Group>
-                    <Form.Group as={Row} controlId="phone">
-                        <Form.Label column sm={3}>
-                            <strong>phone number</strong>
-                        </Form.Label>
-                        <Col sm={9}>
-                            <Col className="cnt_group">
+                        <Form.Group as={Row} controlId="id">
+                            <Form.Label column sm={3}>
+                                <strong>
+                                    {comAPIContext.$msg("label", "id", "ID")}
+                                </strong>
+                            </Form.Label>
+                            <Col sm={9}>
                                 <Form.Control
-                                    type="text"
-                                    value={phoneParts[0]}
-                                    onChange={(e) => handlePhoneNumberChange(0, e.target.value)}
-                                    maxLength={3}
-                                />
-                                <Form.Control
-                                    type="text"
-                                    value={phoneParts[1]}
-                                    onChange={(e) => handlePhoneNumberChange(1, e.target.value)}
-                                    maxLength={4}
-                                />
-                                <Form.Control
-                                    type="text"
-                                    value={phoneParts[2]}
-                                    onChange={(e) => handlePhoneNumberChange(2, e.target.value)}
-                                    maxLength={4}
+                                type="text"
+                                value={userId}
+                                disabled
                                 />
                             </Col>
-                            <ComButton
-                                size="sm"
-                                variant="primary"
-                                onClick={handleUpdatePhoneNumber}
-                            >
-                                변경
-                            </ComButton>
-                        </Col>
-                    </Form.Group>
-                    <Form.Group as={Row} controlId="email">
-                        <Form.Label column sm={3}>
-                            <strong>{comAPIContext.$msg("label", "email", "이메일")}</strong>
-                        </Form.Label>
-                        <Col sm={9}>
-                            <Form.Control
+                        </Form.Group>
+                        <Form.Group as={Row} controlId="password">
+                            <Form.Label column sm={3}>
+                            <strong>password</strong>
+                            </Form.Label>
+                            <Col sm={9}>
+                                <Form.Control
+                                    type="password"
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                    placeholder="새 비밀번호 입력"
+                                />
+                                <ComButton size="sm" variant="primary" onClick={changePassword}>
+                                    변경
+                                </ComButton>
+                            </Col>
+                        </Form.Group>
+                        <Form.Group as={Row} controlId="role">
+                            <Form.Label column sm={3}>
+                                <strong>
+                                {comAPIContext.$msg("label", "role", "역할")}
+                                </strong>
+                            </Form.Label>
+                            <Col sm={9}>
+                                <Form.Control
                                 type="text"
-                                value={email === null ||
-                                    email === undefined ||
-                                    email.toLowerCase() === "null"
-                                        ? "-"
-                                : email}
+                                value={roleName}
                                 disabled
-                            />
-                        </Col>
-                    </Form.Group>
-                    <Form.Group as={Row} controlId="langCode">
-                        <Form.Label column sm={3}>
-                        <strong>
-                            {comAPIContext.$msg("label", "language", "언어")}
-                        </strong>
-                        </Form.Label>
-                        <Col sm={9}>
-                            <Form.Select value={pageLangCode}
-                                onChange={langCodeChange}>
-                                <option value="KO">한국어</option>
-                                <option value="EN">영어</option>
-                                <option value="CN">중국어</option>
-                            </Form.Select>
-                            <ComButton
-                                size="sm"
-                                variant="primary"
-                                onClick={handleLangCodeUpdate}
-                                disabled={langCode === pageLangCode}
-                            >
-                                변경
-                            </ComButton>
-                        </Col>
-                    </Form.Group>
-                    <Form.Group as={Row} controlId="pagePaginationSize">
-                        <Form.Label column sm={3}>
-                        <strong>
-                            {comAPIContext.$msg("label", "pagePaginationSize", "페이지네이션 크기")}
-                        </strong>
-                        </Form.Label>
-                        <Col sm={9}>
-                            <Form.Select value={pagePaginationSize}
-                                onChange={paginationSizeChange}>
-                                <option value={20}>20</option>
-                                <option value={50}>50</option>
-                                <option value={100}>100</option>
-                            </Form.Select>
-                            <ComButton
-                                size="sm"
-                                variant="primary"
-                                onClick={handlePaginationSizeUpdate}
-                                disabled={paginationSize === pagePaginationSize}
-                            >
-                                변경
-                            </ComButton>
-                        </Col>
-                    </Form.Group>
-                    <ComButton onClick={handleUpload} style={{width: "220px", margin: "auto"}}>
-                        저장
-                    </ComButton>
-                </Form>
+                                />
+                            </Col>
+                        </Form.Group>
+                        <Form.Group as={Row} controlId="phone">
+                            <Form.Label column sm={3}>
+                                <strong>phone number</strong>
+                            </Form.Label>
+                            <Col sm={9}>
+                                <Col className="cnt_group">
+                                    <Form.Control
+                                        type="text"
+                                        value={phoneParts[0]}
+                                        onChange={(e) => handlePhoneNumberChange(0, e.target.value)}
+                                        maxLength={3}
+                                    />
+                                    <Form.Control
+                                        type="text"
+                                        value={phoneParts[1]}
+                                        onChange={(e) => handlePhoneNumberChange(1, e.target.value)}
+                                        maxLength={4}
+                                    />
+                                    <Form.Control
+                                        type="text"
+                                        value={phoneParts[2]}
+                                        onChange={(e) => handlePhoneNumberChange(2, e.target.value)}
+                                        maxLength={4}
+                                    />
+                                </Col>
+                                <ComButton
+                                    size="sm"
+                                    variant="primary"
+                                    onClick={handleUpdatePhoneNumber}
+                                >
+                                    변경
+                                </ComButton>
+                            </Col>
+                        </Form.Group>
+                        <Form.Group as={Row} controlId="email">
+                            <Form.Label column sm={3}>
+                                <strong>{comAPIContext.$msg("label", "email", "이메일")}</strong>
+                            </Form.Label>
+                            <Col sm={9}>
+                                <Form.Control
+                                    type="text"
+                                    value={email === null ||
+                                        email === undefined ||
+                                        email.toLowerCase() === "null"
+                                            ? "-"
+                                    : email}
+                                    disabled
+                                />
+                            </Col>
+                        </Form.Group>
+                        <Form.Group as={Row} controlId="langCode">
+                            <Form.Label column sm={3}>
+                            <strong>
+                                {comAPIContext.$msg("label", "language", "언어")}
+                            </strong>
+                            </Form.Label>
+                            <Col sm={9}>
+                                <Form.Select value={pageLangCode}
+                                    onChange={langCodeChange}>
+                                    <option value="KO">한국어</option>
+                                    <option value="EN">영어</option>
+                                    <option value="CN">중국어</option>
+                                </Form.Select>
+                                <ComButton
+                                    size="sm"
+                                    variant="primary"
+                                    onClick={handleLangCodeUpdate}
+                                    disabled={langCode === pageLangCode}
+                                >
+                                    변경
+                                </ComButton>
+                            </Col>
+                        </Form.Group>
+                        <Form.Group as={Row} controlId="pagePaginationSize">
+                            <Form.Label column sm={3}>
+                            <strong>
+                                {comAPIContext.$msg("label", "pagePaginationSize", "페이지네이션 크기")}
+                            </strong>
+                            </Form.Label>
+                            <Col sm={9}>
+                                <Form.Select value={pagePaginationSize}
+                                    onChange={paginationSizeChange}>
+                                    <option value={20}>20</option>
+                                    <option value={50}>50</option>
+                                    <option value={100}>100</option>
+                                </Form.Select>
+                                <ComButton
+                                    size="sm"
+                                    variant="primary"
+                                    onClick={handlePaginationSizeUpdate}
+                                    disabled={paginationSize === pagePaginationSize}
+                                >
+                                    변경
+                                </ComButton>
+                            </Col>
+                        </Form.Group>
+                        <ComButton onClick={handleUpload} style={{width: "220px", margin: "auto"}}>
+                            저장
+                        </ComButton>
+                    </Form>
+                </Row>
                 {/* <Col xs={8}>
                     // 사용자 정보
                     <h2>Profile</h2>
