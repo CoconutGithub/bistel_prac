@@ -14,10 +14,10 @@ const YoonResumePopup: React.FC<YoonResumePopupProps> = ({ show, resumeData, onC
         <Modal.Title>이력서 상세 정보</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <p><strong>이름:</strong> {resumeData.name}</p>
+        <p><strong>이름:</strong> {resumeData.fullName}</p>
         <p><strong>회사:</strong> {resumeData.company}</p>
         <p><strong>포지션:</strong> {resumeData.position}</p>
-        <p><strong>직무:</strong> {resumeData.job_title}</p>
+        <p><strong>직무:</strong> {resumeData.jobTitle}</p>
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={onClose}>
