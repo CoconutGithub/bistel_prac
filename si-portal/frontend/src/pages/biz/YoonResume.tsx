@@ -13,6 +13,7 @@ import YoonResumePopup from  './YoonResumePopup'; // 팝업 컴포넌트
 
 // 📌 테이블 컬럼 정의
 const columnDefs = [
+  { headerName: "ID", field: "id", width: 100},
   { headerName: "이름", field: "fullName", width: 150 },
   { headerName: "회사", field: "company", width: 200 },
   { headerName: "포지션", field: "position", width: 150 },
@@ -46,10 +47,12 @@ const YoonResume: React.FC = () => {
   // 📌 행 더블 클릭 시 상세 조회
   const onCellDoubleClicked = (event: any) => {
     comAPIContext.showProgressBar();
+    console.log("event:", event);
+    console.log("event.data:", event.data);
+    console.log("event.data.id:", event.data.id);
     axios
-      .get(`${process.env.REACT_APP_BACKEND_IP}/biz/my/getResumeById`, {
-        headers: { Authorization: `Bearer ${cachedAuthToken}` },
-        params: { resumeId: event.data.id },
+      .get(`${process.env.REACT_APP_BACKEND_IP}/biz/yoon-resume/${event.data.id}`, {
+        headers: { Authorization: `Bearer ${cachedAuthToken}` }
       })
       .then((res) => {
         setResumeData(res.data);
