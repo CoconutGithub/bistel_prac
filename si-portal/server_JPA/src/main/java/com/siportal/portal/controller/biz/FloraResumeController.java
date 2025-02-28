@@ -60,4 +60,14 @@ public class FloraResumeController {
         }
     }
 
+    @PutMapping("/update/{id}")
+    public ResponseEntity<String> updateResume(@PathVariable Integer id, @RequestBody FloraResumeDto floraResumeDto) {
+        try {
+            floraResumeDto.setId(id);
+            floraResumeService.updateFloraResume(floraResumeDto);
+            return ResponseEntity.ok("이력서 업데이트를 성공했습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
 }

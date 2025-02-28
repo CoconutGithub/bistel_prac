@@ -29,6 +29,7 @@ public class Resume {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Transient
     private Integer gridRowId;
 
     @Column(nullable = false, length = 100)
