@@ -55,7 +55,7 @@ code {
 
 
 // 기본 전체 레이아웃 스타일 커스텀
-.container-fluid.container_bg {
+.container_bg {
   position: relative;
   padding: 0;
   .row, div[class*="col"]:not([class*="offset"], [class*="column"]) {padding-left: 0; padding-right: 0; margin-left: 0; margin-right: 0;}
@@ -79,15 +79,16 @@ code {
     background-color: #001C54;
     z-index: -1;
   }
-  .container_title {
+  .container_title, header[class*="_header"] {
     display: flex;
     height: 66px;
     margin: 0;
     padding: 0 20px;
     align-items: center;
-    h2 {margin-bottom: 0; font-size: 20px; font-weight: bold; color: #fff;}
+    border-bottom: none;
+    h2, p[class*="_title"] {margin-bottom: 0; font-size: 20px; font-weight: bold; color: #fff;}
   }
-  .container_contents {
+  .container_contents, main[class*="_main"] {
     display: flex;
     flex-direction: column;
     width: calc(100% - 40px);

@@ -218,9 +218,9 @@ const ExpenseManagement: React.FC = () => {
   ];
 
   return (
-    <div className={styles.start}>
+    <div className={`${styles.start} container_bg`}>
       <header className={styles.header}>
-        <SiTableIcon width={12} height={12} fillColor="#00000073" />
+        {/* <SiTableIcon width={12} height={12} fillColor="#00000073" /> */}
         <p className={styles.title}>Expense Management</p>
       </header>
       <main className={styles.main}>
