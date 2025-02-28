@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -69,6 +70,60 @@ public class FloraResumeService {
 
     public FloraResumeProjection getResumeById(Integer id) {
         return floraResumeRepository.findProjectedById(id).orElse(null);
+    }
+
+    public void updateFloraResume(FloraResumeDto floraResumeDto) {
+        try {
+            Resume floraResume = floraResumeRepository.findById(floraResumeDto.getId()).orElseThrow(() -> new IllegalArgumentException("이력서를 찾을 수 없습니다." + floraResumeDto.getId()));
+            String experienceString = objectMapper.writeValueAsString(floraResumeDto.getExperience());
+            String educationString = objectMapper.writeValueAsString(floraResumeDto.getEducation());
+            String skillsString = objectMapper.writeValueAsString(floraResumeDto.getSkills());
+
+
+            if (floraResumeDto.getFullName() != null) {
+                floraResume.setFullName(floraResumeDto.getFullName());
+            }
+            if (floraResumeDto.getEmail() != null) {
+                floraResume.setEmail(floraResumeDto.getEmail());
+            }
+            if (floraResumeDto.getPhone() != null) {
+                floraResume.setPhone(floraResumeDto.getPhone());
+            }
+            if (floraResumeDto.getSummary() != null) {
+                floraResume.setSummary(floraResumeDto.getSummary());
+            }
+            if (experienceString != null) {
+                floraResume.setExperience(objectMapper.readValue(experienceString, List.class));
+            }
+            if (educationString != null) {
+                floraResume.setEducation(objectMapper.readValue(educationString, List.class));
+            }
+            if (skillsString != null) {
+                floraResume.setSkills(objectMapper.readValue(skillsString, List.class));
+            }
+            if (floraResumeDto.getGender() != null) {
+                floraResume.setGender(floraResume.getGender());
+            }
+            if (floraResumeDto.getCompany() != null) {
+                floraResume.setCompany(floraResume.getCompany());
+            }
+            if (floraResumeDto.getDepartment() != null) {
+                floraResume.setDepartment(floraResume.getDepartment());
+            }
+            if (floraResumeDto.getPosition() != null) {
+                floraResume.setPosition(floraResume.getPosition());
+            }
+            if (floraResumeDto.getJobTitle() != null) {
+                floraResume.setJobTitle(floraResume.getJobTitle());
+            }
+
+            floraResume.setUpdateDate(LocalDateTime.now());
+
+
+
+        } catch (Exception e) {
+            throw new RuntimeException("이력서 수정 중 오류가 발생했습니다." + e.getMessage());
+        }
     }
 
 }
