@@ -53,6 +53,7 @@ interface AgGridWrapperProps {
   onCellDoubleClicked?: (event: any) => void;
   onRowClicked?: (event: any) => void;
   onGridLoaded?: () => void;
+  getRowId?: (params: any) => string;
 }
 
 //##################### type 지정-end #######################
@@ -115,7 +116,6 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
       paginationPageSize,
       tableHeight,
       useNoColumn,
-
       onDelete,
       onSave,
       onCellEditingStopped,
@@ -123,6 +123,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
       onCellEditingStarted,
       onGridLoaded,
       onRowClicked,
+      getRowId,
     } = settings;
 
     console.log('======create AgGridWrapper======');
@@ -263,6 +264,10 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
 
       // 선택된 행만 업데이트
       gridRef.current?.api.applyTransaction({ update: selectedRows });
+
+      if (onDelete) {
+        onDelete(selectedRows);
+      }
     };
 
     const handleSave = () => {
@@ -297,6 +302,11 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
         // setRowData((prev) => [newRow, ...prev]);
       }
     };
+
+    const defaultGetRowId = useCallback(
+      (params: any) => String(params.data.gridRowId),
+      []
+    );
 
     // useImperativeHandle로 외부에서 접근 가능한 메서드 정의
     useImperativeHandle(ref, () => ({
@@ -367,7 +377,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
               modules={[ClientSideRowModelModule]}
               onCellValueChanged={handleCellValueChange}
               rowClassRules={rowClassRules} // 행 스타일 규칙 적용
-              getRowId={(params) => String(params.data.gridRowId || 'id')} // GRID 에서 행별로 유일한 고유 ID 설정
+              getRowId={getRowId || defaultGetRowId}
               onGridReady={onGridReady}
               onCellEditingStopped={handleCellEditingStopped}
               onCellEditingStarted={handleCellEditingStarted}

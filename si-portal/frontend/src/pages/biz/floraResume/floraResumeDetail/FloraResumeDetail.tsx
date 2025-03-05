@@ -13,6 +13,41 @@ import axios from 'axios';
 
 let cachedAuthToken: string | null = sessionStorage.getItem('authToken');
 
+interface IEducationType {
+  gridRowId: string;
+  schoolName: string;
+  educationLevel: string;
+  period: string;
+  status: string;
+}
+
+interface IExperienceType {
+  gridRowId: string;
+  companyName: string;
+  workPeriod: string;
+  workDetail: string;
+}
+
+interface ISkillType {
+  gridRowId: string;
+  certificationName: string;
+  certificationDate: string;
+}
+
+interface FormDataType {
+  fullName: string;
+  email: string;
+  phone: string;
+  gender: string;
+  company: string;
+  department: string;
+  position: string;
+  jobTitle: string;
+  education: IEducationType[];
+  experience: IExperienceType[];
+  skills: ISkillType[];
+}
+
 const fetchResume = async (id: any) => {
   try {
     const response = await axios.get(
@@ -23,7 +58,6 @@ const fetchResume = async (id: any) => {
         },
       }
     );
-
     return response.data;
   } catch (error) {
     console.error('Failed to fetch resume', error);
@@ -32,7 +66,7 @@ const fetchResume = async (id: any) => {
 };
 
 const FloraResumeDetail = () => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormDataType>({
     fullName: '',
     email: '',
     phone: '',
@@ -49,13 +83,14 @@ const FloraResumeDetail = () => {
   const eduGridRef = useRef<AgGridWrapperHandle>(null);
   const skillGridRef = useRef<AgGridWrapperHandle>(null);
   const workGridRef = useRef<AgGridWrapperHandle>(null);
+  const [hasInitialized, setHasInitialized] = useState(false);
 
   const eduColumns = useMemo(
     () => [
       {
         field: 'schoolName',
         headerName: '학교명',
-        editable: false,
+        editable: true,
         flex: 2,
         autoHeight: true,
         wrapText: true,
@@ -64,7 +99,7 @@ const FloraResumeDetail = () => {
       {
         field: 'educationLevel',
         headerName: '학교 유형',
-        editable: false,
+        editable: true,
         autoHeight: true,
         flex: 2,
         wrapText: true,
@@ -73,7 +108,7 @@ const FloraResumeDetail = () => {
       {
         field: 'period',
         headerName: '재학 기간',
-        editable: false,
+        editable: true,
         autoHeight: true,
         flex: 3,
         wrapText: true,
@@ -82,7 +117,7 @@ const FloraResumeDetail = () => {
       {
         field: 'status',
         headerName: '졸업 상태',
-        editable: false,
+        editable: true,
         autoHeight: true,
         flex: 2,
         wrapText: true,
@@ -97,7 +132,7 @@ const FloraResumeDetail = () => {
       {
         field: 'certificationName',
         headerName: '자격증명',
-        editable: false,
+        editable: true,
         flex: 2,
         autoHeight: true,
         wrapText: true,
@@ -106,7 +141,7 @@ const FloraResumeDetail = () => {
       {
         field: 'certificationDate',
         headerName: '취득일',
-        editable: false,
+        editable: true,
         autoHeight: true,
         flex: 2,
         wrapText: true,
@@ -121,7 +156,7 @@ const FloraResumeDetail = () => {
       {
         field: 'companyName',
         headerName: '회사명',
-        editable: false,
+        editable: true,
         flex: 2,
         autoHeight: true,
         wrapText: true,
@@ -130,7 +165,7 @@ const FloraResumeDetail = () => {
       {
         field: 'workPeriod',
         headerName: '기간',
-        editable: false,
+        editable: true,
         autoHeight: true,
         flex: 2,
         wrapText: true,
@@ -139,7 +174,7 @@ const FloraResumeDetail = () => {
       {
         field: 'workDetail',
         headerName: '담당 업무',
-        editable: false,
+        editable: true,
         autoHeight: true,
         flex: 2,
         wrapText: true,
@@ -149,27 +184,256 @@ const FloraResumeDetail = () => {
     []
   );
 
+  const handleInputChange = useCallback((e: any) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
+  }, []);
+
+  const handleCellValueChange = useCallback((event: any, type: any) => {
+    const { data } = event;
+
+    const updatedData: Record<string, any> = {};
+
+    if (type === 'education') {
+      const eduValidFields = new Set(eduColumns.map((col) => col.field));
+
+      eduValidFields.forEach((key) => {
+        if (!key) return;
+
+        updatedData[key] = data.hasOwnProperty(key) ? data[key] ?? '' : '';
+      });
+
+      setFormData((prev) => {
+        const updatedEducation = [...prev.education];
+
+        const index = updatedEducation.findIndex(
+          (edu) => edu.gridRowId === data.gridRowId
+        );
+
+        const newEducationItem: IEducationType = {
+          gridRowId: data.gridRowId ?? Date.now().toString(),
+          schoolName: updatedData.schoolName ?? '', // 필수 필드 추가
+          educationLevel: updatedData.educationLevel ?? '',
+          period: updatedData.period ?? '',
+          status: updatedData.status ?? '',
+        };
+
+        if (index !== -1) {
+          updatedEducation[index] = {
+            ...updatedEducation[index],
+            ...updatedData,
+          };
+        } else {
+          updatedEducation.push(newEducationItem);
+        }
+
+        return { ...prev, education: updatedEducation };
+      });
+    }
+
+    if (type === 'skills') {
+      const skillsValidFields = new Set(
+        certificationColumns.map((col) => col.field)
+      );
+      skillsValidFields.forEach((key) => {
+        if (!key) return;
+
+        updatedData[key] = data.hasOwnProperty(key) ? data[key] ?? '' : '';
+      });
+
+      setFormData((prev) => {
+        const updatedSkills = [...prev.skills];
+
+        const index = updatedSkills.findIndex(
+          (skill) => skill.gridRowId === data.gridRowId
+        );
+
+        const newSkillItem: ISkillType = {
+          gridRowId: data.gridRowId ?? Date.now().toString(),
+          certificationName: updatedData.certificationName ?? '',
+          certificationDate: updatedData.certificationDate ?? '',
+        };
+
+        if (index !== -1) {
+          updatedSkills[index] = {
+            ...updatedSkills[index],
+            ...updatedData,
+          };
+        } else {
+          updatedSkills.push(newSkillItem);
+        }
+
+        return { ...prev, skills: updatedSkills };
+      });
+    }
+
+    if (type === 'experience') {
+      const experienceValidFields = new Set(
+        workColumns.map((col) => col.field)
+      );
+      experienceValidFields.forEach((key) => {
+        if (!key) return;
+
+        updatedData[key] = data.hasOwnProperty(key) ? data[key] ?? '' : '';
+      });
+
+      setFormData((prev) => {
+        const updatedExperience = [...prev.experience];
+
+        const index = updatedExperience.findIndex(
+          (experience) => experience.gridRowId === data.gridRowId
+        );
+
+        const newExperienceItem: IExperienceType = {
+          gridRowId: data.gridRowId ?? Date.now().toString(),
+          companyName: updatedData.companyName ?? '',
+          workPeriod: updatedData.workPeriod ?? '',
+          workDetail: updatedData.workDetail ?? '',
+        };
+
+        if (index !== -1) {
+          updatedExperience[index] = {
+            ...updatedExperience[index],
+            ...updatedData,
+          };
+        } else {
+          updatedExperience.push(newExperienceItem);
+        }
+
+        return { ...prev, experience: updatedExperience };
+      });
+    }
+  }, []);
+
+  const handleEducationCellChange = useCallback(
+    (e: any) => handleCellValueChange(e, 'education'),
+    [handleCellValueChange]
+  );
+  const handleSkillsCellChange = useCallback(
+    (e: any) => handleCellValueChange(e, 'skills'),
+    [handleCellValueChange]
+  );
+  const handleExperienceCellChange = useCallback(
+    (e: any) => handleCellValueChange(e, 'experience'),
+    [handleCellValueChange]
+  );
+
+  const handleDeleteRow = (deletedRows: any[], type: string) => {
+    console.log('삭제된 데이터', deletedRows);
+
+    if (!deletedRows || deletedRows.length === 0) {
+      return;
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      education:
+        type === 'education'
+          ? prev.education.filter(
+              (edu) =>
+                !deletedRows.some((row) => row.gridRowId === edu.gridRowId)
+            )
+          : prev.education,
+      skills:
+        type === 'skills'
+          ? prev.skills.filter(
+              (skill) =>
+                !deletedRows.some((row) => row.gridRowId === skill.gridRowId)
+            )
+          : prev.skills,
+      experience:
+        type === 'experience'
+          ? prev.experience.filter(
+              (exp) =>
+                !deletedRows.some((row) => row.gridRowId === exp.gridRowId)
+            )
+          : prev.experience,
+    }));
+  };
+
+  const handleUpdate = async () => {
+    if (!formData.fullName.trim()) {
+      alert('성명을 입력해주세요.');
+      return;
+    }
+    if (!formData.email.trim()) {
+      alert('이메일을 입력해주세요.');
+      return;
+    }
+
+    const jsonEduData = formData.education.map(
+      ({ gridRowId, ...rest }) => rest
+    );
+
+    const jsonSkillsData = formData.skills.map(
+      ({ gridRowId, ...rest }) => rest
+    );
+
+    const jsonWorkData = formData.experience.map(
+      ({ gridRowId, ...rest }) => rest
+    );
+
+    const resumeData = {
+      ...formData,
+      education: jsonEduData,
+      experience: jsonWorkData,
+      skills: jsonSkillsData,
+    };
+
+    console.log('resumeData', resumeData);
+
+    try {
+      const response = await axios.put(
+        `${process.env.REACT_APP_BACKEND_IP}/biz/flora-resumes/update/${id}`,
+        resumeData,
+        {
+          headers: {
+            Authorization: `Bearer ${cachedAuthToken}`,
+          },
+        }
+      );
+      window.location.reload();
+    } catch (error) {
+      console.error('이력서 수정에 실패했습니다.', error);
+      alert('이력서 수정에 실패했습니다.');
+    }
+  };
+
   useEffect(() => {
-    if (eduGridRef.current && formData.education.length > 0) {
-      const eduData = formData.education.map((row: any, index: any) => ({
-        gridRowId: index,
-        ...row,
-      }));
-      eduGridRef.current.setRowData(eduData);
-    }
-    if (workGridRef.current && formData.experience.length > 0) {
-      const workData = formData.experience.map((row: any, index: any) => ({
-        gridRowId: index,
-        ...row,
-      }));
-      workGridRef.current.setRowData(workData);
-    }
-    if (skillGridRef.current && formData.skills.length > 0) {
-      const skillData = formData.skills.map((row: any, index: any) => ({
-        gridRowId: index,
-        ...row,
-      }));
-      skillGridRef.current.setRowData(skillData);
+    if (
+      !hasInitialized &&
+      (formData.education.length > 0 ||
+        formData.experience.length > 0 ||
+        formData.skills.length > 0)
+    ) {
+      if (eduGridRef.current) {
+        const updatedEducation = formData.education.map((item, index) => ({
+          ...item,
+          gridRowId: index.toString(),
+        }));
+        eduGridRef.current.setRowData(updatedEducation);
+      }
+
+      if (workGridRef.current) {
+        const updatedExperience = formData.experience.map((item, index) => ({
+          ...item,
+          gridRowId: index.toString(),
+        }));
+        workGridRef.current.setRowData(updatedExperience);
+      }
+
+      if (skillGridRef.current) {
+        const updatedSkills = formData.skills.map((item, index) => ({
+          ...item,
+          gridRowId: index.toString(),
+        }));
+        skillGridRef.current.setRowData(updatedSkills);
+      }
+
+      setHasInitialized(true);
     }
   }, [formData]);
 
@@ -181,44 +445,53 @@ const FloraResumeDetail = () => {
           ...prev,
           ...Object.keys(prev).reduce((acc, key) => {
             const typedKey = key as keyof typeof prev;
+
             if (typedKey === 'education' && initData['education']) {
               const jsonArray = initData[typedKey];
 
-              const formattedEducation = jsonArray.map((item: any) => {
-                return eduColumns.reduce((eduAcc: any, eduCol) => {
-                  if (!eduCol.field) return eduAcc;
+              const formattedEducation = jsonArray.map(
+                (item: any, index: any) => ({
+                  gridRowId: item.gridRowId || index.toString(),
+                  ...eduColumns.reduce((eduAcc: any, eduCol) => {
+                    if (!eduCol.field) return eduAcc;
 
-                  eduAcc[eduCol.field] = item[eduCol.field] || '';
-                  return eduAcc;
-                }, {});
-              });
+                    eduAcc[eduCol.field] = item[eduCol.field] || '';
+                    return eduAcc;
+                  }, {}),
+                })
+              );
 
               acc[typedKey] = formattedEducation;
             } else if (typedKey === 'skills' && initData['skills']) {
               const jsonArray = initData[typedKey];
 
-              const formattedSkills = jsonArray.map((item: any) => {
-                return certificationColumns.reduce(
-                  (certiAcc: any, certiCol) => {
+              const formattedSkills = jsonArray.map(
+                (item: any, index: any) => ({
+                  gridRowId: item.gridRowId || index.toString(),
+                  ...certificationColumns.reduce((certiAcc: any, certiCol) => {
                     if (!certiCol.field) return certiAcc;
+
                     certiAcc[certiCol.field] = item[certiCol.field] || '';
                     return certiAcc;
-                  },
-                  {}
-                );
-              });
+                  }, {}),
+                })
+              );
 
               acc[typedKey] = formattedSkills;
             } else if (typedKey === 'experience' && initData['experience']) {
               const jsonArray = initData[typedKey];
 
-              const formattedExperience = jsonArray.map((item: any) => {
-                return workColumns.reduce((workAcc: any, workCol) => {
-                  if (!workCol.field) return workAcc;
-                  workAcc[workCol.field] = item[workCol.field] || '';
-                  return workAcc;
-                }, {});
-              });
+              const formattedExperience = jsonArray.map(
+                (item: any, index: any) => ({
+                  gridRowId: item.gridRowId || index.toString(),
+                  ...workColumns.reduce((workAcc: any, workCol) => {
+                    if (!workCol.field) return workAcc;
+
+                    workAcc[workCol.field] = item[workCol.field] || '';
+                    return workAcc;
+                  }, {}),
+                })
+              );
 
               acc[typedKey] = formattedExperience;
             } else if (initData.hasOwnProperty(typedKey)) {
@@ -250,7 +523,7 @@ const FloraResumeDetail = () => {
             Delete
           </ComButton>
           <ComButton
-            onClick={() => {}}
+            onClick={handleUpdate}
             size="sm"
             className={styles.button}
             variant="outline-primary"
@@ -270,8 +543,8 @@ const FloraResumeDetail = () => {
                 id="fullName"
                 required
                 className={styles.input}
-                readOnly
                 value={formData.fullName}
+                onChange={handleInputChange}
               />
             </div>
             <div className={styles.form_item}>
@@ -281,8 +554,8 @@ const FloraResumeDetail = () => {
               <input
                 id="phone"
                 className={styles.input}
-                readOnly
                 value={formData.phone}
+                onChange={handleInputChange}
               />
             </div>
             <div className={styles.form_item}>
@@ -299,8 +572,8 @@ const FloraResumeDetail = () => {
                 id="email"
                 required
                 className={styles.input}
-                readOnly
                 value={formData.email}
+                onChange={handleInputChange}
               />
             </div>
             <div className={styles.form_item}>
@@ -310,8 +583,8 @@ const FloraResumeDetail = () => {
               <input
                 id="gender"
                 className={styles.input}
-                readOnly
                 value={formData.gender}
+                onChange={handleInputChange}
               />
             </div>
             <div className={styles.form_item}>
@@ -321,8 +594,8 @@ const FloraResumeDetail = () => {
               <input
                 id="company"
                 className={styles.input}
-                readOnly
                 value={formData.company}
+                onChange={handleInputChange}
               />
             </div>
           </div>
@@ -334,8 +607,8 @@ const FloraResumeDetail = () => {
               <input
                 id="department"
                 className={styles.input}
-                readOnly
                 value={formData.department}
+                onChange={handleInputChange}
               />
             </div>
             <div className={styles.form_item}>
@@ -345,8 +618,8 @@ const FloraResumeDetail = () => {
               <input
                 id="position"
                 className={styles.input}
-                readOnly
                 value={formData.position}
+                onChange={handleInputChange}
               />
             </div>
             <div className={styles.form_item}>
@@ -356,8 +629,8 @@ const FloraResumeDetail = () => {
               <input
                 id="jobTitle"
                 className={styles.input}
-                readOnly
                 value={formData.position}
+                onChange={handleInputChange}
               />
             </div>
           </div>
@@ -368,13 +641,17 @@ const FloraResumeDetail = () => {
             <AgGridWrapper
               ref={eduGridRef}
               enableCheckbox={false}
-              showButtonArea={false}
-              canCreate={false}
-              canDelete={false}
+              showButtonArea={true}
+              canCreate={true}
+              canDelete={true}
               canUpdate={false}
               columnDefs={eduColumns}
               tableHeight="400px"
               useNoColumn={true}
+              onCellValueChanged={handleEducationCellChange}
+              onDelete={(deletedRows) =>
+                handleDeleteRow(deletedRows, 'education')
+              }
             />
           </div>
           <div className={styles.table_form}>
@@ -382,13 +659,15 @@ const FloraResumeDetail = () => {
             <AgGridWrapper
               ref={skillGridRef}
               enableCheckbox={false}
-              showButtonArea={false}
-              canCreate={false}
-              canDelete={false}
+              showButtonArea={true}
+              canCreate={true}
+              canDelete={true}
               canUpdate={false}
               columnDefs={certificationColumns}
               tableHeight="400px"
               useNoColumn={true}
+              onCellValueChanged={handleSkillsCellChange}
+              onDelete={(deletedRows) => handleDeleteRow(deletedRows, 'skills')}
             />
           </div>
         </div>
@@ -397,13 +676,17 @@ const FloraResumeDetail = () => {
           <AgGridWrapper
             ref={workGridRef}
             enableCheckbox={false}
-            showButtonArea={false}
-            canCreate={false}
-            canDelete={false}
+            showButtonArea={true}
+            canCreate={true}
+            canDelete={true}
             canUpdate={false}
             columnDefs={workColumns}
             tableHeight={'600px'}
             useNoColumn={true}
+            onCellValueChanged={handleExperienceCellChange}
+            onDelete={(deletedRows) =>
+              handleDeleteRow(deletedRows, 'experience')
+            }
           />
         </div>
       </main>

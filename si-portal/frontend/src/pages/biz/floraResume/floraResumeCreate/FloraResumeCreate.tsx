@@ -251,7 +251,6 @@ const FloraResumeCreate = () => {
 
   const handleSave = async () => {
     if (!formData.fullName.trim()) {
-      console.log('formData.fullName', formData.fullName);
       alert('성명을 입력해주세요.');
       return;
     }
@@ -291,8 +290,6 @@ const FloraResumeCreate = () => {
       alert('이력서 저장에 실패했습니다.');
     }
   };
-
-  console.log('실행횟수');
 
   return (
     <div className={styles.start}>
