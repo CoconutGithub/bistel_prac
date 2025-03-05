@@ -4,9 +4,21 @@ import { Modal, Button, Card, ListGroup, Badge } from "react-bootstrap";
 interface Experience {
   company: string;
   position: string;
-  start_date: string;
-  end_date: string | null;
+  companyEnd: string;
+  companyStart: string | null;
   responsibilities: string[];
+}
+
+interface Education {
+  school: string;
+  schoolEnd: string;
+  graduateYn: string;
+  schoolStart: string;
+}
+
+interface Skills {
+  skill: string;
+  skillLevel: string;
 }
 
 interface YoonResumePopupProps {
@@ -25,58 +37,95 @@ const YoonResumePopup: React.FC<YoonResumePopupProps> = ({ show, resumeData, onC
         <div className="row">
           {/* 기본 정보 */}
           <div className="col-md-4">
-            <Card className="mb-4 shadow-sm">
-              <Card.Body>
-                <h4 className="mb-3">{resumeData.fullName}</h4>
-                <p><strong>이메일:</strong> {resumeData.email}</p>
-                <p><strong>전화번호:</strong> {resumeData.phone}</p>
-                <p><strong>소개:</strong> {resumeData.summary}</p>
-                <p><strong>회사:</strong> {resumeData.company}</p>
-                <p><strong>부서:</strong> {resumeData.department}</p>
-                <p>
-                  <strong>포지션:</strong> {resumeData.position}{" "}
-                  <Badge bg="info">{resumeData.jobTitle}</Badge>
-                </p>
-              </Card.Body>
-            </Card>
+            <h4 className="mb-3">{resumeData.fullName}</h4>
+            <p><strong>이메일:</strong> {resumeData.email}</p>
+            <p><strong>전화번호:</strong> {resumeData.phone}</p>
+            <p><strong>소개:</strong> {resumeData.summary}</p>
+            <p><strong>회사:</strong> {resumeData.company}</p>
+            <p><strong>부서:</strong> {resumeData.department}</p>
+            <p><strong>직책:</strong> {resumeData.position}</p>
+            <p><strong>성별:</strong> {resumeData.gender}</p>
           </div>
 
           {/* 경력 사항 */}
           <div className="col-md-8">
             <h5 className="mb-3">경력</h5>
-            {resumeData.experience?.map((exp: Experience, index: number) => (
-              <Card key={index} className="mb-3 shadow-sm">
-                <Card.Body>
-                  <h6>{exp.company}</h6>
-                  <p>
-                    <strong>직책:</strong> {exp.position}{" "}
-                    <Badge bg={exp.end_date ? "secondary" : "success"}>
-                      {exp.end_date ? `${exp.start_date} ~ ${exp.end_date}` : "재직 중"}
-                    </Badge>
-                  </p>
-                  <ListGroup variant="flush">
-                    {exp.responsibilities?.map((task, i) => (
-                      <ListGroup.Item key={i}>{task}</ListGroup.Item>
-                    ))}
-                  </ListGroup>
-                </Card.Body>
-              </Card>
-            ))}
+            <table className="table table-bordered">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>회사</th>
+                  <th>직책</th>
+                  <th>근무 기간</th>
+                  <th>담당 업무</th>
+                </tr>
+              </thead>
+              <tbody>
+                {resumeData.experience?.map((exp: Experience, index: number) => (
+                  <tr key={index}>
+                    <td>{index + 1}</td>
+                    <td>{exp.company}</td>
+                    <td>{exp.position}</td>
+                    <td>{exp.companyEnd ? `${exp.companyStart} ~ ${exp.companyEnd}` : `${exp.companyStart} ~ 현재`}</td>
+                    <td>
+                      <ul style={{ margin: 0, paddingLeft: "1rem" }}>
+                        {exp.responsibilities?.map((task, i) => (
+                          <li key={i}>{task}</li>
+                        ))}
+                      </ul>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
 
             {/* 기술 스택 */}
             <h5 className="mt-4">기술 스택</h5>
-            {resumeData.skills?.map((skill: Experience, index: number) => (
-              <Card key={index} className="mb-3 shadow-sm">
-                <Card.Body>
-                  <h6>{skill.company}</h6>
-                  <ListGroup variant="flush">
-                    {skill.responsibilities?.map((tech, i) => (
-                      <ListGroup.Item key={i}>{tech}</ListGroup.Item>
-                    ))}
-                  </ListGroup>
-                </Card.Body>
-              </Card>
-            ))}
+            <table className="table table-bordered">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>기술명</th>
+                  <th>관련 업무</th>
+                </tr>
+              </thead>
+              <tbody>
+                {resumeData.skills?.map((skill: Skills, index: number) => (
+                  <tr key={index}>
+                    <td>{index + 1}</td>
+                    <td>{skill.skill}</td>
+                    <td>{skill.skillLevel}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+              {/* 학력 사항 */}
+              <h5 className="mt-4">학력 사항</h5>
+            <table className="table table-bordered">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>학교명</th>
+                  <th>학교 유형</th>
+                  <th>재학 기간</th>
+                  <th>졸업 상태</th>
+                </tr>
+              </thead>
+              <tbody>
+                {resumeData.education?.map((edu: Education, index: number) => (
+                  <tr key={index}>
+                    <td>{index + 1}</td>
+                    <td>{edu.school}</td>
+                    <td></td>
+                    <td>{edu.schoolStart} ~ {edu.schoolEnd}</td>
+                    <td>{edu.graduateYn}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+
           </div>
         </div>
       </Modal.Body>

@@ -13,7 +13,7 @@ import YoonResumePopup from  './YoonResumePopup'; // 팝업 컴포넌트
 
 // 📌 테이블 컬럼 정의
 const columnDefs = [
-  { field: "gridRowId", headerName: "gridRowId", editable: false, hide: true },
+  { field: "gridRowId", headerName: "gridRowId", editable: false, hide: true },//데이터 없어도 얘는 나오기는 하나 봄
   { headerName: "이름", field: "fullName", width: 150 },
   { headerName: "회사", field: "company", width: 200 },
   { headerName: "포지션", field: "position", width: 150 },
