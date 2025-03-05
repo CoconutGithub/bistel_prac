@@ -13,7 +13,7 @@ import YoonResumePopup from  './YoonResumePopup'; // 팝업 컴포넌트
 
 // 📌 테이블 컬럼 정의
 const columnDefs = [
-  { headerName: "ID", field: "id", width: 100},
+  { field: "gridRowId", headerName: "gridRowId", editable: false, hide: true },
   { headerName: "이름", field: "fullName", width: 150 },
   { headerName: "회사", field: "company", width: 200 },
   { headerName: "포지션", field: "position", width: 150 },
@@ -27,13 +27,14 @@ const YoonResume: React.FC = () => {
   const gridRefResume = useRef<AgGridWrapperHandle>(null);
 
   // 📌 이력서 데이터 조회 API
-  const handleSearch = () => {
+  const handleSearch =async () => {
     comAPIContext.showProgressBar();
     axios
       .get(`${process.env.REACT_APP_BACKEND_IP}/biz/yoon-resume`, {
         headers: { Authorization: `Bearer ${cachedAuthToken}` },
       })
       .then((res) => {
+        console.log("API 응답 데이터:", res.data);
         if (gridRefResume.current) {
           gridRefResume.current.setRowData(res.data);
         }
@@ -82,7 +83,7 @@ const YoonResume: React.FC = () => {
         <AgGridWrapper
           ref={gridRefResume}
           tableHeight="600px"
-          pagination={false}
+          pagination={true}
           showButtonArea={false}
           columnDefs={columnDefs}
           onCellDoubleClicked={onCellDoubleClicked}

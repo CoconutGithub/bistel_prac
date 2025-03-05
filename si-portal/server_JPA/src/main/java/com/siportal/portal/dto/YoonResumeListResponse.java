@@ -6,14 +6,16 @@ import lombok.Getter;
 
 @Getter
 public class YoonResumeListResponse {
-    int id;
-    String fullName;
-    String company;
-    String position;
-    String jobTitle;
+    private int gridRowId;
+    private int id;
+    private String fullName;
+    private String company;
+    private String position;
+    private String jobTitle;
 
 
     public YoonResumeListResponse(YoonResumeListProjection projection){
+        gridRowId= projection.getGridRowId();
         id=projection.getId();
         fullName=projection.getFullName();
         company=projection.getCompany();

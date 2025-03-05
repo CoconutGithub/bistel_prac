@@ -14,6 +14,18 @@ import java.util.Optional;
 
 @Repository
 public interface YoonResumeRepository extends JpaRepository<Resume,Integer> {
+
+
+  @Query("""
+       Select 
+       ROW_NUMBER() OVER (ORDER BY r.createDate DESC) as gridRowId,
+       r.id AS id,
+       r.fullName AS fullName,
+       r.company AS company,
+       r.position AS position,
+       r.jobTitle AS jobTitle
+       FROM Resume r
+    """)
   List<YoonResumeListProjection> findAllBy();
 
   @Query("""
