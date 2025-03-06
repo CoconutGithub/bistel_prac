@@ -72,6 +72,10 @@ public class FloraResumeService {
         return floraResumeRepository.findProjectedById(id).orElse(null);
     }
 
+    public void deleteFloraResume(Integer id) {
+        floraResumeRepository.deleteById(id);
+    }
+
     public void updateFloraResume(FloraResumeDto floraResumeDto) {
         try {
             Resume floraResume = floraResumeRepository.findById(floraResumeDto.getId()).orElseThrow(() -> new IllegalArgumentException("이력서를 찾을 수 없습니다." + floraResumeDto.getId()));
