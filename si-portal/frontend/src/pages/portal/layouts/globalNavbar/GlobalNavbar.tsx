@@ -143,6 +143,11 @@ const GlobalNavbar = ({
                   Resume List
               </Nav.Link>
 
+            <Nav.Link as={NavLink} to="/main/send-email" className={styles.nav_link} onClick={() =>
+                onSelectTab({ key: "send-email", label: "SendEmail", path: "/main/send-email" })}>
+                Email Send
+            </Nav.Link>
+
             <Nav.Link
               as={NavLink}
               to="/main/settings"
