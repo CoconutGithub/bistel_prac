@@ -203,6 +203,19 @@ const GlobalNavbar = ({
             >
               {isMighty === "Y" && (
                 <>
+                <NavDropdown.Item
+                    as={Link}
+                    to="/main/manage-notice"
+                    onClick={() =>
+                        onSelectTab({
+                            key: "manage-notice",
+                            label: "Manage notice",
+                            path: "/main/manage-notice",
+                        })
+                    }
+                >
+                    {comAPIContext.$msg("label", "manage_notice", "공지사항")}
+                </NavDropdown.Item>
                   <NavDropdown.Item
                     as={Link}
                     to="/main/manage-menu"
