@@ -28,6 +28,7 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -51,6 +52,7 @@ public class AdminService {
     private final MsgMainRepository msgMainRepository;
     private final MsgDetailRepository msgDetailRepository;
     private final CodeRepository codeRepository;
+    private final NoticeRepository noticeRepository;
 
     @Autowired
     public AdminService(AdminMapper adminMapper, JavaMailSender emailSender
@@ -65,6 +67,7 @@ public class AdminService {
         , MsgMainRepository msgMainRepository
         , MsgDetailRepository msgDetailRepository
         , CodeRepository codeRepository
+        , NoticeRepository noticeRepository
     ) {
         this.adminMapper = adminMapper;
         this.emailSender = emailSender;
@@ -82,6 +85,7 @@ public class AdminService {
         this.msgMainRepository = msgMainRepository;
         this.msgDetailRepository = msgDetailRepository;
         this.codeRepository = codeRepository;
+        this.noticeRepository = noticeRepository;
     }
 
     public ResponseEntity<?> getMenuId() {
@@ -1137,6 +1141,40 @@ public class AdminService {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
                     .body(Collections.singletonMap("error", "페이지네이션 크기 업데이트 실패: " + e.getMessage()));
         }
+    }
+
+    // 🔹 공지사항 목록 조회
+    public ResponseEntity<List<Notice>> getNoticeList() {
+        return ResponseEntity.ok(noticeRepository.findAllByOrderByCreatedAtDesc());
+    }
+
+    // 🔹 공지사항 추가
+    public ResponseEntity<Notice> addNotice(Map<String, Object> requestData) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        Notice newNotice = new Notice();
+        newNotice.setTitle((String) requestData.get("title"));
+        newNotice.setContent((String) requestData.get("content"));
+        newNotice.setNoticeStart(LocalDateTime.parse((String) requestData.get("noticeStart"), formatter));
+        newNotice.setNoticeEnd(LocalDateTime.parse((String) requestData.get("noticeEnd"), formatter));
+
+        Notice savedNotice = noticeRepository.save(newNotice); // ✅ 직접 저장
+        return ResponseEntity.ok(savedNotice);
+    }
+
+    // 🔹 공지사항 삭제 (단일 삭제 & 다중 삭제)
+    @Transactional
+    public ResponseEntity<?> deleteNotices(Map<String, Object> requestData) {
+        List<Long> noticeIds = ((List<Integer>) requestData.get("ids"))
+                .stream().map(Long::valueOf).toList();
+
+        if (noticeIds.size() == 1) {
+            noticeRepository.deleteById(noticeIds.get(0)); // ✅ 단일 삭제
+        } else {
+            noticeRepository.deleteAllById(noticeIds); // ✅ 여러 개 삭제
+        }
+
+        return ResponseEntity.ok().build();
     }
 
 }

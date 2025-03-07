@@ -1,6 +1,7 @@
 import { RouteObject } from "react-router-dom";
 import React from "react";
 import { checkBtnAuthLoader } from "~routes/Loader";
+import ManageNotice from "~pages/portal/admin/ManageNotice";
 
 const HowToUse = React.lazy(() => import("~pages/portal/layouts/HowToUse"));
 const Dashboard = React.lazy(() => import("~pages/portal/layouts/Dashboard"));
@@ -88,7 +89,15 @@ export default function PortalRoutes(): RouteObject[] {
           </React.Suspense>
       ),
     },
-
+    {
+      path: "/main/manage-notice",
+      element: (
+          <React.Suspense fallback={<div>Loading...</div>}>
+            <ManageNotice />
+          </React.Suspense>
+      ),
+      loader: checkBtnAuthLoader,
+    },
     {
       path: "/main/manage-menu",
       element: (
