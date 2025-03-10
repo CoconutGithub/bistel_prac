@@ -229,4 +229,9 @@ public class AdminController {
         return adminService.updatePaginationSize(userId, paginationSize);
     }
 
+    @GetMapping("/api/get-notices-list")
+    public ResponseEntity<?> getNoticeList() {
+        return adminService.getNoticeList();
+    }
+
 }

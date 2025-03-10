@@ -143,6 +143,11 @@ const GlobalNavbar = ({
                   Resume List
               </Nav.Link>
 
+            <Nav.Link as={NavLink} to="/main/send-email" className={styles.nav_link} onClick={() =>
+                onSelectTab({ key: "send-email", label: "SendEmail", path: "/main/send-email" })}>
+                Email Send
+            </Nav.Link>
+
             <Nav.Link
               as={NavLink}
               to="/main/settings"
@@ -198,6 +203,19 @@ const GlobalNavbar = ({
             >
               {isMighty === "Y" && (
                 <>
+                <NavDropdown.Item
+                    as={Link}
+                    to="/main/manage-notice"
+                    onClick={() =>
+                        onSelectTab({
+                            key: "manage-notice",
+                            label: "Manage notice",
+                            path: "/main/manage-notice",
+                        })
+                    }
+                >
+                    {comAPIContext.$msg("label", "manage_notice", "공지사항")}
+                </NavDropdown.Item>
                   <NavDropdown.Item
                     as={Link}
                     to="/main/manage-menu"

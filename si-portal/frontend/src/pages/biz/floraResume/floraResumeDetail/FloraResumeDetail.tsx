@@ -84,6 +84,8 @@ const FloraResumeDetail = () => {
   const skillGridRef = useRef<AgGridWrapperHandle>(null);
   const workGridRef = useRef<AgGridWrapperHandle>(null);
   const [hasInitialized, setHasInitialized] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const eduColumns = useMemo(
     () => [
@@ -354,6 +356,26 @@ const FloraResumeDetail = () => {
     }));
   };
 
+  const handleSelectTab = useCallback(
+    (tab: { key: string; label: string; path: string }) => {
+      const rootTabsData = sessionStorage.getItem('persist:rootTabs');
+      if (rootTabsData) {
+        const parsedData = JSON.parse(rootTabsData);
+        const cachedTabs = JSON.parse(parsedData.tabs);
+
+        if (cachedTabs.length === 8) {
+          alert('최대 8개의 탭만 열 수 있습니다.');
+          return;
+        } else {
+          dispatch(addTab(tab));
+          dispatch(setActiveTab(tab.key));
+          navigate(tab.path);
+        }
+      }
+    },
+    []
+  );
+
   const handleUpdate = async () => {
     if (!formData.fullName.trim()) {
       alert('성명을 입력해주세요.');
@@ -383,8 +405,6 @@ const FloraResumeDetail = () => {
       skills: jsonSkillsData,
     };
 
-    console.log('resumeData', resumeData);
-
     try {
       const response = await axios.put(
         `${process.env.REACT_APP_BACKEND_IP}/biz/flora-resumes/update/${id}`,
@@ -399,6 +419,26 @@ const FloraResumeDetail = () => {
     } catch (error) {
       console.error('이력서 수정에 실패했습니다.', error);
       alert('이력서 수정에 실패했습니다.');
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      const response = await axios.delete(
+        `${process.env.REACT_APP_BACKEND_IP}/biz/flora-resumes/delete/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${cachedAuthToken}`,
+          },
+        }
+      );
+      handleSelectTab({
+        key: '199',
+        label: 'Flora resume',
+        path: '/main/flora-resume',
+      });
+    } catch (error) {
+      console.error('이력서 삭제에 실패했습니다', error);
     }
   };
 
@@ -515,7 +555,7 @@ const FloraResumeDetail = () => {
         </div>
         <div className={styles.button_area}>
           <ComButton
-            onClick={() => {}}
+            onClick={handleDelete}
             size="sm"
             className={styles.button}
             variant="outline-secondary"

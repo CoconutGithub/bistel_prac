@@ -1,6 +1,7 @@
 import { RouteObject } from "react-router-dom";
 import React from "react";
 import { checkBtnAuthLoader } from "~routes/Loader";
+import ManageNotice from "~pages/portal/admin/ManageNotice";
 
 const HowToUse = React.lazy(() => import("~pages/portal/layouts/HowToUse"));
 const Dashboard = React.lazy(() => import("~pages/portal/layouts/Dashboard"));
@@ -11,6 +12,7 @@ const ManageRole = React.lazy(() => import("~pages/portal/admin/ManageRole"));
 const ManageEmail = React.lazy(() => import("~pages/portal/admin/ManageEmail"));
 const ManageUser = React.lazy(() => import("~pages/portal/admin/ManageUser"));
 const ResumeList_hdh = React.lazy(() => import("~pages/portal/layouts/ResumeList_hdh"));  // ✅ 추가
+const EmailSend = React.lazy(() => import("~pages/portal/layouts/SendEmail"));
 const ExpenseManagement = React.lazy(
   () => import("~pages/portal/layouts/expenseManagement/ExpenseManagement")
 );
@@ -78,6 +80,23 @@ export default function PortalRoutes(): RouteObject[] {
             <ResumeList_hdh />
           </React.Suspense>
       ),
+    },
+    {
+      path: "/main/send-email",
+      element: (
+          <React.Suspense fallback={<div>Loading...</div>}>
+            <EmailSend />
+          </React.Suspense>
+      ),
+    },
+    {
+      path: "/main/manage-notice",
+      element: (
+          <React.Suspense fallback={<div>Loading...</div>}>
+            <ManageNotice />
+          </React.Suspense>
+      ),
+      loader: checkBtnAuthLoader,
     },
     {
       path: "/main/manage-menu",

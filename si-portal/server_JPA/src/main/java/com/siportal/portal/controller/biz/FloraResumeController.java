@@ -70,4 +70,14 @@ public class FloraResumeController {
             return ResponseEntity.status(500).body(null);
         }
     }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deleteResume(@PathVariable Integer id) {
+        try {
+            floraResumeService.deleteFloraResume(id);
+            return ResponseEntity.ok("이력서 삭제를 성공했습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("이력서 삭제를 실패했습니다.");
+        }
+    }
 }

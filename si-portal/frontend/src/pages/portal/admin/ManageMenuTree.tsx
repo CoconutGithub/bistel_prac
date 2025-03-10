@@ -177,7 +177,7 @@ const ManageMenuTree: React.FC<{ onMenuClick: any; refreshTree: boolean }> = ({
 
   const handleMenuClick = useCallback(
     (event: React.MouseEvent, node: MenuItem) => {
-      const adjustedX = Math.max(event.clientX);
+      const adjustedX = Math.max(event.clientX) - 230;
       const adjustedY = Math.max(event.clientY);
 
       console.log(node);
