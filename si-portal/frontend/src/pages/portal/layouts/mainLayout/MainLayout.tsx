@@ -130,6 +130,8 @@ const MainLayout = () => {
     }
   }, []);
 
+  console.log('메인레이아웃 리렌더링 횟수');
+
   return (
     <div className={styles.start}>
       <GlobalNavbar onSelectTab={handleSelectTab} />
@@ -158,7 +160,7 @@ const MainLayout = () => {
               <Container className={styles.container}>
                 {/* <Outlet /> */}
                 {/* {routeComponents[tab.path] || <NotFound />} */}
-                {matchedComponent}
+                {activeKey === tab.key && matchedComponent}
               </Container>
             </Tab>
           ))}
