@@ -22,6 +22,7 @@ const FloraResumeDetail = React.lazy(
 );
 const YwkResume = React.lazy(() => import("~pages/biz/YwkResume"));
 const YoonResume = React.lazy(() => import("~pages/biz/YoonResume"));
+const YoonNotice = React.lazy(() => import("~pages/biz/YoonNotice"));
 
 export default function DefaultRoutes(): RouteObject[] {
   return [
@@ -136,5 +137,15 @@ export default function DefaultRoutes(): RouteObject[] {
         </React.Suspense>
       ),
     },
+   
+    {
+      path: "/main/yoon-notice",
+      element: (
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <YoonNotice />
+        </React.Suspense>
+      ),
+    },
+
   ];
 }
