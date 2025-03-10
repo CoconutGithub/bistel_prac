@@ -29,6 +29,8 @@ public class YoonResumeResponse {
     private String department;
     private String position;
     private String jobTitle;
+    private List<Map<String, Object>> license;
+    private List<Map<String, Object>> training;
 
     public YoonResumeResponse(YoonResumeProjection yoonResumeProjection){
         id=yoonResumeProjection.getId();
@@ -47,6 +49,8 @@ public class YoonResumeResponse {
         department=yoonResumeProjection.getDepartment();
         position=yoonResumeProjection.getPosition();
         jobTitle=yoonResumeProjection.getJobTitle();
+        license=yoonResumeProjection.getLicense();
+        training=getTraining();
 
     }
 
