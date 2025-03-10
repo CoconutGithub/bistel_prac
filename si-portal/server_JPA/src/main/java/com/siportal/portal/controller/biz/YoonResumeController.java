@@ -22,14 +22,20 @@ public class YoonResumeController {
 
   private final YoonResumeService yoonResumeService;
 
-  //create
-
-
-
-  //update
-
-
-  //read
+//  //create
+//  @PostMapping
+////  public ResponseEntity<YoonResumeResponse> createResume(){
+////
+////  }
+//
+//
+//
+//  //update
+//    //license, 자격증, 교육, skill 개별 삭제
+//
+//    //내용 수정 <- 자격증, 교육, skill 같은 것들 어떻게 할까나? 잘 모르니까 전체 수정부터 구현
+//
+//  //read
   @GetMapping
   public ResponseEntity<List<YoonResumeListResponse>> readResumeList(){
       List<YoonResumeListResponse> response= yoonResumeService.getResumeList()
@@ -49,5 +55,7 @@ public class YoonResumeController {
 
 
   //delete
+    //이력서 삭제
+
 
 }
