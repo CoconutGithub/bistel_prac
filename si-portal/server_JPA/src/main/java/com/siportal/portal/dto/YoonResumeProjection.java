@@ -22,4 +22,6 @@ public interface YoonResumeProjection {
    String getDepartment();
    String getPosition();
    String getJobTitle();
+   List<Map<String,Object>> getLicense();
+   List<Map<String,Object>> getTraining();
 }
