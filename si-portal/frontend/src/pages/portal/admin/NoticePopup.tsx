@@ -13,16 +13,17 @@ interface Notice {
 
 const NoticePopup: React.FC = () => {
     const [show, setShow] = useState(false);
-    const [notice, setNotice] = useState<Notice | null>(null);
+    const [notices, setNotices] = useState<Notice[]>([]);
+    const [currentPage, setCurrentPage] = useState(0);
 
     useEffect(() => {
         const hideNotice = localStorage.getItem("hideNoticePopup");
         if (hideNotice === new Date().toLocaleDateString()) return;
 
-        fetchLatestNotice();
+        fetchNotices();
     }, []);
 
-    const fetchLatestNotice = async () => {
+    const fetchNotices = async () => {
         try {
             const response = await axios.get<Notice[]>(`${process.env.REACT_APP_BACKEND_IP}/admin/api/get-notices-list`, {
                 headers: { Authorization: `Bearer ${cachedAuthToken}` },
@@ -30,7 +31,7 @@ const NoticePopup: React.FC = () => {
 
             const activeNotices = response.data.filter((n) => new Date(n.noticeEnd) > new Date());
             if (activeNotices.length > 0) {
-                setNotice(activeNotices[0]); // 가장 최신 공지사항만 표시
+                setNotices(activeNotices);
                 setShow(true);
             }
         } catch (error) {
@@ -45,16 +46,63 @@ const NoticePopup: React.FC = () => {
         setShow(false);
     };
 
+    const handleNext = () => {
+      if (currentPage < notices.length - 1) {
+          setCurrentPage(currentPage + 1);
+      }
+    };
+
+    const handlePrev = () => {
+      if (currentPage > 0) {
+          setCurrentPage(currentPage - 1);
+      }
+    };
+
     return (
-        <Modal show={show} onHide={handleClose} centered>
+        <Modal show={show} onHide={handleClose} centered size="lg"> {/* ✅ 팝업 크기 고정 */}
             <Modal.Header closeButton>
-                <Modal.Title>📢 공지사항</Modal.Title>
+                <Modal.Title>공지사항</Modal.Title>
             </Modal.Header>
-            <Modal.Body>
-                {notice ? (
+            <Modal.Body
+                style={{
+                    width: "700px",
+                    minHeight: "500px", // ✅ 기본 높이 지정
+                    maxHeight: "700px",
+                    display: "flex",
+                    flexDirection: "column",
+                }}
+            >
+                {notices.length > 0 ? (
                     <>
-                        <h5>{notice.title}</h5>
-                        <p>{notice.content}</p>
+                        <h4 style={{ fontWeight: "bold", color: "#333", marginBottom: "15px" }}>
+                            {notices[currentPage].title}
+                        </h4>
+                        <hr />
+                        <div
+                            style={{
+                                flexGrow: 1,
+                                minHeight: "400px",
+                                maxHeight: "500px",
+                                overflowY: "auto",
+                                paddingRight: "10px",
+                                fontSize: "16px",
+                                color: "#444",
+                                whiteSpace: "pre-wrap",
+                            }}
+                        >
+                            {notices[currentPage].content}
+                        </div>
+                        <div className="d-flex justify-content-between mt-3">
+                            <Button variant="light" onClick={handlePrev} disabled={currentPage === 0}>
+                                ◀ 이전
+                            </Button>
+                            <span style={{ fontSize: "16px", fontWeight: "bold" }}>
+                                {currentPage + 1} / {notices.length}
+                            </span>
+                            <Button variant="light" onClick={handleNext} disabled={currentPage === notices.length - 1}>
+                                다음 ▶
+                            </Button>
+                        </div>
                     </>
                 ) : (
                     <p>공지사항이 없습니다.</p>
