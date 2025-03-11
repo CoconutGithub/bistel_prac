@@ -365,7 +365,9 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
           >
             <AgGridReact
               ref={gridRef}
-              rowSelection={Object(rowSelection)}
+              rowSelection={{
+                mode: rowSelection === 'multiple' ? 'multiRow' : 'singleRow',
+              }}
               rowHeight={rowHeight}
               rowData={rowData}
               pagination={pagination}
