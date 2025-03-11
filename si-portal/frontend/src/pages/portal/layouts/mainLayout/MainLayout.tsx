@@ -28,9 +28,7 @@ const useRouteComponents = () => {
 };
 
 const MainLayout = () => {
-  const isShowFooter = useSelector(
-    (state: RootState) => state.auth.user.isShowFooter
-  );
+
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -38,7 +36,7 @@ const MainLayout = () => {
   const { tabs, activeKey } = useSelector((state: RootState) => state.rootTabs);
   const routeComponents = useRouteComponents();
 
-  const resetLogoutTimer = () => {
+  const resetLogoutTimer = useCallback(() => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
@@ -47,7 +45,7 @@ const MainLayout = () => {
       dispatch(removeLoginToken()); // 10분간 비활성 상태일 경우 로그아웃
       navigate('/login', { replace: true });
     }, 10 * 60 * 1000);
-  };
+  },[]);
 
   const handleSelectTab = useCallback(
     (tab: { key: string; label: string; path: string }) => {
@@ -130,6 +128,8 @@ const MainLayout = () => {
     }
   }, []);
 
+  console.log('메인레이아웃 리렌더링 횟수');
+
   return (
     <div className={styles.start}>
       <GlobalNavbar onSelectTab={handleSelectTab} />
@@ -158,7 +158,7 @@ const MainLayout = () => {
               <Container className={styles.container}>
                 {/* <Outlet /> */}
                 {/* {routeComponents[tab.path] || <NotFound />} */}
-                {matchedComponent}
+                {activeKey === tab.key && matchedComponent}
               </Container>
             </Tab>
           ))}
