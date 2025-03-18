@@ -45,7 +45,7 @@ const MainLayout = () => {
       dispatch(removeLoginToken()); // 10분간 비활성 상태일 경우 로그아웃
       navigate('/login', { replace: true });
     }, 10 * 60 * 1000);
-  },[]);
+  }, []);
 
   const handleSelectTab = useCallback(
     (tab: { key: string; label: string; path: string }) => {

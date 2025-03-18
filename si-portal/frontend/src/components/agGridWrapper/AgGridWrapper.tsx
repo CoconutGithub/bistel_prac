@@ -53,7 +53,6 @@ interface AgGridWrapperProps {
   onCellDoubleClicked?: (event: any) => void;
   onRowClicked?: (event: any) => void;
   onGridLoaded?: () => void;
-  getRowId?: (params: any) => string;
 }
 
 //##################### type 지정-end #######################
@@ -123,7 +122,6 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
       onCellEditingStarted,
       onGridLoaded,
       onRowClicked,
-      getRowId,
     } = settings;
 
     console.log('======create AgGridWrapper======');
@@ -304,7 +302,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
     };
 
     const defaultGetRowId = useCallback(
-      (params: any) => String(params.data.gridRowId),
+      (params: any) => String(params.data.gridRowId || params.data.id),
       []
     );
 
@@ -367,7 +365,9 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
           >
             <AgGridReact
               ref={gridRef}
-              rowSelection={rowSelection}
+              rowSelection={{
+                mode: rowSelection === 'multiple' ? 'multiRow' : 'singleRow',
+              }}
               rowHeight={rowHeight}
               rowData={rowData}
               pagination={pagination}
@@ -377,7 +377,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
               modules={[ClientSideRowModelModule]}
               onCellValueChanged={handleCellValueChange}
               rowClassRules={rowClassRules} // 행 스타일 규칙 적용
-              getRowId={getRowId || defaultGetRowId}
+              getRowId={defaultGetRowId}
               onGridReady={onGridReady}
               onCellEditingStopped={handleCellEditingStopped}
               onCellEditingStarted={handleCellEditingStarted}
