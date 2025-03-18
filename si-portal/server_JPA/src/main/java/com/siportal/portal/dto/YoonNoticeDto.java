@@ -4,9 +4,11 @@ import com.siportal.portal.domain.Notice;
 
 import java.time.LocalDateTime;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+//@AllArgsConstructor
 public class YoonNoticeDto {
   private Long gridRowId;
   private Long id;
@@ -17,6 +19,10 @@ public class YoonNoticeDto {
   private Long fileId;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
+
+  public YoonNoticeDto(){
+
+  }
 
 
   public YoonNoticeDto(YoonNoticeProjection yoonNoticeProjection){

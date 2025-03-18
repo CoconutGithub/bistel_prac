@@ -9,8 +9,10 @@ import com.siportal.portal.repository.YoonNoticeRepository;
 
 import org.springframework.stereotype.Service;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.swing.text.html.Option;
 
@@ -29,8 +31,17 @@ public class YoonNoticeService {
        return yoonNoticeRepository.findAllBy().stream().map(YoonNoticeDto::new).toList();
   }
 
-  public void deleteNotice(Long id){
-      yoonNoticeRepository.deleteById(id);//이렇게 아무것도 리턴을 안 했던가? ㅇㅇ
+  public void deleteNotice(List<YoonNoticeDto> request){
+      List<Long> ids= request.stream()
+                             .map(YoonNoticeDto::getId)
+                             .collect(Collectors.toList());
+
+      Iterator<Long> it=ids.iterator();
+      while(it.hasNext()){
+        System.out.println("id 출력:" + it.next());
+      }
+
+      yoonNoticeRepository.deleteAllByIdInBatch(ids);//이렇게 아무것도 리턴을 안 했던가? ㅇㅇ
   }
 
 //  public void updateNotice(Long id, YoonUpdateNoticeRequest yoonUpdateNoticeRequest){
