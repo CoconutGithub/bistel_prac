@@ -189,7 +189,24 @@ const YoonNotice: React.FC = () => {
             
     },[]);
    
-
+    const handleExcel=()=>{
+      {
+        axios
+          .get(`${process.env.REACT_APP_BACKEND_IP}/biz/yoon-notice/excel`, 
+            {
+              params: {id: 1},
+              headers: { Authorization: `Bearer ${cachedAuthToken}`}
+            })
+          .then((res) => { 
+            console.log("응답 데이터", res.data);
+    
+            if(gridRef.current){
+                gridRef.current.setRowData(res.data)
+            }
+          });
+                
+        }
+    }
     
     console.log("렌더링 횟수");
     return(
@@ -199,6 +216,10 @@ const YoonNotice: React.FC = () => {
             <button onClick={handleSearch}>
               {comAPIContext.$msg("label", "search", "검색")}
             </button>
+            <button onClick={handleExcel}>
+              Excel
+            </button>
+
         </div>
         <div style={{height: 500}}>
             <AgGridWrapper
