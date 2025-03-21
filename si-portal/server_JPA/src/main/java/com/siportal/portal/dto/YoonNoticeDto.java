@@ -17,8 +17,8 @@ public class YoonNoticeDto {
   private String noticeStart;
   private String noticeEnd;
   private Long fileId;
-  private LocalDateTime createdAt;
-  private LocalDateTime updatedAt;
+  private String createdAt;
+  private String updatedAt;
 
   public YoonNoticeDto(){
 
