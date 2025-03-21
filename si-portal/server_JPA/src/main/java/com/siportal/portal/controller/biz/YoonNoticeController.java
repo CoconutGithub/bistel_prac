@@ -15,30 +15,37 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.http.HttpRequest;
 import java.util.List;
+import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 //@RequestMapping("biz/yoon-notice")//
+@RequestMapping("biz/yoon-notice")
 @RestController//
 public class YoonNoticeController {
   private final YoonNoticeService yoonNoticeService;
 
-
-
-  @GetMapping("biz/yoon-notice")
+  @GetMapping("")
   public ResponseEntity<List<YoonNoticeDto>> getNoticeList(){
     return ResponseEntity.ok().body(yoonNoticeService.findNoticeList());
   }
 
-  @PostMapping("biz/yoon-notice")
-  public ResponseEntity<Void> deleteNotice(@RequestBody List<YoonNoticeDto> request){
-//    System.out.print("id입니다!!!!: "+id);
-    yoonNoticeService.deleteNotice(request);
+  @PostMapping("")
+  public ResponseEntity<Void> updateNotice(@RequestBody Map<String,Object> request){
+//  System.out.print("id입니다!!!!: "+id);
+    yoonNoticeService.updateNotice(request);
+    return ResponseEntity.ok().build();
+  }
+
+  @GetMapping("/excel")
+  public ResponseEntity<?> createExelFile(@RequestParam Long id){
+    yoonNoticeService.createExcelFile(id);
     return ResponseEntity.ok().build();
   }
 

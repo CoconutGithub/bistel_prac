@@ -17,8 +17,8 @@ public class YoonNoticeDto {
   private String noticeStart;
   private String noticeEnd;
   private Long fileId;
-  private LocalDateTime createdAt;
-  private LocalDateTime updatedAt;
+  private String createdAt;
+  private String updatedAt;
 
   public YoonNoticeDto(){
 
@@ -30,8 +30,9 @@ public class YoonNoticeDto {
     id=yoonNoticeProjection.getId();
     title=yoonNoticeProjection.getTitle();
     content=yoonNoticeProjection.getContent();
-    noticeStart=yoonNoticeProjection.getNoticeStart().toString();//dto와 엔티티의 자료형이 달라서 일단 이렇게 했다.
-    noticeEnd=yoonNoticeProjection.getNoticeEnd().toString();
+    noticeStart=yoonNoticeProjection.getNoticeStart();//dto와 엔티티의 자료형이 달라서 일단 이렇게 했다.
+//    noticeEnd=yoonNoticeProjection.getNoticeEnd().toString();//이렇게 했다함은 toString()을 붙였다는 것인데 흠~
+    noticeEnd=yoonNoticeProjection.getNoticeEnd();
     fileId=yoonNoticeProjection.getFileId();
     createdAt=yoonNoticeProjection.getCreatedAt();
     updatedAt=yoonNoticeProjection.getUpdatedAt();

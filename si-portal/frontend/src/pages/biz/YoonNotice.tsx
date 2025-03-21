@@ -13,11 +13,11 @@ import { cachedAuthToken } from "~store/AuthSlice";
 const columnDefs = [
     {field: "gridRowId", headerName: "gridRowId", editable: false, hide: true},
     {field: "id", hide: true},
-    {field: "title"},
-    {field: "content"},
-    {field: "noticeStart"},
-    {field: "noticeEnd"},
-    {field: "fileId"},
+    {field: "title", editable: true},
+    {field: "content", editable: true},
+    {field: "noticeStart", editable: true},
+    {field: "noticeEnd", editable: true},
+    {field: "fileId", editable: true},
     {field: "createdAt"}
 ]
 
@@ -59,7 +59,7 @@ const YoonNotice: React.FC = () => {
   const gridRef = useRef<AgGridWrapperHandle>(null);//으흠~ useRef를 어떻게 활용했는지 좀 더 확인하는걸로..
   const userRegisterRef = useRef<any>(null);
   const [dynamicColumnDefs, setDynamicColumnDefs] = useState(columnDefs);
-
+//이건 아마도 화면에서 데이터 수정이 가능하게 하기 위함으로 보인다.
 
   const handleSave = useCallback(
     (lists: { deleteList: any[]; updateList: any[] }) => {
@@ -110,7 +110,8 @@ const YoonNotice: React.FC = () => {
         //noticeIds.forEach(id => {
           axios.post(
             `${process.env.REACT_APP_BACKEND_IP}/biz/yoon-notice`,
-            deleteList,
+            //deleteList,
+            payload,
             {
               headers: { Authorization: `Bearer ${cachedAuthToken}` }
             }
@@ -188,7 +189,24 @@ const YoonNotice: React.FC = () => {
             
     },[]);
    
-
+    const handleExcel=()=>{
+      {
+        axios
+          .get(`${process.env.REACT_APP_BACKEND_IP}/biz/yoon-notice/excel`, 
+            {
+              params: {id: 1},
+              headers: { Authorization: `Bearer ${cachedAuthToken}`}
+            })
+          .then((res) => { 
+            console.log("응답 데이터", res.data);
+    
+            if(gridRef.current){
+                gridRef.current.setRowData(res.data)
+            }
+          });
+                
+        }
+    }
     
     console.log("렌더링 횟수");
     return(
@@ -198,6 +216,10 @@ const YoonNotice: React.FC = () => {
             <button onClick={handleSearch}>
               {comAPIContext.$msg("label", "search", "검색")}
             </button>
+            <button onClick={handleExcel}>
+              Excel
+            </button>
+
         </div>
         <div style={{height: 500}}>
             <AgGridWrapper

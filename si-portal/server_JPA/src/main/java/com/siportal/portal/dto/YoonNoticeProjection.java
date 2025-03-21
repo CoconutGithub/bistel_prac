@@ -11,6 +11,6 @@ public interface YoonNoticeProjection {
   String getNoticeStart();
   String getNoticeEnd();
   Long getFileId();
-  LocalDateTime getCreatedAt();
-  LocalDateTime getUpdatedAt();
+  String getCreatedAt();
+  String getUpdatedAt();
 }

@@ -44,4 +44,8 @@ public class Notice {
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();  // 업데이트 시 자동 변경
     }
+
+//    public Notice update(){
+//
+//    }
 }
