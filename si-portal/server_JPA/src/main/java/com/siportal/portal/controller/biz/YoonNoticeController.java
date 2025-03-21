@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.net.http.HttpRequest;
 import java.util.List;
+import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,17 +29,15 @@ import lombok.RequiredArgsConstructor;
 public class YoonNoticeController {
   private final YoonNoticeService yoonNoticeService;
 
-
-
   @GetMapping("biz/yoon-notice")
   public ResponseEntity<List<YoonNoticeDto>> getNoticeList(){
     return ResponseEntity.ok().body(yoonNoticeService.findNoticeList());
   }
 
   @PostMapping("biz/yoon-notice")
-  public ResponseEntity<Void> deleteNotice(@RequestBody List<YoonNoticeDto> request){
-//    System.out.print("id입니다!!!!: "+id);
-    yoonNoticeService.deleteNotice(request);
+  public ResponseEntity<Void> updateNotice(@RequestBody Map<String,Object> request){
+//  System.out.print("id입니다!!!!: "+id);
+    yoonNoticeService.updateNotice(request);
     return ResponseEntity.ok().build();
   }
 
