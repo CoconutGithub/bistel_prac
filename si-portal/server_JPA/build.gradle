@@ -66,6 +66,11 @@ dependencies {
 
 	// Quartz 의존성 추가
 	implementation 'org.springframework.boot:spring-boot-starter-quartz'
+
+	// poi 의존성 추가
+	implementation 'org.apache.poi:poi:5.2.2'
+	implementation 'org.apache.poi:poi-ooxml:5.2.2'
+
 }
 
 tasks.named('test') {
