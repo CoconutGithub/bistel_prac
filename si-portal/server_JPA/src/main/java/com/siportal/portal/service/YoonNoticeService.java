@@ -9,7 +9,13 @@ import com.siportal.portal.repository.NoticeRepository;
 import com.siportal.portal.repository.YoonNoticeRepository;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.ConditionalFormatting;
+import org.apache.poi.ss.usermodel.ConditionalFormattingRule;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.PatternFormatting;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.SheetConditionalFormatting;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
@@ -91,6 +97,12 @@ public class YoonNoticeService {
     }
   }
 
+
+  public String regionRowFunction(int row){
+      System.out.println("@@@ !!!! A"+row+":B"+row);
+      return "A"+row+":B"+row;
+  }
+
   public void createExcelFile(Long id){
 
     //Blank workblook
@@ -99,6 +111,21 @@ public class YoonNoticeService {
     //Create a blank sheet
 
     XSSFSheet sheet = workbook.createSheet("Employee Data");
+
+    SheetConditionalFormatting sheetCF = sheet.getSheetConditionalFormatting();
+    ConditionalFormattingRule rule1 = sheetCF.createConditionalFormattingRule("1");
+    PatternFormatting fill1 = rule1.createPatternFormatting();
+    fill1.setFillBackgroundColor(IndexedColors.LIGHT_GREEN.index);
+    fill1.setFillPattern(PatternFormatting.SOLID_FOREGROUND);
+
+
+    int regionRow=1;
+    String region="A"+regionRow+":B"+regionRow;//이럴수가 java에서 변수 선언 순서가 중요한지 몰랐네?
+
+
+    List<CellRangeAddress> regions =new ArrayList<CellRangeAddress>();//size에 대해서는 좀 더 고민해보자.
+
+
 
     //Prepare data to be written as an object;
 
@@ -128,40 +155,74 @@ public class YoonNoticeService {
 
     List<String> columnName= new ArrayList<String>(Arrays.asList("id", "title", "content", "notice_start", "notice_end", "created_at", "updated_at"));
 
-    row = sheet.createRow(rownum++);
-    for(String col: columnName){
-      Cell cell = row.createCell(cellnum++);
-      cell.setCellValue(col);
-    }
+//    row = sheet.createRow(rownum++); 컬럼
+//    for(String col: columnName){
+//      Cell cell = row.createCell(cellnum++);
+//      cell.setCellValue(col);
+//    }
 
 
 
     for(YoonNoticeDto yoonNoticeDto : yoonNoticeDtos){
 
       row = sheet.createRow(rownum++);
+      regions.add(CellRangeAddress.valueOf(regionRowFunction(rownum)));
       //Object [] objArr = data.get(key);
       cellnum = 0;
       //for (Object obj : objArr)
       //{
+      //id와 제목
+
+
 
       Cell cell = row.createCell(cellnum++);
-      cell.setCellValue(rownum);
+      cell.setCellValue("ID");
+      cell = row.createCell(cellnum++);
+      cell.setCellValue("제목");
 
+      row = sheet.createRow(rownum++);
+      cellnum = 0;
+      cell = row.createCell(cellnum++);
+      cell.setCellValue(yoonNoticeDto.getId());
       cell = row.createCell(cellnum++);
       cell.setCellValue(yoonNoticeDto.getTitle());
 
+      //시작 끝
+      row = sheet.createRow(rownum++);
+      regions.add(CellRangeAddress.valueOf(regionRowFunction(rownum)));
+      cellnum = 0;
       cell = row.createCell(cellnum++);
-      cell.setCellValue(yoonNoticeDto.getContent());
+      cell.setCellValue("시작");
+      cell = row.createCell(cellnum++);
+      cell.setCellValue("끝");
 
+      row = sheet.createRow(rownum++);
+      cellnum = 0;
       cell = row.createCell(cellnum++);
       cell.setCellValue(yoonNoticeDto.getNoticeStart());
-
       cell = row.createCell(cellnum++);
       cell.setCellValue(yoonNoticeDto.getNoticeEnd());
 
+      //content
+      row = sheet.createRow(rownum++);
+      cellnum = 0;
+      cell = row.createCell(cellnum++);
+      cell.setCellValue(yoonNoticeDto.getContent());
+      rownum=rownum+3;
+
+      //시작 끝
+      row = sheet.createRow(rownum++);
+      regions.add(CellRangeAddress.valueOf(regionRowFunction(rownum)));
+      cellnum = 0;
+      cell = row.createCell(cellnum++);
+      cell.setCellValue("created_at");
+      cell = row.createCell(cellnum++);
+      cell.setCellValue("updated_at");
+
+      row = sheet.createRow(rownum++);
+      cellnum = 0;
       cell = row.createCell(cellnum++);
       cell.setCellValue(yoonNoticeDto.getCreatedAt());
-
       cell = row.createCell(cellnum++);
       cell.setCellValue(yoonNoticeDto.getUpdatedAt());
 
@@ -171,6 +232,8 @@ public class YoonNoticeService {
 //        cell.setCellValue((Integer)obj);
       //}
     }
+
+    sheetCF.addConditionalFormatting(regions.toArray(new CellRangeAddress[0]), rule1);// stream 문법 공부가 필요하다.
 
     //Write the workbook in file system
 
