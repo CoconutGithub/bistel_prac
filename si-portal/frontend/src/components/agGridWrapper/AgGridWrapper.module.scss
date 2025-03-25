@@ -71,6 +71,17 @@
                 :global(.ag-row) {
                   :global(.ag-cell) {
                     padding: 0 14px;
+                    &:global(.ag-cell-inline-editing) {
+                      border-radius: 0;
+                      box-shadow: none;
+                      background-color: #fff;
+                      input[class*="ag-"] {
+                        padding: 0;
+                        border: none;
+                        background-color: transparent;
+                        &:focus {background-color: transparent !important;}
+                      }
+                    }
                   }
                 }
               }

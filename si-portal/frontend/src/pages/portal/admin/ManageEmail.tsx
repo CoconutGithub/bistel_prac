@@ -122,7 +122,7 @@ const ManageEmail: React.FC = () => {
         <Row className="search_wrap">
           <Col className="search_cnt">
             <Form.Group as={Row}>
-              <Form.Label column sm={1} className="text-center">
+              <Form.Label column sm={1}>
                 보낸 사람
               </Form.Label>
               <Col sm={4}>
