@@ -111,10 +111,10 @@ code {
         &>div.row {align-items: center; gap: 10px 0;}
         div.cnt_group {
           display: flex; align-items: center; width: 25%; flex: unset;
-          label + div {width: calc(100% - 100px);}
+          label + div {width: calc(100% - 120px);}
           select.form-select, input {width: 100%;}
         }
-        label.form-label {width: 100px; padding: 0 0 0 10px; font-size: 14px;}
+        label.form-label {width: 120px; padding: 0 0 0 10px; font-size: 14px;}
         select.form-select, input {width: 220px; height: 30px; padding: 0 12px; font-size: 14px;}
       }
       .search_btn {

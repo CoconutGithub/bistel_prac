@@ -224,7 +224,7 @@ const ManageNotice: React.FC = () => {
             </Row>
 
             {/* 🔹 공지사항 목록 (AG Grid) */}
-            <Row className="contents_wrap">
+            <Row className="container_contents">
                 <Col>
                     <AgGridWrapper
                         ref={gridRef}
