@@ -62,4 +62,15 @@ public class Menu {
 
     @Column(name = "UPDATE_BY", length = 100)
     private String updateBy;
+
+
+    public void updateTree(Integer menuId, Integer parentMenuId, Integer position, Integer depth){
+        this.menuId=menuId;
+        this.parentMenuId=parentMenuId;
+        this.position=position;
+        this.depth=depth;
+
+        //return this;
+    }
+
 }

@@ -140,6 +140,11 @@ public class AdminController {
     public ResponseEntity<?> updateMenuContent(@RequestBody Map<String, Object> result) {
         return adminService.updateMenuContent(result);
     }
+
+    @PostMapping("api/update-menu-tree")
+    public ResponseEntity<?> updateMenuTree(@RequestBody List<Map<String, Object>> result ) {//wow 이렇게 dto 없이 받는다라~ 타입 체크에는 불리할 것이다.
+        return adminService.updateMenuTree(result);
+    }
     @PostMapping("/api/delete-code")
     public ResponseEntity<?> deleteCode(@RequestBody Map<String, Object> result) {
         return adminService.deleteCode(result);
