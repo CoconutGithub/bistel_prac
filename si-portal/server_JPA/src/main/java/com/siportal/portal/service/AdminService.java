@@ -825,21 +825,27 @@ public class AdminService {
         }
     }
 
+    @Transactional
     public ResponseEntity<?> updateMenuTree(@RequestBody List<Map<String, Object>> results){//이렇게만 받으면 안된다. 리스트로 들어온다. 알겠냐잉?
-        //menuId, parentMenuId, position, depth 들어온다. <- query문으로 하기 싫으니까 spring jpa를 활용하자~~
-        //stream 쓰고 싶지만 어떻게 하는지 모름 ㅠ
+
         int updateCount=0;
 
         for(Map<String,Object> result: results){
+//
+//            menuRepository.updateMenuTree((Integer) result.get("menuId"),(Integer) result.get("parentMenuId"),
+//                                          (Integer) result.get("position"),(Integer) result.get("depth"));
+//
             Menu menu=menuRepository.findById((Integer)result.get("menuId")).orElse(null);
-            menu.updateTree((Integer) result.get("menuId"),(Integer) result.get("parentMenuId"),(Integer) result.get("position"),(Integer) result.get("depth"));
+
             if(menu==null){
                 return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
                                      .body("Error occurred: menuId: "+(Integer)result.get("menuId")+"와 일치하는 레코드가 없습니다.");
             }
             else
                 updateCount++;
+                menu.updateTree((Integer) result.get("menuId"),(Integer) result.get("parentMenuId"),(Integer) result.get("position"),(Integer) result.get("depth"));
         }
+
 
       return ResponseEntity.ok("수정완료: "+updateCount+"개");
     }
