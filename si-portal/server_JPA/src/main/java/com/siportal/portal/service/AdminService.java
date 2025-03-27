@@ -825,6 +825,32 @@ public class AdminService {
         }
     }
 
+    @Transactional
+    public ResponseEntity<?> updateMenuTree(@RequestBody List<Map<String, Object>> results){//이렇게만 받으면 안된다. 리스트로 들어온다. 알겠냐잉?
+
+        int updateCount=0;
+
+        for(Map<String,Object> result: results){
+//
+//            menuRepository.updateMenuTree((Integer) result.get("menuId"),(Integer) result.get("parentMenuId"),
+//                                          (Integer) result.get("position"),(Integer) result.get("depth"));
+//
+            Menu menu=menuRepository.findById((Integer)result.get("menuId")).orElse(null);
+
+            if(menu==null){
+                return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                                     .body("Error occurred: menuId: "+(Integer)result.get("menuId")+"와 일치하는 레코드가 없습니다.");
+            }
+            else
+                updateCount++;
+                menu.updateTree((Integer) result.get("menuId"),(Integer) result.get("parentMenuId"),(Integer) result.get("position"),(Integer) result.get("depth"));
+        }
+
+
+      return ResponseEntity.ok("수정완료: "+updateCount+"개");
+    }
+
+
     public ResponseEntity<?> deleteCode(@RequestBody Map<String, Object> result) {
         try {
             Integer codeId = (Integer) result.get("codeId");
