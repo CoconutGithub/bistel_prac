@@ -14,6 +14,7 @@ public interface AdminMapper {
     int createMenu(@Param("menuId") int menuId, @Param("menuName") String menuName, @Param("menuUrl") String menuUrl,  @Param("menuParent") int menuParent);
     int deleteMenu(@Param("menuId") int menuId);
     List<ComResultMap> getMenuTree();
+    int updateMenuTreeBatch(@Param("list") List<Map<String, Object>> updateList);
 
     List<ComResultMap> getEmailHistory(@Param("sendUser") String sendUser);
 
@@ -26,7 +27,6 @@ public interface AdminMapper {
     void deleteMenu(Map<String, Object> data);
 
     void updateMenuContent(Map<String, Object> data);
-
 
     int createMenuRole(Map<String, Object> user);
     int updateMenuRole(Map<String, Object> user);

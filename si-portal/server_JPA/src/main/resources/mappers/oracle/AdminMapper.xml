@@ -17,14 +17,14 @@
     <update id="updateSchedule">
         UPDATE P_SCHEDULER
         SET
-            CRON_TAB = #{cronTab},
-            STATUS = #{status},
-            UPDATE_DATE = SYSDATE,
-            UPDATE_BY = #{userId}
+        CRON_TAB = #{cronTab},
+        STATUS = #{status},
+        UPDATE_DATE = SYSDATE,
+        UPDATE_BY = #{userId}
         WHERE JOB_NAME = #{jobName}
-            AND GROUP_NAME = #{groupName}
-            AND TRIGGER_KEY = #{triggerKey}
-            AND CLASS_NAME = #{className}
+        AND GROUP_NAME = #{groupName}
+        AND TRIGGER_KEY = #{triggerKey}
+        AND CLASS_NAME = #{className}
     </update>
 
     <insert id="createSchedule">
@@ -34,35 +34,48 @@
 
     <select id="getMenuTree" resultType="com.siportal.portal.com.result.ComResultMap">
         SELECT
-            A.MENU_ID,
-            A.MENU_NAME,
-            A.PARENT_MENU_ID,
-            NVL(B.MENU_NAME, '-') AS PARENT_MENU_NAME,
-            A.PATH,
-            A.POSITION,
-            A.CHILD_YN,
-            A.STATUS
+        A.MENU_ID,
+        A.MENU_NAME,
+        A.PARENT_MENU_ID,
+        NVL(B.MENU_NAME, '-') AS PARENT_MENU_NAME,
+        A.PATH,
+        A.POSITION,
+        A.CHILD_YN,
+        A.STATUS
         FROM
-            P_MENU A
+        P_MENU A
         LEFT JOIN
-            P_MENU B
+        P_MENU B
         ON
-            A.PARENT_MENU_ID = B.MENU_ID
+        A.PARENT_MENU_ID = B.MENU_ID
         ORDER BY A.DEPTH, A.POSITION
     </select>
+
+    <update id="updateMenuTreeBatch" parameterType="java.util.List">
+        <foreach collection="list" item="item" separator=";">
+            UPDATE P_MENU
+            SET
+            PARENT_MENU_ID = #{item.parentMenuId},
+            POSITION = #{item.position},
+            DEPTH = #{item.depth},
+            UPDATE_DATE = SYSDATE,
+            UPDATE_BY = 'SYSTEM'
+            WHERE MENU_ID = #{item.menuId}
+        </foreach>
+    </update>
 
     <delete id="deleteSchedule">
         DELETE FROM P_SCHEDULER
         WHERE JOB_NAME = #{jobName}
-            AND GROUP_NAME = #{groupName}
+        AND GROUP_NAME = #{groupName}
     </delete>
 
     <select id="getScheduleList" parameterType="String" resultType="com.siportal.portal.dto.SchedulDTO">
         SELECT
-            JOB_NAME, GROUP_NAME, TRIGGER_KEY, CLASS_NAME, CRON_TAB, TO_CHAR(CREATE_DATE, 'YYYY-MM-DD HH24:MI:SS') CREATE_DATE, STATUS
-            , ROW_NUMBER() OVER(ORDER BY CREATE_DATE DESC) AS GRID_ROW_ID
+        JOB_NAME, GROUP_NAME, TRIGGER_KEY, CLASS_NAME, CRON_TAB, TO_CHAR(CREATE_DATE, 'YYYY-MM-DD HH24:MI:SS') CREATE_DATE, STATUS
+        , ROW_NUMBER() OVER(ORDER BY CREATE_DATE DESC) AS GRID_ROW_ID
         FROM
-            P_SCHEDULER
+        P_SCHEDULER
         WHERE 1 = 1
         <if test="status != null and status != ''">
             AND STATUS = #{status}
@@ -101,12 +114,12 @@
 
     <select id="getEmailHistory" resultType="com.siportal.portal.com.result.ComResultMap">
         SELECT ROW_NUMBER() OVER (ORDER BY CREATION_TIME desc) as GRID_ROW_ID
-            ,SEND_USER
-            ,SEND_RECIVER
-            ,TITLE
-            ,CONTENT
-            ,READ_YN
-            ,TO_CHAR(CREATION_TIME, 'YYYY-MM-DD HH24:MI:SS') AS CREATION_TIME
+        ,SEND_USER
+        ,SEND_RECIVER
+        ,TITLE
+        ,CONTENT
+        ,READ_YN
+        ,TO_CHAR(CREATION_TIME, 'YYYY-MM-DD HH24:MI:SS') AS CREATION_TIME
         FROM P_EMAIL_HISTORY
         WHERE 1=1
         <if test="sendUser != null and sendUser != ''">
@@ -117,14 +130,14 @@
 
     <select id="getAllRoles" resultType="com.siportal.portal.com.result.ComResultMap">
         SELECT
-            ROW_NUMBER() over (ORDER BY CREATE_DATE DESC) AS GRID_ROW_ID
-            ,A.ROLE_ID
-            ,A.ROLE_NAME
-            ,A.STATUS
-            ,TO_CHAR(A.CREATE_DATE, 'YYYY-MM-DD HH24:MI:SS') AS CREATE_DATE
-            ,A.CREATE_BY
-            ,TO_CHAR(A.UPDATE_DATE, 'YYYY-MM-DD HH24:MI:SS') AS UPDATE_DATE
-            ,A.UPDATE_BY
+        ROW_NUMBER() over (ORDER BY CREATE_DATE DESC) AS GRID_ROW_ID
+        ,A.ROLE_ID
+        ,A.ROLE_NAME
+        ,A.STATUS
+        ,TO_CHAR(A.CREATE_DATE, 'YYYY-MM-DD HH24:MI:SS') AS CREATE_DATE
+        ,A.CREATE_BY
+        ,TO_CHAR(A.UPDATE_DATE, 'YYYY-MM-DD HH24:MI:SS') AS UPDATE_DATE
+        ,A.UPDATE_BY
         FROM P_ROLE A
         WHERE 1=1
         <if test="roleName != null and roleName != ''">
@@ -135,23 +148,23 @@
 
     <select id="getRoleList" resultType="com.siportal.portal.com.result.ComResultMap">
         SELECT
-            ROLE_ID ,
-            ROLE_NAME
+        ROLE_ID ,
+        ROLE_NAME
         FROM P_ROLE
     </select>
 
-<!--    <update id="updateRole">-->
-<!--        UPDATE P_ROLE-->
-<!--        SET-->
-<!--        ROLE_NAME = #{roleName},-->
-<!--        STATUS = #{status},-->
-<!--        CAN_CREATE = #{canCreate},-->
-<!--        CAN_READ = #{canRead},-->
-<!--        CAN_UPDATE = #{canUpdate},-->
-<!--        CAN_DELETE = #{canDelete},-->
-<!--        MENU = #{menu}-->
-<!--        WHERE ROLE_ID = #{roleId}-->
-<!--    </update>-->
+    <!--    <update id="updateRole">-->
+    <!--        UPDATE P_ROLE-->
+    <!--        SET-->
+    <!--        ROLE_NAME = #{roleName},-->
+    <!--        STATUS = #{status},-->
+    <!--        CAN_CREATE = #{canCreate},-->
+    <!--        CAN_READ = #{canRead},-->
+    <!--        CAN_UPDATE = #{canUpdate},-->
+    <!--        CAN_DELETE = #{canDelete},-->
+    <!--        MENU = #{menu}-->
+    <!--        WHERE ROLE_ID = #{roleId}-->
+    <!--    </update>-->
 
     <insert id="insertRole" parameterType="map">
         INSERT INTO p_role (ROLE_ID, ROLE_NAME, STATUS, update_date, CREATE_BY)
@@ -163,13 +176,13 @@
     </delete>
 
     <update id="updateRole" parameterType="map">
-            UPDATE p_role
-               SET ROLE_NAME = #{roleName},
-                   STATUS = #{status},
-                   update_date = SYSDATE,
-                   CREATE_BY = 'SYSTEM',
-                   UPDATE_BY = 'SYSTEM'
-             WHERE ROLE_ID = #{roleId}
+        UPDATE p_role
+        SET ROLE_NAME = #{roleName},
+        STATUS = #{status},
+        update_date = SYSDATE,
+        CREATE_BY = 'SYSTEM',
+        UPDATE_BY = 'SYSTEM'
+        WHERE ROLE_ID = #{roleId}
     </update>
 
     <delete id="deleteRoles" parameterType="list">
@@ -181,31 +194,31 @@
 
     <update id="updateMenuContent" parameterType="map">
         UPDATE p_menu SET
-                          MENU_NAME = #{menuName},
-                          PATH = #{path},
-                          POSITION = #{position},
-                          STATUS = #{status},
-                          UPDATE_DATE = SYSDATE,
-                          UPDATE_BY = #{userId}
+        MENU_NAME = #{menuName},
+        PATH = #{path},
+        POSITION = #{position},
+        STATUS = #{status},
+        UPDATE_DATE = SYSDATE,
+        UPDATE_BY = #{userId}
         WHERE MENU_ID = #{menuId}
     </update>
 
     <select id="getMenuRole" resultType="com.siportal.portal.com.result.ComResultMap">
         select ROW_NUMBER() OVER (ORDER BY B.PERMISSION_ID ASC) as GRID_ROW_ID
-             ,B.permission_id
-             ,C.role_name
-             ,B.can_create
-             ,B.can_read
-             ,B.can_update
-             ,B.can_delete
-             ,TO_CHAR(B.create_date, 'YYYY-MM-DD HH24:MI:SS') AS create_date
-             ,B.create_by
-             ,TO_CHAR(B.update_date, 'YYYY-MM-DD HH24:MI:SS') AS update_date
-             ,B.update_by
+        ,B.permission_id
+        ,C.role_name
+        ,B.can_create
+        ,B.can_read
+        ,B.can_update
+        ,B.can_delete
+        ,TO_CHAR(B.create_date, 'YYYY-MM-DD HH24:MI:SS') AS create_date
+        ,B.create_by
+        ,TO_CHAR(B.update_date, 'YYYY-MM-DD HH24:MI:SS') AS update_date
+        ,B.update_by
         from p_menu A, p_permission B, p_role C
         where  A.menu_id = B.menu_id
-          and B.role_id = C.role_id
-          and B.menu_id = #{menuId}
+        and B.role_id = C.role_id
+        and B.menu_id = #{menuId}
     </select>
 
     <insert id="createMenuRole">
@@ -234,21 +247,21 @@
     <update id="updateMenuRole">
         UPDATE P_PERMISSION
         SET CAN_CREATE = #{canCreate}
-          , CAN_READ = #{canRead}
-          , CAN_UPDATE = #{canUpdate}
-          , CAN_DELETE = #{canDelete}
-          , UPDATE_DATE = SYSDATE
-          , UPDATE_BY = 'ADMIN'
+        , CAN_READ = #{canRead}
+        , CAN_UPDATE = #{canUpdate}
+        , CAN_DELETE = #{canDelete}
+        , UPDATE_DATE = SYSDATE
+        , UPDATE_BY = 'ADMIN'
         WHERE PERMISSION_ID = #{permissionId}
-          AND ROLE_ID = #{roleId}
-          AND MENU_ID = #{menuId}
+        AND ROLE_ID = #{roleId}
+        AND MENU_ID = #{menuId}
     </update>
 
     <delete id="deleteMenuRole">
         DELETE FROM P_PERMISSION
         WHERE PERMISSION_ID = #{permissionId}
-            AND ROLE_ID = #{roleId}
-            AND MENU_ID = #{menuId}
+        AND ROLE_ID = #{roleId}
+        AND MENU_ID = #{menuId}
     </delete>
 
 </mapper>

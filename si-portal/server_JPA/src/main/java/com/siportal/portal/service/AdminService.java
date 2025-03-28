@@ -56,18 +56,18 @@ public class AdminService {
 
     @Autowired
     public AdminService(AdminMapper adminMapper, JavaMailSender emailSender
-        , TemplateEngine templateEngine, QuartzDynamicConfig quartzDynamicConfig
-        , JdbcTemplate jdbcTemplate
-        , UserRepository userRepository
-        , UserRoleRepository userRoleRepository
-        , MenuRepository menuRepository
-        , RoleRepository roleRepository
-        , PermissionRepository permissionRepository
-        , SchedulerRepository schedulerRepository
-        , MsgMainRepository msgMainRepository
-        , MsgDetailRepository msgDetailRepository
-        , CodeRepository codeRepository
-        , NoticeRepository noticeRepository
+            , TemplateEngine templateEngine, QuartzDynamicConfig quartzDynamicConfig
+            , JdbcTemplate jdbcTemplate
+            , UserRepository userRepository
+            , UserRoleRepository userRoleRepository
+            , MenuRepository menuRepository
+            , RoleRepository roleRepository
+            , PermissionRepository permissionRepository
+            , SchedulerRepository schedulerRepository
+            , MsgMainRepository msgMainRepository
+            , MsgDetailRepository msgDetailRepository
+            , CodeRepository codeRepository
+            , NoticeRepository noticeRepository
     ) {
         this.adminMapper = adminMapper;
         this.emailSender = emailSender;
@@ -825,32 +825,6 @@ public class AdminService {
         }
     }
 
-    @Transactional
-    public ResponseEntity<?> updateMenuTree(@RequestBody List<Map<String, Object>> results){//이렇게만 받으면 안된다. 리스트로 들어온다. 알겠냐잉?
-
-        int updateCount=0;
-
-        for(Map<String,Object> result: results){
-//
-//            menuRepository.updateMenuTree((Integer) result.get("menuId"),(Integer) result.get("parentMenuId"),
-//                                          (Integer) result.get("position"),(Integer) result.get("depth"));
-//
-            Menu menu=menuRepository.findById((Integer)result.get("menuId")).orElse(null);
-
-            if(menu==null){
-                return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
-                                     .body("Error occurred: menuId: "+(Integer)result.get("menuId")+"와 일치하는 레코드가 없습니다.");
-            }
-            else
-                updateCount++;
-                menu.updateTree((Integer) result.get("menuId"),(Integer) result.get("parentMenuId"),(Integer) result.get("position"),(Integer) result.get("depth"));
-        }
-
-
-      return ResponseEntity.ok("수정완료: "+updateCount+"개");
-    }
-
-
     public ResponseEntity<?> deleteCode(@RequestBody Map<String, Object> result) {
         try {
             Integer codeId = (Integer) result.get("codeId");
@@ -910,7 +884,7 @@ public class AdminService {
 
     private void saveEmailHistory(String sendUser, String sendReceiver, String title, String content) {
         String sql = "INSERT INTO dev.p_email_history (send_user, send_reciver, title, content, read_yn, creation_time) " +
-                     "VALUES (?, ?, ?, ?, 'N', CURRENT_TIMESTAMP)";
+                "VALUES (?, ?, ?, ?, 'N', CURRENT_TIMESTAMP)";
 
         // JdbcTemplate을 사용하여 데이터 삽입
         jdbcTemplate.update(sql, sendUser, sendReceiver, title, content);
@@ -918,7 +892,7 @@ public class AdminService {
 
     private void saveRoleList(String roleName, String status, String userName) {
         String sql = "INSERT INTO dev.p_role (role_id, role_name, status, create_date, create_by) " +
-                     "VALUES (nextval('seq_p_role'), ?, ?, CURRENT_TIMESTAMP, ?)";
+                "VALUES (nextval('seq_p_role'), ?, ?, CURRENT_TIMESTAMP, ?)";
 
         // JdbcTemplate을 사용하여 데이터 삽입
         jdbcTemplate.update(sql, roleName, status, userName);
@@ -947,7 +921,7 @@ public class AdminService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Invalid menuId format: " + menuIdStr);
         } catch (Exception e) {
-                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error occurred: " + e.getMessage());
         }
     }
@@ -1201,6 +1175,20 @@ public class AdminService {
         }
 
         return ResponseEntity.ok().build();
+    }
+
+    public ResponseEntity<?> updateMenuTree(Map<String, Object> requestData) {
+        try {
+            List<Map<String, Object>> updateList = (List<Map<String, Object>>) requestData.get("updateList");
+            adminMapper.updateMenuTreeBatch(updateList);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("messageCode", "success");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body("Error occurred: " + e.getMessage());
+        }
     }
 
 }
