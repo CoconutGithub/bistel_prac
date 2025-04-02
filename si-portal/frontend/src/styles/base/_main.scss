@@ -55,44 +55,163 @@ code {
 
 
 // 기본 전체 레이아웃 스타일 커스텀
+div[class*="MainLayout_start"] {
+  &> .navbar {
+    padding: 0;
+    div {height: 100%;}
+    .ms-auto {
+      align-items: center;
+      &> div {
+        display: flex; align-items: center; padding: 0 20px; cursor: pointer; font-size: 14px;
+        &+div {
+          position: relative;
+          &::after {
+            content: "";
+            position: absolute;
+            width: 1px;
+            height: 12px;
+            background-color: #ddd;
+            top: 50%;
+            left: 0;
+            margin-top: -6px;
+          }
+        }
+      }
+      div.alarm {
+        position: relative;
+        &.new {
+          &::before {
+            content: "";
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: #ED5565;
+            top: 20px;
+            right: 22px;
+          }
+        }
+      }
+      div.language {
+        &::before {
+          content: "";
+          display: block;
+          width: 20px;
+          height: 20px;
+          background: #ddd;
+          margin-right: 10px;
+          border-radius: 4px;
+        }
+        &.ko {
+          &::before {
+            background: url(../../../public/assets/icons/Translate_ko.svg) 50% 50% no-repeat;
+          }
+        }
+      }
+      div.adminMenu {
+        &:hover {
+          .dropdown-toggle::after {
+            transform: rotate(180deg);
+          }
+        }
+        .dropdown-toggle {
+          display: flex;
+          align-items: center;
+          padding: 0;
+          color: #011D49;
+          &::after {
+            content: "";
+            width: 14px;
+            height: 14px;
+            margin-left: 10px;
+            border: none;
+            background: url(../../../public/assets/icons/chevron-down.svg) 50% 50% no-repeat;
+            transition: 0.3s;
+          }
+          &+ .dropdown-menu {
+            height: unset;
+            margin-top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            &::before {
+              content: "";
+              position: absolute;
+              width: 100%;
+              height: 10px;
+              top: -10px;
+              left: 0;
+            }
+            .dropdown-item {
+              font-size: 14px;
+              color: #011D49;
+              text-align: center;
+            }
+          }
+        }
+      }
+      div.profile {
+        gap: 10px;
+        &> div {display: flex; align-items: center;}
+        .profileIcon {}
+        .profileCnt {
+          .user_info_text {display: flex; flex-direction: column; justify-content: center; gap: 4px;}
+          p {margin-bottom: 0; line-height: 1;}
+          p.userstatus {font-size: 14px; font-weight: bold;}
+          p.userid {font-size: 12px; color: #999;}
+        }
+      }
+    }
+  }
+}
+
+
 .container_bg {
   position: relative;
   padding: 0;
   .row, div[class*="col"]:not([class*="offset"], [class*="column"]) {padding-left: 0; padding-right: 0; margin-left: 0; margin-right: 0;}
-  &::before {
-    content: "";
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    background-color: #f4f4f6;
-    z-index: -1;
-  }
-  &::after {
-    content: "";
-    position: absolute;
-    width: 100%;
-    height: 146px;
-    top: 0;
-    left: 0;
-    background-color: #001C54;
-    z-index: -1;
-  }
+  // &::before {
+  //   content: "";
+  //   position: absolute;
+  //   width: 100%;
+  //   height: 100%;
+  //   top: 0;
+  //   left: 0;
+  //   background-color: #f4f4f6;
+  //   z-index: -1;
+  // }
+  // &::after {
+  //   content: "";
+  //   position: absolute;
+  //   width: 100%;
+  //   height: 146px;
+  //   top: 0;
+  //   left: 0;
+  //   background-color: #001C54;
+  //   z-index: -1;
+  // }
   .container_title, header[class*="_header"] {
     display: flex;
-    height: 66px;
+    position: relative;
+    height: 60px;
     margin: 0;
     padding: 0 20px;
     align-items: center;
     border-bottom: none;
-    h2, p[class*="_title"] {margin-bottom: 0; font-size: 20px; font-weight: bold; color: #fff;}
+    &::after {
+      content: "";
+      position: absolute;
+      width: calc(100% - 40px);
+      height: 1px;
+      border-bottom: 1px solid #0F1040;
+      bottom: 0;
+    }
+    h2, p[class*="_title"] {margin-bottom: 0; font-size: 20px; font-weight: bold; color: #0F1040;}
   }
   .container_contents, main[class*="_main"] {
     display: flex;
     flex-direction: column;
-    width: calc(100% - 40px);
-    height: calc(100% - 86px);
+    width: 100%;
+    height: calc(100% - 60px);
     margin: auto;
     padding: 20px;
     background-color: #fff;
