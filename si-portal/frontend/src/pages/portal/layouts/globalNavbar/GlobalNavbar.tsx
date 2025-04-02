@@ -71,13 +71,13 @@ const GlobalNavbar = React.memo(
 
     return (
       <Navbar className={styles.start} expand="lg">
-        <Navbar.Brand href="/main/home" className={styles.title}>
+        {/* <Navbar.Brand href="/main/home" className={styles.title}>
           <img
             alt="기업 로고"
             src={`${process.env.REACT_APP_PUBLIC_URL}/assets/images/bistelligence_logo.png`}
             className={styles.logo}
           />
-        </Navbar.Brand>
+        </Navbar.Brand> */}
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav" className={styles.nav_container}>
           <div className={styles.nav_wrap}>
@@ -222,7 +222,7 @@ const GlobalNavbar = React.memo(
             </Nav>
           </div>
 
-          <div className={styles.user_area}>
+          {/* <div className={styles.user_area}>
             <div className={styles.user_info_wrap}>
               <div className={styles.icon}>
                 <img
@@ -372,6 +372,9 @@ const GlobalNavbar = React.memo(
                 </NavDropdown.Item>
               </NavDropdown>
             </Nav>
+          </div> */}
+          <div className="copyright">
+            <p>Copyright © 2025 BISTelligence, <br /> Inc. All rights reserved.</p>
           </div>
         </Navbar.Collapse>
       </Navbar>

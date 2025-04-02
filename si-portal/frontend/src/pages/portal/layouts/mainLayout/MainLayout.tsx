@@ -1,6 +1,7 @@
 import { Container, Tab, Tabs } from 'react-bootstrap';
 import { Outlet, matchPath, useLocation, useNavigate } from 'react-router-dom';
 import GlobalNavbar from '~pages/portal/layouts/globalNavbar/GlobalNavbar';
+import GlobalHeader from '../Header';
 
 import { removeLoginToken } from '~store/AuthSlice';
 import styles from './MainLayout.module.scss';
@@ -132,38 +133,41 @@ const MainLayout = () => {
 
   return (
     <div className={styles.start}>
-      <GlobalNavbar onSelectTab={handleSelectTab} />
-      <main id="main-content-root" className={styles.main}>
-        <Tabs
-          id="ROOT_TABS"
-          activeKey={activeKey || ''}
-          onSelect={(k) => dispatch(setActiveTab(k as string))}
-        >
-          {tabs.map((tab) => (
-            <Tab
-              key={tab.key}
-              eventKey={tab.key}
-              title={
-                <div className={styles.rootTab_tile_area}>
-                  <span>{tab.label}</span>
-                  <span
-                    onClick={(event) => handleCloseTab(tab.key, event)}
-                    className={styles.rootTab_close_button}
-                  >
-                    <SiCancelIcon width={14} height={14} currentFill={true} />
-                  </span>
-                </div>
-              }
-            >
-              <Container className={styles.container}>
-                {/* <Outlet /> */}
-                {/* {routeComponents[tab.path] || <NotFound />} */}
-                {activeKey === tab.key && matchedComponent}
-              </Container>
-            </Tab>
-          ))}
-        </Tabs>
-      </main>
+      <GlobalHeader />
+      <div className={'containerWrap'}>
+        <GlobalNavbar onSelectTab={handleSelectTab} />
+        <main id="main-content-root" className={styles.main}>
+          <Tabs
+            id="ROOT_TABS"
+            activeKey={activeKey || ''}
+            onSelect={(k) => dispatch(setActiveTab(k as string))}
+          >
+            {tabs.map((tab) => (
+              <Tab
+                key={tab.key}
+                eventKey={tab.key}
+                title={
+                  <div className={styles.rootTab_tile_area}>
+                    <span>{tab.label}</span>
+                    <span
+                      onClick={(event) => handleCloseTab(tab.key, event)}
+                      className={styles.rootTab_close_button}
+                    >
+                      <SiCancelIcon width={14} height={14} currentFill={true} />
+                    </span>
+                  </div>
+                }
+              >
+                <Container className={styles.container}>
+                  {/* <Outlet /> */}
+                  {/* {routeComponents[tab.path] || <NotFound />} */}
+                  {activeKey === tab.key && matchedComponent}
+                </Container>
+              </Tab>
+            ))}
+          </Tabs>
+        </main>
+      </div>
     </div>
   );
 };

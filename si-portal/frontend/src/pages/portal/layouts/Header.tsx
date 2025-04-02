@@ -53,10 +53,22 @@ const Header = () => {
     navigate("/login");
   };
 
+  const userName = useSelector(
+    (state: RootState) => state.auth.user.userName
+  );
+  const roleName = useSelector(
+    (state: RootState) => state.auth.user.roleName
+  );
+
   return (
-    <Navbar style={{ backgroundColor: headerColor }} expand="lg">
+    <Navbar expand="lg">
       <Container fluid>
-        <Navbar.Brand href="/">{title}</Navbar.Brand>
+        <Navbar.Brand href="/main/home" className={title}>
+          <img
+            alt="기업 로고"
+            src={`${process.env.REACT_APP_PUBLIC_URL}/assets/images/bistelligence_logo.png`}
+          />
+        </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           {/* <Nav className="me-auto">
@@ -65,12 +77,16 @@ const Header = () => {
               onSelectTab={onSelectTab}/>
             ))}
           </Nav> */}
-          <Nav style={{ flex: "0 0 10%" }} className="ms-auto">
+          <Nav className="ms-auto">
+            <div className="alarm new">
+              <img src={`${process.env.REACT_APP_PUBLIC_URL}/assets/icons/bell.svg`} alt="" />
+            </div>
+            <div className="language ko">한국어</div>
             {isMighty === "Y" && (
               <NavDropdown
                 title="Admin"
                 id="basic-nav-dropdown"
-                menuVariant="dark"
+                className="adminMenu"
               >
                 <NavDropdown.Item as={Link} to="/main/manage-menu">
                   메뉴 관리
@@ -95,6 +111,20 @@ const Header = () => {
                 </NavDropdown.Item>
               </NavDropdown>
             )}
+            <div className="profile">
+              <div className="profileIcon">
+                <img
+                  alt="사용자 아이콘콘"
+                  src={`${process.env.REACT_APP_PUBLIC_URL}/assets/icons/user-circle.svg`}
+                />
+              </div>
+              <div className="profileCnt">
+                <div className="user_info_text">
+                  <p className="userstatus">{roleName}</p>
+                  <p className="userid">{userName}</p>
+                </div>
+              </div>
+            </div>
           </Nav>
         </Navbar.Collapse>
       </Container>

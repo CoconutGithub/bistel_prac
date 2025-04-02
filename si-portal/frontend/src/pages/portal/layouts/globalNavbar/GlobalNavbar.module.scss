@@ -30,7 +30,7 @@
   }
   .nav_container {
     width: 100%;
-    height: calc(100% - 60px);
+    height: 100%;
     padding-top: 16px;
     background-color: #fff;
     flex-grow: unset;
@@ -38,8 +38,9 @@
     justify-content: space-between;
     .nav_wrap {
       width: 100%;
-      height: calc(100% - 56px);
+      height: calc(100% - 54px);
       padding: 0 20px;
+      overflow: auto;
       & > .nav {
         flex-direction: column;
         .nav_link {
