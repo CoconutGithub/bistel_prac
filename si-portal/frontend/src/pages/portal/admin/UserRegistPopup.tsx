@@ -422,7 +422,7 @@ const UserRegistPopup = React.memo(
                       style={{
                         position: "absolute",
                         bottom: "-16px",
-                        right: "0px",
+                        left: "90px",
                         fontSize: "12px",
                         paddingLeft: "24px",
                         boxSizing: "border-box",
