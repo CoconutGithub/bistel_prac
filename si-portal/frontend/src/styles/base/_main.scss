@@ -314,6 +314,87 @@ div[class*="MainLayout_start"] {
     .menutree_wrap + .contents_wrap {
       width: calc(100% - 320px);
     }
+
+    .menutree_wrap:has(.menuSaveBtn) {
+      border: none;
+      padding: 0;
+      &>div {display: flex; flex-direction: column; gap: 20px;}
+      .rst__tree {
+        height: calc(100% - 50px) !important; border: 1px solid #ddd;
+        div[data-testid="virtuoso-scroller"] {
+          &>div {padding: 10px 12px 10px 6px;}
+        }
+        .rst__node {
+          height: 30px !important;
+          .rst__lineBlock {
+            width: 20px !important;
+            &::before, &::after {background-color: #ddd;}
+          }
+          .rst__nodeContent {
+            &[style*="left: 44px;"] {
+              left: 36px !important;
+              width: calc(100% - 36px);
+            }
+            &[style*="left: 88px;"] {
+              left: 56px !important;
+              width: calc(100% - 56px);
+            }
+            &[style*="left: 132px;"] {
+              left: 76px !important;
+              width: calc(100% - 76px);
+            }
+            &[style*="left: 176px;"] {
+              left: 96px !important;
+              width: calc(100% - 96px);
+            }
+            .rst__collapseButton {
+              background: transparent url(../../../public/assets/icons/polygon_down.svg) no-repeat center;
+              box-shadow: none;
+              left: -5px !important;
+            }
+            .rst__expandButton {
+              background: transparent url(../../../public/assets/icons/polygon_right.svg) no-repeat center;
+              box-shadow: none;
+              left: -5px !important;
+            }
+            .rst__lineChildren {display: none;}
+            div + .rst__rowWrapper {
+              .rst__rowContents {padding-left: 10px !important;}
+            }
+            .rst__rowWrapper {
+              padding: 0;
+              .rst__row {
+                flex-direction: row-reverse; align-items: center;
+                &:has(span[style*="color: blue"]) {
+                  .rst__moveHandle {
+                    background: transparent url(../../../public/assets/icons/icon-menu-focus.svg) no-repeat center;
+                  }
+                }
+                .rst__moveHandle {
+                  width: 14px; height: 14px;
+                  background: transparent url(../../../public/assets/icons/icon-menu.svg) no-repeat center;
+                  border: none;
+                  box-shadow: none;
+                }
+                .rst__rowContents {
+                  padding-left: 0; border: none; box-shadow: none; min-width: unset; background: transparent;
+                  .rst__rowLabel {
+                    padding: 0;
+                    .rst__rowTitle {
+                      font-weight: normal; cursor: pointer;
+                      span {font-size: 14px; color: #011D49 !important;}
+                      span[style*="color: blue"] {color: #39B1BD !important; font-weight: bold;}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      .menuSaveBtn {text-align: right;}
+    }
+
     .contents_wrap {
       // 컨테츠영역
       width: 100%;
