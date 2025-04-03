@@ -1,8 +1,8 @@
-package com.siportal.portal.com.auth;
+package com.siportal.portal.config;
 
-import com.siportal.portal.mapper.PortalMapper;
+import com.siportal.portal.com.auth.AfterLoginFilter;
+import com.siportal.portal.com.auth.LoginFilter;
 import com.siportal.portal.repository.LoginRepository;
-import com.siportal.portal.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
