@@ -154,7 +154,7 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick, refreshTre
   }, [contextMenu]);
 
   return (
-      <div style={{ height: 600, position: "relative" }}>
+      <div className="h-100" style={{ position: "relative" }}>
         <SortableTree
             treeData={treeData}
             onChange={(data) => setTreeData(data)}
@@ -177,7 +177,7 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick, refreshTre
               ),
             })}
         />
-        <div className="text-end mt-3">
+        <div className="menuSaveBtn">
           <Button variant="primary" size="sm" onClick={handleSaveToServer}>
             변경사항 저장
           </Button>
