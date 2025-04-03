@@ -42,6 +42,11 @@ public class SecurityConfig {
                         .requestMatchers("/biz/flora-resumes/**").permitAll()// 인증 없이 허용
                         .requestMatchers("/biz/hdh-resumes/**").permitAll()// 인증 없이 허용
                         .requestMatchers("/admin/api/update-menu-tree").permitAll() // 인증 없이 허용
+                        .requestMatchers(
+                            "/swagger-ui/**", // Swagger UI 경로 허용
+                            "/v3/api-docs/**", // OpenAPI 문서 경로 허용
+                            "/swagger-ui.html" // Swagger HTML 경로 허용
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception
