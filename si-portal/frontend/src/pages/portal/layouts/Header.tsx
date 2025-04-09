@@ -46,8 +46,12 @@ const Header = React.memo(
             console.error("Error fetching menus:", error);
           });
       };
-
       fetchMenuData();
+      
+      document.addEventListener("click", handleOutsideClick);
+      return () => {
+        document.removeEventListener("click", handleOutsideClick);
+      };
     }, []);
 
     const handleLogout = () => {
@@ -82,13 +86,6 @@ const Header = React.memo(
         setIsPopupVisible(false);
       }
     };
-
-    React.useEffect(() => {
-      document.addEventListener("click", handleOutsideClick);
-      return () => {
-        document.removeEventListener("click", handleOutsideClick);
-      };
-    }, []);
 
     return (
       <Navbar expand="lg">
