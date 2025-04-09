@@ -53,6 +53,12 @@ code {
   }
 }
 
+.ellipsis {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 // 기본 전체 레이아웃 스타일 커스텀
 div[class*="MainLayout_start"] {
@@ -105,6 +111,50 @@ div[class*="MainLayout_start"] {
         &.ko {
           &::before {
             background: url(../../../public/assets/icons/Translate_ko.svg) 50% 50% no-repeat;
+          }
+        }
+        .language_popup {
+          position: absolute;
+          height: auto;
+          padding: 10px 0;
+          top: 66px;
+          left: 50%;
+          transform: translateX(-50%);
+          border-radius: 4px;
+          border: 1px solid #ddd;
+          background-color: #fff;
+          z-index: 100;
+          ul {
+            list-style: unset;
+            margin: 0;
+            padding: 0;
+            li {
+              position: relative;
+              display: flex;
+              min-width: 140px;
+              padding: 4px 20px;
+              justify-content: center;
+              &:hover {
+                background-color: #f8f9fa;
+              }
+              &:active {
+                background-color: #39b1bd1a;
+              }
+              &::before {
+                content: "";
+                display: block;
+                width: 20px;
+                height: 20px;
+                background: #ddd;
+                margin-right: 10px;
+                border-radius: 4px;
+              }
+              &.ko {
+                &::before {
+                  background: url(../../../public/assets/icons/Translate_ko.svg) 50% 50% no-repeat;
+                }
+              }
+            }
           }
         }
       }
@@ -170,6 +220,7 @@ div[class*="MainLayout_start"] {
         }
       }
       div.profile {
+        position: relative;
         gap: 10px;
         &> div {display: flex; align-items: center;}
         .profileIcon {}
@@ -178,6 +229,33 @@ div[class*="MainLayout_start"] {
           p {margin-bottom: 0; line-height: 1;}
           p.userstatus {font-size: 14px; font-weight: bold;}
           p.userid {font-size: 12px; color: #999;}
+        }
+        .profile_popup {
+          position: absolute;
+          height: auto;
+          padding: 10px 0;
+          top: 66px;
+          right: 10px;
+          border-radius: 4px;
+          border: 1px solid #ddd;
+          background-color: #fff;
+          z-index: 100;
+          ul {
+            list-style: unset;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            li {
+              min-width: 140px;
+              padding: 4px 20px;
+              &:hover {
+                background-color: #f8f9fa;
+              }
+              &:active {
+                background-color: #39b1bd1a;
+              }
+            }
+          }
         }
       }
     }
@@ -383,7 +461,12 @@ div[class*="MainLayout_start"] {
             }
             .rst__lineChildren {display: none;}
             div + .rst__rowWrapper {
-              .rst__moveHandle {margin-left: 10px !important;}
+              .rst__moveHandle {
+                margin-left: 10px !important;
+                &+ .rst__rowContents {
+                  width: calc(100% - 36px);
+                }                 
+              }
             }
             .rst__rowWrapper {
               padding: 0;
@@ -409,11 +492,11 @@ div[class*="MainLayout_start"] {
                   }
                 }
                 .rst__rowContents {
-                  padding-left: 0; border: none; box-shadow: none; min-width: unset; background: transparent;
+                  padding-left: 0; border: none; box-shadow: none; min-width: unset; background: transparent; width: calc(100% - 26px);
                   .rst__rowLabel {
-                    padding: 0;
+                    width: 100%; padding: 0;
                     .rst__rowTitle {
-                      font-weight: normal; cursor: pointer;
+                      display: block; width: 100%; font-weight: normal; cursor: pointer;
                       span {font-size: 14px; color: #011D49 !important;}
                       span[style*="color: blue"] {color: #39B1BD !important; font-weight: bold;}
                     }

@@ -70,6 +70,26 @@ const Header = React.memo(
       return location.pathname === path ? 'active' : ''; // 경로가 일치하면 'active' 클래스를 추가
     };
 
+    // 프로필
+    const [isPopupVisible, setIsPopupVisible] = useState(false);
+
+    const togglePopup = () => {
+      setIsPopupVisible(!isPopupVisible);
+    };
+
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (e.target instanceof Element && !e.target.closest(".profile")) {
+        setIsPopupVisible(false);
+      }
+    };
+
+    React.useEffect(() => {
+      document.addEventListener("click", handleOutsideClick);
+      return () => {
+        document.removeEventListener("click", handleOutsideClick);
+      };
+    }, []);
+
     return (
       <Navbar expand="lg">
         <Container fluid>
@@ -91,7 +111,7 @@ const Header = React.memo(
               <div className="alarm new">
                 <img src={`${process.env.REACT_APP_PUBLIC_URL}/assets/icons/bell.svg`} alt="" />
               </div>
-              <div className="language ko">한국어</div>
+              <div className="language ko"> 한국어 </div>
               {isMighty === "Y" && (
                 <NavDropdown
                   title="Admin"
@@ -204,7 +224,7 @@ const Header = React.memo(
                   </NavDropdown.Item>
                 </NavDropdown>
               )}
-              <div className="profile">
+              <div className="profile" onClick={togglePopup}>
                 <div className="profileIcon">
                   <img
                     alt="사용자 아이콘콘"
@@ -217,6 +237,14 @@ const Header = React.memo(
                     <p className="userid">{userName}</p>
                   </div>
                 </div>
+                {isPopupVisible && (
+                  <div className="profile_popup">
+                    <ul>
+                      <li>프로필 수정</li>
+                      <li>Logout</li>
+                    </ul>
+                  </div>
+                )}
               </div>
             </Nav>
           </Navbar.Collapse>

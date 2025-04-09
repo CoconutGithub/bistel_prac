@@ -171,6 +171,7 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({ onMenuClick, refreshTre
                         setContextMenu({ visible: true, x: e.clientX, y: e.clientY, node, path });
                       }}
                       style={{ color: selectedNode?.menuId === node.menuId ? "blue" : "black" }}
+                      className="ellipsis"
                   >
               {node.title}
             </span>
