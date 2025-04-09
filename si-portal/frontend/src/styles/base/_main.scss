@@ -145,7 +145,27 @@ div[class*="MainLayout_start"] {
               font-size: 14px;
               color: #011D49;
               text-align: center;
+              &.active {
+                color: #39B1BD;
+                background-color: transparent;
+                font-weight: bold;
+              }
+              &:active {
+                background-color: #39B1BD1a;
+              }
             }
+          }
+        }
+        &:has(.active) {
+          position: relative;
+          &::before {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 3px;
+            background-color: #39B1BD;
+            top: 0;
+            left: 0;
           }
         }
       }
@@ -347,6 +367,10 @@ div[class*="MainLayout_start"] {
               left: 96px !important;
               width: calc(100% - 96px);
             }
+            &[style*="left: 220px;"] {
+              left: 116px !important;
+              width: calc(100% - 116px);
+            }
             .rst__collapseButton {
               background: transparent url(../../../public/assets/icons/polygon_down.svg) no-repeat center;
               box-shadow: none;
@@ -359,22 +383,30 @@ div[class*="MainLayout_start"] {
             }
             .rst__lineChildren {display: none;}
             div + .rst__rowWrapper {
-              .rst__rowContents {padding-left: 10px !important;}
+              .rst__moveHandle {margin-left: 10px !important;}
             }
             .rst__rowWrapper {
               padding: 0;
               .rst__row {
-                flex-direction: row-reverse; align-items: center;
+                // flex-direction: row-reverse; 
+                align-items: center; gap: 6px;
                 &:has(span[style*="color: blue"]) {
                   .rst__moveHandle {
                     background: transparent url(../../../public/assets/icons/icon-menu-focus.svg) no-repeat center;
+                    background-size: 12px 12px;
+                    border-color: #39B1BD; background-color: #39B1BD0d;
                   }
                 }
                 .rst__moveHandle {
-                  width: 14px; height: 14px;
+                  width: 20px; height: 20px;
                   background: transparent url(../../../public/assets/icons/icon-menu.svg) no-repeat center;
+                  background-size: 12px 12px;
                   border: none;
                   box-shadow: none;
+                  border-radius: 4px; border: 1px solid #eee;
+                  &:hover {
+                    border-color: #ddd;
+                  }
                 }
                 .rst__rowContents {
                   padding-left: 0; border: none; box-shadow: none; min-width: unset; background: transparent;
