@@ -24,6 +24,8 @@ const YwkResume = React.lazy(() => import("~pages/biz/YwkResume"));
 const YoonResume = React.lazy(() => import("~pages/biz/YoonResume"));
 const YoonNotice = React.lazy(() => import("~pages/biz/YoonNotice"));
 
+const InformationList = React.lazy(()=> import('~pages/biz/infomationPage/informationList/informationList'));
+
 export default function DefaultRoutes(): RouteObject[] {
   return [
     {
@@ -137,12 +139,19 @@ export default function DefaultRoutes(): RouteObject[] {
         </React.Suspense>
       ),
     },
-   
     {
       path: "/main/yoon-notice",
       element: (
         <React.Suspense fallback={<div>Loading...</div>}>
           <YoonNotice />
+        </React.Suspense>
+      ),
+    },
+    {
+      path: "/main/bonnie-info",
+      element: (
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <InformationList />
         </React.Suspense>
       ),
     },
