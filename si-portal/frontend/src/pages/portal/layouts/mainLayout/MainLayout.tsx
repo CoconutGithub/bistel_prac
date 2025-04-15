@@ -133,7 +133,7 @@ const MainLayout = () => {
 
   return (
     <div className={styles.start}>
-      <GlobalHeader onSelectTab={handleSelectTab} />
+      <GlobalHeader />
       <div className={'containerWrap'}>
         <GlobalNavbar onSelectTab={handleSelectTab} />
         <main id="main-content-root" className={styles.main}>
