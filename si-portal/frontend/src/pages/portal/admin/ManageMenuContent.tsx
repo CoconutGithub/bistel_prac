@@ -196,6 +196,8 @@ const ManageMenuContent: React.FC<{
   const pathRef = useRef<HTMLInputElement>(null);
   const [msgId, setMsgId] = useState<number>(0);
   const menuNameRef = useRef<HTMLInputElement>(null);
+  const [menuId, setMenuId] = useState<string | any>(chooseMenuData?.menuId);
+  const [rowData, setRowData] = useState<any[]>([]);
 
   console.log("chooseMenuData", chooseMenuData);
 
@@ -208,6 +210,7 @@ const ManageMenuContent: React.FC<{
       setMsgId(chooseMenuData?.msgId);
       setIsActive(chooseMenuData?.status ?? "INACTIVE");
       fetchData();
+      setMenuId(chooseMenuData.menuId);
     }
   }, [chooseMenuData]); // chooseMenuData가 변경될 때마다 호출됩니다.
 
@@ -324,32 +327,32 @@ const ManageMenuContent: React.FC<{
       comAPIContext.showProgressBar();
       if (chooseMenuData !== null) {
         const response = await axios.get(
-          `${process.env.REACT_APP_BACKEND_IP}/admin/api/get-menu-role`,
-          {
-            headers: {
-              Authorization: `Bearer ${cachedAuthToken}`,
-            },
-            params: {
-              menuIdStr: chooseMenuData?.menuId,
-            },
-          }
+            `${process.env.REACT_APP_BACKEND_IP}/admin/api/get-menu-role`,
+            {
+              headers: {
+                Authorization: `Bearer ${cachedAuthToken}`,
+              },
+              params: {
+                menuIdStr: chooseMenuData?.menuId,
+              },
+            }
         );
-
-        console.log(response);
 
         if (gridRef.current && response.data !== "조회된 데이터가 없습니다") {
           gridRef.current.setRowData(response.data);
+          setRowData(response.data); // ✅ 꼭 추가!
         } else {
           gridRef?.current?.setRowData([]);
+          setRowData([]); // ✅ 이 줄도 추가!
         }
       }
     } catch (error: any) {
       console.error("Error fetching roles:", error);
       const errorMessage =
-        error.response?.data || error.message || "Unknown error";
+          error.response?.data || error.message || "Unknown error";
       comAPIContext.showToast(
-        "Error fetching roles: " + errorMessage,
-        "danger"
+          "Error fetching roles: " + errorMessage,
+          "danger"
       );
     } finally {
       comAPIContext.hideProgressBar();
@@ -357,6 +360,39 @@ const ManageMenuContent: React.FC<{
   };
 
   const onchangeMenuName = () => {};
+
+  const checkMenuIdDuplicate = async () => {
+    console.log("✅ API 주소:", process.env.REACT_APP_BACKEND_IP);
+    console.log("✅ 요청 URL:", `${process.env.REACT_APP_BACKEND_IP}/admin/api/check-menu-id-duplicate`);
+    console.log("✅ 토큰:", cachedAuthToken);
+
+    if (!menuId) {
+      comAPIContext.showToast("Menu ID를 입력해주세요.", "warning");
+      return;
+    }
+
+    try {
+      comAPIContext.showProgressBar();
+      const res = await axios.get(
+          `${process.env.REACT_APP_BACKEND_IP}/admin/api/check-menu-id-duplicate`,
+          {
+            params: { menuId },
+            headers: { Authorization: `Bearer ${cachedAuthToken}` },
+          }
+      );
+
+      if (res.data.exists) {
+        comAPIContext.showToast("이미 존재하는 Menu ID입니다.", "danger");
+      } else {
+        comAPIContext.showToast("사용 가능한 Menu ID입니다.", "success");
+      }
+    } catch (error) {
+      console.error("중복 체크 실패:", error);
+      comAPIContext.showToast("중복 체크 실패", "danger");
+    } finally {
+      comAPIContext.hideProgressBar();
+    }
+  };
 
   const handleSave = async () => {
     console.log("추가된 메뉴 저장");
@@ -370,7 +406,7 @@ const ManageMenuContent: React.FC<{
       position: position,
       status: isActive,
       userId: state.user?.userId,
-      menuId: chooseMenuData?.menuId,
+      menuId: menuId,
       msgId: msgId,
     };
 
@@ -451,7 +487,7 @@ const ManageMenuContent: React.FC<{
       }
 
       lists.createList.map((r) => {
-        r.menuId = chooseMenuData?.menuId;
+        r.menuId = menuId;
         r.userId = state.user?.userId;
       });
 
@@ -513,19 +549,22 @@ const ManageMenuContent: React.FC<{
           <Form>
             {/* Menu ID */}
             <Form.Group className="form_group align-items-center">
-              <Form.Label column sm={2}>
-                Menu ID:
-              </Form.Label>
-              <Col sm={4}>
+              <Form.Label column sm={2}>Menu ID:</Form.Label>
+              <Col sm={3}>
                 <Form.Control
-                  type="text"
-                  value={chooseMenuData.menuId}
-                  size="sm"
-                  disabled
-                  readOnly
+                    type="text"
+                    value={menuId}
+                    size="sm"
+                    onChange={(e) => setMenuId(e.target.value)}
                 />
               </Col>
+              <Col sm={2}>
+                <ComButton onClick={checkMenuIdDuplicate}>
+                  {comAPIContext.$msg("label", "check_duplicate", "중복체크")}
+                </ComButton>
+              </Col>
             </Form.Group>
+
             {/* Parent Menu ID */}
             <Form.Group className="form_group align-items-center">
               <Form.Label column sm={2}>
@@ -644,22 +683,46 @@ const ManageMenuContent: React.FC<{
               </Col>
             </Form.Group>
           </Form>
-          <div>
-            <h4 className="cnt_title">
-              {comAPIContext.$msg("label", "role", "역할") +
-                comAPIContext.$msg("label", "add", "추가")}
-            </h4>
+          <div className="role-grid-wrapper" style={{
+            border: "1px solid #ddd",
+            borderRadius: "8px",
+            padding: "16px",
+            marginTop: "20px",
+            backgroundColor: "#fff",
+            boxShadow: "0 2px 5px rgba(0,0,0,0.05)"
+          }}>
+            <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: "12px",
+                }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{ fontSize: "20px", fontWeight: "bold" }}>
+                  {comAPIContext.$msg("label", "role", "역할") +
+                      comAPIContext.$msg("label", "add", "추가")}
+                </span>
+                <span style={{ fontSize: "14px", color: "#666" }}>
+                  ({rowData.length})
+                </span>
+              </div>
+            </div>
+
             <AgGridWrapper
-              ref={gridRef}
-              showButtonArea={true}
-              columnDefs={columnDefs}
-              enableCheckbox={true}
-              canCreate={true}
-              canDelete={true}
-              canUpdate={true}
-              onSave={handleGridSave}
-            ></AgGridWrapper>
+                ref={gridRef}
+                showButtonArea={true}
+                columnDefs={columnDefs}
+                enableCheckbox={true}
+                canCreate={true}
+                canDelete={true}
+                canUpdate={true}
+                onSave={handleGridSave}
+                hideTitle={true}
+            />
           </div>
+
         </>
       ) : (
         <div>

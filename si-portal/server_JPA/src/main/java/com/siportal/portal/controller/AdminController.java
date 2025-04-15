@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.*;
+import com.siportal.portal.repository.MenuRepository;
 
 
 @RestController
@@ -16,12 +17,13 @@ import java.util.*;
 public class AdminController {
 
     private final AdminService adminService;
+    private MenuRepository menuRepository;
 
     @Autowired
-    public AdminController(AdminService adminService) {
+    public AdminController(AdminService adminService, MenuRepository menuRepository) {
         this.adminService = adminService;
+        this.menuRepository = menuRepository;
     }
-
     @GetMapping("/api/get-menu-id")
     public ResponseEntity<?> getMenuId() {
         return adminService.getMenuId();
@@ -237,6 +239,12 @@ public class AdminController {
     @PostMapping("/api/update-menu-tree")
     public ResponseEntity<?> updateMenuTree(@RequestBody Map<String, Object> requestData) {
         return adminService.updateMenuTree(requestData);
+    }
+
+    @GetMapping("/api/check-menu-id-duplicate")
+    public ResponseEntity<?> checkMenuIdDuplicate(@RequestParam("menuId") String menuId) {
+        boolean exists = menuRepository.existsByMenuId(Integer.parseInt(menuId));
+        return ResponseEntity.ok(Collections.singletonMap("exists", exists));
     }
 
 }

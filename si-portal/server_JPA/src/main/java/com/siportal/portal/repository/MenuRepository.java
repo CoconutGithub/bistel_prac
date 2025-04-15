@@ -14,6 +14,8 @@ import java.util.List;
 @Repository
 public interface MenuRepository extends JpaRepository<Menu, Integer> {
 
+    boolean existsByMenuId(Integer menuId);
+
     @Query(value = """
         SELECT
             A.MENU_ID,
