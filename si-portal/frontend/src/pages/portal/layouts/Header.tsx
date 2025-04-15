@@ -33,6 +33,7 @@ const Header = React.memo(() => {
     const onSelectTab = (tab: { key: string; label: string; path: string }) => {
         navigate(tab.path);
     };
+    const [isAdminHovered, setIsAdminHovered] = useState(false);
 
     useEffect(() => {
         axios.get(`${process.env.REACT_APP_BACKEND_IP}/menu`, {
@@ -103,7 +104,11 @@ const Header = React.memo(() => {
                         </div>
                         <div className="language ko"> 한국어 </div>
                         {isMighty === "Y" && (
-                            <NavDropdown title="Admin" id="basic-nav-dropdown" className="adminMenu">
+                            <NavDropdown title="Admin" id="basic-nav-dropdown" className="adminMenu hover-dropdown"
+                                         show={isAdminHovered} // ✅ 마우스 오버 상태에 따라 드롭다운 열기
+                                         onMouseEnter={() => setIsAdminHovered(true)}
+                                         onMouseLeave={() => setIsAdminHovered(false)}
+                            >
                                 <NavDropdown.Item as={Link} to="/main/manage-notice" onClick={() => onSelectTab({ key: 'manage-notice', label: 'Manage notice', path: '/main/manage-notice' })} className={getMenuItemClass('/main/manage-notice')}>
                                     {comAPIContext.$msg('label', 'manage_notice', '공지사항')}
                                 </NavDropdown.Item>
