@@ -1,5 +1,5 @@
 .start {
-  width: 240px;
+  width: 300px;
   height: 100%;
   background-color: #fff;
   border-right: 1px solid #d9d9d9;
@@ -39,10 +39,30 @@
     .nav_wrap {
       width: 100%;
       height: calc(100% - 54px);
-      padding: 0 20px;
+      // padding: 0 20px;
       overflow: auto;
       & > .nav {
         flex-direction: column;
+        &> .nav_link, :global(.nav-item) a {
+          padding: 0 20px !important;
+        }
+        &> :global(.nav-item) {
+          :global(.dropdown-toggle) {
+            justify-content: space-between;
+            &::after {
+              border: none;
+              width: 14px; height: 14px;
+              background: url(../../../../../public/assets/icons/chevron-down.svg) center no-repeat; 
+              transition: 0.3s;
+            }
+            &:global(.show) {
+              &::after {transform: rotate(180deg); filter: invert(57%) sepia(8%) saturate(2918%) hue-rotate(137deg) brightness(105%) contrast(91%);}
+            }
+          }
+          &:global(.dropdown > .dropdown-menu) {
+            width: calc(100% - 40px) !important; margin: 0 20px;
+          }
+        }
         .nav_link {
           background-color: #fff;
           display: flex;
@@ -55,9 +75,34 @@
             font-weight: 600;
             color: #39B1BD;
           }
-          &:hover {background-color: #ECF8F9; border-radius: 4px;}
+          &:hover {background-color: transparent; color: #39B1BD;}
         }
         & > :global(.nav-item.dropdown) {
+          a {
+            display: flex; height: 42px; align-items: center;
+            &:hover {background-color: transparent; color: #39B1BD;}
+          }
+          &:hover {
+            &> a {
+              color: #39B1BDB3; font-weight: bold;
+              &+ :global(.dropdown-menu) {
+                padding: 0;
+                border-top: 1px dashed #39B1BD33;
+                border-bottom: 1px solid #39B1BD33;
+                background-color: #39B1BD0d;
+                :global(.dropdown-toggle.dropdown-item.show) {
+                  color: #39B1BDB3; font-weight: bold;
+                  &+ :global(.dropdown-menu.show) {
+                    position: unset;
+                    padding: 0;
+                    background-color: transparent;
+                    border: none;
+                    border-top: 1px dashed #39B1BD33;
+                  }
+                }
+              }
+            }
+          }
           & > :global(.nav-link) {
             background-color: #fff;
             display: flex;
@@ -71,7 +116,9 @@
               margin-left: auto;
             }
             & + :global(.dropdown-menu) {
+              position: unset;
               width: 100%;
+              border: none;
             }
           }
         }

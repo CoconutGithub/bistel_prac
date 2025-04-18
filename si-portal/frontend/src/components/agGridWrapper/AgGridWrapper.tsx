@@ -89,6 +89,7 @@ const defaultSettings = {
 
 interface AgGridWrapperProps {
   onRowClicked?: (event: any) => void;
+  hideTitle?: boolean;
 }
 
 const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
@@ -326,9 +327,11 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
       <div className={cn(styles.start)}>
         <Container fluid className={styles.container}>
           <Row className={styles.tableInfo}>
-            <Col className={styles.countColumn}>
+            {!props.hideTitle && (
+                <Col className={styles.countColumn}>
               <p className={styles.count}>({rowData.length})</p>
             </Col>
+            )}
             {showButtonArea && (
               <Col className={styles.buttonColumn}>
                 {children}

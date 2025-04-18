@@ -82,20 +82,20 @@ const GlobalNavbar = React.memo(
         <Navbar.Collapse id="basic-navbar-nav" className={styles.nav_container}>
           <div className={styles.nav_wrap}>
             <Nav className={styles.nav}>
-              <Nav.Link
-                as={NavLink}
-                to="/main/home"
-                onClick={() =>
-                  onSelectTab({
-                    key: 'home',
-                    label: 'Home',
-                    path: '/main/home',
-                  })
-                }
-                className={styles.nav_link}
-              >
-                Home
-              </Nav.Link>
+              {/*<Nav.Link*/}
+              {/*  as={NavLink}*/}
+              {/*  to="/main/home"*/}
+              {/*  onClick={() =>*/}
+              {/*    onSelectTab({*/}
+              {/*      key: 'home',*/}
+              {/*      label: 'Home',*/}
+              {/*      path: '/main/home',*/}
+              {/*    })*/}
+              {/*  }*/}
+              {/*  className={styles.nav_link}*/}
+              {/*>*/}
+              {/*  Home*/}
+              {/*</Nav.Link>*/}
               {menuItems.map((item) => (
                 <NavMenuItem
                   key={item.menuId}
@@ -108,115 +108,115 @@ const GlobalNavbar = React.memo(
               ))}
             </Nav>
             <Nav className={styles.nav}>
-              <Nav.Link
-                as={NavLink}
-                to="/main/how-to-use"
-                className={styles.nav_link}
-                onClick={() =>
-                  onSelectTab({
-                    key: 'how-to-use',
-                    label: 'How to use',
-                    path: '/main/how-to-use',
-                  })
-                }
-              >
-                How to use
-              </Nav.Link>
-              <Nav.Link
-                as={NavLink}
-                to="/main/dashboard"
-                className={styles.nav_link}
-                onClick={() =>
-                  onSelectTab({
-                    key: 'dashboard',
-                    label: 'Dashboard',
-                    path: '/main/dashboard',
-                  })
-                }
-              >
-                Dashboard
-              </Nav.Link>
-              <Nav.Link
-                as={NavLink}
-                to="/main/profile"
-                className={styles.nav_link}
-                onClick={() =>
-                  onSelectTab({
-                    key: 'profile',
-                    label: 'Profile',
-                    path: '/main/profile',
-                  })
-                }
-              >
-                Profile
-              </Nav.Link>
+              {/*<Nav.Link*/}
+              {/*  as={NavLink}*/}
+              {/*  to="/main/how-to-use"*/}
+              {/*  className={styles.nav_link}*/}
+              {/*  onClick={() =>*/}
+              {/*    onSelectTab({*/}
+              {/*      key: 'how-to-use',*/}
+              {/*      label: 'How to use',*/}
+              {/*      path: '/main/how-to-use',*/}
+              {/*    })*/}
+              {/*  }*/}
+              {/*>*/}
+              {/*  How to use*/}
+              {/*</Nav.Link>*/}
+              {/*<Nav.Link*/}
+              {/*  as={NavLink}*/}
+              {/*  to="/main/dashboard"*/}
+              {/*  className={styles.nav_link}*/}
+              {/*  onClick={() =>*/}
+              {/*    onSelectTab({*/}
+              {/*      key: 'dashboard',*/}
+              {/*      label: 'Dashboard',*/}
+              {/*      path: '/main/dashboard',*/}
+              {/*    })*/}
+              {/*  }*/}
+              {/*>*/}
+              {/*  Dashboard*/}
+              {/*</Nav.Link>*/}
+              {/*<Nav.Link*/}
+              {/*  as={NavLink}*/}
+              {/*  to="/main/profile"*/}
+              {/*  className={styles.nav_link}*/}
+              {/*  onClick={() =>*/}
+              {/*    onSelectTab({*/}
+              {/*      key: 'profile',*/}
+              {/*      label: 'Profile',*/}
+              {/*      path: '/main/profile',*/}
+              {/*    })*/}
+              {/*  }*/}
+              {/*>*/}
+              {/*  Profile*/}
+              {/*</Nav.Link>*/}
 
                     
-                <Nav.Link
-                  as={NavLink}
-                  to="/main/resume-list"
-                  className={styles.nav_link}
-                  onClick={() =>
-                    onSelectTab({
-                      key: 'resume-list',
-                      label: 'Resume List',
-                      path: '/main/resume-list',
-                    })
-                  }
-                >
-                  Resume List
-                </Nav.Link>
+                {/*<Nav.Link*/}
+                {/*  as={NavLink}*/}
+                {/*  to="/main/resume-list"*/}
+                {/*  className={styles.nav_link}*/}
+                {/*  onClick={() =>*/}
+                {/*    onSelectTab({*/}
+                {/*      key: 'resume-list',*/}
+                {/*      label: 'Resume List',*/}
+                {/*      path: '/main/resume-list',*/}
+                {/*    })*/}
+                {/*  }*/}
+                {/*>*/}
+                {/*  Resume List*/}
+                {/*</Nav.Link>*/}
                  
                 
                 
-                <Nav.Link
-                  as={NavLink}
-                  to="/main/send-email"
-                  className={styles.nav_link}
-                  onClick={() =>
-                    onSelectTab({
-                      key: 'send-email',
-                      label: 'SendEmail',
-                      path: '/main/send-email',
-                    })
-                  }
-                >
-                  Email Send
-                </Nav.Link>
+                {/*<Nav.Link*/}
+                {/*  as={NavLink}*/}
+                {/*  to="/main/send-email"*/}
+                {/*  className={styles.nav_link}*/}
+                {/*  onClick={() =>*/}
+                {/*    onSelectTab({*/}
+                {/*      key: 'send-email',*/}
+                {/*      label: 'SendEmail',*/}
+                {/*      path: '/main/send-email',*/}
+                {/*    })*/}
+                {/*  }*/}
+                {/*>*/}
+                {/*  Email Send*/}
+                {/*</Nav.Link>*/}
                 
 
                 
-                <Nav.Link
-                  as={NavLink}
-                  to="/main/settings"
-                  className={styles.nav_link}
-                  onClick={() =>
-                    onSelectTab({
-                      key: 'settings',
-                      label: 'Settings',
-                      path: '/main/settings',
-                    })
-                  }
-                >
-                  Settings
-                </Nav.Link>
+                {/*<Nav.Link*/}
+                {/*  as={NavLink}*/}
+                {/*  to="/main/settings"*/}
+                {/*  className={styles.nav_link}*/}
+                {/*  onClick={() =>*/}
+                {/*    onSelectTab({*/}
+                {/*      key: 'settings',*/}
+                {/*      label: 'Settings',*/}
+                {/*      path: '/main/settings',*/}
+                {/*    })*/}
+                {/*  }*/}
+                {/*>*/}
+                {/*  Settings*/}
+                {/*</Nav.Link>*/}
                 
                 
                 
-                <Nav.Link
-                  as={NavLink}
-                  to="/main/expense-management"
-                  className={styles.nav_link}
-                  onClick={() =>
-                    onSelectTab({
-                      key: 'expense-management',
-                      label: 'Expense management',
-                      path: '/main/expense-management',
-                    })
-                  }
-                >
-                  Expense management
-                </Nav.Link>
+                {/*<Nav.Link*/}
+                {/*  as={NavLink}*/}
+                {/*  to="/main/expense-management"*/}
+                {/*  className={styles.nav_link}*/}
+                {/*  onClick={() =>*/}
+                {/*    onSelectTab({*/}
+                {/*      key: 'expense-management',*/}
+                {/*      label: 'Expense management',*/}
+                {/*      path: '/main/expense-management',*/}
+                {/*    })*/}
+                {/*  }*/}
+                {/*>*/}
+                {/*  Expense management*/}
+                {/*</Nav.Link>*/}
 
               <Nav.Link
                 as={NavLink}
