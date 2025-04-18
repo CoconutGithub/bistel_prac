@@ -5,7 +5,8 @@ import { AppDispatch } from "~store/Store";
 import { ComAPIContext } from "~components/ComAPIContext";
 
 interface ComButtonProps extends ButtonProps {
-  onClick: () => void; // 반드시 제공해야 할 onClick prop
+  // onClick: () => void; // 반드시 제공해야 할 onClick prop
+  onClick: any; // 반드시 제공해야 할 onClick prop
 }
 
 const ComButton: React.FC<ComButtonProps> = ({

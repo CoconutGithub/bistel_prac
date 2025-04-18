@@ -7,6 +7,8 @@ import { cachedAuthToken } from '~store/AuthSlice';
 import ComButton from '~pages/portal/buttons/ComButton';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
 import { addTab, setActiveTab } from '~store/RootTabs';
 
 const fetchInfo = async () => {
@@ -30,7 +32,8 @@ const InformationList = () => {
   const gridRef = useRef<AgGridWrapperHandle>(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
+  const [text, setText] = useState("");
+  const [aiResponse, setAiResponse] = useState<any>(null);
   const columns = [
     {
       field: 'title',
@@ -62,6 +65,10 @@ const InformationList = () => {
     },
   ];
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setText(e.target.value);
+  };
+
   const handleSelectTab = useCallback(
     (tab: { key: string; label: string; path: string }) => {
       const rootTabsData = sessionStorage.getItem('persist:rootTabs');
@@ -86,6 +93,21 @@ const InformationList = () => {
   //   window.location.reload();
   // }, []);
 
+  const analyzeSentiment = async (text: string) => {
+    const response = await fetch("http://localhost:8000/analyze-sentiment", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${cachedAuthToken}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ text })
+    });
+
+    const data = await response.json();
+    setAiResponse(data);
+    console.log("감정 분석 결과:", data);
+  };
+
   const handleRowClick = (event: any) => {
 
     handleSelectTab({
@@ -109,8 +131,16 @@ const InformationList = () => {
     loadResumes();
   }, []);
 
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("입력된 텍스트:", text);
+    // 여기에 fetch 또는 axios로 FastAPI API 호출하면 돼
+    analyzeSentiment(text)
+  };
+
   return (
-    <div className={styles.start}>
+     <div className={styles.start}>
       <header className={styles.header}>
         <div className={styles.title_area}>
           <p className={styles.title}>Information</p>
@@ -126,7 +156,7 @@ const InformationList = () => {
         </div>
       </header>
       <main className={styles.main}>
-        <AgGridWrapper
+       {/* <AgGridWrapper
           ref={gridRef}
           enableCheckbox={false}
           showButtonArea={false}
@@ -137,7 +167,24 @@ const InformationList = () => {
           tableHeight={'calc(100% - 35px)'}
           useNoColumn={true}
           onRowClicked={handleRowClick}
-        />
+        />*/}
+        <Form onSubmit={handleSubmit}>
+          <Form.Group>
+            <Form.Label>Test</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Input Word"
+              value={text}
+              onChange={handleChange}
+            />
+          </Form.Group>
+          <Button variant="primary" type="submit">
+            Submit
+          </Button>
+        </Form>
+        <div>
+          <span>{JSON.stringify(aiResponse.sentiment)}</span>
+        </div>
       </main>
     </div>
   );
