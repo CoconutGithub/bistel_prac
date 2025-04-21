@@ -1,4 +1,4 @@
-import { Container, Form, Button } from "react-bootstrap";
+import { Container, Form, Button } from 'react-bootstrap';
 import React, {
   useRef,
   useContext,
@@ -6,33 +6,33 @@ import React, {
   useState,
   useEffect,
   useMemo,
-} from "react";
-import { useNavigate } from "react-router-dom";
-import { ComAPIContext } from "~components/ComAPIContext";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "~store/Store";
-import { removeLoginToken, setLoginToken } from "~store/AuthSlice";
-import SiUserIcon from "~components/icons/SiUserIcon";
-import SiLockIcon from "~components/icons/SiLockIcon";
-import Toast from "react-bootstrap/Toast";
+} from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ComAPIContext } from '~components/ComAPIContext';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '~store/Store';
+import { removeLoginToken, setLoginToken } from '~store/AuthSlice';
+import SiUserIcon from '~components/icons/SiUserIcon';
+import SiLockIcon from '~components/icons/SiLockIcon';
+import Toast from 'react-bootstrap/Toast';
 
-import axios from "axios";
+import axios from 'axios';
 
-import styles from "./Login.module.scss";
-import UserRegistPopup from "~pages/portal/admin/UserRegistPopup";
-import RootTabs, { resetTab } from "~store/RootTabs";
-import DefaultRoutes from "~routes/DefaultRoutes";
-import PortalRoutes from "~routes/PortalRoutes";
+import styles from './Login.module.scss';
+import UserRegistPopup from '~pages/portal/admin/UserRegistPopup';
+import RootTabs, { resetTab } from '~store/RootTabs';
+import DefaultRoutes from '~routes/DefaultRoutes';
+import PortalRoutes from '~routes/PortalRoutes';
 
 const Login = () => {
   const [toastShow, setToastShow] = useState(false);
   const [userErrorStatus, setUserErrorStatus] =
-    useState<string>("unauthorized");
+    useState<string>('unauthorized');
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const [loginButtonDisable, setLoginButtonDisable] = useState<boolean>(false);
-  const [userId, setUserId] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
+  const [userId, setUserId] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
 
   const userSignupRef = useRef<any>(null);
 
@@ -45,8 +45,8 @@ const Login = () => {
         password: password,
       })
       .then((response) => {
-        console.log("Login 시도 결과:", response.status);
-        console.log("Login 시도 결과:", response.data);
+        console.log('Login 시도 결과:', response.status);
+        console.log('Login 시도 결과:', response.data);
         if (response.status === 200) {
           dispatch(
             setLoginToken({
@@ -63,19 +63,19 @@ const Login = () => {
               headerColor: response.data.headerColor,
               email: response.data.email, //email
               langCode: response.data.langCode,
-              profileImage: response.data.profileImage ?? "",
+              profileImage: response.data.profileImage ?? '',
               paginationSize: response.data.paginationSize ?? 0,
             })
           );
 
-          navigate("/main/home", { replace: true });
+          navigate('/main/home', { replace: true });
         }
       })
       .catch((error) => {
         if (error.status === 401) {
-          setUserErrorStatus("unauthorized");
+          setUserErrorStatus('unauthorized');
         } else {
-          setUserErrorStatus("etc");
+          setUserErrorStatus('etc');
         }
         setToastShow(true);
       });
@@ -101,8 +101,8 @@ const Login = () => {
   }, [userId, password]);
 
   useEffect(() => {
-    const authToken = sessionStorage.getItem("authToken");
-    const rootTabsData = sessionStorage.getItem("persist:rootTabs");
+    const authToken = sessionStorage.getItem('authToken');
+    const rootTabsData = sessionStorage.getItem('persist:rootTabs');
     if (authToken && rootTabsData) {
       const parsedData = JSON.parse(rootTabsData);
       const activeTabKey = JSON.parse(parsedData.activeKey);
@@ -115,7 +115,7 @@ const Login = () => {
         }
       } else {
         dispatch(resetTab());
-        navigate("/main/home", { replace: true });
+        navigate('/main/home', { replace: true });
       }
     } else {
       dispatch(resetTab());
@@ -133,10 +133,10 @@ const Login = () => {
         bg="danger"
         className={styles.toast}
       >
-        <Toast.Body style={{ color: "#fff" }}>
-          {userErrorStatus === "unauthorized"
-            ? "존재하지 않는 회원입니다."
-            : "로그인에 실패했습니다. 관리자에게 문의하십시오."}
+        <Toast.Body style={{ color: '#fff' }}>
+          {userErrorStatus === 'unauthorized'
+            ? '존재하지 않는 회원입니다.'
+            : '로그인에 실패했습니다. 관리자에게 문의하십시오.'}
         </Toast.Body>
       </Toast>
       <Container className={styles.container}>

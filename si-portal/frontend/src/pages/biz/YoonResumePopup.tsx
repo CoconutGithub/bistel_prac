@@ -1,5 +1,5 @@
-import React from "react";
-import { Modal, Button, Card, ListGroup, Badge } from "react-bootstrap";
+import React from 'react';
+import { Modal, Button, Card, ListGroup, Badge } from 'react-bootstrap';
 
 interface Experience {
   company: string;
@@ -27,7 +27,11 @@ interface YoonResumePopupProps {
   onClose: () => void;
 }
 
-const YoonResumePopup: React.FC<YoonResumePopupProps> = ({ show, resumeData, onClose }) => {
+const YoonResumePopup: React.FC<YoonResumePopupProps> = ({
+  show,
+  resumeData,
+  onClose,
+}) => {
   return (
     <Modal show={show} onHide={onClose} fullscreen centered>
       <Modal.Header closeButton className="bg-primary text-white">
@@ -38,13 +42,27 @@ const YoonResumePopup: React.FC<YoonResumePopupProps> = ({ show, resumeData, onC
           {/* 기본 정보 */}
           <div className="col-md-4">
             <h4 className="mb-3">{resumeData.fullName}</h4>
-            <p><strong>이메일:</strong> {resumeData.email}</p>
-            <p><strong>전화번호:</strong> {resumeData.phone}</p>
-            <p><strong>소개:</strong> {resumeData.summary}</p>
-            <p><strong>회사:</strong> {resumeData.company}</p>
-            <p><strong>부서:</strong> {resumeData.department}</p>
-            <p><strong>직책:</strong> {resumeData.position}</p>
-            <p><strong>성별:</strong> {resumeData.gender}</p>
+            <p>
+              <strong>이메일:</strong> {resumeData.email}
+            </p>
+            <p>
+              <strong>전화번호:</strong> {resumeData.phone}
+            </p>
+            <p>
+              <strong>소개:</strong> {resumeData.summary}
+            </p>
+            <p>
+              <strong>회사:</strong> {resumeData.company}
+            </p>
+            <p>
+              <strong>부서:</strong> {resumeData.department}
+            </p>
+            <p>
+              <strong>직책:</strong> {resumeData.position}
+            </p>
+            <p>
+              <strong>성별:</strong> {resumeData.gender}
+            </p>
           </div>
 
           {/* 경력 사항 */}
@@ -61,21 +79,27 @@ const YoonResumePopup: React.FC<YoonResumePopupProps> = ({ show, resumeData, onC
                 </tr>
               </thead>
               <tbody>
-                {resumeData.experience?.map((exp: Experience, index: number) => (
-                  <tr key={index}>
-                    <td>{index + 1}</td>
-                    <td>{exp.company}</td>
-                    <td>{exp.position}</td>
-                    <td>{exp.companyEnd ? `${exp.companyStart} ~ ${exp.companyEnd}` : `${exp.companyStart} ~ 현재`}</td>
-                    <td>
-                      <ul style={{ margin: 0, paddingLeft: "1rem" }}>
-                        {exp.responsibilities?.map((task, i) => (
-                          <li key={i}>{task}</li>
-                        ))}
-                      </ul>
-                    </td>
-                  </tr>
-                ))}
+                {resumeData.experience?.map(
+                  (exp: Experience, index: number) => (
+                    <tr key={index}>
+                      <td>{index + 1}</td>
+                      <td>{exp.company}</td>
+                      <td>{exp.position}</td>
+                      <td>
+                        {exp.companyEnd
+                          ? `${exp.companyStart} ~ ${exp.companyEnd}`
+                          : `${exp.companyStart} ~ 현재`}
+                      </td>
+                      <td>
+                        <ul style={{ margin: 0, paddingLeft: '1rem' }}>
+                          {exp.responsibilities?.map((task, i) => (
+                            <li key={i}>{task}</li>
+                          ))}
+                        </ul>
+                      </td>
+                    </tr>
+                  )
+                )}
               </tbody>
             </table>
 
@@ -100,8 +124,8 @@ const YoonResumePopup: React.FC<YoonResumePopupProps> = ({ show, resumeData, onC
               </tbody>
             </table>
 
-              {/* 학력 사항 */}
-              <h5 className="mt-4">학력 사항</h5>
+            {/* 학력 사항 */}
+            <h5 className="mt-4">학력 사항</h5>
             <table className="table table-bordered">
               <thead>
                 <tr>
@@ -118,14 +142,14 @@ const YoonResumePopup: React.FC<YoonResumePopupProps> = ({ show, resumeData, onC
                     <td>{index + 1}</td>
                     <td>{edu.school}</td>
                     <td></td>
-                    <td>{edu.schoolStart} ~ {edu.schoolEnd}</td>
+                    <td>
+                      {edu.schoolStart} ~ {edu.schoolEnd}
+                    </td>
                     <td>{edu.graduateYn}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
-
-
           </div>
         </div>
       </Modal.Body>

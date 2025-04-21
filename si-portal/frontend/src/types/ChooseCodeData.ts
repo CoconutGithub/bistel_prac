@@ -1,4 +1,4 @@
-export interface  ChooseCodeData {
+export interface ChooseCodeData {
   codeId: number;
   parentId: number;
   codeName: string;
@@ -23,7 +23,7 @@ export interface  ChooseCodeData {
 /**
  * Represents the properties of a message.
  */
-export interface MsgProps{
+export interface MsgProps {
   msgId: number;
   defaultText: string;
 }

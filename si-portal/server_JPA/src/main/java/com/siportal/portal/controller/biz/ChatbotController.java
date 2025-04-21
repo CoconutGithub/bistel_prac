@@ -15,9 +15,10 @@ public class ChatbotController {
     private RagChatbotService ragChatbotService;
 
     @PostMapping("/ask")
-//    public ResponseEntity<String> ask(@RequestBody Map<String, String> payload) {
-    public ResponseEntity<String> ask(@RequestBody ChatbotRequestDTO request) {
-//        String question = payload.get("question");
+    public ResponseEntity<String> ask(@RequestBody ChatbotRequestDTO request,
+                                      @RequestHeader(value = "Authorization", required = false) String authHeader
+                                      ) {
+        System.out.println("Auth Header: " + authHeader);
         String answer = ragChatbotService.askRag(request.getQuestion());
         return ResponseEntity.ok(answer);
     }

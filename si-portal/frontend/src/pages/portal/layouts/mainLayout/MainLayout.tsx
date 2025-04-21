@@ -6,13 +6,28 @@ import GlobalHeader from '../Header';
 import { removeLoginToken } from '~store/AuthSlice';
 import styles from './MainLayout.module.scss';
 import { useDispatch, useSelector } from 'react-redux';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { RootState } from '~store/Store';
 import { addTab, setActiveTab, removeTab, resetTab } from '~store/RootTabs';
 import DefaultRoutes from '~routes/DefaultRoutes';
 import PortalRoutes from '~routes/PortalRoutes';
 import SiCancelIcon from '~components/icons/SiCancelIcon';
 import NotFound from '../../NotFound';
+import { FaComment } from 'react-icons/fa';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faThumbsUp,
+  faHeart,
+  faComments,
+  faShareSquare,
+} from '@fortawesome/free-regular-svg-icons';
+import ChatBot from '~components/chatBot/ChatBot';
 
 const useRouteComponents = () => {
   return useMemo(() => {
@@ -29,23 +44,25 @@ const useRouteComponents = () => {
 };
 
 const MainLayout = () => {
-
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { tabs, activeKey } = useSelector((state: RootState) => state.rootTabs);
   const routeComponents = useRouteComponents();
-
+  const [chatVisible, setChatVisible] = useState(false);
   const resetLogoutTimer = useCallback(() => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
-    timeoutRef.current = setTimeout(() => {
-      dispatch(resetTab());
-      dispatch(removeLoginToken()); // 10분간 비활성 상태일 경우 로그아웃
-      navigate('/login', { replace: true });
-    }, 10 * 60 * 1000);
+    timeoutRef.current = setTimeout(
+      () => {
+        dispatch(resetTab());
+        dispatch(removeLoginToken()); // 10분간 비활성 상태일 경우 로그아웃
+        navigate('/login', { replace: true });
+      },
+      10 * 60 * 1000
+    );
   }, []);
 
   const handleSelectTab = useCallback(
@@ -166,7 +183,14 @@ const MainLayout = () => {
               </Tab>
             ))}
           </Tabs>
+          <button
+            className={styles.chat_button}
+            onClick={() => setChatVisible(true)}
+          >
+            <FontAwesomeIcon icon={faComments} />
+          </button>
         </main>
+        <ChatBot visible={chatVisible} onClose={() => setChatVisible(false)} />
       </div>
     </div>
   );

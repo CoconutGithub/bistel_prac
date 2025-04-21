@@ -71,7 +71,7 @@ const defaultSettings = {
   canUpdate: false,
   columnDefs: [],
   enableCheckbox: false,
-  rowSelection: 'multiple' as 'multiple',
+  rowSelection: 'multiple' as const,
   rowHeight: 40,
   pagination: true,
   paginationPageSize: 50,
@@ -143,7 +143,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
 
     // 컬럼 정의 생성
     const getColumnDefs = (): ColDef[] => {
-      let baseColumnDefs = enableCheckbox
+      const baseColumnDefs = enableCheckbox
         ? [
             {
               headerCheckboxSelection: true,
@@ -328,9 +328,9 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
         <Container fluid className={styles.container}>
           <Row className={styles.tableInfo}>
             {!props.hideTitle && (
-                <Col className={styles.countColumn}>
-              <p className={styles.count}>({rowData.length})</p>
-            </Col>
+              <Col className={styles.countColumn}>
+                <p className={styles.count}>({rowData.length})</p>
+              </Col>
             )}
             {showButtonArea && (
               <Col className={styles.buttonColumn}>

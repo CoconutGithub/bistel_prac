@@ -1,23 +1,22 @@
-import { Col, Container, Row } from "react-bootstrap";
-import { ComAPIContext } from "~components/ComAPIContext";
-import React, { useState, useRef, useContext } from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "~store/Store";
-import ComButton from "../portal/buttons/ComButton";
-import axios from "axios";
-import AgGridWrapper from "~components/agGridWrapper/AgGridWrapper";
-import { AgGridWrapperHandle } from "~types/GlobalTypes";
-import { cachedAuthToken } from "~store/AuthSlice";
-import YoonResumePopup from  './YoonResumePopup'; // 팝업 컴포넌트
-
+import { Col, Container, Row } from 'react-bootstrap';
+import { ComAPIContext } from '~components/ComAPIContext';
+import React, { useState, useRef, useContext } from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from '~store/Store';
+import ComButton from '../portal/buttons/ComButton';
+import axios from 'axios';
+import AgGridWrapper from '~components/agGridWrapper/AgGridWrapper';
+import { AgGridWrapperHandle } from '~types/GlobalTypes';
+import { cachedAuthToken } from '~store/AuthSlice';
+import YoonResumePopup from './YoonResumePopup'; // 팝업 컴포넌트
 
 // 📌 테이블 컬럼 정의
 const columnDefs = [
-  { field: "gridRowId", headerName: "gridRowId", editable: false, hide: true },//데이터 없어도 얘는 나오기는 하나 봄
-  { headerName: "이름", field: "fullName", width: 150 },
-  { headerName: "회사", field: "company", width: 200 },
-  { headerName: "포지션", field: "position", width: 150 },
-  { headerName: "직무", field: "jobTitle", width: 200 },
+  { field: 'gridRowId', headerName: 'gridRowId', editable: false, hide: true }, //데이터 없어도 얘는 나오기는 하나 봄
+  { headerName: '이름', field: 'fullName', width: 150 },
+  { headerName: '회사', field: 'company', width: 200 },
+  { headerName: '포지션', field: 'position', width: 150 },
+  { headerName: '직무', field: 'jobTitle', width: 200 },
 ];
 
 const YoonResume: React.FC = () => {
@@ -27,14 +26,14 @@ const YoonResume: React.FC = () => {
   const gridRefResume = useRef<AgGridWrapperHandle>(null);
 
   // 📌 이력서 데이터 조회 API
-  const handleSearch =async () => {
+  const handleSearch = async () => {
     comAPIContext.showProgressBar();
     axios
       .get(`${process.env.REACT_APP_BACKEND_IP}/biz/yoon-resume`, {
         headers: { Authorization: `Bearer ${cachedAuthToken}` },
       })
       .then((res) => {
-        console.log("API 응답 데이터:", res.data);
+        console.log('API 응답 데이터:', res.data);
         if (gridRefResume.current) {
           gridRefResume.current.setRowData(res.data);
         }
@@ -48,13 +47,16 @@ const YoonResume: React.FC = () => {
   // 📌 행 더블 클릭 시 상세 조회
   const onCellDoubleClicked = (event: any) => {
     comAPIContext.showProgressBar();
-    console.log("event:", event);
-    console.log("event.data:", event.data);
-    console.log("event.data.id:", event.data.id);
+    console.log('event:', event);
+    console.log('event.data:', event.data);
+    console.log('event.data.id:', event.data.id);
     axios
-      .get(`${process.env.REACT_APP_BACKEND_IP}/biz/yoon-resume/${event.data.id}`, {
-        headers: { Authorization: `Bearer ${cachedAuthToken}` }
-      })
+      .get(
+        `${process.env.REACT_APP_BACKEND_IP}/biz/yoon-resume/${event.data.id}`,
+        {
+          headers: { Authorization: `Bearer ${cachedAuthToken}` },
+        }
+      )
       .then((res) => {
         setResumeData(res.data);
         setShowPopup(true);
@@ -75,7 +77,7 @@ const YoonResume: React.FC = () => {
       <Row className="mb-3">
         <Col lg={12} className="d-flex justify-content-end">
           <ComButton size="sm" variant="primary" onClick={handleSearch}>
-            {comAPIContext.$msg("label", "search", "검색")}
+            {comAPIContext.$msg('label', 'search', '검색')}
           </ComButton>
         </Col>
       </Row>
@@ -91,7 +93,11 @@ const YoonResume: React.FC = () => {
         />
       </Row>
       {showPopup && (
-        <YoonResumePopup show={showPopup} resumeData={resumeData} onClose={() => setShowPopup(false)} />
+        <YoonResumePopup
+          show={showPopup}
+          resumeData={resumeData}
+          onClose={() => setShowPopup(false)}
+        />
       )}
     </Container>
   );

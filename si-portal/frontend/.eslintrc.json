@@ -1,0 +1,46 @@
+﻿{
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "extends": [
+    "react-app", // react-scripts 기본 설정 포함
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 12,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "plugins": ["react", "@typescript-eslint", "prettier"],
+  "rules": {
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "react/prop-types": "off",
+    "prettier/prettier": "warn",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/no-empty-function": "off",
+    "react/react-in-jsx-scope": "off",
+    "react/no-unescaped-entities": "off",
+    "no-empty-pattern": "off",
+    "@typescript-eslint/no-non-null-asserted-optional-chain": "off",
+    "no-prototype-builtins": "off",
+    "no-debugger": "off",
+    "@typescript-eslint/no-empty-interface": "off",
+    "react/display-name": "off"
+
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  }
+}

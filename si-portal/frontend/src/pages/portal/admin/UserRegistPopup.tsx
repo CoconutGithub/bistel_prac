@@ -4,55 +4,55 @@ import React, {
   useEffect,
   useImperativeHandle,
   useState,
-} from "react";
-import { Modal, Button, Form, Col, Row, InputGroup } from "react-bootstrap";
-import { ComAPIContext } from "~components/ComAPIContext";
-import ComButton from "../buttons/ComButton";
-import axios from "axios";
-import { RootState } from "@/store/Store";
-import { useSelector } from "react-redux";
-import { cachedAuthToken } from "~store/AuthSlice";
-import Toast from "react-bootstrap/Toast";
-import * as bcrypt from "bcryptjs";
+} from 'react';
+import { Modal, Button, Form, Col, Row, InputGroup } from 'react-bootstrap';
+import { ComAPIContext } from '~components/ComAPIContext';
+import ComButton from '../buttons/ComButton';
+import axios from 'axios';
+import { RootState } from '@/store/Store';
+import { useSelector } from 'react-redux';
+import { cachedAuthToken } from '~store/AuthSlice';
+import Toast from 'react-bootstrap/Toast';
+import * as bcrypt from 'bcryptjs';
 
 interface IUserRegistPopup {
   onResearchUser?: () => void;
-  mode?: "signup" | "register";
+  mode?: 'signup' | 'register';
   isManager?: boolean;
 }
 
 const UserRegistPopup = React.memo(
   forwardRef(
     (
-      { onResearchUser, mode = "register", isManager }: IUserRegistPopup,
+      { onResearchUser, mode = 'register', isManager }: IUserRegistPopup,
       ref: any
     ) => {
       const [isVisible, setIsVisible] = useState<boolean>(false);
       const comAPIContext = useContext(ComAPIContext);
-      const [userId, setUserId] = useState<string>("");
-      const [userName, setUserName] = useState<string>("");
-      const [password, setPassword] = useState<string>("");
-      const [email, setEmail] = useState<string>("");
-      const [phoneNumber, setPhoneNumber] = useState<string>("");
+      const [userId, setUserId] = useState<string>('');
+      const [userName, setUserName] = useState<string>('');
+      const [password, setPassword] = useState<string>('');
+      const [email, setEmail] = useState<string>('');
+      const [phoneNumber, setPhoneNumber] = useState<string>('');
       const [roles, setRoles] = useState<any[]>([]);
       const [userRole, setUserRoles] = useState<any>();
-      const [status, setStatus] = useState<string>("ACTIVE");
+      const [status, setStatus] = useState<string>('ACTIVE');
       const [isTested, setIsTested] = useState<boolean>(false);
       const [isAvailableId, setIsAvailableId] = useState<boolean>(false);
       const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(true);
       const [toastShow, setToastShow] = useState(false);
       const [file, setFile] = useState<File | null>(null); // File | null 타입 명시
       const [preview, setPreview] = useState<string | null>(null); // string | null 타입 명시 // 이미지 미리보기
-      const [langCode, setLangCode] = useState<string>("KO");
-      const [phoneParts, setPhoneParts] = useState<string[]>(["", "", ""]);
+      const [langCode, setLangCode] = useState<string>('KO');
+      const [phoneParts, setPhoneParts] = useState<string[]>(['', '', '']);
 
       const resetForm = () => {
-        setUserId("");
-        setUserName("");
-        setPhoneNumber("");
-        setPassword("");
-        setEmail("");
-        setStatus("ACTIVE");
+        setUserId('');
+        setUserName('');
+        setPhoneNumber('');
+        setPassword('');
+        setEmail('');
+        setStatus('ACTIVE');
         setIsTested(false);
         setIsAvailableId(false);
         setIsButtonDisabled(true);
@@ -63,7 +63,7 @@ const UserRegistPopup = React.memo(
         openModalPopup: () => {
           resetForm();
           setIsVisible(true);
-          if (mode === "signup") setStatus("INACTIVE");
+          if (mode === 'signup') setStatus('INACTIVE');
         },
         closeModalPopup: () => setIsVisible(false),
       }));
@@ -114,8 +114,8 @@ const UserRegistPopup = React.memo(
           setRoles(response.data);
           return response.data;
         } catch (error) {
-          console.error("Error occurred:", error);
-          alert("Failed to get roles. Please try again.");
+          console.error('Error occurred:', error);
+          alert('Failed to get roles. Please try again.');
         }
       };
 
@@ -124,7 +124,7 @@ const UserRegistPopup = React.memo(
           comAPIContext.showProgressBar();
           let response;
 
-          if (mode === "register") {
+          if (mode === 'register') {
             response = await axios.post(
               `${process.env.REACT_APP_BACKEND_IP}/admin/api/exist-user`,
               { userId },
@@ -143,8 +143,8 @@ const UserRegistPopup = React.memo(
             setIsAvailableId(false);
           }
         } catch (error) {
-          console.error("Error occurred:", error);
-          alert("Failed to check user existence. Please try again.");
+          console.error('Error occurred:', error);
+          alert('Failed to check user existence. Please try again.');
         } finally {
           comAPIContext.hideProgressBar();
           setIsTested(true);
@@ -205,45 +205,45 @@ const UserRegistPopup = React.memo(
           const formData = new FormData();
           const formattedPhoneNumber = getFormattedPhoneNumber();
 
-          console.log("🚀 isManager 값:", isManager);
+          console.log('🚀 isManager 값:', isManager);
 
           // 파일이 선택된 경우에만 이미지 추가
           if (file) {
-            formData.append("image", file);
+            formData.append('image', file);
           } else {
-            formData.append("image", ""); // 기본값 처리 (빈 문자열을 서버에서 기본 이미지로 처리)
+            formData.append('image', ''); // 기본값 처리 (빈 문자열을 서버에서 기본 이미지로 처리)
           }
 
           const salt = await bcrypt.genSalt(10);
           const hashedPassword = await bcrypt.hash(password, salt);
 
-          const createByValue = isManager ? "system" : userId;
-          console.log("🚀 createBy 값:", createByValue); // 👉 로그 추가 (확인용)
+          const createByValue = isManager ? 'system' : userId;
+          console.log('🚀 createBy 값:', createByValue); // 👉 로그 추가 (확인용)
 
           //사용자 정보 추가
-          formData.append("userId", userId);
-          formData.append("userName", userName);
-          formData.append("password", hashedPassword); // 비크립트
-          formData.append("email", email);
-          formData.append("phoneNumber", formattedPhoneNumber);
+          formData.append('userId', userId);
+          formData.append('userName', userName);
+          formData.append('password', hashedPassword); // 비크립트
+          formData.append('email', email);
+          formData.append('phoneNumber', formattedPhoneNumber);
           formData.append(
-            "userRole",
-            mode === "register" ? String(parseInt(userRole, 10)) : "4"
+            'userRole',
+            mode === 'register' ? String(parseInt(userRole, 10)) : '4'
           );
-          formData.append("status", status);
-          formData.append("langCode", langCode);
-          formData.append("createBy", createByValue);
+          formData.append('status', status);
+          formData.append('langCode', langCode);
+          formData.append('createBy', createByValue);
 
           // 서버로 전송
           let response;
-          if (mode === "register") {
+          if (mode === 'register') {
             response = await axios.post(
               `${process.env.REACT_APP_BACKEND_IP}/admin/api/register-user`,
               formData,
               {
                 headers: {
                   Authorization: `Bearer ${cachedAuthToken}`,
-                  "Content-Type": "multipart/form-data",
+                  'Content-Type': 'multipart/form-data',
                 },
               }
             );
@@ -253,16 +253,16 @@ const UserRegistPopup = React.memo(
               formData,
               {
                 headers: {
-                  "Content-Type": "multipart/form-data",
+                  'Content-Type': 'multipart/form-data',
                 },
               }
             );
           }
 
-          if (mode === "register") {
+          if (mode === 'register') {
             comAPIContext.showToast(
-              "회원 등록이 정상적으로 되었습니다.",
-              "success"
+              '회원 등록이 정상적으로 되었습니다.',
+              'success'
             );
           } else {
             setToastShow(true);
@@ -273,8 +273,8 @@ const UserRegistPopup = React.memo(
           }
           setIsVisible(false);
         } catch (error) {
-          console.error("Error occurred:", error);
-          alert("Failed to register user. Please try again.");
+          console.error('Error occurred:', error);
+          alert('Failed to register user. Please try again.');
         } finally {
           comAPIContext.hideProgressBar();
         }
@@ -286,8 +286,8 @@ const UserRegistPopup = React.memo(
           const MAX_SIZE = 1000 * 1024; // 1MB
           if (selectedFile.size >= MAX_SIZE) {
             comAPIContext.showToast(
-              "이미지 크기는 1MB를 초과할 수 없습니다.",
-              "danger"
+              '이미지 크기는 1MB를 초과할 수 없습니다.',
+              'danger'
             );
             return;
           }
@@ -303,7 +303,7 @@ const UserRegistPopup = React.memo(
 
       const handlePhoneNumberChange = (index: number, value: string) => {
         const updatedParts = [...phoneParts];
-        updatedParts[index] = value.replace(/[^0-9]/g, ""); // 숫자만 허용
+        updatedParts[index] = value.replace(/[^0-9]/g, ''); // 숫자만 허용
 
         // 자리 제한 적용
         if (index === 0 && updatedParts[0].length > 3)
@@ -314,7 +314,7 @@ const UserRegistPopup = React.memo(
         setPhoneParts(updatedParts);
       };
 
-      const getFormattedPhoneNumber = () => phoneParts.join("-");
+      const getFormattedPhoneNumber = () => phoneParts.join('-');
 
       useEffect(() => {
         setIsTested(false);
@@ -330,7 +330,7 @@ const UserRegistPopup = React.memo(
       }, [userId, userName, isAvailableId, password, email]);
 
       useEffect(() => {
-        if (isVisible && mode === "register") {
+        if (isVisible && mode === 'register') {
           getRoles()
             .then((roleResponse) => {
               if (roleResponse.length) {
@@ -338,13 +338,13 @@ const UserRegistPopup = React.memo(
               }
             })
             .catch((error) => {
-              console.error("Error fetching roles:", error);
+              console.error('Error fetching roles:', error);
             });
         }
       }, [isVisible]);
 
       useEffect(() => {
-        if (mode === "signup") setStatus("INACTIVE");
+        if (mode === 'signup') setStatus('INACTIVE');
       }, []);
 
       return (
@@ -352,7 +352,7 @@ const UserRegistPopup = React.memo(
           <Modal show={isVisible} onHide={() => handleModalClose()} centered>
             <Modal.Header closeButton>
               <Modal.Title>
-                {comAPIContext.$msg("label", "user_regist", "사용자 등록")}
+                {comAPIContext.$msg('label', 'user_regist', '사용자 등록')}
               </Modal.Title>
             </Modal.Header>
             <Modal.Body>
@@ -360,7 +360,7 @@ const UserRegistPopup = React.memo(
                 <Form.Group as={Row} controlId="name">
                   <Form.Label column sm={3}>
                     <strong>
-                      {comAPIContext.$msg("label", "name", "이름")}
+                      {comAPIContext.$msg('label', 'name', '이름')}
                     </strong>
                   </Form.Label>
                   <Col sm={9}>
@@ -376,7 +376,7 @@ const UserRegistPopup = React.memo(
                 <Form.Group
                   as={Row}
                   controlId="id"
-                  style={{ position: "relative" }}
+                  style={{ position: 'relative' }}
                 >
                   <Form.Label column sm={3}>
                     <strong>ID</strong>
@@ -389,13 +389,13 @@ const UserRegistPopup = React.memo(
                         value={userId}
                         onChange={handleUserId}
                       />
-                      {mode === "register" ? (
+                      {mode === 'register' ? (
                         <ComButton onClick={searchId}>
-                          {comAPIContext.$msg("label", "search", "검색")}
+                          {comAPIContext.$msg('label', 'search', '검색')}
                         </ComButton>
                       ) : (
                         <ComButton onClick={searchId}>
-                          {comAPIContext.$msg("label", "search", "검색")}
+                          {comAPIContext.$msg('label', 'search', '검색')}
                         </ComButton>
                       )}
                     </InputGroup>
@@ -404,13 +404,13 @@ const UserRegistPopup = React.memo(
                     <Col
                       sm={9}
                       style={{
-                        position: "absolute",
-                        bottom: "-16px",
-                        right: "0px",
-                        fontSize: "12px",
-                        paddingLeft: "24px",
-                        boxSizing: "border-box",
-                        color: "#ff4d4f",
+                        position: 'absolute',
+                        bottom: '-16px',
+                        right: '0px',
+                        fontSize: '12px',
+                        paddingLeft: '24px',
+                        boxSizing: 'border-box',
+                        color: '#ff4d4f',
                       }}
                     >
                       이미 존재하는 ID입니다.
@@ -420,13 +420,13 @@ const UserRegistPopup = React.memo(
                     <Col
                       sm={9}
                       style={{
-                        position: "absolute",
-                        bottom: "-16px",
-                        left: "90px",
-                        fontSize: "12px",
-                        paddingLeft: "24px",
-                        boxSizing: "border-box",
-                        color: "#1677ff",
+                        position: 'absolute',
+                        bottom: '-16px',
+                        left: '90px',
+                        fontSize: '12px',
+                        paddingLeft: '24px',
+                        boxSizing: 'border-box',
+                        color: '#1677ff',
                       }}
                     >
                       사용할 수 있는 ID입니다.
@@ -502,7 +502,7 @@ const UserRegistPopup = React.memo(
                 <Form.Group as={Row} controlId="langCode">
                   <Form.Label column sm={3}>
                     <strong>
-                      {comAPIContext.$msg("label", "language", "언어")}
+                      {comAPIContext.$msg('label', 'language', '언어')}
                     </strong>
                   </Form.Label>
                   <Col sm={9}>
@@ -514,12 +514,12 @@ const UserRegistPopup = React.memo(
                   </Col>
                 </Form.Group>
 
-                {mode === "register" && (
+                {mode === 'register' && (
                   <>
                     <Form.Group as={Row} controlId="role">
                       <Form.Label column sm={3}>
                         <strong>
-                          {comAPIContext.$msg("label", "role", "역할")}
+                          {comAPIContext.$msg('label', 'role', '역할')}
                         </strong>
                       </Form.Label>
                       <Col sm={9}>
@@ -538,7 +538,7 @@ const UserRegistPopup = React.memo(
                     <Form.Group as={Row} controlId="status">
                       <Form.Label column sm={3}>
                         <strong>
-                          {comAPIContext.$msg("label", "status", "상태")}
+                          {comAPIContext.$msg('label', 'status', '상태')}
                         </strong>
                       </Form.Label>
                       <Col sm={9}>
@@ -550,12 +550,12 @@ const UserRegistPopup = React.memo(
                     </Form.Group>
                   </>
                 )}
-                {mode === "signup" && (
+                {mode === 'signup' && (
                   <>
                     <Form.Group as={Row} controlId="status">
                       <Form.Label column sm={3}>
                         <strong>
-                          {comAPIContext.$msg("label", "status", "상태")}
+                          {comAPIContext.$msg('label', 'status', '상태')}
                         </strong>
                       </Form.Label>
                       <Col sm={9}>
@@ -564,10 +564,7 @@ const UserRegistPopup = React.memo(
                         </Form.Select>
                       </Col>
                     </Form.Group>
-                    <Form.Group
-                      as={Row}
-                      controlId="profileImage"
-                    >
+                    <Form.Group as={Row} controlId="profileImage">
                       <Form.Label column sm={3}>
                         <strong>Photo</strong>
                       </Form.Label>
@@ -580,14 +577,14 @@ const UserRegistPopup = React.memo(
               </Form>
             </Modal.Body>
             <Modal.Footer>
-              {mode === "register" ? (
+              {mode === 'register' ? (
                 <>
                   <ComButton
                     variant="primary"
                     onClick={handleSave}
                     disabled={isButtonDisabled}
                   >
-                    {comAPIContext.$msg("label", "registration", "등록")}
+                    {comAPIContext.$msg('label', 'registration', '등록')}
                   </ComButton>
                   <ComButton
                     variant="secondary"
@@ -603,7 +600,7 @@ const UserRegistPopup = React.memo(
                     onClick={handleSave}
                     disabled={isButtonDisabled}
                   >
-                    {comAPIContext.$msg("label", "registration", "등록")}
+                    {comAPIContext.$msg('label', 'registration', '등록')}
                   </ComButton>
                   <ComButton
                     variant="secondary"
@@ -615,7 +612,7 @@ const UserRegistPopup = React.memo(
               )}
             </Modal.Footer>
           </Modal>
-          {mode === "signup" && (
+          {mode === 'signup' && (
             <Toast
               onClose={() => setToastShow(false)}
               show={toastShow}
@@ -623,11 +620,11 @@ const UserRegistPopup = React.memo(
               autohide
               bg="success"
             >
-              <Toast.Body style={{ color: "#fff" }}>
+              <Toast.Body style={{ color: '#fff' }}>
                 {comAPIContext.$msg(
-                  "message",
-                  "success_regist_user",
-                  "회원가입이 정상적으로 되었습니다."
+                  'message',
+                  'success_regist_user',
+                  '회원가입이 정상적으로 되었습니다.'
                 )}
               </Toast.Body>
             </Toast>

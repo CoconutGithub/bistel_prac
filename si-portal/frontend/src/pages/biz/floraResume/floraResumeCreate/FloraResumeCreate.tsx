@@ -11,7 +11,7 @@ import { useDispatch } from 'react-redux';
 import { addTab, setActiveTab } from '~store/RootTabs';
 import axios from 'axios';
 
-let cachedAuthToken: string | null = sessionStorage.getItem('authToken');
+const cachedAuthToken: string | null = sessionStorage.getItem('authToken');
 
 const FloraResumeCreate = () => {
   const [formData, setFormData] = useState({

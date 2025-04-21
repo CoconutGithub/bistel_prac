@@ -43,6 +43,7 @@ public class SecurityConfig {
                         .requestMatchers("/biz/hdh-resumes/**").permitAll()// 인증 없이 허용
                         .requestMatchers("/biz/information/**").permitAll() // 인증 없이 허용
                         .requestMatchers("/biz/chatbot/ask").permitAll() // 인증 없이 허용
+                        .requestMatchers("/error").permitAll() // for chatbot test
                         .requestMatchers("/admin/api/update-menu-tree").permitAll() // 인증 없이 허용
                         .requestMatchers("/admin/api/check-menu-id-duplicate").permitAll() // ← 이게 없으면 인증 필요함
                         .requestMatchers("/admin/api/get-menu-tree").permitAll() // ✅ 추가

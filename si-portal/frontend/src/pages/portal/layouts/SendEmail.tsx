@@ -1,11 +1,11 @@
-import { Container, Button, Modal, Form } from "react-bootstrap";
-import { ComAPIContext } from "~components/ComAPIContext";
-import React, { useState, useRef, useContext } from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "~store/Store";
-import axios from "axios";
+import { Container, Button, Modal, Form } from 'react-bootstrap';
+import { ComAPIContext } from '~components/ComAPIContext';
+import React, { useState, useRef, useContext } from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from '~store/Store';
+import axios from 'axios';
 import ComButton from '~pages/portal/buttons/ComButton';
-import { cachedAuthToken } from "~store/AuthSlice";
+import { cachedAuthToken } from '~store/AuthSlice';
 
 function SendEmail() {
   const state = useSelector((state: RootState) => state.auth);
@@ -13,16 +13,16 @@ function SendEmail() {
   const [sendUser, setSendUser] = useState<string | null | undefined>(
     state.user?.userName
   );
-  const [email, setEmail] = useState<string>("");
-  const [subject, setSubject] = useState<string>("");
-  const [message, setMessage] = useState<string>("");
+  const [email, setEmail] = useState<string>('');
+  const [subject, setSubject] = useState<string>('');
+  const [message, setMessage] = useState<string>('');
   const comAPIContext = useContext(ComAPIContext);
 
   // 모달을 열 때 폼 초기화
   const handleShowModal = () => {
-    setEmail(""); // 이메일 초기화
-    setSubject(""); // 제목 초기화
-    setMessage(""); // 메시지 초기화
+    setEmail(''); // 이메일 초기화
+    setSubject(''); // 제목 초기화
+    setMessage(''); // 메시지 초기화
     setShowModal(true); // 모달 열기
   };
 
@@ -51,11 +51,11 @@ function SendEmail() {
 
       console.log(response);
       comAPIContext.hideProgressBar();
-      alert("Email sent successfully!");
+      alert('Email sent successfully!');
       handleCloseModal(); // 이메일 전송 후 모달 닫기
     } catch (error) {
-      console.error("Error sending email:", error);
-      alert("Failed to send email");
+      console.error('Error sending email:', error);
+      alert('Failed to send email');
     }
   };
 

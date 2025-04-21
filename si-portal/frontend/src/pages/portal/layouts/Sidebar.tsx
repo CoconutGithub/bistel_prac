@@ -1,10 +1,10 @@
-import React from "react";
-import { Nav } from "react-bootstrap";
-import { removeLoginToken } from "~store/AuthSlice";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "~store/Store";
-import { Link, useNavigate } from "react-router-dom";
-import { resetTab } from "~store/RootTabs";
+import React from 'react';
+import { Nav } from 'react-bootstrap';
+import { removeLoginToken } from '~store/AuthSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '~store/Store';
+import { Link, useNavigate } from 'react-router-dom';
+import { resetTab } from '~store/RootTabs';
 
 const Sidebar = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -14,10 +14,10 @@ const Sidebar = () => {
   );
 
   const handleLogout = () => {
-    console.log("Logging out...");
+    console.log('Logging out...');
     dispatch(resetTab());
     dispatch(removeLoginToken());
-    navigate("/login"); // 로그인 페이지로 이동
+    navigate('/login'); // 로그인 페이지로 이동
   };
 
   return (

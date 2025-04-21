@@ -24,4 +24,8 @@ module.exports = {
       return webpackConfig;
     },
   },
+  eslint: {
+    enable: true,
+    mode: 'file', // .eslintrc.json 파일 사용
+  },
 };

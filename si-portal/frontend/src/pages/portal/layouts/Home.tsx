@@ -1,8 +1,8 @@
-import React from "react";
-import { Container, Row, Col, Button } from "react-bootstrap";
-import { useSelector } from "react-redux";
-import { RootState } from "~store/Store";
-import NoticePopup from "~pages/portal/admin/NoticePopup";
+import React from 'react';
+import { Container, Row, Col, Button } from 'react-bootstrap';
+import { useSelector } from 'react-redux';
+import { RootState } from '~store/Store';
+import NoticePopup from '~pages/portal/admin/NoticePopup';
 
 const Home: React.FC = () => {
   const databaseType = useSelector(
@@ -12,7 +12,7 @@ const Home: React.FC = () => {
   return (
     <Container>
       <NoticePopup />
-      <Row className="text-center" style={{ marginTop: "50px" }}>
+      <Row className="text-center" style={{ marginTop: '50px' }}>
         <Col>
           <h1>Welcome to Our Portal</h1>
           <p>포탈기능은 공통으로 지원하니 오직 화면 로직 개발에만 집중세요.</p>

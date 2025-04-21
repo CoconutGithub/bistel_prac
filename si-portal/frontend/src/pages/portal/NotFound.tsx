@@ -1,9 +1,9 @@
-import React from "react";
-import { Container, Row, Col, Button } from "react-bootstrap";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import ComButton from "~pages/portal/buttons/ComButton";
-import { addTab, resetTab, setActiveTab } from "~store/RootTabs";
+import React from 'react';
+import { Container, Row, Col, Button } from 'react-bootstrap';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import ComButton from '~pages/portal/buttons/ComButton';
+import { addTab, resetTab, setActiveTab } from '~store/RootTabs';
 
 const NotFound: React.FC = () => {
   const navigate = useNavigate();
@@ -11,13 +11,13 @@ const NotFound: React.FC = () => {
 
   const handleGoHome = () => {
     dispatch(resetTab());
-    dispatch(addTab({ key: "home", label: "Home", path: "/main/home" }));
-    dispatch(setActiveTab("home"));
-    navigate("/main/home");
+    dispatch(addTab({ key: 'home', label: 'Home', path: '/main/home' }));
+    dispatch(setActiveTab('home'));
+    navigate('/main/home');
   };
 
   return (
-    <Container className="text-center" style={{ marginTop: "50px" }}>
+    <Container className="text-center" style={{ marginTop: '50px' }}>
       <Row>
         <Col>
           <h1>404 - Page Not Found</h1>

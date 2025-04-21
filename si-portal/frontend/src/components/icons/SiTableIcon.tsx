@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 interface IsiTableIconProps {
   fillColor?: string;
@@ -7,7 +7,7 @@ interface IsiTableIconProps {
 }
 
 const SiTableIcon: React.FC<IsiTableIconProps> = React.memo(
-  ({ fillColor = "black", width = 16, height = 16 }) => {
+  ({ fillColor = 'black', width = 16, height = 16 }) => {
     return (
       <svg
         xmlns="http://www.w3.org/2000/svg"

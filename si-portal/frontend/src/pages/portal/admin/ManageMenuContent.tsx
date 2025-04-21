@@ -4,18 +4,18 @@ import React, {
   useState,
   useContext,
   useCallback,
-} from "react";
-import { Col, Container, Form, Row } from "react-bootstrap";
-import { ChooseMenuData } from "~types/ChooseMenuData";
-import AgGridWrapper from "~components/agGridWrapper/AgGridWrapper";
-import { AgGridWrapperHandle } from "~types/GlobalTypes";
-import ComButton from "~pages/portal/buttons/ComButton";
-import MessageSelectPopup from "~pages/portal/admin/MessageSelectPopup";
-import { RootState } from "~store/Store";
-import { useSelector } from "react-redux";
-import { ComAPIContext } from "~components/ComAPIContext";
-import axios from "axios";
-import { cachedAuthToken } from "~store/AuthSlice";
+} from 'react';
+import { Col, Container, Form, Row } from 'react-bootstrap';
+import { ChooseMenuData } from '~types/ChooseMenuData';
+import AgGridWrapper from '~components/agGridWrapper/AgGridWrapper';
+import { AgGridWrapperHandle } from '~types/GlobalTypes';
+import ComButton from '~pages/portal/buttons/ComButton';
+import MessageSelectPopup from '~pages/portal/admin/MessageSelectPopup';
+import { RootState } from '~store/Store';
+import { useSelector } from 'react-redux';
+import { ComAPIContext } from '~components/ComAPIContext';
+import axios from 'axios';
+import { cachedAuthToken } from '~store/AuthSlice';
 
 interface ManageMenuContentProps {
   chooseMenuData: ChooseMenuData | null;
@@ -47,8 +47,8 @@ let roleKind: any = null;
 // { field: "gridRowId", headerName: "gridRowId", editable: false, hide: true },
 let columnDefs: ColumnDef[] = [
   {
-    field: "gridRowId",
-    headerName: "gridRowId",
+    field: 'gridRowId',
+    headerName: 'gridRowId',
     sortable: true,
     filter: true,
     editable: true,
@@ -56,9 +56,9 @@ let columnDefs: ColumnDef[] = [
     hide: true,
   },
   {
-    field: "roleName",
-    headerName: "역할",
-    cellEditor: "agSelectCellEditor",
+    field: 'roleName',
+    headerName: '역할',
+    cellEditor: 'agSelectCellEditor',
     sortable: true,
     filter: true,
     editable: true,
@@ -66,15 +66,15 @@ let columnDefs: ColumnDef[] = [
     hide: false,
   },
   {
-    field: "canCreate",
-    headerName: "생성 권한",
-    cellDataType: "boolean",
+    field: 'canCreate',
+    headerName: '생성 권한',
+    cellDataType: 'boolean',
     valueGetter: (params: any) => {
-      return params.data.canCreate === "Y" ? true : false;
+      return params.data.canCreate === 'Y' ? true : false;
     },
     valueSetter: (params: any) => {
       const newValue: boolean = params.newValue;
-      params.data.canCreate = newValue ? "Y" : "N";
+      params.data.canCreate = newValue ? 'Y' : 'N';
       return true;
     },
     sortable: true,
@@ -84,15 +84,15 @@ let columnDefs: ColumnDef[] = [
     hide: false,
   },
   {
-    field: "canRead",
-    headerName: "읽기 권한",
-    cellDataType: "boolean",
+    field: 'canRead',
+    headerName: '읽기 권한',
+    cellDataType: 'boolean',
     valueGetter: (params: any) => {
-      return params.data.canRead === "Y" ? true : false;
+      return params.data.canRead === 'Y' ? true : false;
     },
     valueSetter: (params: any) => {
       const newValue: boolean = params.newValue;
-      params.data.canRead = newValue ? "Y" : "N";
+      params.data.canRead = newValue ? 'Y' : 'N';
       return true;
     },
     sortable: true,
@@ -102,15 +102,15 @@ let columnDefs: ColumnDef[] = [
     hide: false,
   },
   {
-    field: "canUpdate",
-    headerName: "수정 권한",
-    cellDataType: "boolean",
+    field: 'canUpdate',
+    headerName: '수정 권한',
+    cellDataType: 'boolean',
     valueGetter: (params: any) => {
-      return params.data.canUpdate === "Y" ? true : false;
+      return params.data.canUpdate === 'Y' ? true : false;
     },
     valueSetter: (params: any) => {
       const newValue: boolean = params.newValue;
-      params.data.canUpdate = newValue ? "Y" : "N";
+      params.data.canUpdate = newValue ? 'Y' : 'N';
       return true;
     },
     sortable: true,
@@ -120,15 +120,15 @@ let columnDefs: ColumnDef[] = [
     hide: false,
   },
   {
-    field: "canDelete",
-    headerName: "삭제 권한",
-    cellDataType: "boolean",
+    field: 'canDelete',
+    headerName: '삭제 권한',
+    cellDataType: 'boolean',
     valueGetter: (params: any) => {
-      return params.data.canDelete === "Y" ? true : false;
+      return params.data.canDelete === 'Y' ? true : false;
     },
     valueSetter: (params: any) => {
       const newValue: boolean = params.newValue;
-      params.data.canDelete = newValue ? "Y" : "N";
+      params.data.canDelete = newValue ? 'Y' : 'N';
       return true;
     },
     sortable: true,
@@ -138,8 +138,8 @@ let columnDefs: ColumnDef[] = [
     hide: false,
   },
   {
-    field: "createDate",
-    headerName: "생성일",
+    field: 'createDate',
+    headerName: '생성일',
     sortable: true,
     filter: true,
     editable: false,
@@ -147,8 +147,8 @@ let columnDefs: ColumnDef[] = [
     hide: false,
   },
   {
-    field: "createBy",
-    headerName: "생성자",
+    field: 'createBy',
+    headerName: '생성자',
     sortable: true,
     filter: true,
     editable: false,
@@ -156,8 +156,8 @@ let columnDefs: ColumnDef[] = [
     hide: false,
   },
   {
-    field: "updateDate",
-    headerName: "수정일",
+    field: 'updateDate',
+    headerName: '수정일',
     sortable: true,
     filter: false,
     editable: false,
@@ -165,8 +165,8 @@ let columnDefs: ColumnDef[] = [
     hide: false,
   },
   {
-    field: "updateBy",
-    headerName: "수정자",
+    field: 'updateBy',
+    headerName: '수정자',
     sortable: true,
     filter: true,
     editable: false,
@@ -179,9 +179,9 @@ const ManageMenuContent: React.FC<{
   chooseMenuData: ChooseMenuData | null;
   onSave: () => void;
 }> = ({ chooseMenuData, onSave }) => {
-  console.log("ManageMenuContent 생성됨.");
+  console.log('ManageMenuContent 생성됨.');
 
-  const [isActive, setIsActive] = useState<string>("INACTIVE");
+  const [isActive, setIsActive] = useState<string>('INACTIVE');
   const gridRef = useRef<AgGridWrapperHandle>(null);
   const [showPopup, setShowPopup] = useState(false);
   const [position, setPosition] = useState<number | any>(
@@ -199,7 +199,7 @@ const ManageMenuContent: React.FC<{
   const [menuId, setMenuId] = useState<string | any>(chooseMenuData?.menuId);
   const [rowData, setRowData] = useState<any[]>([]);
 
-  console.log("chooseMenuData", chooseMenuData);
+  console.log('chooseMenuData', chooseMenuData);
 
   // chooseMenuData가 변경될 때마다 상태를 업데이트합니다.
   useEffect(() => {
@@ -208,7 +208,7 @@ const ManageMenuContent: React.FC<{
       setPath(chooseMenuData?.path);
       setMenuName(chooseMenuData?.menuName); // menuName 업데이트
       setMsgId(chooseMenuData?.msgId);
-      setIsActive(chooseMenuData?.status ?? "INACTIVE");
+      setIsActive(chooseMenuData?.status ?? 'INACTIVE');
       fetchData();
       setMenuId(chooseMenuData.menuId);
     }
@@ -217,48 +217,48 @@ const ManageMenuContent: React.FC<{
   useEffect(() => {
     const setDefColumn = () => {
       columnDefs.forEach((column) => {
-        if (column.headerName === "역할") {
-          column.headerName = comAPIContext.$msg("label", "role", "역할");
-        } else if (column.headerName === "읽기 권한") {
+        if (column.headerName === '역할') {
+          column.headerName = comAPIContext.$msg('label', 'role', '역할');
+        } else if (column.headerName === '읽기 권한') {
           column.headerName = comAPIContext.$msg(
-            "label",
-            "search_permission",
-            "읽기 권한"
+            'label',
+            'search_permission',
+            '읽기 권한'
           );
-        } else if (column.headerName === "수정 권한") {
+        } else if (column.headerName === '수정 권한') {
           column.headerName = comAPIContext.$msg(
-            "label",
-            "update_permission",
-            "수정 권한"
+            'label',
+            'update_permission',
+            '수정 권한'
           );
-        } else if (column.headerName === "생성 권한") {
+        } else if (column.headerName === '생성 권한') {
           column.headerName = comAPIContext.$msg(
-            "label",
-            "create_permission",
-            "생성 권한"
+            'label',
+            'create_permission',
+            '생성 권한'
           );
-        } else if (column.headerName === "삭제 권한") {
+        } else if (column.headerName === '삭제 권한') {
           column.headerName = comAPIContext.$msg(
-            "label",
-            "delete_permission",
-            "삭제 권한"
+            'label',
+            'delete_permission',
+            '삭제 권한'
           );
-        } else if (column.headerName === "생성일") {
+        } else if (column.headerName === '생성일') {
           column.headerName = comAPIContext.$msg(
-            "label",
-            "create_date",
-            "생성일"
+            'label',
+            'create_date',
+            '생성일'
           );
-        } else if (column.headerName === "생성자") {
-          column.headerName = comAPIContext.$msg("label", "creator", "생성자");
-        } else if (column.headerName === "수정일") {
+        } else if (column.headerName === '생성자') {
+          column.headerName = comAPIContext.$msg('label', 'creator', '생성자');
+        } else if (column.headerName === '수정일') {
           column.headerName = comAPIContext.$msg(
-            "label",
-            "update_date",
-            "수정일"
+            'label',
+            'update_date',
+            '수정일'
           );
-        } else if (column.headerName === "수정자") {
-          column.headerName = comAPIContext.$msg("label", "editor", "수정자");
+        } else if (column.headerName === '수정자') {
+          column.headerName = comAPIContext.$msg('label', 'editor', '수정자');
         }
       });
     };
@@ -283,10 +283,10 @@ const ManageMenuContent: React.FC<{
 
       roleKind = res.data;
 
-      console.log("roleList ============================>", roleList);
+      console.log('roleList ============================>', roleList);
 
       columnDefs = columnDefs.map((col) => {
-        if (col.field === "roleName") {
+        if (col.field === 'roleName') {
           return {
             ...col,
             cellEditorParams: {
@@ -310,12 +310,12 @@ const ManageMenuContent: React.FC<{
         return col;
       });
     } catch (error: any) {
-      console.error("Error fetching roles:", error);
+      console.error('Error fetching roles:', error);
       const errorMessage =
-        error.response?.data || error.message || "Unknown error";
+        error.response?.data || error.message || 'Unknown error';
       comAPIContext.showToast(
-        "Error fetching roles: " + errorMessage,
-        "danger"
+        'Error fetching roles: ' + errorMessage,
+        'danger'
       );
     } finally {
       comAPIContext.hideProgressBar();
@@ -327,18 +327,18 @@ const ManageMenuContent: React.FC<{
       comAPIContext.showProgressBar();
       if (chooseMenuData !== null) {
         const response = await axios.get(
-            `${process.env.REACT_APP_BACKEND_IP}/admin/api/get-menu-role`,
-            {
-              headers: {
-                Authorization: `Bearer ${cachedAuthToken}`,
-              },
-              params: {
-                menuIdStr: chooseMenuData?.menuId,
-              },
-            }
+          `${process.env.REACT_APP_BACKEND_IP}/admin/api/get-menu-role`,
+          {
+            headers: {
+              Authorization: `Bearer ${cachedAuthToken}`,
+            },
+            params: {
+              menuIdStr: chooseMenuData?.menuId,
+            },
+          }
         );
 
-        if (gridRef.current && response.data !== "조회된 데이터가 없습니다") {
+        if (gridRef.current && response.data !== '조회된 데이터가 없습니다') {
           gridRef.current.setRowData(response.data);
           setRowData(response.data); // ✅ 꼭 추가!
         } else {
@@ -347,12 +347,12 @@ const ManageMenuContent: React.FC<{
         }
       }
     } catch (error: any) {
-      console.error("Error fetching roles:", error);
+      console.error('Error fetching roles:', error);
       const errorMessage =
-          error.response?.data || error.message || "Unknown error";
+        error.response?.data || error.message || 'Unknown error';
       comAPIContext.showToast(
-          "Error fetching roles: " + errorMessage,
-          "danger"
+        'Error fetching roles: ' + errorMessage,
+        'danger'
       );
     } finally {
       comAPIContext.hideProgressBar();
@@ -362,40 +362,43 @@ const ManageMenuContent: React.FC<{
   const onchangeMenuName = () => {};
 
   const checkMenuIdDuplicate = async () => {
-    console.log("✅ API 주소:", process.env.REACT_APP_BACKEND_IP);
-    console.log("✅ 요청 URL:", `${process.env.REACT_APP_BACKEND_IP}/admin/api/check-menu-id-duplicate`);
-    console.log("✅ 토큰:", cachedAuthToken);
+    console.log('✅ API 주소:', process.env.REACT_APP_BACKEND_IP);
+    console.log(
+      '✅ 요청 URL:',
+      `${process.env.REACT_APP_BACKEND_IP}/admin/api/check-menu-id-duplicate`
+    );
+    console.log('✅ 토큰:', cachedAuthToken);
 
     if (!menuId) {
-      comAPIContext.showToast("Menu ID를 입력해주세요.", "warning");
+      comAPIContext.showToast('Menu ID를 입력해주세요.', 'warning');
       return;
     }
 
     try {
       comAPIContext.showProgressBar();
       const res = await axios.get(
-          `${process.env.REACT_APP_BACKEND_IP}/admin/api/check-menu-id-duplicate`,
-          {
-            params: { menuId },
-            headers: { Authorization: `Bearer ${cachedAuthToken}` },
-          }
+        `${process.env.REACT_APP_BACKEND_IP}/admin/api/check-menu-id-duplicate`,
+        {
+          params: { menuId },
+          headers: { Authorization: `Bearer ${cachedAuthToken}` },
+        }
       );
 
       if (res.data.exists) {
-        comAPIContext.showToast("이미 존재하는 Menu ID입니다.", "danger");
+        comAPIContext.showToast('이미 존재하는 Menu ID입니다.', 'danger');
       } else {
-        comAPIContext.showToast("사용 가능한 Menu ID입니다.", "success");
+        comAPIContext.showToast('사용 가능한 Menu ID입니다.', 'success');
       }
     } catch (error) {
-      console.error("중복 체크 실패:", error);
-      comAPIContext.showToast("중복 체크 실패", "danger");
+      console.error('중복 체크 실패:', error);
+      comAPIContext.showToast('중복 체크 실패', 'danger');
     } finally {
       comAPIContext.hideProgressBar();
     }
   };
 
   const handleSave = async () => {
-    console.log("추가된 메뉴 저장");
+    console.log('추가된 메뉴 저장');
 
     const pathValue = pathRef?.current?.value; // ref로 저장된 값을 가져옴
     const menuNameValue = menuNameRef?.current?.value;
@@ -424,12 +427,12 @@ const ManageMenuContent: React.FC<{
 
       console.log(res);
       comAPIContext.hideProgressBar();
-      alert("Save successfully!");
+      alert('Save successfully!');
       onSave();
     } catch (error) {
-      console.error("Error saving menu:", error);
+      console.error('Error saving menu:', error);
       comAPIContext.hideProgressBar();
-      alert("Failed to save menu");
+      alert('Failed to save menu');
     }
   };
 
@@ -458,11 +461,11 @@ const ManageMenuContent: React.FC<{
     ) {
       comAPIContext.showToast(
         comAPIContext.$msg(
-          "message",
-          "no_save_data",
-          "저장할 데이터가 없습니다."
+          'message',
+          'no_save_data',
+          '저장할 데이터가 없습니다.'
         ),
-        "dark"
+        'dark'
       );
       return;
     }
@@ -475,11 +478,11 @@ const ManageMenuContent: React.FC<{
           if (obj.roleName === undefined) {
             comAPIContext.showToast(
               comAPIContext.$msg(
-                "message",
-                "select_role",
-                "권한 이름을 선택해주세요."
+                'message',
+                'select_role',
+                '권한 이름을 선택해주세요.'
               ),
-              "dark"
+              'dark'
             );
             return;
           }
@@ -524,14 +527,14 @@ const ManageMenuContent: React.FC<{
       );
 
       comAPIContext.showToast(
-        comAPIContext.$msg("message", "save_complete", "저장이 완료됐습니다.")
+        comAPIContext.$msg('message', 'save_complete', '저장이 완료됐습니다.')
       );
       fetchData(); // 저장 후 최신 데이터 조회
     } catch (err) {
-      console.error("Error saving data:", err);
+      console.error('Error saving data:', err);
       comAPIContext.showToast(
-        comAPIContext.$msg("message", "save_fail", "저장이 실패했습니다."),
-        "danger"
+        comAPIContext.$msg('message', 'save_fail', '저장이 실패했습니다.'),
+        'danger'
       );
       fetchData();
     } finally {
@@ -541,26 +544,28 @@ const ManageMenuContent: React.FC<{
 
   return (
     <Container fluid>
-      {chooseMenuData && chooseMenuData.menuName !== "Root" ? (
+      {chooseMenuData && chooseMenuData.menuName !== 'Root' ? (
         <>
           <h4 className="cnt_title">
-            {chooseMenuData.isAdd === true ? "Add Menu" : "Selected Menu"}
+            {chooseMenuData.isAdd === true ? 'Add Menu' : 'Selected Menu'}
           </h4>
           <Form>
             {/* Menu ID */}
             <Form.Group className="form_group align-items-center">
-              <Form.Label column sm={2}>Menu ID:</Form.Label>
+              <Form.Label column sm={2}>
+                Menu ID:
+              </Form.Label>
               <Col sm={3}>
                 <Form.Control
-                    type="text"
-                    value={menuId}
-                    size="sm"
-                    onChange={(e) => setMenuId(e.target.value)}
+                  type="text"
+                  value={menuId}
+                  size="sm"
+                  onChange={(e) => setMenuId(e.target.value)}
                 />
               </Col>
               <Col sm={2}>
                 <ComButton onClick={checkMenuIdDuplicate}>
-                  {comAPIContext.$msg("label", "check_duplicate", "중복체크")}
+                  {comAPIContext.$msg('label', 'check_duplicate', '중복체크')}
                 </ComButton>
               </Col>
             </Form.Group>
@@ -605,7 +610,7 @@ const ManageMenuContent: React.FC<{
                 <Form.Control
                   type="text"
                   ref={menuNameRef} // ref로 직접 접근
-                  value={menuName || ""} // menuName 상태값 사용
+                  value={menuName || ''} // menuName 상태값 사용
                   size="sm"
                   disabled
                   readOnly
@@ -613,7 +618,7 @@ const ManageMenuContent: React.FC<{
               </Col>
               <Col sm={3}>
                 <ComButton onClick={openModal}>
-                  {comAPIContext.$msg("label", "메시지 할당", "메시지 할당")}
+                  {comAPIContext.$msg('label', '메시지 할당', '메시지 할당')}
                 </ComButton>
               </Col>
             </Form.Group>
@@ -626,7 +631,7 @@ const ManageMenuContent: React.FC<{
               <Col sm={4}>
                 <Form.Control
                   type="text"
-                  value={msgId || ""} // path 상태값 사용
+                  value={msgId || ''} // path 상태값 사용
                   size="sm"
                   disabled
                   readOnly
@@ -643,10 +648,10 @@ const ManageMenuContent: React.FC<{
                 <Form.Control
                   type="text"
                   ref={pathRef} // ref로 직접 접근
-                  value={path || ""} // path 상태값 사용
+                  value={path || ''} // path 상태값 사용
                   size="sm"
                   style={{
-                    backgroundColor: "#f0f8ff", // 연한 파란색
+                    backgroundColor: '#f0f8ff', // 연한 파란색
                   }}
                   onChange={(e) => setPath(e.target.value)}
                 />
@@ -663,11 +668,11 @@ const ManageMenuContent: React.FC<{
                   <Form.Check
                     type="switch"
                     id="custom-switch"
-                    label={isActive ? "Active ON" : "Active OFF"}
-                    checked={isActive === "INACTIVE" ? false : true}
+                    label={isActive ? 'Active ON' : 'Active OFF'}
+                    checked={isActive === 'INACTIVE' ? false : true}
                     onChange={() => {
-                      const newValue = isActive === "INACTIVE" ? true : false;
-                      const status = newValue ? "ACTIVE" : "INACTIVE";
+                      const newValue = isActive === 'INACTIVE' ? true : false;
+                      const status = newValue ? 'ACTIVE' : 'INACTIVE';
                       setIsActive(status);
                     }}
                   />
@@ -678,51 +683,55 @@ const ManageMenuContent: React.FC<{
             <Form.Group className="form_group">
               <Col sm={{ span: 4, offset: 2 }} className="btn_wrap">
                 <ComButton onClick={handleSave} className="w-100">
-                  {comAPIContext.$msg("label", "save", "저장")}
+                  {comAPIContext.$msg('label', 'save', '저장')}
                 </ComButton>
               </Col>
             </Form.Group>
           </Form>
-          <div className="role-grid-wrapper" style={{
-            border: "1px solid #ddd",
-            borderRadius: "8px",
-            padding: "16px",
-            marginTop: "20px",
-            backgroundColor: "#fff",
-            boxShadow: "0 2px 5px rgba(0,0,0,0.05)"
-          }}>
+          <div
+            className="role-grid-wrapper"
+            style={{
+              border: '1px solid #ddd',
+              borderRadius: '8px',
+              padding: '16px',
+              marginTop: '20px',
+              backgroundColor: '#fff',
+              boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
+            }}
+          >
             <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginBottom: "12px",
-                }}
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '12px',
+              }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <span style={{ fontSize: "20px", fontWeight: "bold" }}>
-                  {comAPIContext.$msg("label", "role", "역할") +
-                      comAPIContext.$msg("label", "add", "추가")}
+              <div
+                style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+              >
+                <span style={{ fontSize: '20px', fontWeight: 'bold' }}>
+                  {comAPIContext.$msg('label', 'role', '역할') +
+                    comAPIContext.$msg('label', 'add', '추가')}
                 </span>
-                <span style={{ fontSize: "14px", color: "#666" }}>
+                <span style={{ fontSize: '14px', color: '#666' }}>
                   ({rowData.length})
                 </span>
               </div>
             </div>
 
             <AgGridWrapper
-                ref={gridRef}
-                showButtonArea={true}
-                columnDefs={columnDefs}
-                enableCheckbox={true}
-                canCreate={true}
-                canDelete={true}
-                canUpdate={true}
-                onSave={handleGridSave}
-                hideTitle={true}
+              ref={gridRef}
+              showButtonArea={true}
+              columnDefs={columnDefs}
+              enableCheckbox={true}
+              canCreate={true}
+              canDelete={true}
+              canUpdate={true}
+              onSave={handleGridSave}
+              hideTitle={true}
             />
           </div>
-
         </>
       ) : (
         <div>

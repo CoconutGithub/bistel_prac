@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
-import { Modal, Form, Col, Row } from "react-bootstrap";
-import ComButton from "~pages/portal/buttons/ComButton";
-import { ComAPIContext } from "~components/ComAPIContext";
-import AgGridWrapper from "~components/agGridWrapper/AgGridWrapper";
-import { AgGridWrapperHandle } from "~types/GlobalTypes"; // 팝업 컴포넌트 가져오기
-import { cachedAuthToken } from "~store/AuthSlice";
-import axios from "axios";
+import React, { useState, useEffect, useContext, useRef } from 'react';
+import { Modal, Form, Col, Row } from 'react-bootstrap';
+import ComButton from '~pages/portal/buttons/ComButton';
+import { ComAPIContext } from '~components/ComAPIContext';
+import AgGridWrapper from '~components/agGridWrapper/AgGridWrapper';
+import { AgGridWrapperHandle } from '~types/GlobalTypes'; // 팝업 컴포넌트 가져오기
+import { cachedAuthToken } from '~store/AuthSlice';
+import axios from 'axios';
 
 interface MessageSelectPopupProps {
   show: boolean; // 팝업 표시 여부
@@ -15,101 +15,101 @@ interface MessageSelectPopupProps {
 
 const columnDefs = [
   {
-    field: "msgId",
-    headerName: "ID",
+    field: 'msgId',
+    headerName: 'ID',
     editable: false,
     hide: true,
     sortable: false,
     filter: false,
   },
   {
-    field: "msgType",
-    headerName: "타입",
+    field: 'msgType',
+    headerName: '타입',
     sortable: true,
     filter: true,
     editable: false,
     width: 100,
-    cellEditor: "agSelectCellEditor", // Combobox 설정
-    cellEditorParams: { values: ["label", "menu", "message"] }, // Combobox 옵션
+    cellEditor: 'agSelectCellEditor', // Combobox 설정
+    cellEditorParams: { values: ['label', 'menu', 'message'] }, // Combobox 옵션
   },
   {
-    field: "msgName",
-    headerName: "메세지명",
+    field: 'msgName',
+    headerName: '메세지명',
     sortable: true,
     filter: true,
     editable: false,
     width: 150,
   },
   {
-    field: "msgDefault",
-    headerName: "기본값",
+    field: 'msgDefault',
+    headerName: '기본값',
     sortable: true,
     filter: true,
     editable: false,
     width: 150,
   },
   {
-    field: "status",
-    headerName: "상태",
+    field: 'status',
+    headerName: '상태',
     sortable: true,
     filter: true,
     editable: false,
     width: 100,
-    cellEditor: "agSelectCellEditor",
+    cellEditor: 'agSelectCellEditor',
     cellEditorParams: {
-      values: ["ACTIVE", "INACTIVE"], // 상태 값 목록
+      values: ['ACTIVE', 'INACTIVE'], // 상태 값 목록
     },
   },
   {
-    field: "koLangText",
-    headerName: "한국어",
+    field: 'koLangText',
+    headerName: '한국어',
     sortable: true,
     filter: true,
     editable: false,
     width: 200,
   },
   {
-    field: "enLangText",
-    headerName: "영어",
+    field: 'enLangText',
+    headerName: '영어',
     sortable: true,
     filter: true,
     editable: false,
     width: 200,
   },
   {
-    field: "cnLangText",
-    headerName: "중국어",
+    field: 'cnLangText',
+    headerName: '중국어',
     sortable: true,
     filter: true,
     editable: false,
     width: 200,
   },
   {
-    field: "createDate",
-    headerName: "생성일",
+    field: 'createDate',
+    headerName: '생성일',
     sortable: true,
     filter: true,
     editable: false,
     width: 200,
   },
   {
-    field: "createBy",
-    headerName: "생성자",
+    field: 'createBy',
+    headerName: '생성자',
     sortable: true,
     filter: true,
     editable: false,
     width: 100,
   },
   {
-    field: "updateDate",
-    headerName: "업데이트일",
+    field: 'updateDate',
+    headerName: '업데이트일',
     sortable: true,
     filter: false,
     width: 200,
   },
   {
-    field: "updateBy",
-    headerName: "수정자",
+    field: 'updateBy',
+    headerName: '수정자',
     sortable: true,
     filter: true,
     editable: false,
@@ -123,16 +123,16 @@ const RoleRegistPopup: React.FC<MessageSelectPopupProps> = ({
   selectMessage,
 }) => {
   const comAPIContext = useContext(ComAPIContext);
-  const [roleName, setRoleName] = useState("");
-  const [status, setStatus] = useState("ACTIVE"); // 기본값 'ACTIVE'
-  const [selectedType, setSelectedType] = useState<string>("");
+  const [roleName, setRoleName] = useState('');
+  const [status, setStatus] = useState('ACTIVE'); // 기본값 'ACTIVE'
+  const [selectedType, setSelectedType] = useState<string>('');
   const [typeList, setTypeList] = useState<any[]>([]);
   const gridRef = useRef<AgGridWrapperHandle>(null);
   const msgNameRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!show) {
-      setRoleName(""); // 팝업이 닫힐 때 roleName 초기화
+      setRoleName(''); // 팝업이 닫힐 때 roleName 초기화
     }
   }, [show]);
 
@@ -141,15 +141,15 @@ const RoleRegistPopup: React.FC<MessageSelectPopupProps> = ({
     axios
       .get(`${process.env.REACT_APP_BACKEND_IP}/admin/api/get-msg-type`, {
         headers: { Authorization: `Bearer ${cachedAuthToken}` },
-        params: { status: "ACTIVE" },
+        params: { status: 'ACTIVE' },
       })
       .then((res) => {
-        console.log("res", res);
+        console.log('res', res);
         setTypeList(res.data.map((e: any) => e.msgType));
       })
       .catch((err) => {
-        console.error("Error fetching data:", err);
-        comAPIContext.showToast("Error fetching data: " + err, "danger");
+        console.error('Error fetching data:', err);
+        comAPIContext.showToast('Error fetching data: ' + err, 'danger');
       })
       .finally(() => {
         comAPIContext.hideProgressBar();
@@ -163,7 +163,7 @@ const RoleRegistPopup: React.FC<MessageSelectPopupProps> = ({
       msgType: selectedType,
       msgName: msgNameRef.current?.value,
     };
-    console.log("params:", params);
+    console.log('params:', params);
 
     axios
       .get(`${process.env.REACT_APP_BACKEND_IP}/admin/api/get-msg-list`, {
@@ -171,7 +171,7 @@ const RoleRegistPopup: React.FC<MessageSelectPopupProps> = ({
         params: params,
       })
       .then((res) => {
-        console.log("res", res);
+        console.log('res', res);
         if (gridRef.current) {
           res.data.forEach((e: any) => {
             e.gridRowId = e.msgId;
@@ -179,11 +179,11 @@ const RoleRegistPopup: React.FC<MessageSelectPopupProps> = ({
           gridRef.current.setRowData(res.data); // 데이터를 AgGridWrapper에 설정;
         }
         comAPIContext.hideProgressBar();
-        comAPIContext.showToast("조회가 완료됐습니다.", "success");
+        comAPIContext.showToast('조회가 완료됐습니다.', 'success');
       })
       .catch((err) => {
-        console.error("Error fetching data:", err);
-        comAPIContext.showToast("Error Job Search: " + err, "danger");
+        console.error('Error fetching data:', err);
+        comAPIContext.showToast('Error Job Search: ' + err, 'danger');
       })
       .finally(() => {
         comAPIContext.hideProgressBar();
@@ -199,25 +199,25 @@ const RoleRegistPopup: React.FC<MessageSelectPopupProps> = ({
     // 선택된 행이 있을 경우
     if (selectedRows && selectedRows.length > 0) {
       selectedRows.forEach((row: any) => {
-        console.log("Selected Row Data:", row); // 선택된 행의 데이터 출력
+        console.log('Selected Row Data:', row); // 선택된 행의 데이터 출력
         // 예시로, 선택된 메시지 ID와 기본값을 부모 컴포넌트로 전달
         selectMessage(row.msgId, row.msgDefault);
       });
     } else {
-      console.log("No rows selected.");
-      comAPIContext.showToast("선택된 row가 없습니다", "danger");
+      console.log('No rows selected.');
+      comAPIContext.showToast('선택된 row가 없습니다', 'danger');
     }
     // onClose(); // 팝업 닫기
   };
 
   const handleTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedType(event.target.value);
-    console.log("event.target.value:", event.target.value);
-    console.log("selectedType:", selectedType);
+    console.log('event.target.value:', event.target.value);
+    console.log('selectedType:', selectedType);
   };
 
   const onCellDoubleClicked = (event: any) => {
-    console.log("double click", event);
+    console.log('double click', event);
     selectMessage(event.data.msgId, event.data.msgDefault);
   };
 
@@ -225,7 +225,7 @@ const RoleRegistPopup: React.FC<MessageSelectPopupProps> = ({
     <Modal show={show} onHide={onClose} centered size="xl">
       <Modal.Header closeButton>
         <Modal.Title>
-          {comAPIContext.$msg("label", "메시지 할당", "메시지 할당")}
+          {comAPIContext.$msg('label', '메시지 할당', '메시지 할당')}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
@@ -236,11 +236,14 @@ const RoleRegistPopup: React.FC<MessageSelectPopupProps> = ({
                 <Col className="cnt_group">
                   <Form.Label column sm={2}>
                     <strong>
-                      {comAPIContext.$msg("label", "MSG TYPE", "MSG TYPE")}
+                      {comAPIContext.$msg('label', 'MSG TYPE', 'MSG TYPE')}
                     </strong>
                   </Form.Label>
                   <Col sm={3}>
-                    <Form.Select value={selectedType} onChange={handleTypeChange}>
+                    <Form.Select
+                      value={selectedType}
+                      onChange={handleTypeChange}
+                    >
                       <option value="">타입 선택</option>
                       {typeList.map((option: string, index: any) => (
                         <option key={index} value={option}>
@@ -253,7 +256,11 @@ const RoleRegistPopup: React.FC<MessageSelectPopupProps> = ({
                 <Col className="cnt_group">
                   <Form.Label column sm={2}>
                     <strong>
-                      {comAPIContext.$msg("label", "MESSAGE NAME", "MESSAGE NAME")}
+                      {comAPIContext.$msg(
+                        'label',
+                        'MESSAGE NAME',
+                        'MESSAGE NAME'
+                      )}
                     </strong>
                   </Form.Label>
                   <Col sm={3} className="d-flex align-items-center">
@@ -262,16 +269,12 @@ const RoleRegistPopup: React.FC<MessageSelectPopupProps> = ({
                       ref={msgNameRef}
                       placeholder="Input Message Name"
                     />
-                    
                   </Col>
                 </Col>
               </Col>
               <Col className="search_btn">
-                <ComButton
-                    variant="primary"
-                    onClick={handleSearch}
-                  >
-                    {comAPIContext.$msg("label", "Search", "Search")}
+                <ComButton variant="primary" onClick={handleSearch}>
+                  {comAPIContext.$msg('label', 'Search', 'Search')}
                 </ComButton>
               </Col>
             </Row>
@@ -291,12 +294,12 @@ const RoleRegistPopup: React.FC<MessageSelectPopupProps> = ({
       </Modal.Body>
       <Modal.Footer>
         <ComButton variant="primary" onClick={handleSelect}>
-          {comAPIContext.$msg("label", "select", "선택")}
+          {comAPIContext.$msg('label', 'select', '선택')}
         </ComButton>
         <ComButton
           variant="outline-secondary"
           onClick={() => {
-            setRoleName(""); // Close 버튼 클릭 시 roleName 초기화
+            setRoleName(''); // Close 버튼 클릭 시 roleName 초기화
             onClose();
           }}
         >

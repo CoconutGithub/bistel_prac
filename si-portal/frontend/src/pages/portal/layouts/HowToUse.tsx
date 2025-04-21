@@ -1,10 +1,10 @@
-﻿import React, { useContext, useRef, useState } from "react";
-import { Container, Row, Col, Button } from "react-bootstrap";
-import { ComAPIContext } from "~components/ComAPIContext";
-import ExamButton from "~pages/portal/example/ExamButton";
-import AgGridWrapper from "~components/agGridWrapper/AgGridWrapper";
-import FileCellRenderer from "~components/fileCellRenderer/FileCellRenderer";
-import { AgGridWrapperHandle } from "~types/GlobalTypes";
+import React, { useContext, useRef, useState } from 'react';
+import { Container, Row, Col, Button } from 'react-bootstrap';
+import { ComAPIContext } from '~components/ComAPIContext';
+import ExamButton from '~pages/portal/example/ExamButton';
+import AgGridWrapper from '~components/agGridWrapper/AgGridWrapper';
+import FileCellRenderer from '~components/fileCellRenderer/FileCellRenderer';
+import { AgGridWrapperHandle } from '~types/GlobalTypes';
 
 const HowToUse: React.FC = () => {
   const comAPIContext = useContext(ComAPIContext); // ComAPIContext 사용
@@ -82,29 +82,29 @@ const HowToUse: React.FC = () => {
 
   const columnDefs = [
     {
-      filed: "gridRowId",
-      field: "h1",
-      headerName: "Header1",
+      filed: 'gridRowId',
+      field: 'h1',
+      headerName: 'Header1',
       editable: true,
       flex: 1,
       autoHeight: true,
       wrapText: true,
-      cellStyle: { display: "flex", alignItems: "center" },
+      cellStyle: { display: 'flex', alignItems: 'center' },
     },
     {
-      filed: "gridRowId",
-      field: "h2",
-      headerName: "Headeer2",
+      filed: 'gridRowId',
+      field: 'h2',
+      headerName: 'Headeer2',
       editable: true,
       flex: 1,
       autoHeight: true,
       wrapText: true,
-      cellStyle: { display: "flex", alignItems: "center" },
+      cellStyle: { display: 'flex', alignItems: 'center' },
     },
     {
-      filed: "gridRowId",
-      field: "attachFile",
-      headerName: "File",
+      filed: 'gridRowId',
+      field: 'attachFile',
+      headerName: 'File',
       cellRenderer: (params: any) => {
         return (
           <FileCellRenderer
@@ -119,7 +119,7 @@ const HowToUse: React.FC = () => {
       flex: 2,
       autoHeight: true,
       wrapText: true,
-      cellStyle: { display: "flex", alignItems: "center" },
+      cellStyle: { display: 'flex', alignItems: 'center' },
     },
   ];
 
@@ -131,32 +131,32 @@ const HowToUse: React.FC = () => {
 
   const handleRunToastMsg = () => {
     //Button 사용 예
-    comAPIContext.showToast("write message in here", "danger");
+    comAPIContext.showToast('write message in here', 'danger');
   };
 
   const gridRef = useRef<AgGridWrapperHandle>(null);
   const searchGrid = () => {
     gridRef.current!.setRowData([
-      { gridRowId: "1", h1: "aaa", h2: "bbb" },
-      { gridRowId: "2", h1: "aaa", h2: "bbb" },
-      { gridRowId: "3", h1: "aaa", h2: "bbb" },
+      { gridRowId: '1', h1: 'aaa', h2: 'bbb' },
+      { gridRowId: '2', h1: 'aaa', h2: 'bbb' },
+      { gridRowId: '3', h1: 'aaa', h2: 'bbb' },
     ]);
   };
 
   return (
     <Container>
-      <Row className="text-center" style={{ marginTop: "50px" }}>
+      <Row className="text-center" style={{ marginTop: '50px' }}>
         <Col>
           <h1>Use Progress Bar</h1>
           <p>아래 코드는 Progress Bar를 표시하는 방법을 보여줍니다:</p>
           <pre
             style={{
-              backgroundColor: "#f8f9fa",
-              padding: "10px",
-              border: "1px solid #ddd",
-              borderRadius: "5px",
-              textAlign: "left",
-              overflowX: "auto",
+              backgroundColor: '#f8f9fa',
+              padding: '10px',
+              border: '1px solid #ddd',
+              borderRadius: '5px',
+              textAlign: 'left',
+              overflowX: 'auto',
             }}
           >
             <code>{examCodeProgressbar}</code>
@@ -170,12 +170,12 @@ const HowToUse: React.FC = () => {
           <p>아래 코드는 Toast Message를 표시하는 방법을 보여줍니다:</p>
           <pre
             style={{
-              backgroundColor: "#f8f9fa",
-              padding: "10px",
-              border: "1px solid #ddd",
-              borderRadius: "5px",
-              textAlign: "left",
-              overflowX: "auto",
+              backgroundColor: '#f8f9fa',
+              padding: '10px',
+              border: '1px solid #ddd',
+              borderRadius: '5px',
+              textAlign: 'left',
+              overflowX: 'auto',
             }}
           >
             <code>{examCodeToast}</code>
@@ -185,18 +185,18 @@ const HowToUse: React.FC = () => {
           </Button>
         </Col>
       </Row>
-      <Row className="text-center" style={{ marginTop: "50px" }}>
+      <Row className="text-center" style={{ marginTop: '50px' }}>
         <Col>
           <h1>Use Button</h1>
           <p>ComButton 을 사용해야 Session 유효시간을 체크 합니다.</p>
           <pre
             style={{
-              backgroundColor: "#f8f9fa",
-              padding: "10px",
-              border: "1px solid #ddd",
-              borderRadius: "5px",
-              textAlign: "left",
-              overflowX: "auto",
+              backgroundColor: '#f8f9fa',
+              padding: '10px',
+              border: '1px solid #ddd',
+              borderRadius: '5px',
+              textAlign: 'left',
+              overflowX: 'auto',
             }}
           >
             <code>{examCodeButtion}</code>
@@ -211,30 +211,30 @@ const HowToUse: React.FC = () => {
           </p>
           <pre
             style={{
-              backgroundColor: "#f8f9fa",
-              padding: "10px",
-              border: "1px solid #ddd",
-              borderRadius: "5px",
-              textAlign: "left",
-              overflowX: "auto",
+              backgroundColor: '#f8f9fa',
+              padding: '10px',
+              border: '1px solid #ddd',
+              borderRadius: '5px',
+              textAlign: 'left',
+              overflowX: 'auto',
             }}
           >
             <code>{examAdminDesc}</code>
           </pre>
         </Col>
       </Row>
-      <Row className="text-center" style={{ marginTop: "50px" }}>
+      <Row className="text-center" style={{ marginTop: '50px' }}>
         <Col>
           <h1>Ag Grid 기본 생성법 && File 첨부 방법</h1>
           <p>Ag Grid 에서 컬럼에 파일 추가하는 예제 입니다.</p>
           <pre
             style={{
-              backgroundColor: "#f8f9fa",
-              padding: "10px",
-              border: "1px solid #ddd",
-              borderRadius: "5px",
-              textAlign: "left",
-              overflowX: "auto",
+              backgroundColor: '#f8f9fa',
+              padding: '10px',
+              border: '1px solid #ddd',
+              borderRadius: '5px',
+              textAlign: 'left',
+              overflowX: 'auto',
             }}
           >
             <code>{examAgGrid}</code>

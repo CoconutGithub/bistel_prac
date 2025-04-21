@@ -1,40 +1,40 @@
-import React, { useContext, useState } from "react";
-import { Container, Row, Col, Button } from "react-bootstrap";
-import MenuVisitorChart from "~components/chart/MenuVisitorChart";
-import { ComAPIContext } from "~components/ComAPIContext";
+import React, { useContext, useState } from 'react';
+import { Container, Row, Col, Button } from 'react-bootstrap';
+import MenuVisitorChart from '~components/chart/MenuVisitorChart';
+import { ComAPIContext } from '~components/ComAPIContext';
 
 const Dashboard: React.FC = () => {
   const sampleData = [
-    { menu: "홈", visitors: 1200 },
-    { menu: "상품", visitors: 800 },
-    { menu: "이벤트", visitors: 500 },
-    { menu: "고객센터", visitors: 300 },
+    { menu: '홈', visitors: 1200 },
+    { menu: '상품', visitors: 800 },
+    { menu: '이벤트', visitors: 500 },
+    { menu: '고객센터', visitors: 300 },
   ];
 
   const comAPIContext = useContext(ComAPIContext);
-  const [inputText, setInputText] = useState("");
-  const [response, setResponse] = useState("");
-  const [selectedModel, setSelectedModel] = useState("llama3.2");
+  const [inputText, setInputText] = useState('');
+  const [response, setResponse] = useState('');
+  const [selectedModel, setSelectedModel] = useState('llama3.2');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!inputText.trim()) {
-      alert("질문을 입력하세요.");
+      alert('질문을 입력하세요.');
       return;
     }
 
     setLoading(true);
     try {
-      console.log("============>" + selectedModel);
+      console.log('============>' + selectedModel);
 
       comAPIContext.showProgressBar();
 
-      const res = await fetch("http://localhost:11434/api/generate", {
-        method: "POST",
+      const res = await fetch('http://localhost:11434/api/generate', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           model: selectedModel,
@@ -58,35 +58,35 @@ const Dashboard: React.FC = () => {
       // });
 
       if (!res.ok) {
-        throw new Error("서버 응답 오류");
+        throw new Error('서버 응답 오류');
       }
 
       const reader = res.body?.getReader();
       const decoder = new TextDecoder();
       let done = false;
-      let fullResponse = "";
+      let fullResponse = '';
 
       while (!done) {
         const { value, done: streamDone } = (await reader?.read()) || {};
         if (value) {
           const chunk = decoder.decode(value);
-          const jsonObjects = chunk.split("\n").filter(Boolean); // 각 JSON 객체 분리
+          const jsonObjects = chunk.split('\n').filter(Boolean); // 각 JSON 객체 분리
           jsonObjects.forEach((jsonStr) => {
             try {
               const json = JSON.parse(jsonStr);
               fullResponse += json.response; // 응답 텍스트 누적
             } catch (error) {
-              console.error("JSON 파싱 오류:", error);
+              console.error('JSON 파싱 오류:', error);
             }
           });
         }
         done = streamDone ?? true;
       }
 
-      setResponse(fullResponse || "응답이 없습니다.");
+      setResponse(fullResponse || '응답이 없습니다.');
     } catch (error) {
-      console.error("API 요청 오류:", error);
-      setResponse("오류가 발생했습니다.");
+      console.error('API 요청 오류:', error);
+      setResponse('오류가 발생했습니다.');
     } finally {
       setLoading(false);
       comAPIContext.hideProgressBar();
@@ -95,7 +95,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <Container>
-      <Row className="text-center" style={{ marginTop: "50px" }}>
+      <Row className="text-center" style={{ marginTop: '50px' }}>
         <Col>
           <h1>메뉴 방문 이력</h1>
         </Col>
@@ -131,7 +131,7 @@ const Dashboard: React.FC = () => {
               ></textarea>
             </div>
             <Button variant="primary" type="submit" disabled={loading}>
-              {loading ? "전송 중..." : "질문 전송"}
+              {loading ? '전송 중...' : '질문 전송'}
             </Button>
           </form>
 

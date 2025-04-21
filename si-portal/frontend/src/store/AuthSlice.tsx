@@ -1,10 +1,10 @@
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { jwtDecode } from "jwt-decode";
-import { AuthState } from "~types/StateTypes";
-import axios from "axios";
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { jwtDecode } from 'jwt-decode';
+import { AuthState } from '~types/StateTypes';
+import axios from 'axios';
 
 // 전역 변수로 authToken 캐싱
-export let cachedAuthToken: string | null = sessionStorage.getItem("authToken");
+export let cachedAuthToken: string | null = sessionStorage.getItem('authToken');
 
 interface DecodedToken {
   exp: number; // 만료 시간 (Unix Timestamp)
@@ -14,17 +14,17 @@ interface DecodedToken {
 const initialState: AuthState = {
   isAuthenticated: false,
   user: {
-    userId: "",
-    userName: "",
-    roleId: "",
-    roleName: "",
-    isMighty: "N",
-    phoneNumber: "",
+    userId: '',
+    userName: '',
+    roleId: '',
+    roleName: '',
+    isMighty: 'N',
+    phoneNumber: '',
     isShowFooter: true, // 기본값 설정
-    headerColor: "#f8f9fa",
-    email: "",
-    langCode: "",
-    profileImage: "",
+    headerColor: '#f8f9fa',
+    email: '',
+    langCode: '',
+    profileImage: '',
     paginationSize: 50,
   },
   pageButtonAuth: {
@@ -34,8 +34,8 @@ const initialState: AuthState = {
     canRead: false,
   },
   error: null,
-  title: "",
-  databaseType: "",
+  title: '',
+  databaseType: '',
 };
 
 // refreshToken 정의
@@ -46,31 +46,31 @@ export const refreshToken = createAsyncThunk<
     state: { auth: AuthState };
     rejectValue: string;
   }
->("auth/refreshToken", async (_, { getState, rejectWithValue }) => {
+>('auth/refreshToken', async (_, { getState, rejectWithValue }) => {
   const state = getState();
   const token = cachedAuthToken; // 전역 변수에서 토큰 사용
 
   if (!state.auth.user) {
-    return rejectWithValue("User information is missing");
+    return rejectWithValue('User information is missing');
   }
 
-  console.log("--->refreshToken수행하려함:", token);
+  console.log('--->refreshToken수행하려함:', token);
 
   try {
     const response = await fetch(
       `${process.env.REACT_APP_BACKEND_IP}/refresh-token`,
       {
-        method: "POST",
+        method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ userId: state.auth.user.userId, token: token }),
       }
     );
 
     if (!response.ok) {
-      return rejectWithValue("Failed to refresh token");
+      return rejectWithValue('Failed to refresh token');
     }
 
     const data = await response.json();
@@ -90,25 +90,25 @@ export const chkButtonAuth = createAsyncThunk<
   }, // 반환값
   string,
   { state: { auth: AuthState }; rejectValue: string }
->("auth/chkButtonAuth", async (pathName, { getState, rejectWithValue }) => {
+>('auth/chkButtonAuth', async (pathName, { getState, rejectWithValue }) => {
   const state = getState();
 
   const token = cachedAuthToken;
 
   if (!token) {
-    return rejectWithValue("Token is missing");
+    return rejectWithValue('Token is missing');
   }
 
-  console.log("--->chkButtonAuth 수행하려 함:", token);
+  console.log('--->chkButtonAuth 수행하려 함:', token);
 
   if (
-    state.auth.user.isMighty === "Y" ||
+    state.auth.user.isMighty === 'Y' ||
     [
-      "/main/quick-start",
-      "/main/settings",
-      "/main/profile",
-      "/main/dashboard",
-      "/",
+      '/main/quick-start',
+      '/main/settings',
+      '/main/profile',
+      '/main/dashboard',
+      '/',
     ].includes(pathName)
   ) {
     return { canCreate: true, canDelete: true, canUpdate: true, canRead: true };
@@ -135,26 +135,26 @@ export const chkButtonAuth = createAsyncThunk<
 
     const data = response.data[0];
     console.log(
-      "pageLocation:",
+      'pageLocation:',
       pathName,
-      "canCreate:",
+      'canCreate:',
       data.canCreate,
-      "canUpdate:",
+      'canUpdate:',
       data.canUpdate,
-      "canDelete:",
+      'canDelete:',
       data.canDelete,
-      "canRead:",
+      'canRead:',
       data.canRead
     );
 
     return {
-      canCreate: data.canCreate === "Y",
-      canDelete: data.canDelete === "Y",
-      canUpdate: data.canUpdate === "Y",
-      canRead: data.canRead === "Y",
+      canCreate: data.canCreate === 'Y',
+      canDelete: data.canDelete === 'Y',
+      canUpdate: data.canUpdate === 'Y',
+      canRead: data.canRead === 'Y',
     };
   } catch (error) {
-    return rejectWithValue("Failed to fetch button permissions");
+    return rejectWithValue('Failed to fetch button permissions');
   }
 });
 
@@ -163,12 +163,12 @@ export const chkLoginToken = createAsyncThunk<
   void, // 반환값이 없음
   void,
   { state: { auth: AuthState } }
->("auth/chkLoginToken", async (_, { getState, dispatch }) => {
+>('auth/chkLoginToken', async (_, { getState, dispatch }) => {
   const token = cachedAuthToken;
-  console.log("1.chkLoginToken:", token);
+  console.log('1.chkLoginToken:', token);
 
   if (!token) {
-    console.log("1-1.chkLoginToken: token is null");
+    console.log('1-1.chkLoginToken: token is null');
     return;
   }
 
@@ -177,23 +177,23 @@ export const chkLoginToken = createAsyncThunk<
     const now = new Date();
     const expiration = new Date(decoded.exp * 1000);
 
-    console.log("2.token-expiration-date:", expiration);
+    console.log('2.token-expiration-date:', expiration);
 
     if (now >= expiration) {
-      console.log("3-1. over expiration date/ token delete");
+      console.log('3-1. over expiration date/ token delete');
       dispatch(removeLoginToken());
     } else {
-      console.log("3-2. token refresh");
+      console.log('3-2. token refresh');
       await dispatch(refreshToken());
     }
   } catch (error) {
-    console.error("Invalid token:", error);
+    console.error('Invalid token:', error);
     dispatch(removeLoginToken());
   }
 });
 
 const authSlice = createSlice({
-  name: "auth",
+  name: 'auth',
   initialState,
   reducers: {
     setLoginToken(
@@ -216,14 +216,14 @@ const authSlice = createSlice({
         paginationSize: number;
       }>
     ) {
-      console.log("setLoginToken:", action.payload.token);
-      console.log("setLoginToken-UserId:", action.payload.userId);
+      console.log('setLoginToken:', action.payload.token);
+      console.log('setLoginToken-UserId:', action.payload.userId);
 
       state.title = action.payload.title;
       state.databaseType = action.payload.databaseType;
 
       cachedAuthToken = action.payload.token; // 전역 변수에 토큰 저장
-      sessionStorage.setItem("authToken", action.payload.token); // sessionStorage에 저장
+      sessionStorage.setItem('authToken', action.payload.token); // sessionStorage에 저장
 
       state.isAuthenticated = true;
       state.user = {
@@ -233,35 +233,35 @@ const authSlice = createSlice({
         roleName: action.payload.roleName,
         isMighty: action.payload.isMighty,
         phoneNumber: action.payload.phoneNumber,
-        isShowFooter: action.payload.footerYN === "Y",
+        isShowFooter: action.payload.footerYN === 'Y',
         headerColor: action.payload.headerColor,
         email: action.payload.email,
         langCode: action.payload.langCode,
-        profileImage: action.payload.profileImage ?? "",
+        profileImage: action.payload.profileImage ?? '',
         paginationSize: action.payload.paginationSize || 50,
       };
     },
     removeLoginToken(state) {
       cachedAuthToken = null; // 전역 변수 초기화
-      sessionStorage.removeItem("authToken");
+      sessionStorage.removeItem('authToken');
 
       state.isAuthenticated = false;
       state.user = {
-        userId: "",
-        userName: "",
-        roleId: "",
-        roleName: "",
-        isMighty: "N",
-        phoneNumber: "",
-        email: "",
-        langCode: "KO",
-        profileImage: "",
+        userId: '',
+        userName: '',
+        roleId: '',
+        roleName: '',
+        isMighty: 'N',
+        phoneNumber: '',
+        email: '',
+        langCode: 'KO',
+        profileImage: '',
         isShowFooter: true,
-        headerColor: "#f8f9fa",
+        headerColor: '#f8f9fa',
         paginationSize: 50,
       };
-      state.title = "SI-Portal";
-      state.databaseType = "";
+      state.title = 'SI-Portal';
+      state.databaseType = '';
     },
     toggleFooter(state) {
       state.user.isShowFooter = !state.user.isShowFooter;
@@ -276,7 +276,7 @@ const authSlice = createSlice({
       state.user.phoneNumber = action.payload;
     },
     setProfileImage(state, action: PayloadAction<string | null>) {
-      state.user.profileImage = action.payload ?? ""; // null이면 빈 문자열로 저장
+      state.user.profileImage = action.payload ?? ''; // null이면 빈 문자열로 저장
     },
     setPaginationSize: (state, action: PayloadAction<number>) => {
       state.user.paginationSize = action.payload;
@@ -309,46 +309,46 @@ const authSlice = createSlice({
           canUpdate: false,
           canRead: false,
         };
-        console.error("Failed to fetch button permissions:", action.payload);
+        console.error('Failed to fetch button permissions:', action.payload);
       })
       .addCase(
         refreshToken.fulfilled,
         (state, action: PayloadAction<string>) => {
           cachedAuthToken = action.payload; // 새로운 토큰을 전역 변수에 저장
-          sessionStorage.setItem("authToken", cachedAuthToken!);
+          sessionStorage.setItem('authToken', cachedAuthToken!);
           state.isAuthenticated = true;
-          console.log("refreshToken.fulfilled: 새로운 token저장완료");
+          console.log('refreshToken.fulfilled: 새로운 token저장완료');
         }
       )
       .addCase(
         refreshToken.rejected,
         (state, action: PayloadAction<string | undefined>) => {
           cachedAuthToken = null; //전역 토근 초기화
-          sessionStorage.removeItem("authToken");
+          sessionStorage.removeItem('authToken');
           state.isAuthenticated = false;
-          state.error = action.payload || "Unknown error";
+          state.error = action.payload || 'Unknown error';
         }
       )
       .addCase(chkLoginToken.rejected, (state) => {
         cachedAuthToken = null;
-        sessionStorage.removeItem("authToken");
+        sessionStorage.removeItem('authToken');
 
         state.isAuthenticated = false;
         state.user = {
-          userId: "",
-          userName: "",
-          roleId: "",
-          roleName: "",
-          isMighty: "N",
-          phoneNumber: "",
-          email: "",
-          langCode: "",
-          profileImage: "",
+          userId: '',
+          userName: '',
+          roleId: '',
+          roleName: '',
+          isMighty: 'N',
+          phoneNumber: '',
+          email: '',
+          langCode: '',
+          profileImage: '',
           isShowFooter: true,
-          headerColor: "#f8f9fa",
+          headerColor: '#f8f9fa',
           paginationSize: 50,
         };
-        console.error("Token is invalid or expired - handled in extraReducers");
+        console.error('Token is invalid or expired - handled in extraReducers');
       });
   },
 });

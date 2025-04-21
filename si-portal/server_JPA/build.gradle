@@ -74,6 +74,9 @@ dependencies {
 	//swagger 의존성 추가
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
 
+	// webClient 의존성 추가
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	implementation 'org.apache.httpcomponents.client5:httpclient5:5.3'
 }
 
 tasks.named('test') {

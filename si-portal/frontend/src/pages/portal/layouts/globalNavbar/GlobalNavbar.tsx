@@ -15,6 +15,7 @@ import styles from './GlobalNavbar.module.scss';
 import SiVerticalDot from '~components/icons/SiVerticalDot';
 import { resetTab } from '~store/RootTabs';
 import ResumeList_hdh from '~pages/portal/layouts/ResumeList_hdh';
+import ChatBot from '~components/chatBot/ChatBot';
 
 const GlobalNavbar = React.memo(
   ({
@@ -30,6 +31,7 @@ const GlobalNavbar = React.memo(
     const langCode = useSelector(
       (state: RootState) => state.auth.user.langCode
     );
+
     const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
     const headerColor = useSelector(
@@ -151,72 +153,65 @@ const GlobalNavbar = React.memo(
               {/*  Profile*/}
               {/*</Nav.Link>*/}
 
-                    
-                {/*<Nav.Link*/}
-                {/*  as={NavLink}*/}
-                {/*  to="/main/resume-list"*/}
-                {/*  className={styles.nav_link}*/}
-                {/*  onClick={() =>*/}
-                {/*    onSelectTab({*/}
-                {/*      key: 'resume-list',*/}
-                {/*      label: 'Resume List',*/}
-                {/*      path: '/main/resume-list',*/}
-                {/*    })*/}
-                {/*  }*/}
-                {/*>*/}
-                {/*  Resume List*/}
-                {/*</Nav.Link>*/}
-                 
-                
-                
-                {/*<Nav.Link*/}
-                {/*  as={NavLink}*/}
-                {/*  to="/main/send-email"*/}
-                {/*  className={styles.nav_link}*/}
-                {/*  onClick={() =>*/}
-                {/*    onSelectTab({*/}
-                {/*      key: 'send-email',*/}
-                {/*      label: 'SendEmail',*/}
-                {/*      path: '/main/send-email',*/}
-                {/*    })*/}
-                {/*  }*/}
-                {/*>*/}
-                {/*  Email Send*/}
-                {/*</Nav.Link>*/}
-                
+              {/*<Nav.Link*/}
+              {/*  as={NavLink}*/}
+              {/*  to="/main/resume-list"*/}
+              {/*  className={styles.nav_link}*/}
+              {/*  onClick={() =>*/}
+              {/*    onSelectTab({*/}
+              {/*      key: 'resume-list',*/}
+              {/*      label: 'Resume List',*/}
+              {/*      path: '/main/resume-list',*/}
+              {/*    })*/}
+              {/*  }*/}
+              {/*>*/}
+              {/*  Resume List*/}
+              {/*</Nav.Link>*/}
 
-                
-                {/*<Nav.Link*/}
-                {/*  as={NavLink}*/}
-                {/*  to="/main/settings"*/}
-                {/*  className={styles.nav_link}*/}
-                {/*  onClick={() =>*/}
-                {/*    onSelectTab({*/}
-                {/*      key: 'settings',*/}
-                {/*      label: 'Settings',*/}
-                {/*      path: '/main/settings',*/}
-                {/*    })*/}
-                {/*  }*/}
-                {/*>*/}
-                {/*  Settings*/}
-                {/*</Nav.Link>*/}
-                
-                
-                
-                {/*<Nav.Link*/}
-                {/*  as={NavLink}*/}
-                {/*  to="/main/expense-management"*/}
-                {/*  className={styles.nav_link}*/}
-                {/*  onClick={() =>*/}
-                {/*    onSelectTab({*/}
-                {/*      key: 'expense-management',*/}
-                {/*      label: 'Expense management',*/}
-                {/*      path: '/main/expense-management',*/}
-                {/*    })*/}
-                {/*  }*/}
-                {/*>*/}
-                {/*  Expense management*/}
-                {/*</Nav.Link>*/}
+              {/*<Nav.Link*/}
+              {/*  as={NavLink}*/}
+              {/*  to="/main/send-email"*/}
+              {/*  className={styles.nav_link}*/}
+              {/*  onClick={() =>*/}
+              {/*    onSelectTab({*/}
+              {/*      key: 'send-email',*/}
+              {/*      label: 'SendEmail',*/}
+              {/*      path: '/main/send-email',*/}
+              {/*    })*/}
+              {/*  }*/}
+              {/*>*/}
+              {/*  Email Send*/}
+              {/*</Nav.Link>*/}
+
+              {/*<Nav.Link*/}
+              {/*  as={NavLink}*/}
+              {/*  to="/main/settings"*/}
+              {/*  className={styles.nav_link}*/}
+              {/*  onClick={() =>*/}
+              {/*    onSelectTab({*/}
+              {/*      key: 'settings',*/}
+              {/*      label: 'Settings',*/}
+              {/*      path: '/main/settings',*/}
+              {/*    })*/}
+              {/*  }*/}
+              {/*>*/}
+              {/*  Settings*/}
+              {/*</Nav.Link>*/}
+
+              {/*<Nav.Link*/}
+              {/*  as={NavLink}*/}
+              {/*  to="/main/expense-management"*/}
+              {/*  className={styles.nav_link}*/}
+              {/*  onClick={() =>*/}
+              {/*    onSelectTab({*/}
+              {/*      key: 'expense-management',*/}
+              {/*      label: 'Expense management',*/}
+              {/*      path: '/main/expense-management',*/}
+              {/*    })*/}
+              {/*  }*/}
+              {/*>*/}
+              {/*  Expense management*/}
+              {/*</Nav.Link>*/}
 
               <Nav.Link
                 as={NavLink}
@@ -232,7 +227,7 @@ const GlobalNavbar = React.memo(
               >
                 Information (Demo)
               </Nav.Link>
-              
+
               {/* <Nav.Link onClick={handleLogout}>Logout</Nav.Link> */}
             </Nav>
           </div>
@@ -388,8 +383,11 @@ const GlobalNavbar = React.memo(
               </NavDropdown>
             </Nav>
           </div> */}
+
           <div className="copyright">
-            <p>Copyright © 2025 BISTelligence, <br /> Inc. All rights reserved.</p>
+            <p>
+              Copyright © 2025 BISTelligence, <br /> Inc. All rights reserved.
+            </p>
           </div>
         </Navbar.Collapse>
       </Navbar>

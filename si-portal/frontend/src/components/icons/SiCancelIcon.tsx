@@ -1,7 +1,7 @@
-import React from "react";
+import React from 'react';
 
 const SiCancelIcon = ({
-  fillColor = "black",
+  fillColor = 'black',
   width = 16,
   height = 16,
   currentFill = false,
@@ -11,7 +11,7 @@ const SiCancelIcon = ({
       xmlns="http://www.w3.org/2000/svg"
       width={width}
       height={height}
-      fill={currentFill ? "currentColor" : fillColor}
+      fill={currentFill ? 'currentColor' : fillColor}
       className="bi bi-x-circle-fill si-cancel-icon"
       viewBox="0 0 16 16"
     >

@@ -6,28 +6,28 @@ import React, {
   ReactNode,
   useMemo,
   useEffect,
-} from "react";
-import ReactDOM from "react-dom";
-import ToastContainer from "react-bootstrap/ToastContainer";
-import Toast from "react-bootstrap/Toast";
-import ProgressBar from "react-bootstrap/ProgressBar";
-import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
-import { AppDispatch, RootState } from "~store/Store";
-import { chkLoginToken } from "~store/AuthSlice";
+} from 'react';
+import ReactDOM from 'react-dom';
+import ToastContainer from 'react-bootstrap/ToastContainer';
+import Toast from 'react-bootstrap/Toast';
+import ProgressBar from 'react-bootstrap/ProgressBar';
+import { useDispatch, useSelector } from 'react-redux';
+import axios from 'axios';
+import { AppDispatch, RootState } from '~store/Store';
+import { chkLoginToken } from '~store/AuthSlice';
 
 // Toast 타입 정의
 interface ToastType {
   id: number;
   message: string;
-  variant: "success" | "danger" | "warning" | "info" | "dark";
+  variant: 'success' | 'danger' | 'warning' | 'info' | 'dark';
 }
 
 // 컨텍스트 값 타입 정의
 interface ComAPIContextType {
   showToast: (
     message: string,
-    variant?: "success" | "danger" | "warning" | "info" | "dark"
+    variant?: 'success' | 'danger' | 'warning' | 'info' | 'dark'
   ) => void;
   showProgressBar: () => void;
   hideProgressBar: () => void;
@@ -41,9 +41,11 @@ const defaultContextValue: ComAPIContextType = {
   showProgressBar: () => {},
   hideProgressBar: () => {},
   $msg: () => {
-    return "";
+    return '';
   },
-  $msgDefault: () =>{return "";},
+  $msgDefault: () => {
+    return '';
+  },
 };
 
 // $msg 메서드 타입 정의
@@ -71,14 +73,17 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
   const [progressBarVisible, setProgressBarVisible] = useState<boolean>(false);
   const messages = useRef<MessageType[]>([]);
   const lang = useSelector((state: RootState) => state.auth.user.langCode);
-  console.log("lang : ", lang);
+  console.log('lang : ', lang);
 
   const dispatch = useDispatch<AppDispatch>(); // 타입 지정 추가
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      dispatch(chkLoginToken());
-    }, 10 * 60 * 1000); // 10분마다 실행
+    const interval = setInterval(
+      () => {
+        dispatch(chkLoginToken());
+      },
+      10 * 60 * 1000
+    ); // 10분마다 실행
 
     return () => clearInterval(interval);
   }, [dispatch]);
@@ -106,7 +111,7 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
   const showToast = useCallback(
     (
       message: string,
-      variant: "dark" | "success" | "danger" | "warning" | "info" = "success"
+      variant: 'dark' | 'success' | 'danger' | 'warning' | 'info' = 'success'
     ) => {
       const id = Date.now();
       setToasts((prevToasts) => [...prevToasts, { id, message, variant }]);
@@ -128,48 +133,56 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
     setProgressBarVisible(false);
   }, []);
 
-    // $msg 메서드
-    const $msg = useCallback((type: string, message: string, text: string) => {
-        // console.log("$msg lang : ", lang);
-        const foundMessage = messages.current.find((msg) => msg.msgType === type && msg.msgName === message);
-        if (!foundMessage) {
-            return text;
-        } else {
-            switch (lang.toUpperCase()) {
-                case "KO":
-                    return foundMessage.koLangText;
-                case "EN":
-                    return foundMessage.enLangText;
-                case "CN":
-                    return foundMessage.cnLangText;
-                default:
-                    return foundMessage.msgDefault;
-            }
+  // $msg 메서드
+  const $msg = useCallback(
+    (type: string, message: string, text: string) => {
+      // console.log("$msg lang : ", lang);
+      const foundMessage = messages.current.find(
+        (msg) => msg.msgType === type && msg.msgName === message
+      );
+      if (!foundMessage) {
+        return text;
+      } else {
+        switch (lang.toUpperCase()) {
+          case 'KO':
+            return foundMessage.koLangText;
+          case 'EN':
+            return foundMessage.enLangText;
+          case 'CN':
+            return foundMessage.cnLangText;
+          default:
+            return foundMessage.msgDefault;
         }
-    }, [lang]);
+      }
+    },
+    [lang]
+  );
 
-    // $msgDefault 메서드
-    const $msgDefault = useCallback((id: number) => {
+  // $msgDefault 메서드
+  const $msgDefault = useCallback(
+    (id: number) => {
       // console.log("$msgDefault lang : ", lang);
       // console.log('messages.current : ', messages.current)
       // console.log('id : ', id)
       const foundMessage = messages.current.find((msg) => msg.msgId === id);
       // console.log('foundMessage', foundMessage)
       if (!foundMessage) {
-          return '';
+        return '';
       } else {
-          switch (lang.toUpperCase()) {
-              case "KO":
-                  return foundMessage.koLangText;
-              case "EN":
-                  return foundMessage.enLangText;
-              case "CN":
-                  return foundMessage.cnLangText;
-              default:
-                  return foundMessage.msgDefault;
-          }
+        switch (lang.toUpperCase()) {
+          case 'KO':
+            return foundMessage.koLangText;
+          case 'EN':
+            return foundMessage.enLangText;
+          case 'CN':
+            return foundMessage.cnLangText;
+          default:
+            return foundMessage.msgDefault;
+        }
       }
-  }, [lang]);
+    },
+    [lang]
+  );
 
   // useMemo를 사용하여 value 메모이제이션
   const contextValue = useMemo(
@@ -185,7 +198,7 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
 
   // Portal을 통한 ToastContainer 렌더링
   const renderToastContainer = () => {
-    const mainContentRoot = document.getElementById("main-content-root");
+    const mainContentRoot = document.getElementById('main-content-root');
     if (!mainContentRoot) return null;
 
     return ReactDOM.createPortal(
@@ -194,10 +207,10 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
         position="bottom-center"
         style={{
           zIndex: 1050,
-          position: "absolute", // Content 영역 내에서의 위치 조정
+          position: 'absolute', // Content 영역 내에서의 위치 조정
           bottom: 0, // Content 하단에 고정
-          left: "50%",
-          transform: "translateX(-50%)",
+          left: '50%',
+          transform: 'translateX(-50%)',
         }}
       >
         {toasts.map((toast) => (
@@ -228,18 +241,18 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
       {progressBarVisible && (
         <div
           style={{
-            position: "fixed",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: "400px",
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '400px',
             zIndex: 9999,
-            backgroundColor: "rgba(0, 0, 0, 0.7)",
-            padding: "10px",
-            borderRadius: "8px",
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            padding: '10px',
+            borderRadius: '8px',
           }}
         >
-          <ProgressBar animated now={100} style={{ height: "5px" }} />
+          <ProgressBar animated now={100} style={{ height: '5px' }} />
         </div>
       )}
     </ComAPIContext.Provider>

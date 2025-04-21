@@ -1,8 +1,8 @@
-﻿import React from "react";
+import React from 'react';
 
-import styles from "./FileCellRenderer.module.scss";
-import ComButton from "~pages/portal/buttons/ComButton";
-import SiCancelIcon from "~components/icons/SiCancelIcon";
+import styles from './FileCellRenderer.module.scss';
+import ComButton from '~pages/portal/buttons/ComButton';
+import SiCancelIcon from '~components/icons/SiCancelIcon';
 
 interface FileCellRendererProps {
   value: string | undefined; // 초기 값
@@ -16,7 +16,7 @@ interface FileCellRendererProps {
 }
 
 const FileCellRenderer: React.FC<FileCellRendererProps> = (props) => {
-  console.log("FileCellRender....재랜더링.");
+  console.log('FileCellRender....재랜더링.');
   const { data, column, rowId, selectedFilesMap, setSelectedFilesMap } = props;
   let selectedFiles: any[] = [];
   if (!rowId) {
@@ -31,7 +31,7 @@ const FileCellRenderer: React.FC<FileCellRendererProps> = (props) => {
     const newFiles = Array.from(event.target.files);
 
     if (selectedFiles.length + newFiles.length > 3) {
-      alert("최대 3개의 파일만 업로드할 수 있습니다.");
+      alert('최대 3개의 파일만 업로드할 수 있습니다.');
       return;
     }
 

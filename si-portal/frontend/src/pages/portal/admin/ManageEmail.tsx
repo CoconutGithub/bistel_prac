@@ -1,13 +1,13 @@
-import React, { useContext, useEffect, useRef } from "react";
-import { Container, Row, Col, Form } from "react-bootstrap";
-import { ComAPIContext } from "~components/ComAPIContext";
-import AgGridWrapper from "~components/agGridWrapper/AgGridWrapper";
-import axios from "axios";
-import { useSelector } from "react-redux";
-import { RootState } from "~store/Store";
-import { AgGridWrapperHandle } from "~types/GlobalTypes";
-import ComButton from "~pages/portal/buttons/ComButton";
-import { cachedAuthToken } from "~store/AuthSlice";
+import React, { useContext, useEffect, useRef } from 'react';
+import { Container, Row, Col, Form } from 'react-bootstrap';
+import { ComAPIContext } from '~components/ComAPIContext';
+import AgGridWrapper from '~components/agGridWrapper/AgGridWrapper';
+import axios from 'axios';
+import { useSelector } from 'react-redux';
+import { RootState } from '~store/Store';
+import { AgGridWrapperHandle } from '~types/GlobalTypes';
+import ComButton from '~pages/portal/buttons/ComButton';
+import { cachedAuthToken } from '~store/AuthSlice';
 
 interface User {
   userId: string;
@@ -20,57 +20,57 @@ interface User {
 // 컬럼 정의
 const columnDefs = [
   {
-    field: "sendUser",
-    headerName: "보낸사람",
+    field: 'sendUser',
+    headerName: '보낸사람',
     sortable: true,
     filter: true,
     editable: false,
     width: 150,
   },
   {
-    field: "sendReciver",
-    headerName: "받는사람",
+    field: 'sendReciver',
+    headerName: '받는사람',
     sortable: true,
     filter: true,
     editable: true,
     width: 150,
   },
   {
-    field: "title",
-    headerName: "제목",
+    field: 'title',
+    headerName: '제목',
     sortable: true,
     filter: true,
     editable: true,
     width: 200,
   },
   {
-    field: "content",
-    headerName: "내용",
+    field: 'content',
+    headerName: '내용',
     sortable: true,
     filter: true,
     editable: true,
     width: 300,
   },
   {
-    field: "readYn",
-    headerName: "읽음여부",
+    field: 'readYn',
+    headerName: '읽음여부',
     sortable: true,
     filter: true,
     editable: true,
     width: 150,
-    cellEditor: "agSelectCellEditor",
-    cellEditorParams: { values: ["Y", "N"] },
+    cellEditor: 'agSelectCellEditor',
+    cellEditorParams: { values: ['Y', 'N'] },
   },
   {
-    field: "creationTime",
-    headerName: "보낸시간",
+    field: 'creationTime',
+    headerName: '보낸시간',
     sortable: true,
     filter: true,
   },
 ];
 
 const ManageEmail: React.FC = () => {
-  console.log("ManageEmail.tsx 수행됨.....");
+  console.log('ManageEmail.tsx 수행됨.....');
 
   const comAPIContext = useContext(ComAPIContext);
   const state = useSelector((state: RootState) => state.auth);
@@ -86,7 +86,7 @@ const ManageEmail: React.FC = () => {
     axios
       .get(`${process.env.REACT_APP_BACKEND_IP}/admin/api/get-email-history`, {
         headers: { Authorization: `Bearer ${cachedAuthToken}` },
-        params: { sendUser: inputRef.current?.value || "" },
+        params: { sendUser: inputRef.current?.value || '' },
       })
       .then((res) => {
         if (gridRef.current) {
@@ -95,16 +95,16 @@ const ManageEmail: React.FC = () => {
         comAPIContext.hideProgressBar();
         comAPIContext.showToast(
           comAPIContext.$msg(
-            "message",
-            "search_complete",
-            "조회가 완료됐습니다."
+            'message',
+            'search_complete',
+            '조회가 완료됐습니다.'
           ),
-          "success"
+          'success'
         );
       })
       .catch((err) => {
-        console.error("Error fetching data:", err);
-        comAPIContext.showToast("Error User Search: " + err, "danger");
+        console.error('Error fetching data:', err);
+        comAPIContext.showToast('Error User Search: ' + err, 'danger');
       })
       .finally(() => {
         comAPIContext.hideProgressBar();
@@ -115,7 +115,7 @@ const ManageEmail: React.FC = () => {
     <Container fluid className="h-100 container_bg">
       <Row className="container_title">
         <Col>
-          <h2>{comAPIContext.$msg("menu", "manage_email", "이메일 관리")} </h2>
+          <h2>{comAPIContext.$msg('menu', 'manage_email', '이메일 관리')} </h2>
         </Col>
       </Row>
       <Row className="container_contents">
@@ -136,7 +136,7 @@ const ManageEmail: React.FC = () => {
           </Col>
           <Col className="search_btn">
             <ComButton size="sm" variant="primary" onClick={handleSearch}>
-              {comAPIContext.$msg("label", "search", "검색")}
+              {comAPIContext.$msg('label', 'search', '검색')}
             </ComButton>
           </Col>
         </Row>

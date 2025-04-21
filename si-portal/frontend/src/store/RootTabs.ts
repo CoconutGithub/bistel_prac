@@ -1,6 +1,6 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { persistReducer } from "redux-persist";
-import storageSession from "redux-persist/lib/storage/session";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { persistReducer } from 'redux-persist';
+import storageSession from 'redux-persist/lib/storage/session';
 
 export type RootTabItem = {
   key: string;
@@ -19,12 +19,12 @@ const initialState: RootTabsState = {
 };
 
 const RootTabs = createSlice({
-  name: "root-tabs",
+  name: 'root-tabs',
   initialState,
   reducers: {
     addTab: (state, action: PayloadAction<RootTabItem>) => {
       if (state.tabs.length >= 8) {
-        alert("최대 8개의 탭만 열 수 있습니다.");
+        alert('최대 8개의 탭만 열 수 있습니다.');
         return;
       }
 
@@ -57,7 +57,7 @@ const RootTabs = createSlice({
 });
 
 const persistConfig = {
-  key: "rootTabs",
+  key: 'rootTabs',
   storage: storageSession,
 };
 

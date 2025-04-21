@@ -1,12 +1,12 @@
-export interface  ChooseMenuData {
-    parentMenuId: number;
-    menuId: number;
-    parentMenuName: string;
-    menuName: string;
-    msgId: number;
-    status: string;
-    path: string;
-    isAdd: boolean;
-    isDelete: boolean;
-    position: number;
+export interface ChooseMenuData {
+  parentMenuId: number;
+  menuId: number;
+  parentMenuName: string;
+  menuName: string;
+  msgId: number;
+  status: string;
+  path: string;
+  isAdd: boolean;
+  isDelete: boolean;
+  position: number;
 }

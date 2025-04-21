@@ -32,7 +32,7 @@ const InformationList = () => {
   const gridRef = useRef<AgGridWrapperHandle>(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [text, setText] = useState("");
+  const [text, setText] = useState('');
   const [aiResponse, setAiResponse] = useState<any>(null);
   const columns = [
     {
@@ -94,22 +94,21 @@ const InformationList = () => {
   // }, []);
 
   const analyzeSentiment = async (text: string) => {
-    const response = await fetch("http://localhost:8000/analyze-sentiment", {
-      method: "POST",
+    const response = await fetch('http://localhost:8000/analyze-sentiment', {
+      method: 'POST',
       headers: {
         Authorization: `Bearer ${cachedAuthToken}`,
-        "Content-Type": "application/json"
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ text })
+      body: JSON.stringify({ text }),
     });
 
     const data = await response.json();
     setAiResponse(data);
-    console.log("감정 분석 결과:", data);
+    console.log('감정 분석 결과:', data);
   };
 
   const handleRowClick = (event: any) => {
-
     handleSelectTab({
       key: `detail-flora-resume-${event.data.id}`,
       label: `Detail resume ${event.data.id}`,
@@ -131,16 +130,15 @@ const InformationList = () => {
     loadResumes();
   }, []);
 
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("입력된 텍스트:", text);
+    console.log('입력된 텍스트:', text);
     // 여기에 fetch 또는 axios로 FastAPI API 호출하면 돼
-    analyzeSentiment(text)
+    analyzeSentiment(text);
   };
 
   return (
-     <div className={styles.start}>
+    <div className={styles.start}>
       <header className={styles.header}>
         <div className={styles.title_area}>
           <p className={styles.title}>Information</p>
@@ -156,7 +154,7 @@ const InformationList = () => {
         </div>
       </header>
       <main className={styles.main}>
-       {/* <AgGridWrapper
+        {/* <AgGridWrapper
           ref={gridRef}
           enableCheckbox={false}
           showButtonArea={false}

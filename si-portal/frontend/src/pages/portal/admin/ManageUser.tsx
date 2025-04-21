@@ -4,105 +4,105 @@ import React, {
   useContext,
   useRef,
   useCallback,
-} from "react";
-import { Container, Row, Col, Form, Button } from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
-import AgGridWrapper from "~components/agGridWrapper/AgGridWrapper";
-import { useSelector } from "react-redux";
-import { ComAPIContext } from "~components/ComAPIContext";
-import axios from "axios";
-import { RootState } from "~store/Store";
-import UserRegistPopup from "~pages/portal/admin/UserRegistPopup";
-import { AgGridWrapperHandle } from "~types/GlobalTypes";
-import ComButton from "~pages/portal/buttons/ComButton"; // 팝업 컴포넌트 가져오기
-import { cachedAuthToken } from "~store/AuthSlice";
+} from 'react';
+import { Container, Row, Col, Form, Button } from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import AgGridWrapper from '~components/agGridWrapper/AgGridWrapper';
+import { useSelector } from 'react-redux';
+import { ComAPIContext } from '~components/ComAPIContext';
+import axios from 'axios';
+import { RootState } from '~store/Store';
+import UserRegistPopup from '~pages/portal/admin/UserRegistPopup';
+import { AgGridWrapperHandle } from '~types/GlobalTypes';
+import ComButton from '~pages/portal/buttons/ComButton'; // 팝업 컴포넌트 가져오기
+import { cachedAuthToken } from '~store/AuthSlice';
 
 // 컬럼 정의
 const columnDefs = [
-  { field: "gridRowId", headerName: "gridRowId", editable: false, hide: true },
+  { field: 'gridRowId', headerName: 'gridRowId', editable: false, hide: true },
   {
-    field: "userId",
-    headerName: "ID",
+    field: 'userId',
+    headerName: 'ID',
     sortable: true,
     filter: true,
     editable: false,
     width: 100,
   },
   {
-    field: "userName",
-    headerName: "이름",
+    field: 'userName',
+    headerName: '이름',
     sortable: true,
     filter: true,
     editable: true,
     width: 150,
   },
   {
-    field: "email",
-    headerName: "Email",
+    field: 'email',
+    headerName: 'Email',
     sortable: true,
     filter: true,
     editable: true,
     width: 200,
   },
   {
-    field: "phoneNumber",
-    headerName: "Phone Number",
+    field: 'phoneNumber',
+    headerName: 'Phone Number',
     sortable: true,
     filter: true,
     editable: true,
     width: 200,
   },
   {
-    field: "roleName",
-    headerName: "역할",
+    field: 'roleName',
+    headerName: '역할',
     sortable: true,
     filter: true,
     editable: true,
     width: 120,
-    cellEditor: "agSelectCellEditor", // Combobox 설정
+    cellEditor: 'agSelectCellEditor', // Combobox 설정
     cellEditorParams: { values: [] }, // 동적으로 role이 가져와질 Combobox 옵션
   },
   {
-    field: "status",
-    headerName: "상태",
+    field: 'status',
+    headerName: '상태',
     sortable: true,
     filter: true,
     editable: true,
     width: 100,
-    cellEditor: "agSelectCellEditor", // Combobox 설정
-    cellEditorParams: { values: ["ACTIVE", "INACTIVE"] }, // Combobox 옵션
+    cellEditor: 'agSelectCellEditor', // Combobox 설정
+    cellEditorParams: { values: ['ACTIVE', 'INACTIVE'] }, // Combobox 옵션
   },
   {
-    field: "langCode",
-    headerName: "언어코드",
+    field: 'langCode',
+    headerName: '언어코드',
     sortable: true,
     width: 150,
     filter: true,
   },
   {
-    field: "createDate",
-    headerName: "생성일",
+    field: 'createDate',
+    headerName: '생성일',
     sortable: true,
     width: 200,
     filter: true,
   },
   {
-    field: "lastLoginDate",
-    headerName: "최근접속일",
+    field: 'lastLoginDate',
+    headerName: '최근접속일',
     sortable: true,
     width: 200,
     filter: true,
   },
   {
-    field: "updateDate",
-    headerName: "수정일",
+    field: 'updateDate',
+    headerName: '수정일',
     sortable: true,
     width: 200,
     filter: true,
   },
   {
-    field: "updateBy",
-    headerName: "수정자",
+    field: 'updateBy',
+    headerName: '수정자',
     sortable: true,
     width: 200,
     filter: true,
@@ -117,7 +117,7 @@ interface Role {
 let roleKind: any = null;
 
 const ManageUser: React.FC = () => {
-  console.log("ManageUser 생성됨.");
+  console.log('ManageUser 생성됨.');
 
   //=== 설정된 값 및 버튼 정보, 공통함수 가져옴-start ===
   const comAPIContext = useContext(ComAPIContext);
@@ -145,34 +145,34 @@ const ManageUser: React.FC = () => {
   useEffect(() => {
     const setDefColumn = () => {
       columnDefs.forEach((column) => {
-        if (column.headerName === "이름") {
-          column.headerName = comAPIContext.$msg("label", "name", "이름");
-        } else if (column.headerName === "역할") {
-          column.headerName = comAPIContext.$msg("label", "role", "역할");
-        } else if (column.headerName === "상태") {
-          column.headerName = comAPIContext.$msg("label", "status", "상태");
-        } else if (column.headerName === "언어코드") {
-          column.headerName = comAPIContext.$msg("label", "status", "언어코드");
-        } else if (column.headerName === "최근접속일") {
+        if (column.headerName === '이름') {
+          column.headerName = comAPIContext.$msg('label', 'name', '이름');
+        } else if (column.headerName === '역할') {
+          column.headerName = comAPIContext.$msg('label', 'role', '역할');
+        } else if (column.headerName === '상태') {
+          column.headerName = comAPIContext.$msg('label', 'status', '상태');
+        } else if (column.headerName === '언어코드') {
+          column.headerName = comAPIContext.$msg('label', 'status', '언어코드');
+        } else if (column.headerName === '최근접속일') {
           column.headerName = comAPIContext.$msg(
-            "label",
-            "latest_login",
-            "최근접속일"
+            'label',
+            'latest_login',
+            '최근접속일'
           );
-        } else if (column.headerName === "생성일") {
+        } else if (column.headerName === '생성일') {
           column.headerName = comAPIContext.$msg(
-            "label",
-            "create_date",
-            "생성일"
+            'label',
+            'create_date',
+            '생성일'
           );
-        } else if (column.headerName === "수정일") {
+        } else if (column.headerName === '수정일') {
           column.headerName = comAPIContext.$msg(
-            "label",
-            "update_date",
-            "수정일"
+            'label',
+            'update_date',
+            '수정일'
           );
-        } else if (column.headerName === "수정자") {
-          column.headerName = comAPIContext.$msg("label", "editor", "수정자");
+        } else if (column.headerName === '수정자') {
+          column.headerName = comAPIContext.$msg('label', 'editor', '수정자');
         }
       });
     };
@@ -195,7 +195,7 @@ const ManageUser: React.FC = () => {
         if (res && res.data) {
           // 기존 columnDefs 복사 후 특정 컬럼 업데이트
           const updatedColumnDefs: any = columnDefs.map((col) => {
-            if (col.field === "roleName") {
+            if (col.field === 'roleName') {
               return {
                 ...col,
                 cellEditorParams: {
@@ -212,10 +212,10 @@ const ManageUser: React.FC = () => {
         }
       } catch (err) {
         const error = err as Error; // 타입 단언
-        console.error("Error fetching data:", err);
+        console.error('Error fetching data:', err);
         comAPIContext.showToast(
-          "Error fetching roles: " + error.message,
-          "danger"
+          'Error fetching roles: ' + error.message,
+          'danger'
         );
       } finally {
         comAPIContext.hideProgressBar();
@@ -230,10 +230,10 @@ const ManageUser: React.FC = () => {
     axios
       .get(`${process.env.REACT_APP_BACKEND_IP}/admin/api/get-user`, {
         headers: { Authorization: `Bearer ${cachedAuthToken}` },
-        params: { userName: inputRef.current?.value || "" },
+        params: { userName: inputRef.current?.value || '' },
       })
       .then((res) => {
-        console.log("응답 데이터:", res.data); // 응답 데이터 콘솔 출력
+        console.log('응답 데이터:', res.data); // 응답 데이터 콘솔 출력
 
         if (gridRef.current) {
           gridRef.current.setRowData(res.data); // 데이터를 AgGridWrapper에 설정
@@ -241,16 +241,16 @@ const ManageUser: React.FC = () => {
         comAPIContext.hideProgressBar();
         comAPIContext.showToast(
           comAPIContext.$msg(
-            "message",
-            "search_complete",
-            "조회가 완료됐습니다."
+            'message',
+            'search_complete',
+            '조회가 완료됐습니다.'
           ),
-          "success"
+          'success'
         );
       })
       .catch((err) => {
-        console.error("Error fetching data:", err);
-        comAPIContext.showToast("Error User Search: " + err, "danger");
+        console.error('Error fetching data:', err);
+        comAPIContext.showToast('Error User Search: ' + err, 'danger');
       })
       .finally(() => {
         comAPIContext.hideProgressBar();
@@ -276,11 +276,11 @@ const ManageUser: React.FC = () => {
       if (lists.deleteList.length === 0 && lists.updateList.length === 0) {
         comAPIContext.showToast(
           comAPIContext.$msg(
-            "message",
-            "no_save_data",
-            "저장할 데이터가 없습니다."
+            'message',
+            'no_save_data',
+            '저장할 데이터가 없습니다.'
           ),
-          "dark"
+          'dark'
         );
         return;
       }
@@ -316,25 +316,25 @@ const ManageUser: React.FC = () => {
             }
           )
           .then((res) => {
-            if (res.data.messageCode === "success") {
+            if (res.data.messageCode === 'success') {
               comAPIContext.showToast(
                 comAPIContext.$msg(
-                  "message",
-                  "save_complete",
-                  "저장이 완료됐습니다." +
+                  'message',
+                  'save_complete',
+                  '저장이 완료됐습니다.' +
                     `(update: ${res.data.updatedUsersCnt}, delete: ${res.data.deletedUsersCnt})`
                 ),
-                "success"
+                'success'
               );
 
               handleSearch(); // 저장 후 최신 데이터 조회
             }
           });
       } catch (err) {
-        console.error("Error saving data:", err);
+        console.error('Error saving data:', err);
         comAPIContext.showToast(
-          comAPIContext.$msg("message", "save_fail", "저장이 실패했습니다."),
-          "danger"
+          comAPIContext.$msg('message', 'save_fail', '저장이 실패했습니다.'),
+          'danger'
         );
         handleSearch();
       } finally {
@@ -354,19 +354,19 @@ const ManageUser: React.FC = () => {
           onClick={openPopup}
           disabled={!canCreate}
         >
-          {comAPIContext.$msg("label", "user_regist", "사용자 등록")}
+          {comAPIContext.$msg('label', 'user_regist', '사용자 등록')}
         </ComButton>
       </>
     );
   }, [openPopup, canCreate]);
 
-  console.log("렌더링 횟수");
+  console.log('렌더링 횟수');
 
   return (
     <Container fluid className="h-100 container_bg">
       <Row className="container_title">
         <Col>
-          <h2>{comAPIContext.$msg("menu", "manage_user", "사용자 관리")}</h2>
+          <h2>{comAPIContext.$msg('menu', 'manage_user', '사용자 관리')}</h2>
         </Col>
       </Row>
       <Row className="container_contents">
@@ -374,16 +374,16 @@ const ManageUser: React.FC = () => {
           <Col className="search_cnt">
             <Form.Group as={Row}>
               <Form.Label column sm={1}>
-                {comAPIContext.$msg("label", "user_name", "사용자 이름")}
+                {comAPIContext.$msg('label', 'user_name', '사용자 이름')}
               </Form.Label>
               <Col sm={2}>
                 <Form.Control
                   ref={inputRef}
                   type="text"
                   placeholder={comAPIContext.$msg(
-                    "message",
-                    "typing_user_name",
-                    "사용자 이름을 입력하세요."
+                    'message',
+                    'typing_user_name',
+                    '사용자 이름을 입력하세요.'
                   )}
                 />
               </Col>
@@ -391,7 +391,7 @@ const ManageUser: React.FC = () => {
           </Col>
           <Col className="search_btn">
             <ComButton size="sm" variant="primary" onClick={handleSearch}>
-              {comAPIContext.$msg("label", "search", "검색")}
+              {comAPIContext.$msg('label', 'search', '검색')}
             </ComButton>
           </Col>
         </Row>

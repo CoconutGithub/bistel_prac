@@ -1,13 +1,13 @@
-import React, { useContext, useRef, useState } from "react";
-import { Container, Row, Col, Form, Button } from "react-bootstrap";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "~store/Store";
-import { setHeaderColor, toggleFooter } from "~store/AuthSlice";
-import { SketchPicker } from "react-color";
-import ComButton from "~pages/portal/buttons/ComButton";
-import axios from "axios";
-import { ComAPIContext } from "~components/ComAPIContext";
-import { cachedAuthToken } from "~store/AuthSlice";
+import React, { useContext, useRef, useState } from 'react';
+import { Container, Row, Col, Form, Button } from 'react-bootstrap';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '~store/Store';
+import { setHeaderColor, toggleFooter } from '~store/AuthSlice';
+import { SketchPicker } from 'react-color';
+import ComButton from '~pages/portal/buttons/ComButton';
+import axios from 'axios';
+import { ComAPIContext } from '~components/ComAPIContext';
+import { cachedAuthToken } from '~store/AuthSlice';
 
 const Settings: React.FC = () => {
   const isShowFooter = useSelector(
@@ -31,7 +31,7 @@ const Settings: React.FC = () => {
   };
 
   const handleResetColor = () => {
-    dispatch(setHeaderColor("#f8f9fa")); //초기 color 로변경
+    dispatch(setHeaderColor('#f8f9fa')); //초기 color 로변경
   };
 
   const handleSave = () => {
@@ -42,29 +42,29 @@ const Settings: React.FC = () => {
           `${process.env.REACT_APP_BACKEND_IP}/api/update-settings`,
           {
             userId: state.user.userId,
-            footerYn: isShowFooter ? "Y" : "N",
-            headerColor: headerColor ?? "#f8f9fa",
+            footerYn: isShowFooter ? 'Y' : 'N',
+            headerColor: headerColor ?? '#f8f9fa',
           },
           {
             headers: { Authorization: `Bearer ${cachedAuthToken}` },
           }
         )
         .then(() => {
-          comAPIContext.showToast("저장되었습니다.", "dark");
+          comAPIContext.showToast('저장되었습니다.', 'dark');
         })
         .finally(() => {
           comAPIContext.hideProgressBar();
         });
     } catch (err) {
       const error = err as Error; // 타입 단언
-      comAPIContext.showToast(error.message, "danger");
-      console.error("Failed to save settings:", error.message);
+      comAPIContext.showToast(error.message, 'danger');
+      console.error('Failed to save settings:', error.message);
     }
   };
 
   return (
     <Container>
-      <Row className="text-md-start" style={{ marginTop: "50px" }}>
+      <Row className="text-md-start" style={{ marginTop: '50px' }}>
         <Col>
           <h1>Settings</h1>
           <p></p>
@@ -79,7 +79,7 @@ const Settings: React.FC = () => {
             <Form.Check
               type="switch"
               id="custom-switch"
-              label={isShowFooter ? "Footer ON" : "Footer OFF"}
+              label={isShowFooter ? 'Footer ON' : 'Footer OFF'}
               checked={isShowFooter}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 dispatch(toggleFooter())
@@ -99,7 +99,7 @@ const Settings: React.FC = () => {
             variant="primary"
             onClick={handlePicker}
           >
-            {isPickerOpen ? "Close Picker" : "Open Picker"}
+            {isPickerOpen ? 'Close Picker' : 'Open Picker'}
           </ComButton>
 
           <ComButton

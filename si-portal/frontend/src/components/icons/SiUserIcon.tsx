@@ -1,6 +1,6 @@
-import React from "react";
+import React from 'react';
 
-const SiUserIcon = ({ fillColor = "black", width = 16, height = 16 }) => {
+const SiUserIcon = ({ fillColor = 'black', width = 16, height = 16 }) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

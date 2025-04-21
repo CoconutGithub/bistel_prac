@@ -11,7 +11,7 @@ import { useDispatch } from 'react-redux';
 import { addTab, setActiveTab } from '~store/RootTabs';
 import axios from 'axios';
 
-let cachedAuthToken: string | null = sessionStorage.getItem('authToken');
+const cachedAuthToken: string | null = sessionStorage.getItem('authToken');
 
 interface IEducationType {
   gridRowId: string;
@@ -205,7 +205,7 @@ const FloraResumeDetail = () => {
       eduValidFields.forEach((key) => {
         if (!key) return;
 
-        updatedData[key] = data.hasOwnProperty(key) ? data[key] ?? '' : '';
+        updatedData[key] = data.hasOwnProperty(key) ? (data[key] ?? '') : '';
       });
 
       setFormData((prev) => {
@@ -243,7 +243,7 @@ const FloraResumeDetail = () => {
       skillsValidFields.forEach((key) => {
         if (!key) return;
 
-        updatedData[key] = data.hasOwnProperty(key) ? data[key] ?? '' : '';
+        updatedData[key] = data.hasOwnProperty(key) ? (data[key] ?? '') : '';
       });
 
       setFormData((prev) => {
@@ -279,7 +279,7 @@ const FloraResumeDetail = () => {
       experienceValidFields.forEach((key) => {
         if (!key) return;
 
-        updatedData[key] = data.hasOwnProperty(key) ? data[key] ?? '' : '';
+        updatedData[key] = data.hasOwnProperty(key) ? (data[key] ?? '') : '';
       });
 
       setFormData((prev) => {
@@ -483,62 +483,68 @@ const FloraResumeDetail = () => {
       if (initData) {
         setFormData((prev) => ({
           ...prev,
-          ...Object.keys(prev).reduce((acc, key) => {
-            const typedKey = key as keyof typeof prev;
+          ...Object.keys(prev).reduce(
+            (acc, key) => {
+              const typedKey = key as keyof typeof prev;
 
-            if (typedKey === 'education' && initData['education']) {
-              const jsonArray = initData[typedKey];
+              if (typedKey === 'education' && initData['education']) {
+                const jsonArray = initData[typedKey];
 
-              const formattedEducation = jsonArray.map(
-                (item: any, index: any) => ({
-                  gridRowId: item.gridRowId || index.toString(),
-                  ...eduColumns.reduce((eduAcc: any, eduCol) => {
-                    if (!eduCol.field) return eduAcc;
+                const formattedEducation = jsonArray.map(
+                  (item: any, index: any) => ({
+                    gridRowId: item.gridRowId || index.toString(),
+                    ...eduColumns.reduce((eduAcc: any, eduCol) => {
+                      if (!eduCol.field) return eduAcc;
 
-                    eduAcc[eduCol.field] = item[eduCol.field] || '';
-                    return eduAcc;
-                  }, {}),
-                })
-              );
+                      eduAcc[eduCol.field] = item[eduCol.field] || '';
+                      return eduAcc;
+                    }, {}),
+                  })
+                );
 
-              acc[typedKey] = formattedEducation;
-            } else if (typedKey === 'skills' && initData['skills']) {
-              const jsonArray = initData[typedKey];
+                acc[typedKey] = formattedEducation;
+              } else if (typedKey === 'skills' && initData['skills']) {
+                const jsonArray = initData[typedKey];
 
-              const formattedSkills = jsonArray.map(
-                (item: any, index: any) => ({
-                  gridRowId: item.gridRowId || index.toString(),
-                  ...certificationColumns.reduce((certiAcc: any, certiCol) => {
-                    if (!certiCol.field) return certiAcc;
+                const formattedSkills = jsonArray.map(
+                  (item: any, index: any) => ({
+                    gridRowId: item.gridRowId || index.toString(),
+                    ...certificationColumns.reduce(
+                      (certiAcc: any, certiCol) => {
+                        if (!certiCol.field) return certiAcc;
 
-                    certiAcc[certiCol.field] = item[certiCol.field] || '';
-                    return certiAcc;
-                  }, {}),
-                })
-              );
+                        certiAcc[certiCol.field] = item[certiCol.field] || '';
+                        return certiAcc;
+                      },
+                      {}
+                    ),
+                  })
+                );
 
-              acc[typedKey] = formattedSkills;
-            } else if (typedKey === 'experience' && initData['experience']) {
-              const jsonArray = initData[typedKey];
+                acc[typedKey] = formattedSkills;
+              } else if (typedKey === 'experience' && initData['experience']) {
+                const jsonArray = initData[typedKey];
 
-              const formattedExperience = jsonArray.map(
-                (item: any, index: any) => ({
-                  gridRowId: item.gridRowId || index.toString(),
-                  ...workColumns.reduce((workAcc: any, workCol) => {
-                    if (!workCol.field) return workAcc;
+                const formattedExperience = jsonArray.map(
+                  (item: any, index: any) => ({
+                    gridRowId: item.gridRowId || index.toString(),
+                    ...workColumns.reduce((workAcc: any, workCol) => {
+                      if (!workCol.field) return workAcc;
 
-                    workAcc[workCol.field] = item[workCol.field] || '';
-                    return workAcc;
-                  }, {}),
-                })
-              );
+                      workAcc[workCol.field] = item[workCol.field] || '';
+                      return workAcc;
+                    }, {}),
+                  })
+                );
 
-              acc[typedKey] = formattedExperience;
-            } else if (initData.hasOwnProperty(typedKey)) {
-              acc[typedKey] = initData[typedKey];
-            }
-            return acc;
-          }, {} as typeof prev),
+                acc[typedKey] = formattedExperience;
+              } else if (initData.hasOwnProperty(typedKey)) {
+                acc[typedKey] = initData[typedKey];
+              }
+              return acc;
+            },
+            {} as typeof prev
+          ),
         }));
       }
     };

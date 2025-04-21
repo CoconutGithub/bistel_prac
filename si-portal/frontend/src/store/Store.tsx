@@ -1,15 +1,15 @@
-import { configureStore } from "@reduxjs/toolkit";
-import { persistReducer, persistStore } from "redux-persist";
-import storageSession from "redux-persist/lib/storage/session";
-import authReducer from "./AuthSlice"; // 기존 AuthSlice 가져오기
-import { PersistConfig } from "redux-persist"; // PersistConfig 타입 가져오기
-import { AuthState } from "~types/StateTypes";
-import rootTabsReducer from "./RootTabs";
-import resumeReducer from "~types/ResumeSlice";
+import { configureStore } from '@reduxjs/toolkit';
+import { persistReducer, persistStore } from 'redux-persist';
+import storageSession from 'redux-persist/lib/storage/session';
+import authReducer from './AuthSlice'; // 기존 AuthSlice 가져오기
+import { PersistConfig } from 'redux-persist'; // PersistConfig 타입 가져오기
+import { AuthState } from '~types/StateTypes';
+import rootTabsReducer from './RootTabs';
+import resumeReducer from '~types/ResumeSlice';
 
 // Persist 설정 타입 정의
 const persistConfig: PersistConfig<AuthState> = {
-  key: "auth", // 저장소에 저장될 키 이름
+  key: 'auth', // 저장소에 저장될 키 이름
   storage: storageSession, // session Storage를 사용
 };
 
@@ -27,7 +27,7 @@ export const store = configureStore({
     getDefaultMiddleware({
       serializableCheck: {
         // 특정 타입의 액션에 대해 직렬화 검사를 비활성화
-        ignoredActions: ["persist/PERSIST", "persist/REHYDRATE"],
+        ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
       },
     }),
 });

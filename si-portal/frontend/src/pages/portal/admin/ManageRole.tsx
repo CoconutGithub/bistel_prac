@@ -5,83 +5,83 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
-} from "react";
-import { Button, Col, Container, Form, Row } from "react-bootstrap";
-import { ComAPIContext } from "~components/ComAPIContext";
-import AgGridWrapper from "~components/agGridWrapper/AgGridWrapper";
-import axios from "axios";
-import { useSelector } from "react-redux";
-import { RootState } from "~store/Store";
-import RoleRegistPopup from "~pages/portal/admin/RoleRegistPopup";
-import { AgGridWrapperHandle } from "~types/GlobalTypes"; // 팝업 컴포넌트 가져오기
-import ComButton from "../buttons/ComButton";
-import { cachedAuthToken } from "~store/AuthSlice";
+} from 'react';
+import { Button, Col, Container, Form, Row } from 'react-bootstrap';
+import { ComAPIContext } from '~components/ComAPIContext';
+import AgGridWrapper from '~components/agGridWrapper/AgGridWrapper';
+import axios from 'axios';
+import { useSelector } from 'react-redux';
+import { RootState } from '~store/Store';
+import RoleRegistPopup from '~pages/portal/admin/RoleRegistPopup';
+import { AgGridWrapperHandle } from '~types/GlobalTypes'; // 팝업 컴포넌트 가져오기
+import ComButton from '../buttons/ComButton';
+import { cachedAuthToken } from '~store/AuthSlice';
 
 const columnDefs = [
   {
-    field: "gridRowId",
-    headerName: "gridRowId",
+    field: 'gridRowId',
+    headerName: 'gridRowId',
     editable: false,
     hide: true,
     sortable: false,
     filter: false,
   },
   {
-    field: "roleId",
-    headerName: "ID",
+    field: 'roleId',
+    headerName: 'ID',
     sortable: true,
     filter: true,
     editable: false,
     width: 100,
   },
   {
-    field: "roleName",
-    headerName: "이름",
+    field: 'roleName',
+    headerName: '이름',
     sortable: true,
     filter: true,
     editable: true,
     width: 150,
-    cellEditor: "agSelectCellEditor",
+    cellEditor: 'agSelectCellEditor',
     cellEditorParams: { values: [] },
   },
   {
-    field: "status",
-    headerName: "상태",
+    field: 'status',
+    headerName: '상태',
     sortable: true,
     filter: true,
     editable: true,
     width: 100,
-    cellEditor: "agSelectCellEditor",
+    cellEditor: 'agSelectCellEditor',
     cellEditorParams: {
-      values: ["ACTIVE", "INACTIVE"], // 상태 값 목록
+      values: ['ACTIVE', 'INACTIVE'], // 상태 값 목록
     },
   },
   {
-    field: "createDate",
-    headerName: "생성일",
+    field: 'createDate',
+    headerName: '생성일',
     sortable: true,
     filter: true,
     editable: false,
     width: 200,
   },
   {
-    field: "createBy",
-    headerName: "생성자",
+    field: 'createBy',
+    headerName: '생성자',
     sortable: true,
     filter: true,
     editable: false,
     width: 100,
   },
   {
-    field: "updateDate",
-    headerName: "수정일",
+    field: 'updateDate',
+    headerName: '수정일',
     sortable: true,
     filter: false,
     width: 200,
   },
   {
-    field: "updateBy",
-    headerName: "수정자",
+    field: 'updateBy',
+    headerName: '수정자',
     sortable: true,
     filter: true,
     editable: false,
@@ -129,33 +129,33 @@ const ManageRole: React.FC = () => {
   const [roleList, setRoleList] = useState<Role[]>([]);
   const [dynamicColumnDefs, setDynamicColumnDefs] = useState(columnDefs); // 컬럼 정보
   const [showPopup, setShowPopup] = useState(false);
-  const [selectedRoleId, setSelectedRoleId] = useState<number | "">("");
+  const [selectedRoleId, setSelectedRoleId] = useState<number | ''>('');
 
-  console.log("ManageRole create.......");
+  console.log('ManageRole create.......');
 
   useEffect(() => {
     const setDefColumn = () => {
       columnDefs.forEach((column) => {
-        if (column.headerName === "이름") {
-          column.headerName = comAPIContext.$msg("label", "name", "이름");
-        } else if (column.headerName === "상태") {
-          column.headerName = comAPIContext.$msg("label", "status", "상태");
-        } else if (column.headerName === "생성일") {
+        if (column.headerName === '이름') {
+          column.headerName = comAPIContext.$msg('label', 'name', '이름');
+        } else if (column.headerName === '상태') {
+          column.headerName = comAPIContext.$msg('label', 'status', '상태');
+        } else if (column.headerName === '생성일') {
           column.headerName = comAPIContext.$msg(
-            "label",
-            "create_date",
-            "생성일"
+            'label',
+            'create_date',
+            '생성일'
           );
-        } else if (column.headerName === "생성자") {
-          column.headerName = comAPIContext.$msg("label", "creator", "생성자");
-        } else if (column.headerName === "수정일") {
+        } else if (column.headerName === '생성자') {
+          column.headerName = comAPIContext.$msg('label', 'creator', '생성자');
+        } else if (column.headerName === '수정일') {
           column.headerName = comAPIContext.$msg(
-            "label",
-            "update_date",
-            "수정일"
+            'label',
+            'update_date',
+            '수정일'
           );
-        } else if (column.headerName === "수정자") {
-          column.headerName = comAPIContext.$msg("label", "editor", "수정자");
+        } else if (column.headerName === '수정자') {
+          column.headerName = comAPIContext.$msg('label', 'editor', '수정자');
         }
       });
     };
@@ -178,11 +178,11 @@ const ManageRole: React.FC = () => {
 
         if (res && res.data) {
           // columnDefs 업데이트
-          console.log("Fetched Role List:", res.data);
+          console.log('Fetched Role List:', res.data);
           setRoleList(res.data); // 상태 업데이트
 
           const updatedColumnDefs: any = columnDefs.map((col) => {
-            if (col.field === "roleName") {
+            if (col.field === 'roleName') {
               return {
                 ...col,
                 cellEditorParams: {
@@ -196,10 +196,10 @@ const ManageRole: React.FC = () => {
           setDynamicColumnDefs(updatedColumnDefs); // 상태 업데이트
         }
       } catch (err: any) {
-        console.error("Error fetching roles:", err);
+        console.error('Error fetching roles:', err);
         comAPIContext.showToast(
-          "Error fetching roles: " + err.message,
-          "danger"
+          'Error fetching roles: ' + err.message,
+          'danger'
         );
       } finally {
         comAPIContext.hideProgressBar();
@@ -211,7 +211,7 @@ const ManageRole: React.FC = () => {
 
   const handleRoleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedId =
-      event.target.value === "" ? "" : parseInt(event.target.value, 10);
+      event.target.value === '' ? '' : parseInt(event.target.value, 10);
     setSelectedRoleId(selectedId);
   };
 
@@ -221,11 +221,11 @@ const ManageRole: React.FC = () => {
       if (!roleList) {
         comAPIContext.showToast(
           comAPIContext.$msg(
-            "message",
-            "loading",
-            "데이타를 가져오는 중입니다."
+            'message',
+            'loading',
+            '데이타를 가져오는 중입니다.'
           ),
-          "warning"
+          'warning'
         );
         return;
       }
@@ -233,7 +233,7 @@ const ManageRole: React.FC = () => {
       const selectedRole = roleList.find(
         (role: Role) => role.roleId === selectedRoleId
       );
-      const roleName = selectedRole ? selectedRole.roleName : "";
+      const roleName = selectedRole ? selectedRole.roleName : '';
 
       const response = await axios.get(
         `${process.env.REACT_APP_BACKEND_IP}/admin/api/get-roles`,
@@ -249,17 +249,17 @@ const ManageRole: React.FC = () => {
 
       comAPIContext.showToast(
         comAPIContext.$msg(
-          "message",
-          "search_complete",
-          "조회가 완료됐습니다."
+          'message',
+          'search_complete',
+          '조회가 완료됐습니다.'
         ),
-        "success"
+        'success'
       );
     } catch (error: any) {
-      console.error("Error fetching roles:", error);
+      console.error('Error fetching roles:', error);
       comAPIContext.showToast(
-        comAPIContext.$msg("message", "search_fail", "저장이 실패했습니다."),
-        "danger"
+        comAPIContext.$msg('message', 'search_fail', '저장이 실패했습니다.'),
+        'danger'
       );
     } finally {
       comAPIContext.hideProgressBar();
@@ -280,8 +280,8 @@ const ManageRole: React.FC = () => {
           onClick={handleRegist}
           disabled={!canCreate}
         >
-          {comAPIContext.$msg("label", "role", "역할")}
-          {comAPIContext.$msg("label", "registration", "등록")}
+          {comAPIContext.$msg('label', 'role', '역할')}
+          {comAPIContext.$msg('label', 'registration', '등록')}
         </ComButton>
       </>
     ),
@@ -295,11 +295,11 @@ const ManageRole: React.FC = () => {
       if (lists.deleteList.length === 0 && lists.updateList.length === 0) {
         comAPIContext.showToast(
           comAPIContext.$msg(
-            "message",
-            "no_save_data",
-            "저장할 데이터가 없습니다."
+            'message',
+            'no_save_data',
+            '저장할 데이터가 없습니다.'
           ),
-          "dark"
+          'dark'
         );
         return;
       }
@@ -316,7 +316,7 @@ const ManageRole: React.FC = () => {
           deleteList: lists.deleteList.map((item) => item.roleId),
         };
 
-        console.log("-----------------------:", payload);
+        console.log('-----------------------:', payload);
 
         const response = await axios.post<SaveRolesResponse>(
           `${process.env.REACT_APP_BACKEND_IP}/admin/api/save-roles`,
@@ -326,22 +326,22 @@ const ManageRole: React.FC = () => {
           }
         );
 
-        console.log("Save response:", response); // 응답 확인
+        console.log('Save response:', response); // 응답 확인
         comAPIContext.showToast(
           comAPIContext.$msg(
-            "message",
-            "save_complete",
-            "저장이 완료됐습니다."
+            'message',
+            'save_complete',
+            '저장이 완료됐습니다.'
           ),
-          "success"
+          'success'
         );
 
         handleSearch();
       } catch (err) {
-        console.error("Error saving data:", err);
+        console.error('Error saving data:', err);
         comAPIContext.showToast(
-          comAPIContext.$msg("message", "save_fail", "저장이 실패했습니다."),
-          "danger"
+          comAPIContext.$msg('message', 'save_fail', '저장이 실패했습니다.'),
+          'danger'
         );
       } finally {
         comAPIContext.hideProgressBar();
@@ -366,7 +366,7 @@ const ManageRole: React.FC = () => {
   };
 
   const handleSavePopup = async (roleName: string, status: string) => {
-    console.log("savePopup");
+    console.log('savePopup');
     console.log(state.user?.userName);
 
     try {
@@ -382,7 +382,7 @@ const ManageRole: React.FC = () => {
         deleteList: [],
       };
 
-      console.log("Prepared payload for savePopup:", payload); // 로그 확인
+      console.log('Prepared payload for savePopup:', payload); // 로그 확인
 
       const response = await axios.post<SaveRolesResponse>(
         `${process.env.REACT_APP_BACKEND_IP}/admin/api/save-roles`,
@@ -392,24 +392,24 @@ const ManageRole: React.FC = () => {
         }
       );
 
-      console.log("SavePopup response:", response); // 응답 확인
+      console.log('SavePopup response:', response); // 응답 확인
 
-      if (response.data.messageCode === "success") {
+      if (response.data.messageCode === 'success') {
         const { updatedUsersCnt, insertedUsersCnt, deletedUsersCnt } =
           response.data;
         comAPIContext.showToast(
           comAPIContext.$msg(
-            "message",
-            "save_complete",
-            "저장이 완료됐습니다." +
+            'message',
+            'save_complete',
+            '저장이 완료됐습니다.' +
               `(update: ${updatedUsersCnt}, insert: ${insertedUsersCnt}, delete: ${deletedUsersCnt})`
           ),
-          "success"
+          'success'
         );
       } else {
         comAPIContext.showToast(
-          comAPIContext.$msg("message", "save_fail", "저장이 실패했습니다."),
-          "danger"
+          comAPIContext.$msg('message', 'save_fail', '저장이 실패했습니다.'),
+          'danger'
         );
       }
 
@@ -417,10 +417,10 @@ const ManageRole: React.FC = () => {
       handleSearch();
       setShowPopup(false); // 팝업 닫기
     } catch (error: any) {
-      console.error("Error saving role:", error);
+      console.error('Error saving role:', error);
       comAPIContext.showToast(
-        comAPIContext.$msg("message", "save_fail", "저장이 실패했습니다."),
-        "danger"
+        comAPIContext.$msg('message', 'save_fail', '저장이 실패했습니다.'),
+        'danger'
       );
       comAPIContext.hideProgressBar();
     }
@@ -437,7 +437,7 @@ const ManageRole: React.FC = () => {
       <Container fluid className="h-100 container_bg">
         <Row className="container_title">
           <Col>
-            <h2>{comAPIContext.$msg("menu", "manage_role", "역할 관리")}</h2>
+            <h2>{comAPIContext.$msg('menu', 'manage_role', '역할 관리')}</h2>
           </Col>
         </Row>
         <Row className="container_contents">
@@ -445,15 +445,18 @@ const ManageRole: React.FC = () => {
             <Col className="search_cnt">
               <Form.Group as={Row}>
                 <Form.Label column sm={1}>
-                  {comAPIContext.$msg("label", "role", "역할")}
+                  {comAPIContext.$msg('label', 'role', '역할')}
                 </Form.Label>
                 <Col sm={2}>
-                  <Form.Select onChange={handleRoleChange} value={selectedRoleId}>
+                  <Form.Select
+                    onChange={handleRoleChange}
+                    value={selectedRoleId}
+                  >
                     <option value="">select</option>
                     {roleList.map((role: Role) => (
                       <option
                         key={role.roleId ?? `new-${role.roleName}`}
-                        value={role.roleId ?? ""}
+                        value={role.roleId ?? ''}
                       >
                         {role.roleName}
                       </option>
@@ -464,7 +467,7 @@ const ManageRole: React.FC = () => {
             </Col>
             <Col className="search_btn">
               <ComButton size="sm" variant="primary" onClick={handleSearch}>
-                {comAPIContext.$msg("label", "search", "검색")}
+                {comAPIContext.$msg('label', 'search', '검색')}
               </ComButton>
             </Col>
           </Row>

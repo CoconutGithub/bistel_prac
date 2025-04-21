@@ -20,11 +20,13 @@ const FloraResumeCreate = React.lazy(
 const FloraResumeDetail = React.lazy(
   () => import('~pages/biz/floraResume/floraResumeDetail/FloraResumeDetail')
 );
-const YwkResume = React.lazy(() => import("~pages/biz/YwkResume"));
-const YoonResume = React.lazy(() => import("~pages/biz/YoonResume"));
-const YoonNotice = React.lazy(() => import("~pages/biz/YoonNotice"));
+const YwkResume = React.lazy(() => import('~pages/biz/YwkResume'));
+const YoonResume = React.lazy(() => import('~pages/biz/YoonResume'));
+const YoonNotice = React.lazy(() => import('~pages/biz/YoonNotice'));
 
-const InformationList = React.lazy(()=> import('~pages/biz/infomationPage/informationList/informationList'));
+const InformationList = React.lazy(
+  () => import('~pages/biz/infomationPage/informationList/informationList')
+);
 
 export default function DefaultRoutes(): RouteObject[] {
   return [
@@ -124,7 +126,7 @@ export default function DefaultRoutes(): RouteObject[] {
       loader: checkBtnAuthLoader,
     },
     {
-      path: "/main/ywk-resume",
+      path: '/main/ywk-resume',
       element: (
         <React.Suspense fallback={<div>Loading...</div>}>
           <YwkResume />
@@ -132,7 +134,7 @@ export default function DefaultRoutes(): RouteObject[] {
       ),
     },
     {
-      path: "/main/yoon-resume",
+      path: '/main/yoon-resume',
       element: (
         <React.Suspense fallback={<div>Loading...</div>}>
           <YoonResume />
@@ -140,7 +142,7 @@ export default function DefaultRoutes(): RouteObject[] {
       ),
     },
     {
-      path: "/main/yoon-notice",
+      path: '/main/yoon-notice',
       element: (
         <React.Suspense fallback={<div>Loading...</div>}>
           <YoonNotice />
@@ -148,13 +150,12 @@ export default function DefaultRoutes(): RouteObject[] {
       ),
     },
     {
-      path: "/main/bonnie-info",
+      path: '/main/bonnie-info',
       element: (
         <React.Suspense fallback={<div>Loading...</div>}>
           <InformationList />
         </React.Suspense>
       ),
     },
-
   ];
 }
