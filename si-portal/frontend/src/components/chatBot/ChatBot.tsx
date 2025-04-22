@@ -9,6 +9,8 @@ interface IChatBotProps {
   visible: boolean;
   onClose: () => void;
 }
+// 아래 주소에서 clone 후 8001 port로 실행 후 챗봇 사용 가능
+// https://github.com/ryuwisdom/rag-chatbot
 
 const ChatBot: React.FC<IChatBotProps> = ({ visible, onClose }) => {
   const [messages, setMessage] = useState<
