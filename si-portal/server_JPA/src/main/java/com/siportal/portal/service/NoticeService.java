@@ -36,9 +36,8 @@ public class NoticeService {
     }
 
     // 🔹 공지사항 추가 및 수정 (CREATE & UPDATE)
-    @Transactional
-    public Map<String, String> updateNotices(Map<String, Object> requestData) {
-        try {
+    @Transactional(rollbackFor = Exception.class)
+    public void updateNotices(Map<String, Object> requestData) throws Exception {
             List<Map<String, Object>> createList = (List<Map<String, Object>>) requestData.get("createList");
             List<Map<String, Object>> updateList = (List<Map<String, Object>>) requestData.get("updateList");
             List<Long> deleteList = (List<Long>) requestData.get("deleteList");
@@ -55,10 +54,10 @@ public class NoticeService {
                 deleteNotices(deleteList);
             }
 
-            return Map.of("messageCode", "success", "message", "공지사항이 저장되었습니다.");
-        } catch (Exception e) {
-            return Map.of("messageCode", "error", "message", "공지사항 저장 실패: " + e.getMessage());
-        }
+//            return Map.of("messageCode", "success", "message", "공지사항이 저장되었습니다.");
+//        } catch (Exception e) {
+//            return Map.of("messageCode", "error", "message", "공지사항 저장 실패: " + e.getMessage());
+//        }
     }
 
     // 🔹 공지사항 데이터 처리 (CREATE)
