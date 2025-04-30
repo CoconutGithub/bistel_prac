@@ -9,6 +9,7 @@ import { AgGridWrapperHandle } from '~types/GlobalTypes';
 import ComButton from '~pages/portal/buttons/ComButton';
 import { cachedAuthToken } from '~store/AuthSlice';
 import { useSelector } from 'react-redux';
+import ManageNoticePopup from './ManageNoticePopup';
 
 interface Notice {
   id: number;
@@ -94,6 +95,9 @@ const ManageNotice: React.FC = () => {
   const comAPIContext = useContext(ComAPIContext);
 
   const gridRef = useRef<AgGridWrapperHandle>(null);
+  const [showPopup,setShowPopup]= useState(false);
+  const [rowData,setRowData]= useState<any>();
+
 
   const [newNotice, setNewNotice] = useState<{
     title: string;
@@ -107,6 +111,7 @@ const ManageNotice: React.FC = () => {
     noticeEnd: null,
   });
 
+  //처음 페이지 열었을 때 조회 설정
   useEffect(() => {
     handleSearch();
   }, []);
@@ -146,83 +151,109 @@ const ManageNotice: React.FC = () => {
       });
   };
 
-  // 🔹 공지사항 저장
-  const handleSave = async (lists: {
-    deleteList: any[];
-    updateList: any[];
-    createList: any[];
-  }) => {
-    if (!gridRef.current) return;
-
-    if (
-      lists.deleteList.length === 0 &&
-      lists.updateList.length === 0 &&
-      lists.createList.length === 0
-    ) {
-      comAPIContext.showToast('저장할 데이터가 없습니다.', 'dark');
-      return;
-    }
-
-    try {
-      comAPIContext.showProgressBar();
-      console.log('업데이트 리스트:', lists.updateList);
-      console.log('삭제 리스트:', lists.deleteList);
-      console.log('생성 리스트:', lists.createList);
-
-      // 날짜 데이터 변환 (yyyy-MM-dd HH:mm:ss)
-      const formatDate = (
-        date: string | Date | null | undefined
-      ): string | null => {
-        if (!date) return null;
-        const d = new Date(date);
-        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} 
-            ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
-      };
-
-      lists.updateList.forEach((item) => {
-        item.noticeStart = formatDate(item.noticeStart);
-        item.noticeEnd = formatDate(item.noticeEnd);
+  
+  const onCellDoubleClicked = (event: any) => {
+    comAPIContext.showProgressBar();
+    
+    axios
+      .get(`${process.env.REACT_APP_BACKEND_IP}/notice/api/get-notice`, {
+        headers: { Authorization: `Bearer ${cachedAuthToken}` },
+        params: { id: event.data.id },//js 기초 공부 해야할듯 ㅠㅠㅠ
+      })
+      .then((res) => {
+        setRowData(res.data);
+        console.log("rowdata: "+rowData);
+        setShowPopup(true);
+      })
+      .catch((err) => {})
+      .finally(() => {
+        comAPIContext.hideProgressBar();
       });
-
-      lists.createList.forEach((item) => {
-        item.noticeStart = formatDate(item.noticeStart);
-        item.noticeEnd = formatDate(item.noticeEnd);
-      });
-
-      const payload = {
-        updateList: lists.updateList,
-        deleteList: lists.deleteList,
-        createList: lists.createList,
-      };
-
-      console.log('서버로 전송할 데이터:', payload);
-
-      const response = await axios.post(
-        `${process.env.REACT_APP_BACKEND_IP}/notice/api/update-notices`,
-        payload,
-        {
-          headers: { Authorization: `Bearer ${cachedAuthToken}` },
-        }
-      );
-
-      console.log('서버 응답:', response.data);
-
-      if (response.data.messageCode === 'success') {
-        comAPIContext.showToast(response.data.message, 'success');
-        handleSearch(); // ✅ 저장 후 다시 조회
-      } else {
-        comAPIContext.showToast(
-          '저장 실패: ' + response.data.message,
-          'danger'
-        );
-      }
-    } catch (err) {
-      console.error('공지사항 저장 실패:', err);
-      comAPIContext.showToast('저장 중 오류 발생', 'danger');
-    } finally {
-      comAPIContext.hideProgressBar();
-    }
   };
+
+  const onSave= () =>{
+    
+
+  }
+
+
+  // // 🔹 공지사항 저장
+  // const handleSave = async (lists: {
+  //   deleteList: any[];
+  //   updateList: any[];
+  //   createList: any[];
+  // }) => {
+  //   if (!gridRef.current) return;
+
+  //   if (
+  //     lists.deleteList.length === 0 &&
+  //     lists.updateList.length === 0 &&
+  //     lists.createList.length === 0
+  //   ) {
+  //     comAPIContext.showToast('저장할 데이터가 없습니다.', 'dark');
+  //     return;
+  //   }
+
+  //   try {
+  //     comAPIContext.showProgressBar();
+  //     console.log('업데이트 리스트:', lists.updateList);
+  //     console.log('삭제 리스트:', lists.deleteList);
+  //     console.log('생성 리스트:', lists.createList);
+
+  //     // 날짜 데이터 변환 (yyyy-MM-dd HH:mm:ss)
+  //     const formatDate = (
+  //       date: string | Date | null | undefined
+  //     ): string | null => {
+  //       if (!date) return null;
+  //       const d = new Date(date);
+  //       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} 
+  //           ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
+  //     };
+
+  //     lists.updateList.forEach((item) => {
+  //       item.noticeStart = formatDate(item.noticeStart);
+  //       item.noticeEnd = formatDate(item.noticeEnd);
+  //     });
+
+  //     lists.createList.forEach((item) => {
+  //       item.noticeStart = formatDate(item.noticeStart);
+  //       item.noticeEnd = formatDate(item.noticeEnd);
+  //     });
+
+  //     const payload = {
+  //       updateList: lists.updateList,
+  //       deleteList: lists.deleteList,
+  //       createList: lists.createList,
+  //     };
+
+  //     console.log('서버로 전송할 데이터:', payload);
+
+  //     const response = await axios.post(
+  //       `${process.env.REACT_APP_BACKEND_IP}/notice/api/update-notices`,
+  //       payload,
+  //       {
+  //         headers: { Authorization: `Bearer ${cachedAuthToken}` },
+  //       }
+  //     );
+
+  //     console.log('서버 응답:', response.data);
+
+  //     if (response.data.messageCode === 'success') {
+  //       comAPIContext.showToast(response.data.message, 'success');
+  //       handleSearch(); // ✅ 저장 후 다시 조회
+  //     } else {
+  //       comAPIContext.showToast(
+  //         '저장 실패: ' + response.data.message,
+  //         'danger'
+  //       );
+  //     }
+  //   } catch (err) {
+  //     console.error('공지사항 저장 실패:', err);
+  //     comAPIContext.showToast('저장 중 오류 발생', 'danger');
+  //   } finally {
+  //     comAPIContext.hideProgressBar();
+  //   }
+  // };
 
   // 🔹 공지사항 삭제
   const handleDelete = async () => {
@@ -288,11 +319,18 @@ const ManageNotice: React.FC = () => {
             columnDefs={columnDefs}
             enableCheckbox={true}
             rowSelection="multiple"
-            onSave={handleSave}
+            // onSave={handleSave}
+            onCellDoubleClicked={onCellDoubleClicked}
             onDelete={handleDelete}
           />
         </Col>
       </Row>
+      {showPopup&& (<ManageNoticePopup
+      show={showPopup}
+      rowData={rowData}
+      onSave={onSave}
+      onClose={()=>setShowPopup(false)}
+      />)}
     </Container>
   );
 };
