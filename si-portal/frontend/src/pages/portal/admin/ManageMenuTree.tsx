@@ -23,7 +23,7 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({
 }) => {
   const langCode = useSelector((state: RootState) => state.auth.user.langCode);
   const comAPIContext = useContext(ComAPIContext);
-
+  const [selectedPath, setSelectedPath] = useState<number[] | null>(null);
   const [treeData, setTreeData] = useState<any[]>([]);
   const [selectedNode, setSelectedNode] = useState<any>(null);
   const [contextMenu, setContextMenu] = useState<any>({
@@ -35,46 +35,33 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({
   });
   const [showMenuWarning, setShowMenuWarning] = useState(false);
   const [showModal, setShowModal] = useState(false);
-
+  const tempIdRef = useRef(-1);
   const contextMenuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         comAPIContext.showProgressBar();
-        const res = await axios.get(
-          `${process.env.REACT_APP_BACKEND_IP}/admin/api/get-menu-tree`,
-          {
-            headers: { Authorization: `Bearer ${cachedAuthToken}` },
-            params: { langCode: langCode },
-          }
-        );
-
-        const buildTree = (data: any[], parentMenuId: number): any[] => {
-          return data
-            .filter((item) => item.parentMenuId === parentMenuId)
-            .map((item) => ({
-              ...item,
-              title: item.menuName,
-              expanded: true,
-              children: buildTree(data, item.menuId),
-            }));
-        };
-
-        if (res && res.data) {
-          const tree = buildTree(res.data, 0);
-          setTreeData(tree);
-        }
+        const res = await axios.get(`${process.env.REACT_APP_BACKEND_IP}/admin/api/get-menu-tree`, {
+          headers: { Authorization: `Bearer ${cachedAuthToken}` },
+          params: { langCode },
+        });
+        const buildTree = (data: any[], parentMenuId: number): any[] =>
+            data
+                .filter(item => item.parentMenuId === parentMenuId)
+                .map(item => ({
+                  ...item,
+                  title: item.menuName,
+                  expanded: true,
+                  children: buildTree(data, item.menuId),
+                }));
+        if (res?.data) setTreeData(buildTree(res.data, 0));
       } catch (err: any) {
-        comAPIContext.showToast(
-          'Error fetching menu: ' + err.message,
-          'danger'
-        );
+        comAPIContext.showToast("Error fetching menu: " + err.message, "danger");
       } finally {
         comAPIContext.hideProgressBar();
       }
     };
-
     fetchData();
   }, [refreshTree]);
 
@@ -91,6 +78,33 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({
         : [];
       return [base, ...children];
     });
+  };
+
+  const handleAddRootNode = () => {
+    const newNode = {
+      title: "새 메뉴",
+      menuId: tempIdRef.current--,
+      parentMenuId: 0,
+      children: [],
+      depth: 0,
+      isNew: true,
+    };
+    setTreeData(prev => [...prev, newNode]);
+  };
+
+  const handleDeleteSelectedNode = () => {
+    if (!selectedPath) {
+      comAPIContext.showToast("삭제할 메뉴를 선택하세요.", "warning");
+      return;
+    }
+    const newTree = removeNodeAtPath({
+      treeData,
+      path: selectedPath,
+      getNodeKey: ({ treeIndex }) => treeIndex,
+    });
+    setTreeData(newTree);
+    setSelectedNode(null);
+    setSelectedPath(null);
   };
 
   const handleSaveToServer = async () => {
@@ -171,87 +185,90 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({
   }, [contextMenu]);
 
   return (
-    <div className="h-100" style={{ position: 'relative' }}>
-      <SortableTree
-        treeData={treeData}
-        onChange={(data) => setTreeData(data)}
-        getNodeKey={({ node }) => node.menuId}
-        generateNodeProps={({ node, path }) => ({
-          title: (
-            <span
-              onClick={() => {
-                setSelectedNode(node);
-                onMenuClick({ ...node, isAdd: false, isDelete: false });
-              }}
-              onContextMenu={(e) => {
-                e.preventDefault();
-                setContextMenu({
-                  visible: true,
-                  x: e.clientX,
-                  y: e.clientY,
-                  node,
-                  path,
-                });
-              }}
-              style={{
-                color: selectedNode?.menuId === node.menuId ? 'blue' : 'black',
-              }}
-              className="ellipsis"
-            >
+      <div
+          className="h-100"
+          style={{
+            position: "relative",
+            height: "600px"  // ← 컨테이너 높이를 픽셀/%,vh 등으로 고정
+          }}
+      >
+        <SortableTree
+            style={{ height: "100%" }}  // ← 여기를 추가!
+            treeData={treeData}
+            onChange={data => setTreeData(data)}
+            getNodeKey={({ node }) => node.menuId}
+            generateNodeProps={({ node, path }) => ({
+              title: (
+                  <span
+                      onClick={() => {
+                        setSelectedNode(node);
+                        setSelectedPath(path);
+                        onMenuClick({ ...node, isAdd: false, isDelete: false, isNew: !!node.isNew });
+                      }}
+                      onContextMenu={e => {
+                        e.preventDefault();
+                        setContextMenu({ visible: true, x: e.clientX, y: e.clientY, node, path });
+                      }}
+                      style={{ color: selectedNode?.menuId === node.menuId ? "blue" : "black" }}
+                      className="ellipsis"
+                  >
               {node.title}
             </span>
-          ),
-        })}
-      />
-      <div className="menuSaveBtn">
-        <Button variant="primary" size="sm" onClick={handleSaveToServer}>
-          변경사항 저장
-        </Button>
-      </div>
+              ),
+            })}
+        />
 
-      {contextMenu.visible && (
-        <Dropdown.Menu
-          show
-          ref={contextMenuRef}
-          style={{
-            position: 'absolute',
-            top: contextMenu.y,
-            left: contextMenu.x,
-            zIndex: 1000,
-          }}
+        <div
+            className="menuSaveBtn d-flex gap-2"
+            style={{ position: "absolute", bottom: 10, right: 10 }}
         >
-          <Dropdown.Header>{contextMenu.node.title}</Dropdown.Header>
-          <Dropdown.Item onClick={() => handleAddNode(contextMenu.path)}>
-            추가
-          </Dropdown.Item>
-          <Dropdown.Item onClick={handleDeleteNode}>삭제</Dropdown.Item>
-        </Dropdown.Menu>
-      )}
-
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>삭제 불가</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>Root 메뉴는 삭제할 수 없습니다.</Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
-            확인
+          <Button variant="success" size="sm" onClick={handleAddRootNode}>
+            메뉴 추가
           </Button>
-        </Modal.Footer>
-      </Modal>
-
-      <Modal show={showMenuWarning} onHide={() => setShowMenuWarning(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>깊이 제한</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>자식 메뉴는 최대 3단계까지만 가능합니다.</Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowMenuWarning(false)}>
-            확인
+          <Button variant="danger" size="sm" onClick={handleDeleteSelectedNode}>
+            메뉴 삭제
           </Button>
-        </Modal.Footer>
-      </Modal>
-    </div>
+          <Button variant="primary" size="sm" onClick={handleSaveToServer}>
+            변경사항 저장
+          </Button>
+        </div>
+
+        {contextMenu.visible && (
+            <Dropdown.Menu
+                show
+                ref={contextMenuRef}
+                style={{ position: "absolute", top: contextMenu.y, left: contextMenu.x, zIndex: 1000 }}
+            >
+              <Dropdown.Header>{contextMenu.node.title}</Dropdown.Header>
+              <Dropdown.Item onClick={() => handleAddNode(contextMenu.path)}>추가</Dropdown.Item>
+              <Dropdown.Item onClick={handleDeleteNode}>삭제</Dropdown.Item>
+            </Dropdown.Menu>
+        )}
+
+        <Modal show={showModal} onHide={() => setShowModal(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>삭제 불가</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>Root 메뉴는 삭제할 수 없습니다.</Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowModal(false)}>
+              확인
+            </Button>
+          </Modal.Footer>
+        </Modal>
+
+        <Modal show={showMenuWarning} onHide={() => setShowMenuWarning(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>깊이 제한</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>자식 메뉴는 최대 3단계까지만 가능합니다.</Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowMenuWarning(false)}>
+              확인
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      </div>
   );
 };
 
