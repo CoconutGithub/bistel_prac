@@ -102,20 +102,57 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({
   }, [contextMenu]);
 
   useEffect(() => {
-     if (isAdding) {
-    // requestAnimationFrame을 사용하여 DOM 업데이트 후 실행
-    requestAnimationFrame(() => {
-      if (inputRef.current) {
-        inputRef.current.focus();
-      }
-    });
-  }
+    if (isAdding) {
+      setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+        }
+      }, 0);
+    }
   }, [isAdding]);
 
-    const handleMenuClick = useCallback(
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        isAdding &&
+        inputRef.current &&
+        !inputRef.current.contains(event.target as Node)
+      ) {
+        setIsAdding(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isAdding]);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        if (isAdding && inputText.trim().length === 0) {
+          setIsAdding(false);
+        }
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [isAdding, inputText]);
+
+  const handleMenuClick = useCallback(
     (event: React.MouseEvent, node: any) => {
       const adjustedX = Math.max(event.clientX);
       const adjustedY = Math.max(event.clientY);
+
+      // 다른 메뉴 클릭 시 input 닫기
+      if (isAdding && contextMenu.node?.menuId !== node.menuId) {
+        setIsAdding(false);
+      }
 
       setContextMenu({
         visible: true,
@@ -329,15 +366,14 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  setInputText(e.target.value);
-};
+    setInputText(e.target.value);
+  };
 
   return (
     <div className="h-100" style={{ position: 'relative' }}>
       <DndProvider backend={HTML5Backend} {...({} as any)}>
       <SortableTree
         treeData={treeData}
-        // onChange={(data) => setTreeData(data)}
         onChange={delayedSetTreeData}
         getNodeKey={({ node }) => node.menuId}
         generateNodeProps={({ node, path }) => ({
@@ -366,20 +402,29 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({
                 {node.title}
               </span>
 
-              {/* 메뉴 추가 인풋 렌더링 */}
+              {/* 메뉴 추가 인풋 렌더링 (자식 메뉴로 추가) */}
               {isAdding && contextMenu.node && contextMenu.node?.menuId === node.menuId && (
-                <div style={{ marginTop: '10px', marginLeft: '40px' }}>
+                <div>
                   <input
                     ref={inputRef}
                     type="text"
                     value={inputText}
-                    onChange={handleInputChange}// (e) => setInputText(e.target.value)}
+                    onChange={handleInputChange} // onChange 핸들러
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') handleBlur(); // 엔터 키로 blur 처리
                     }}
                     onBlur={handleBlur}
                     placeholder="메뉴 이름을 입력하세요"
-                    style={{ width: '100%' }}
+                    style={{
+                      fontSize: '14px',
+                      height: '24px',       // 노드 텍스트와 같은 높이로
+                      lineHeight: '24px',
+                      padding: '0 4px',
+                      boxSizing: 'border-box',
+                      border: '1px solid #ccc',
+                      borderRadius: '4px',
+                      marginLeft: '10px',
+                    }}
                   />
                 </div>
               )}

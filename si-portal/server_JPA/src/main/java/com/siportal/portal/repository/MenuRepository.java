@@ -38,10 +38,9 @@ public interface MenuRepository extends JpaRepository<Menu, Integer> {
                 JOIN P_MSG_DETAIL M2
             ON M1.MSG_ID = M2.MSG_ID
             WHERE M2.LANG_CODE = :langCode
-            AND M1.MSG_TYPE ='menu'        
-        ) C   
+        ) C
             ON A.MSG_ID = C.MSG_ID
-        ORDER BY A.DEPTH, A.POSITION    
+        ORDER BY A.DEPTH, A.POSITION
     """, nativeQuery = true)
     List<MenuDto> getMenuTree4ManageMenu(String langCode);
 

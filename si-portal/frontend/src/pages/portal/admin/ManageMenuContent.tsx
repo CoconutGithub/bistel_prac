@@ -406,7 +406,7 @@ const ManageMenuContent: React.FC<{
     const data = {
       menuName: menuNameValue,
       path: pathValue,
-      position: position,
+      position: position === '' ? 0 : position,
       status: isActive,
       userId: state.user?.userId,
       menuId: menuId,
@@ -550,57 +550,6 @@ const ManageMenuContent: React.FC<{
             {chooseMenuData.isAdd === true ? 'Add Menu' : 'Selected Menu'}
           </h4>
           <Form>
-            {/* Menu ID */}
-            <Form.Group className="form_group align-items-center">
-              <Form.Label column sm={2}>
-                Menu ID:
-              </Form.Label>
-              <Col sm={3}>
-                <Form.Control
-                  type="text"
-                  value={menuId}
-                  size="sm"
-                  onChange={(e) => setMenuId(e.target.value)}
-                />
-              </Col>
-              <Col sm={2}>
-                <ComButton onClick={checkMenuIdDuplicate}>
-                  {comAPIContext.$msg('label', 'check_duplicate', '중복체크')}
-                </ComButton>
-              </Col>
-            </Form.Group>
-
-            {/* Parent Menu ID */}
-            <Form.Group className="form_group align-items-center">
-              <Form.Label column sm={2}>
-                Parent Menu ID:
-              </Form.Label>
-              <Col sm={4}>
-                <Form.Control
-                  type="text"
-                  value={chooseMenuData.parentMenuId}
-                  size="sm"
-                  disabled
-                  readOnly
-                />
-              </Col>
-            </Form.Group>
-
-            <Form.Group className="form_group align-items-center">
-              <Form.Label column sm={2}>
-                Position:
-              </Form.Label>
-              <Col sm={4}>
-                <Form.Control
-                  type="number"
-                  value={position || 0}
-                  max={9999}
-                  size="sm"
-                  onChange={(e) => setPosition(e.target.value)}
-                />
-              </Col>
-            </Form.Group>
-
             {/* Menu Name */}
             <Form.Group className="form_group align-items-center">
               <Form.Label column sm={2}>
@@ -635,6 +584,54 @@ const ManageMenuContent: React.FC<{
                   size="sm"
                   disabled
                   readOnly
+                />
+              </Col>
+            </Form.Group>
+
+            {/* Menu ID */}
+            <Form.Group className="form_group align-items-center">
+              <Form.Label column sm={2}>
+                Menu ID:
+              </Form.Label>
+              <Col sm={4}>
+                <Form.Control
+                  type="text"
+                  value={menuId}
+                  size="sm"
+                  disabled
+                  readOnly
+                />
+              </Col>
+            </Form.Group>
+
+            {/* Parent Menu ID */}
+            <Form.Group className="form_group align-items-center">
+              <Form.Label column sm={2}>
+                Parent Menu ID:
+              </Form.Label>
+              <Col sm={4}>
+                <Form.Control
+                  type="text"
+                  value={chooseMenuData.parentMenuId}
+                  size="sm"
+                  disabled
+                  readOnly
+                />
+              </Col>
+            </Form.Group>
+
+            <Form.Group className="form_group align-items-center">
+              <Form.Label column sm={2}>
+                Position:
+              </Form.Label>
+              <Col sm={4}>
+                <Form.Control
+                  type="number"
+                  value={position ?? ''}
+                  max={9999}
+                  size="sm"
+                  onChange={(e) => setPosition(e.target.value)}
+                  placeholder="0"
                 />
               </Col>
             </Form.Group>
