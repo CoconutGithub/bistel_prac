@@ -71,8 +71,26 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({
 
         if (res && res.data) {
           const tree = buildTree(res.data, 0);
-          setTreeData(tree);
-          setMenuData(res.data)
+
+          const rootNode = {
+            parentMenuId: null,
+            menuId: -1,
+            depth: 0,
+            path: "/",
+            position: 0,
+            menuName: "Root",
+            msgId: -1,
+            status: "ACTIVE",
+            parentMenuName: "",
+            title: "Root",
+            expanded: true,
+            children: tree,
+            isAdd: false,
+            isDelete: false,
+          };
+
+          setTreeData([rootNode]);
+          setMenuData(res.data);
         }
       } catch (err: any) {
         comAPIContext.showToast(
@@ -86,6 +104,7 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({
 
     fetchData();
   }, [refreshTree]);
+
 
   
   useEffect(() => {
@@ -225,6 +244,7 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({
 
         if (res.status === 200) {
           setContextMenu({ ...contextMenu, visible: false });
+
           try {
             comAPIContext.showProgressBar();
             const res = await axios.get(
@@ -235,29 +255,46 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({
               }
             );
 
-          const buildTree = (data: any[], parentMenuId: number): any[] => {
-            return data
-              .filter((item) => item.parentMenuId === parentMenuId)
-              .map((item) => ({
-                ...item,
-                title: item.menuName,
-                expanded: true,
-                children: buildTree(data, item.menuId),
-              }));
-          };
+            const buildTree = (data: any[], parentMenuId: number): any[] => {
+              return data
+                .filter((item) => item.parentMenuId === parentMenuId)
+                .map((item) => ({
+                  ...item,
+                  title: item.menuName,
+                  expanded: true,
+                  children: buildTree(data, item.menuId),
+                }));
+            };
 
-          
-          if (res && res.data) {
+            if (res && res.data) {
               const tree = buildTree(res.data, 0);
-              setTreeData(tree);
-              setMenuData(res.data)
+
+              const rootNode = {
+                parentMenuId: null,
+                menuId: -1,
+                depth: 0,
+                path: "/",
+                position: 0,
+                menuName: "Root",
+                msgId: -1,
+                status: "ACTIVE",
+                parentMenuName: "",
+                title: "Root",
+                expanded: true,
+                children: tree,
+                isAdd: false,
+                isDelete: false,
+              };
+
+              setTreeData([rootNode]);
+              setMenuData(res.data);
               setShowModal(false);
             }
           } catch (err) {
             const error = err as Error;
             console.error("Error fetching data:", err);
             comAPIContext.showToast(
-              "Error fetching roles: " + error.message,
+              "Error fetching menu: " + error.message,
               "danger"
             );
           } finally {
@@ -269,6 +306,7 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({
       }
     }
   };
+
 
   const handleDeleteConfirm = () => {
     setShowModal(true);
@@ -325,28 +363,45 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({
               }
             );
 
-          const buildTree = (data: any[], parentMenuId: number): any[] => {
-            return data
-              .filter((item) => item.parentMenuId === parentMenuId)
-              .map((item) => ({
-                ...item,
-                title: item.menuName,
-                expanded: true,
-                children: buildTree(data, item.menuId),
-              }));
-          };
+            const buildTree = (data: any[], parentMenuId: number): any[] => {
+              return data
+                .filter((item) => item.parentMenuId === parentMenuId)
+                .map((item) => ({
+                  ...item,
+                  title: item.menuName,
+                  expanded: true,
+                  children: buildTree(data, item.menuId),
+                }));
+            };
 
-          
-          if (res && res.data) {
+            if (res && res.data) {
               const tree = buildTree(res.data, 0);
-              setTreeData(tree);
-              setMenuData(res.data)
+
+              const rootNode = {
+                parentMenuId: null,
+                menuId: -1,
+                depth: 0,
+                path: "/",
+                position: 0,
+                menuName: "Root",
+                msgId: -1,
+                status: "ACTIVE",
+                parentMenuName: "",
+                title: "Root",
+                expanded: true,
+                children: tree,
+                isAdd: false,
+                isDelete: false,
+              };
+
+              setTreeData([rootNode]);
+              setMenuData(res.data);
             }
           } catch (err) {
             const error = err as Error;
             console.error("Error fetching data:", err);
             comAPIContext.showToast(
-              "Error fetching roles: " + error.message,
+              "Error fetching menu: " + error.message,
               "danger"
             );
           } finally {
@@ -355,7 +410,7 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({
           }
         }
       } catch (err) {
-        console.error("Error deleting menu:", err);
+        console.error("Error inserting menu:", err);
       }
     }
   };
