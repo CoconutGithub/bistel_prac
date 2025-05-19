@@ -28,6 +28,7 @@ const columnDefs = [
     filter: true,
     editable: false,
     width: 100,
+    hide: true
   },
   {
     field: 'title',
@@ -37,14 +38,14 @@ const columnDefs = [
     editable: true,
     width: 200,
   },
-  {
-    field: 'content',
-    headerName: '내용',
-    sortable: true,
-    filter: true,
-    editable: true,
-    width: 300,
-  },
+  // {
+  //   field: 'content',
+  //   headerName: '내용',
+  //   sortable: true,
+  //   filter: true,
+  //   editable: true,
+  //   width: 300,
+  // },
   {
     headerName: '시작일',
     field: 'noticeStart',
@@ -170,11 +171,6 @@ const ManageNotice: React.FC = () => {
         comAPIContext.hideProgressBar();
       });
   };
-
-  const onSave= () =>{
-    
-
-  }
 
 
   // // 🔹 공지사항 저장
@@ -317,7 +313,7 @@ const ManageNotice: React.FC = () => {
             canDelete={canDelete}
             canUpdate={canUpdate}
             columnDefs={columnDefs}
-            enableCheckbox={true}
+            enableCheckbox={false}
             rowSelection="multiple"
             // onSave={handleSave}
             onCellDoubleClicked={onCellDoubleClicked}
@@ -328,8 +324,11 @@ const ManageNotice: React.FC = () => {
       {showPopup&& (<ManageNoticePopup
       show={showPopup}
       rowData={rowData}
-      onSave={onSave}
-      onClose={()=>setShowPopup(false)}
+      // onSave={onSave}
+      onClose={()=> {
+        setShowPopup(false)
+        handleSearch();
+      }}
       />)}
     </Container>
   );
