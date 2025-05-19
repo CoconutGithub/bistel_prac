@@ -206,7 +206,7 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
         className="p-3"
         position="bottom-center"
         style={{
-          zIndex: 1050,
+          zIndex: 1056,   //  node_modules/bootstrap/dist/css/bootstrap.css 에 .modal { --bs-modal-zindex: 1055;
           position: 'absolute', // Content 영역 내에서의 위치 조정
           bottom: 0, // Content 하단에 고정
           left: '50%',

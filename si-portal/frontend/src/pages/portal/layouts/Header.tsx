@@ -41,13 +41,6 @@ const Header: React.FC<HeaderProps> = React.memo(({ onSelectTab }) => {
 
   const [selectedLangCode, setSelectedLangCode] = useState<string>(langCode?.toUpperCase() ?? 'KO');
 
-  // const langMap: Record<string, string> = {
-  //   KO: '한국어',
-  //   EN: '영어',
-  //   CN: '중국어',
-  //   VI: '베트남어',
-  // };
-
   const getMenuItemClass = (path: string) => {
     return location.pathname === path ? 'active' : '';
   };

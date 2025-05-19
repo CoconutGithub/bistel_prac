@@ -143,17 +143,19 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
 
     // 컬럼 정의 생성
     const getColumnDefs = (): ColDef[] => {
-      const baseColumnDefs = enableCheckbox
-        ? [
-            {
-              headerCheckboxSelection: true,
-              checkboxSelection: true,
-              width: 50,
-              cellStyle: { display: 'flex', alignItems: 'center' },
-            },
-            ...columnDefs,
-          ]
-        : columnDefs;
+      const baseColumnDefs = columnDefs
+      
+      // enableCheckbox
+      //   ? [
+      //       {
+      //         headerCheckboxSelection: true,
+      //         checkboxSelection: true,
+      //         width: 50,
+      //         cellStyle: { display: 'flex', alignItems: 'center' },
+      //       },
+      //       ...columnDefs,
+      //     ]
+      //   : columnDefs;
 
       // 행 번호 컬럼 추가
       if (useNoColumn) {
@@ -171,6 +173,8 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
           });
         }
       }
+
+      console.log('baseColumnDefs', baseColumnDefs)
 
       return baseColumnDefs.map((colDef) => ({
         ...colDef,
@@ -368,9 +372,11 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
           >
             <AgGridReact
               ref={gridRef}
-              rowSelection={{
-                mode: rowSelection === 'multiple' ? 'multiRow' : 'singleRow',
-              }}
+              rowSelection={
+                enableCheckbox
+                  ? { mode: rowSelection === 'multiple' ? 'multiRow' : 'singleRow' as const }
+                  : undefined
+              }
               rowHeight={rowHeight}
               rowData={rowData}
               pagination={pagination}
