@@ -779,6 +779,29 @@ public class AdminService {
         }
     }
 
+    public ResponseEntity<?> insertMenuContent(Map<String, Object> requestData) {
+        try {
+            Menu menu = new Menu();
+            menu.setMenuName((String)requestData.get("menuName"));
+            menu.setParentMenuId((Integer)requestData.get("parentMenuId"));
+            menu.setPath((String)requestData.get("path"));
+            menu.setPosition((Integer)requestData.get("position"));
+            menu.setStatus((String)requestData.get("status"));
+            menu.setMsgId((Integer)requestData.get("msgId"));
+            menu.setCreateBy((String)requestData.get("userId"));
+            menu.setCreateDate(LocalDateTime.now());
+
+            menuRepository.save(menu);
+
+            Map<String, Object> resp = new HashMap<>();
+            resp.put("menuId", menu.getMenuId());
+            return ResponseEntity.ok(resp);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
+
     public ResponseEntity<?> deleteMenu(@RequestBody Map<String, Object> result) {
         try {
             Integer menuId = (Integer) result.get("menuId");
@@ -793,17 +816,14 @@ public class AdminService {
 
     public ResponseEntity<?> updateMenuContent(Map<String, Object> result) {
         try {
-            // position 값이 있을 경우 이를 integer로 변환
             if (result.containsKey("position")) {
                 Object positionObj = result.get("position");
                 if (positionObj instanceof String) {
-                    // position이 문자열인 경우 Integer로 변환
                     int position = Integer.parseInt((String) positionObj);
-                    result.put("position", position); // 변환된 값을 다시 result에 설정
+                    result.put("position", position);
                 }
             }
 
-            // updateMenuContent 메서드를 호출하여 메뉴 업데이트
             int updateCount = menuRepository.updateMenuContent(
                     (Integer) result.get("menuId"),
                     (String) result.get("menuName"),
@@ -815,7 +835,7 @@ public class AdminService {
             );
 
             if (updateCount > 0) {
-                return ResponseEntity.ok(result); // 성공적으로 업데이트된 경우
+                return ResponseEntity.ok(result);
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Menu not found for the given ID");
             }

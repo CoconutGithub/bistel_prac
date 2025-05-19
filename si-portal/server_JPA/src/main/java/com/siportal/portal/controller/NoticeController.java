@@ -2,6 +2,7 @@ package com.siportal.portal.controller;
 
 import com.siportal.portal.service.NoticeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +40,14 @@ public class NoticeController {
     // 🔹 공지사항 추가 및 수정 (CREATE & UPDATE 통합)
     @PostMapping("/api/update-notices")
     public ResponseEntity<Map<String, String>> updateNotices(@RequestBody Map<String, Object> requestData) {
-        return ResponseEntity.ok(noticeService.updateNotices(requestData));
+        try{
+            noticeService.updateNotices(requestData);
+            return ResponseEntity.ok(Map.of("messageCode", "success", "message", "공지사항이 저장되었습니다."));
+        }
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(Map.of("messageCode", "error", "message", "공지사항 저장 실패: " + e.getMessage()));
+        }
     }
 
     // 🔹 공지사항 삭제 (DELETE - 다중)

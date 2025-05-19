@@ -137,7 +137,10 @@ public class AdminController {
     public ResponseEntity<?> deleteMenu(@RequestBody Map<String, Object> result) {
         return adminService.deleteMenu(result);
     }
-
+    @PostMapping("/api/insert-menu-content")
+    public ResponseEntity<?> insertMenuContent(@RequestBody Map<String, Object> result) {
+        return adminService.insertMenuContent(result);
+    }
     @PostMapping("/api/update-menu-content")
     public ResponseEntity<?> updateMenuContent(@RequestBody Map<String, Object> result) {
         return adminService.updateMenuContent(result);

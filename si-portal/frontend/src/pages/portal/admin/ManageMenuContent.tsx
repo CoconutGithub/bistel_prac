@@ -398,15 +398,16 @@ const ManageMenuContent: React.FC<{
   };
 
   const handleSave = async () => {
-    console.log('추가된 메뉴 저장');
+    console.log("메뉴 저장 (신규 vs 수정) 분기 처리 시작");
 
     const pathValue = pathRef?.current?.value; // ref로 저장된 값을 가져옴
     const menuNameValue = menuNameRef?.current?.value;
 
     const data = {
+
       menuName: menuNameValue,
       path: pathValue,
-      position: position,
+      position: position === '' ? 0 : position,
       status: isActive,
       userId: state.user?.userId,
       menuId: menuId,
@@ -417,22 +418,28 @@ const ManageMenuContent: React.FC<{
 
     try {
       comAPIContext.showProgressBar();
-      const res = await axios.post(
-        `${process.env.REACT_APP_BACKEND_IP}/admin/api/update-menu-content`,
-        data,
-        {
-          headers: { Authorization: `Bearer ${cachedAuthToken}` },
-        }
-      );
-
+      // const res = await axios.post(
+      //   `${process.env.REACT_APP_BACKEND_IP}/admin/api/update-menu-content`,
+      //   data,
+      //   {
+      //     headers: { Authorization: `Bearer ${cachedAuthToken}` },
+      //   }
+      // );
+      const isNew = chooseMenuData?.isAdd === true;
+      const url = isNew
+          ? `${process.env.REACT_APP_BACKEND_IP}/admin/api/insert-menu-content`
+          : `${process.env.REACT_APP_BACKEND_IP}/admin/api/update-menu-content`;
+      const res = await axios.post(url, data, {
+        headers: { Authorization: `Bearer ${cachedAuthToken}` },
+      });
       console.log(res);
       comAPIContext.hideProgressBar();
-      alert('Save successfully!');
+      alert("Save successfully!");
       onSave();
     } catch (error) {
-      console.error('Error saving menu:', error);
+      console.error("Error saving menu:", error);
       comAPIContext.hideProgressBar();
-      alert('Failed to save menu');
+      alert("Failed to save menu");
     }
   };
 
@@ -550,23 +557,57 @@ const ManageMenuContent: React.FC<{
             {chooseMenuData.isAdd === true ? 'Add Menu' : 'Selected Menu'}
           </h4>
           <Form>
+            {/* Menu Name */}
+            <Form.Group className="form_group align-items-center">
+              <Form.Label column sm={2}>
+                Menu Name:
+              </Form.Label>
+              <Col sm={4}>
+                <Form.Control
+                    type="text"
+                    value={menuName || ""} // menuName 상태값 사용
+                    size="sm"
+                    onChange={e => setMenuName(e.target.value)}
+                    disabled={!chooseMenuData?.isNew}
+                    readOnly={!chooseMenuData?.isNew}
+                />
+              </Col>
+              <Col sm={3}>
+                <ComButton onClick={openModal}>
+                  {comAPIContext.$msg("label", "메시지 할당", "메시지 할당")}
+                </ComButton>
+              </Col>
+            </Form.Group>
+
+            {/* Msg Id */}
+            <Form.Group className="form_group align-items-center">
+              <Form.Label column sm={2}>
+                Msg Id:
+              </Form.Label>
+              <Col sm={4}>
+                <Form.Control
+                  type="text"
+                  value={msgId || ''} // path 상태값 사용
+                  size="sm"
+                  disabled
+                  readOnly
+                />
+              </Col>
+            </Form.Group>
+
             {/* Menu ID */}
             <Form.Group className="form_group align-items-center">
               <Form.Label column sm={2}>
                 Menu ID:
               </Form.Label>
-              <Col sm={3}>
+              <Col sm={4}>
                 <Form.Control
                   type="text"
                   value={menuId}
                   size="sm"
-                  onChange={(e) => setMenuId(e.target.value)}
+                  disabled
+                  readOnly
                 />
-              </Col>
-              <Col sm={2}>
-                <ComButton onClick={checkMenuIdDuplicate}>
-                  {comAPIContext.$msg('label', 'check_duplicate', '중복체크')}
-                </ComButton>
               </Col>
             </Form.Group>
 
@@ -593,48 +634,11 @@ const ManageMenuContent: React.FC<{
               <Col sm={4}>
                 <Form.Control
                   type="number"
-                  value={position || 0}
+                  value={position ?? ''}
                   max={9999}
                   size="sm"
                   onChange={(e) => setPosition(e.target.value)}
-                />
-              </Col>
-            </Form.Group>
-
-            {/* Menu Name */}
-            <Form.Group className="form_group align-items-center">
-              <Form.Label column sm={2}>
-                Menu Name:
-              </Form.Label>
-              <Col sm={4}>
-                <Form.Control
-                  type="text"
-                  ref={menuNameRef} // ref로 직접 접근
-                  value={menuName || ''} // menuName 상태값 사용
-                  size="sm"
-                  disabled
-                  readOnly
-                />
-              </Col>
-              <Col sm={3}>
-                <ComButton onClick={openModal}>
-                  {comAPIContext.$msg('label', '메시지 할당', '메시지 할당')}
-                </ComButton>
-              </Col>
-            </Form.Group>
-
-            {/* Msg Id */}
-            <Form.Group className="form_group align-items-center">
-              <Form.Label column sm={2}>
-                Msg Id:
-              </Form.Label>
-              <Col sm={4}>
-                <Form.Control
-                  type="text"
-                  value={msgId || ''} // path 상태값 사용
-                  size="sm"
-                  disabled
-                  readOnly
+                  placeholder="0"
                 />
               </Col>
             </Form.Group>

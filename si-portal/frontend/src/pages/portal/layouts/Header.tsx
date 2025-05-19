@@ -6,17 +6,20 @@ import axios from 'axios';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '~store/Store';
-import { removeLoginToken, cachedAuthToken } from '~store/AuthSlice';
+import { removeLoginToken, cachedAuthToken, setLangCode } from '~store/AuthSlice';
 import { resetTab } from '~store/RootTabs';
 import { ComAPIContext } from '~components/ComAPIContext';
+import Form from 'react-bootstrap/Form';
+import NoticePopup from '~pages/portal/admin/NoticePopup';
 
 interface HeaderProps {
     onSelectTab: (tab: { key: string; label: string; path: string }) => void;
 }
 
 const Header: React.FC<HeaderProps> = React.memo(({ onSelectTab }) => {
-    const comAPIContext = useContext(ComAPIContext);
-    const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const comAPIContext = useContext(ComAPIContext);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [showPopup, setShowPopup] = useState(false);
 
   const isMighty = useSelector((state: RootState) => state.auth.user.isMighty);
   const roleId = useSelector((state: RootState) => state.auth.user.roleId);
@@ -33,6 +36,15 @@ const Header: React.FC<HeaderProps> = React.memo(({ onSelectTab }) => {
   const langCode = useSelector(
     (state: RootState) => state.auth.user.langCode ?? 'ko'
   );
+
+  const [selectedLangCode, setSelectedLangCode] = useState<string>(langCode ?? 'KO');
+
+  const langMap: Record<string, string> = {
+    KO: '한국어',
+    EN: '영어',
+    CN: '중국어',
+    VI: '베트남어',
+  };
 
   const getMenuItemClass = (path: string) => {
     return location.pathname === path ? 'active' : '';
@@ -80,6 +92,20 @@ const Header: React.FC<HeaderProps> = React.memo(({ onSelectTab }) => {
     navigate('/login');
   };
 
+  // 선택한 value p_user 테이블 lang_code에 업데이트 백엔드 구현 필요
+  const handleLangCodeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedLangCode(event.target.value);
+    dispatch(setLangCode({ langCode: event.target.value }));
+  };
+
+  const handleAlarm = () => {
+    setShowPopup(true)
+  }
+
+  const handleClosePopup = () => {
+    setShowPopup(false);
+  };
+
   return (
     <Navbar expand="lg">
       <Container fluid>
@@ -105,10 +131,26 @@ const Header: React.FC<HeaderProps> = React.memo(({ onSelectTab }) => {
           </Nav>
 
                     <Nav className="ms-auto">
-                        <div className="alarm new">
-                            <img src={`${process.env.REACT_APP_PUBLIC_URL}/assets/icons/bell.svg`} alt="" />
+                        <div className="alarm new" onClick={handleAlarm}>
+                            <img 
+                                src={`${process.env.REACT_APP_PUBLIC_URL}/assets/icons/bell.svg`} 
+                                alt="" 
+                            />
                         </div>
-                        <div className="language ko"> 한국어 </div>
+                        <div className="language ko">
+                            {/* 추후 p_language 테이블에서 가져오는 백엔드 구현 해야함 */}
+                            <Form.Select 
+                                style={{ width: '80px' }}
+                                value={selectedLangCode}
+                                onChange={handleLangCodeChange}
+                                >
+                                {Object.entries(langMap).map(([code, label]) => (
+                                    <option key={code} value={code}>
+                                    {code}
+                                    </option>
+                                ))}
+                                </Form.Select>
+                        </div>
                         {isMighty === "Y" && (
                             <NavDropdown
                                 title="Admin"
@@ -263,6 +305,11 @@ const Header: React.FC<HeaderProps> = React.memo(({ onSelectTab }) => {
                         </div>
                     </Nav>
                 </Navbar.Collapse>
+                {showPopup && (
+                    <NoticePopup
+                        handleClose={handleClosePopup}
+                    />
+                )}
             </Container>
         </Navbar>
     );
