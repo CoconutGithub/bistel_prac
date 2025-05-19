@@ -2,8 +2,13 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import styles from './ChatBot.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPaperPlane } from '@fortawesome/free-regular-svg-icons';
+import {
+  faPaperPlane,
+  faPlusSquare,
+} from '@fortawesome/free-regular-svg-icons';
 import { cachedAuthToken } from '~store/AuthSlice';
+import { Button } from 'react-bootstrap';
+import FileUpload from '~components/chatBot/fileUpload/FileUpload';
 
 interface IChatBotProps {
   visible: boolean;
@@ -18,6 +23,8 @@ const ChatBot: React.FC<IChatBotProps> = ({ visible, onClose }) => {
   >([]);
   const [input, setInput] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showUpload, setShowUpload] = useState<boolean>(false);
+
   if (!visible) return null;
 
   const handleSend = async () => {
@@ -26,7 +33,6 @@ const ChatBot: React.FC<IChatBotProps> = ({ visible, onClose }) => {
     const userQuestion = input;
     setInput('');
 
-    // 1. user와 bot(작성중...) 메시지를 한 번에 넣기
     setMessage((prev) => [
       ...prev,
       { from: 'user', text: userQuestion },
@@ -34,59 +40,102 @@ const ChatBot: React.FC<IChatBotProps> = ({ visible, onClose }) => {
     ]);
 
     try {
-      const response = await axios.post(
-        'http://localhost:8080/biz/chatbot/ask',
-        { question: userQuestion },
+      const controller = new AbortController();
+      const response = await fetch(
+        'http://localhost:8080/biz/chatbot/ask-stream',
         {
+          method: 'POST',
           headers: {
             Authorization: `Bearer ${cachedAuthToken}`,
             'Content-Type': 'application/json',
+            Connection: 'keep-alive',
           },
+          body: JSON.stringify({ question: userQuestion }),
+          signal: controller.signal,
         }
       );
 
-      const answer = response.data || '답변을 불러올 수 없습니다.';
+      if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+      if (!response.body) throw new Error('스트림 리더 초기화 실패');
 
-      // 2. 가장 마지막 bot 메시지를 실제 답변으로 대체
-      setMessage((prev) => {
-        const newMessages = [...prev];
-        newMessages[newMessages.length - 1] = { from: 'bot', text: answer };
-        return newMessages;
-      });
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let fullText = '';
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) {
+          console.log('정상 종료');
+          setMessage((prev) => {
+            const newMessages = [...prev];
+            newMessages[newMessages.length - 1] = {
+              from: 'bot',
+              text: fullText || '답변 완료',
+            };
+            return newMessages;
+          });
+          break;
+        }
+
+        const chunk = decoder.decode(value, { stream: true });
+        console.log('Received chunk:', chunk);
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data:')) {
+            const text = line.replace(/^data:\s*/, '');
+            if (!text.trim()) continue;
+
+            if (text === '[DONE]') {
+              console.log('스트리밍 완료');
+              setMessage((prev) => {
+                const newMessages = [...prev];
+                newMessages[newMessages.length - 1] = {
+                  from: 'bot',
+                  text: fullText || '답변 완료',
+                };
+                return newMessages;
+              });
+              return; // 루프 종료 및 reader 해제
+            }
+
+            fullText += text;
+            setMessage((prev) => {
+              const newMessages = [...prev];
+              newMessages[newMessages.length - 1] = {
+                from: 'bot',
+                text: fullText,
+              };
+              return newMessages;
+            });
+            // return;
+          }
+        }
+      }
     } catch (err) {
-      console.error(err);
+      console.error('스트리밍 중 오류:', err);
       setMessage((prev) => {
         const newMessages = [...prev];
         newMessages[newMessages.length - 1] = {
           from: 'bot',
-          text: '답변을 가져오는 데 실패했어요.',
+          text: `답변 중 오류가 발생했습니다: ${err}`,
         };
         return newMessages;
       });
+    } finally {
+      let controller: any = new AbortController();
+      controller.abort(); // 명시적으로 연결 종료
+      controller = null; // 메모리 누수 방지
     }
   };
 
-  // const handleSend = async () => {
-  //   if (!input.trim()) return;
-  //   try {
-  //     const answer = await sendQuestion(input);
-  //     setMessage((prev) => [...prev, { from: 'user', text: input }]);
-  //   } catch (err) {
-  //     console.error(err);
-  //     setMessage((prev) => [
-  //       ...prev,
-  //       { from: 'bot', text: '에러가 발생했어요.' },
-  //     ]);
-  //   }
-  //   //   setMessage((prev) => [...prev, {from: 'user', text: input}])
-  //   //   setInput('')
-  //   //   setIsLoading(true);
-  //   //
-  //   // const answer = await sendQuestion(input)
-  //   // setMessage(prev => [...prev, { from: 'bot', text: answer }])
-  //   //   setIsLoading(false);
-  // };
-
+  const handleUploadSuccess = () => {
+    setMessage((prev: any) => [
+      ...prev,
+      { from: 'bot', text: '파일이 성공적으로 업로드되었습니다!' },
+    ]);
+    setShowUpload(false);
+  };
   return (
     <div className={styles.chatbot}>
       <div className={styles.header}>
@@ -102,7 +151,16 @@ const ChatBot: React.FC<IChatBotProps> = ({ visible, onClose }) => {
           </div>
         ))}
       </div>
+
+      {showUpload && <FileUpload onUploadSuccess={handleUploadSuccess} />}
       <div className={styles.inputArea}>
+        <Button
+          onClick={() => setShowUpload(!showUpload)}
+          variant="outline-secondary"
+          className="ms-2, mt-2"
+        >
+          <FontAwesomeIcon icon={faPlusSquare} />
+        </Button>
         <input
           type="text"
           placeholder="Reply..."
@@ -113,6 +171,13 @@ const ChatBot: React.FC<IChatBotProps> = ({ visible, onClose }) => {
         <button onClick={handleSend}>
           <FontAwesomeIcon icon={faPaperPlane} />
         </button>
+        {/*<Button*/}
+        {/*  onClick={() => setShowUpload(!showUpload)}*/}
+        {/*  variant="outline-secondary"*/}
+        {/*  className="ms-2"*/}
+        {/*>*/}
+        {/*  <FontAwesomeIcon icon={faPlusSquare} />*/}
+        {/*</Button>*/}
       </div>
     </div>
   );
