@@ -3,6 +3,7 @@ package com.siportal.portal.config;
 import com.siportal.portal.com.auth.AfterLoginFilter;
 import com.siportal.portal.com.auth.LoginFilter;
 import com.siportal.portal.repository.LoginRepository;
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,10 +12,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
 
 @Configuration
 public class SecurityConfig {
@@ -42,6 +46,7 @@ public class SecurityConfig {
                         .requestMatchers("/biz/flora-resumes/**").permitAll()// 인증 없이 허용
                         .requestMatchers("/biz/hdh-resumes/**").permitAll()// 인증 없이 허용
                         .requestMatchers("/biz/information/**").permitAll() // 인증 없이 허용
+                        .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll() // 모든 ASYNC 디스패치에 대해 permitAll
                         .requestMatchers("/biz/chatbot/ask").permitAll() // 인증 없이 허용
                         .requestMatchers("/error").permitAll() // for chatbot test
                         .requestMatchers("/admin/api/update-menu-tree").permitAll() // 인증 없이 허용
@@ -54,14 +59,33 @@ public class SecurityConfig {
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
+                .anonymous(anonymous -> anonymous
+                        .principal("anonymousUser")
+                        .authorities("ROLE_ANONYMOUS")
+                ) // 익명 사용자 설정 추가
                 .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint((request, response, authException) -> {
-                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
-                        }) // ✅ 인증되지 않은 요청 시 401 에러 반환
+                                .authenticationEntryPoint((request, response, authException) -> {
+                                    if (!response.isCommitted()) {
+                                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized"); // ✅ 인증되지 않은 요청 시 401 에러 반환
+                                    } else {
+                                        // 이미 응답이 커밋된 경우, 에러 로깅 또는 다른 처리
+                                        System.err.println("AuthenticationEntryPoint: Response already committed for request: " + request.getRequestURI() + ", cannot send SC_UNAUTHORIZED.");
+                                    }
+                                })
+                )
+                .requestCache(cache -> cache.disable())
+                .securityContext(context -> context.disable())
+                // 비동기 요청 처리를 위한 설정 추가
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .addFilter(new LoginFilter(authenticationManager, loginRepository, title, databaseType))
                 .addFilter(new AfterLoginFilter(authenticationManager))
                 .build();
+    }
+    @Bean
+    public WebAsyncManagerIntegrationFilter webAsyncManagerIntegrationFilter() {
+        return new WebAsyncManagerIntegrationFilter();
     }
 
     @Bean
@@ -75,6 +99,10 @@ public class SecurityConfig {
         configuration.addAllowedOriginPattern("*"); // 모든 도메인 허용
         configuration.addAllowedMethod("*"); // 모든 HTTP 메서드 허용
         configuration.addAllowedHeader("*"); // 모든 헤더 허용
+
+        configuration.setAllowCredentials(true); // 인증 정보 허용
+        configuration.setMaxAge(3600L); // CORS 프리플라이트 캐싱 시간 (1시간)
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

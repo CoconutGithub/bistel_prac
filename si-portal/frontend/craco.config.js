@@ -1,6 +1,16 @@
 const CracoAlias = require('craco-alias');
 const path = require('path');
 
+// 안전하게 모듈 경로 resolve (없으면 null 반환)
+const resolveOptionalModule = (moduleName) => {
+  try {
+    return require.resolve(moduleName);
+  } catch {
+    console.warn(`⚠️ Optional module not found: ${moduleName}`);
+    return null;
+  }
+};
+
 module.exports = {
   plugins: [
     {
@@ -15,19 +25,25 @@ module.exports = {
   ],
   webpack: {
     configure: (webpackConfig) => {
-      // Node.js 내장 모듈에 대한 polyfill 추가
+      const fallback = {};
+
+      const crypto = resolveOptionalModule('crypto-browserify');
+      if (crypto) fallback.crypto = crypto;
+
+      const buffer = resolveOptionalModule('buffer/');
+      if (buffer) fallback.buffer = buffer;
+
+      const vm = resolveOptionalModule('vm-browserify');
+      if (vm) fallback.vm = vm;
+
+      const stream = resolveOptionalModule('stream-browserify');
+      if (stream) fallback.stream = stream;
+
       webpackConfig.resolve = {
         ...(webpackConfig.resolve || {}),
-        fallback: {
-          ...(webpackConfig.resolve?.fallback || {}),
-          crypto: require.resolve('crypto-browserify'),
-          buffer: require.resolve('buffer/'),
-          vm: require.resolve('vm-browserify'),  // vm 폴리필 추가
-          stream: require.resolve('stream-browserify'),  // stream 폴리필 추가
-        },
+        fallback,
       };
 
-      // 기존 ignoreWarnings 유지
       webpackConfig.ignoreWarnings = [
         {
           module: /react-datepicker/,
