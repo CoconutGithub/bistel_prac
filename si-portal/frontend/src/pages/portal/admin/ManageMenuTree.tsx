@@ -192,7 +192,7 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({
     return nodes.flatMap((node, index) => {
       const base = {
         menuId: node.menuId,
-        parentMenuId: parentId,
+        parentMenuId: parentId === -1 ? 0 : parentId,
         position: index,
         depth,
       };
@@ -329,7 +329,7 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({
       const data = {
         menuName: inputText,
         parentMenuId: childData?.menuId === -1 ? 0 : childData?.menuId,
-        depth: (childData?.depth ?? 0) + 1,
+        depth: childData?.path ? childData.path.split("/").filter(Boolean).length + 1 : 1,
         path: childData?.path,
         position: 1,
         childYn: "N",
@@ -431,61 +431,61 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({
         treeData={treeData}
         onChange={delayedSetTreeData}
         getNodeKey={({ node }) => node.menuId}
-        generateNodeProps={({ node, path }) => ({
-          title: (
-            <div style={{ position: 'relative' }}>
-              <span
-                onClick={(event) => {
-                  setSelectedNode(node);
-                  // onMenuClick({ ...node, isAdd: false, isDelete: false });
-                  handleMenuClick(event, node);
-                }}
-                onContextMenu={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  if (node.depth >= 3) {
-                    setShowMenuWarning(true);
-                    return;
-                  }
-                  handleMenuClick(e, node);
-                }}
-                style={{
-                  color: selectedNode?.menuId === node.menuId ? 'blue' : 'black',
-                }}
-                className="ellipsis"
-              >
-                {node.title}
-              </span>
-
-              {/* 메뉴 추가 인풋 렌더링 (자식 메뉴로 추가) */}
-              {isAdding && contextMenu.node && contextMenu.node?.menuId === node.menuId && (
-                <div>
-                  <input
-                    ref={inputRef}
-                    type="text"
-                    value={inputText}
-                    onChange={handleInputChange} // onChange 핸들러
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') handleBlur(); // 엔터 키로 blur 처리
-                    }}
-                    onBlur={handleBlur}
-                    placeholder="메뉴 이름을 입력하세요"
-                    style={{
-                      fontSize: '14px',
-                      height: '24px',       // 노드 텍스트와 같은 높이로
-                      lineHeight: '24px',
-                      padding: '0 4px',
-                      boxSizing: 'border-box',
-                      border: '1px solid #ccc',
-                      borderRadius: '4px',
-                      marginLeft: '10px',
-                    }}
-                  />
-                </div>
-              )}
-            </div>
-          ),
-        })}
+        generateNodeProps={({ node, path }) => {
+          const depth = path.length;
+          node.depth = depth;
+          return {
+            title: (
+              <div style={{ position: 'relative' }}>
+                <span
+                  onClick={(event) => {
+                    setSelectedNode(node);
+                    // onMenuClick({ ...node, isAdd: false, isDelete: false });
+                    handleMenuClick(event, node);
+                  }}
+                  onContextMenu={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleMenuClick(e, node);
+                  }}
+                  style={{
+                    color: selectedNode?.menuId === node.menuId ? 'blue' : 'black',
+                  }}
+                  className="ellipsis"
+                >
+                  {node.title}
+                </span>
+  
+                {/* 메뉴 추가 인풋 렌더링 (자식 메뉴로 추가) */}
+                {isAdding && contextMenu.node && contextMenu.node?.menuId === node.menuId && (
+                  <div>
+                    <input
+                      ref={inputRef}
+                      type="text"
+                      value={inputText}
+                      onChange={handleInputChange} // onChange 핸들러
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleBlur(); // 엔터 키로 blur 처리
+                      }}
+                      onBlur={handleBlur}
+                      placeholder="메뉴 이름을 입력하세요"
+                      style={{
+                        fontSize: '14px',
+                        height: '24px',       // 노드 텍스트와 같은 높이로
+                        lineHeight: '24px',
+                        padding: '0 4px',
+                        boxSizing: 'border-box',
+                        border: '1px solid #ccc',
+                        borderRadius: '4px',
+                        marginLeft: '10px',
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+            ),
+          }
+        }}
       />
       </DndProvider>
       <div className="menuSaveBtn">
@@ -516,6 +516,10 @@ const ManageMenuTree: React.FC<ManageMenuTreeProps> = ({
               size="sm"
               variant="primary"
               onClick={() => {
+                  if ((contextMenu?.node?.depth ?? 0) >= 4) {
+                    setShowMenuWarning(true);
+                    return;
+                  }
                 setIsAdding(true);
                 setContextMenu({ ...contextMenu, visible: false });
               }}

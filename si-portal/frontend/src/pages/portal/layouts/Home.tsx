@@ -1,17 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
 import { RootState } from '~store/Store';
 import NoticePopup from '~pages/portal/admin/NoticePopup';
 
 const Home: React.FC = () => {
+  const [showPopup, setShowPopup] = useState(true);
+  
   const databaseType = useSelector(
     (state: RootState) => state.auth.databaseType
   );
 
+  const handleClosePopup = () => {
+    setShowPopup(false);
+  };
+
   return (
     <Container>
-      <NoticePopup />
+      {showPopup && (
+        <NoticePopup
+            handleClose={handleClosePopup}
+        />
+      )}
       <Row className="text-center" style={{ marginTop: '50px' }}>
         <Col>
           <h1>Welcome to Our Portal</h1>

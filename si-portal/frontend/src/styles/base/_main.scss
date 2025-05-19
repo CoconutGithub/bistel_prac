@@ -155,7 +155,7 @@ div[class*="MainLayout_start"] {
     .ms-auto {
       position: relative;
       width: 480px;
-      margin: 0 !important;
+      margin-left: 40px !important;
       align-items: center;
       background-color: #fff;
       &::before {
@@ -199,7 +199,7 @@ div[class*="MainLayout_start"] {
         }
       }
       div.language {
-        width: 125px;
+        width: 150px;
         &::before {
           content: "";
           display: block;
