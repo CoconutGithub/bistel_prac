@@ -24,7 +24,7 @@ public class NoticeService {
     private final NoticeRepository noticeRepository;
     private final FileRepository fileRepository;
 //    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    private final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+    private final DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
     // 🔹 공지사항 목록 조회 (READ)
     public List<Notice> getAllNotices() {
