@@ -17,7 +17,7 @@ import { ComAPIContext } from '~components/ComAPIContext';
 import { cachedAuthToken } from '~store/AuthSlice';
 
 const columnDefs = [
-  { field: 'gridRowId', headerName: 'gridRowId', editable: false, hide: true },
+  { field: 'gridRowId', headerName: 'gridRowId', editable: false, hide: true},
   { field: 'id', hide: true },
   { field: 'title', editable: true },
   { field: 'content', editable: true },
@@ -58,7 +58,7 @@ const YoonNotice: React.FC = () => {
 
   const langCode = useSelector((state: RootState) => state.auth.user.langCode);
   const inputRef = useRef<HTMLInputElement>(null);
-  const gridRef = useRef<AgGridWrapperHandle>(null); //으흠~ useRef를 어떻게 활용했는지 좀 더 확인하는걸로..
+  const gridRef = useRef<AgGridWrapperHandle>(null); //useRef를 어떻게 활용했는지 좀 더 확인하는걸로..
   const userRegisterRef = useRef<any>(null);
   const [dynamicColumnDefs, setDynamicColumnDefs] = useState(columnDefs);
   //이건 아마도 화면에서 데이터 수정이 가능하게 하기 위함으로 보인다.
@@ -222,7 +222,7 @@ const YoonNotice: React.FC = () => {
           rowSelection="multiple"
           canDelete={canDelete} // 삭제 버튼이 활성화됨.
           canUpdate={canUpdate} // 저장 버튼이 활성화됨
-          enableCheckbox={true}
+          // enableCheckbox={true}
           onSave={handleSave} // 저장 버튼 동작
           //pagination={false}
         />
@@ -232,3 +232,6 @@ const YoonNotice: React.FC = () => {
 };
 
 export default YoonNotice;
+
+
+

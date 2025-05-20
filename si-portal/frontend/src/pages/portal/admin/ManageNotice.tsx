@@ -28,6 +28,7 @@ const columnDefs = [
     filter: true,
     editable: false,
     width: 100,
+    hide: true
   },
   {
     field: 'title',
@@ -37,14 +38,14 @@ const columnDefs = [
     editable: true,
     width: 200,
   },
-  {
-    field: 'content',
-    headerName: '내용',
-    sortable: true,
-    filter: true,
-    editable: true,
-    width: 300,
-  },
+  // {
+  //   field: 'content',
+  //   headerName: '내용',
+  //   sortable: true,
+  //   filter: true,
+  //   editable: true,
+  //   width: 300,
+  // },
   {
     headerName: '시작일',
     field: 'noticeStart',
@@ -99,17 +100,6 @@ const ManageNotice: React.FC = () => {
   const [rowData,setRowData]= useState<any>();
 
 
-  const [newNotice, setNewNotice] = useState<{
-    title: string;
-    content: string;
-    noticeStart: Date | null;
-    noticeEnd: Date | null;
-  }>({
-    title: '',
-    content: '',
-    noticeStart: null,
-    noticeEnd: null,
-  });
 
   //처음 페이지 열었을 때 조회 설정
   useEffect(() => {
@@ -137,7 +127,9 @@ const ManageNotice: React.FC = () => {
         if (gridRef.current) {
           res.data.forEach((notice: any) => {
             notice.gridRowId = `${notice.id}-${new Date().getTime()}`;
+            console.log("notice: "+notice)
           });
+          console.table("res.data : "+ res.data)
           gridRef.current.setRowData(res.data);
         }
         comAPIContext.showToast('공지사항 조회 완료!', 'success');
@@ -170,11 +162,6 @@ const ManageNotice: React.FC = () => {
         comAPIContext.hideProgressBar();
       });
   };
-
-  const onSave= () =>{
-    
-
-  }
 
 
   // // 🔹 공지사항 저장
@@ -317,7 +304,7 @@ const ManageNotice: React.FC = () => {
             canDelete={canDelete}
             canUpdate={canUpdate}
             columnDefs={columnDefs}
-            enableCheckbox={true}
+            enableCheckbox={false}
             rowSelection="multiple"
             // onSave={handleSave}
             onCellDoubleClicked={onCellDoubleClicked}
@@ -328,8 +315,10 @@ const ManageNotice: React.FC = () => {
       {showPopup&& (<ManageNoticePopup
       show={showPopup}
       rowData={rowData}
-      onSave={onSave}
-      onClose={()=>setShowPopup(false)}
+      onClose={()=> {
+        setShowPopup(false)
+        handleSearch();
+      }}
       />)}
     </Container>
   );
