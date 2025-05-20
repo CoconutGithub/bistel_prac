@@ -481,7 +481,7 @@ const ManageCodeTree: React.FC<ChooseCodeTreeProps> = ({
           show
           ref={contextMenuRef}
           style={{
-            position: 'absolute',
+            position: 'fixed',
             top: contextMenu.y,
             left: contextMenu.x,
             // background: "white",

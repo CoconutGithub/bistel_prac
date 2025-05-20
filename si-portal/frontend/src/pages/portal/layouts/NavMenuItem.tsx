@@ -118,7 +118,7 @@ const NavMenuItem: React.FC<NavMenuItemProps> = ({
         e.preventDefault();
         if (tabDisable) return;
         if (item.path) {
-            onSelectTab({ key: item.menuId, label: item.title, path: item.path });
+            onSelectTab({ key: item.title, label: item.title, path: item.path });
             navigate(item.path);
         }
     };

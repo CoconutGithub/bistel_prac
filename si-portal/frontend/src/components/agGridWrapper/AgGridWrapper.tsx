@@ -339,6 +339,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
             {showButtonArea && (
               <Col className={styles.buttonColumn}>
                 {children}
+                {canDelete && (
                 <ComButton
                   size="sm"
                   disabled={!canDelete}
@@ -347,6 +348,8 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
                 >
                   {comAPIContext.$msg('label', 'delete', '삭제')}
                 </ComButton>
+                )}
+                {canCreate && (
                 <ComButton
                   size="sm"
                   disabled={!canCreate}
@@ -355,6 +358,8 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
                 >
                   {comAPIContext.$msg('label', 'add', '추가')}
                 </ComButton>
+                )}
+                {canUpdate && (
                 <ComButton
                   size="sm"
                   disabled={!canUpdate}
@@ -363,6 +368,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
                 >
                   {comAPIContext.$msg('label', 'save', '저장')}
                 </ComButton>
+                )}
               </Col>
             )}
           </Row>

@@ -58,7 +58,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
             FROM P_USER A
                 JOIN P_USER_ROLE B ON A.USER_ID = B.USER_ID
                 JOIN P_ROLE C ON B.ROLE_ID = C.ROLE_ID
-            WHERE A.USER_NAME = :userName
+            WHERE UPPER(A.USER_NAME) = UPPER(:userName)
             ORDER BY A.CREATE_DATE DESC
             """, nativeQuery = true)
     List<ComResultMap> getUserByUserName(@Param("userName") String userName);

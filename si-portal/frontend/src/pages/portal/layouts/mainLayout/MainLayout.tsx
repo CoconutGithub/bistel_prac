@@ -142,7 +142,7 @@ const MainLayout = () => {
       location.pathname === '/main/home' &&
       !tabs.some((tab) => tab.key === 'home')
     ) {
-      dispatch(addTab({ key: 'home', label: 'Home', path: '/main/home' }));
+      dispatch(addTab({ key: 'Home', label: 'Home', path: '/main/home' }));
     }
   }, []);
 

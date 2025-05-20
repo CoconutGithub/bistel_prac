@@ -6,7 +6,19 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-y: hidden;
+  overflow: hidden;
+}
+
+html, body {
+  min-width: 1080px;
+  margin: 0;
+  height: 100%;
+  overflow: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+body::-webkit-scrollbar {
+  display: none;
 }
 
 code {
@@ -169,6 +181,9 @@ div[class*="MainLayout_start"] {
       }
       &> div {
         display: flex; align-items: center; padding: 0 20px; cursor: pointer; font-size: 14px;
+        select.form-select {
+          cursor: pointer;
+        }
         &:nth-child(2) {
           cursor: default;
         }
@@ -954,4 +969,8 @@ button.btn {
     border-radius: 10px;
     box-shadow: inset 0px 0px 5px white;
   }
+}
+
+.MainLayout_chat_button__vL469 {
+  z-index: 1;
 }
