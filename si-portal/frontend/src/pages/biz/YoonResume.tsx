@@ -89,6 +89,7 @@ const YoonResume: React.FC = () => {
           showButtonArea={false}
           columnDefs={columnDefs}
           onCellDoubleClicked={onCellDoubleClicked}
+          enableCheckbox={true}
           rowSelection="single"
         />
       </Row>

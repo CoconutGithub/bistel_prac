@@ -101,6 +101,7 @@ const CshResume: React.FC<CshResumeProps> = () => {
           showButtonArea={false}
           columnDefs={columResume}
           onCellDoubleClicked={onCellDoubleClicked}
+          enableCheckbox={true}
           rowSelection="single"
         />
       </Row>

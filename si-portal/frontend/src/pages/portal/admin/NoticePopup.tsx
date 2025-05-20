@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import axios from 'axios';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 import { cachedAuthToken } from '~store/AuthSlice';
 
 interface Notice {
@@ -11,7 +13,11 @@ interface Notice {
   noticeEnd: string;
 }
 
-const NoticePopup: React.FC = () => {
+interface NoticePopupProps {
+  handleClose: () => void;
+}
+
+const NoticePopup: React.FC<NoticePopupProps> = ({ handleClose }) => {
   const [show, setShow] = useState(false);
   const [notices, setNotices] = useState<Notice[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
@@ -44,8 +50,6 @@ const NoticePopup: React.FC = () => {
     }
   };
 
-  const handleClose = () => setShow(false);
-
   const handleDoNotShowToday = () => {
     localStorage.setItem('hideNoticePopup', new Date().toLocaleDateString());
     setShow(false);
@@ -64,63 +68,39 @@ const NoticePopup: React.FC = () => {
   };
 
   return (
-    <Modal show={show} onHide={handleClose} centered size="lg">
-      {' '}
-      {/* ✅ 팝업 크기 고정 */}
+    <Modal
+      show={show}
+      onHide={handleClose}
+      centered
+      size="lg"
+      dialogClassName="notice-modal"
+    >
       <Modal.Header closeButton>
         <Modal.Title>공지사항</Modal.Title>
       </Modal.Header>
-      <Modal.Body
-        style={{
-          width: '700px',
-          minHeight: '500px', // ✅ 기본 높이 지정
-          maxHeight: '700px',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
+      <Modal.Body>
         {notices.length > 0 ? (
           <>
-            <h4
-              style={{
-                fontWeight: 'bold',
-                color: '#333',
-                marginBottom: '15px',
-              }}
-            >
+            <h4 style={{ fontWeight: 'bold', color: '#333', marginBottom: '15px' }}>
               {notices[currentPage].title}
             </h4>
             <hr />
-            <div
-              style={{
-                flexGrow: 1,
-                minHeight: '400px',
-                maxHeight: '500px',
-                overflowY: 'auto',
-                paddingRight: '10px',
-                fontSize: '16px',
-                color: '#444',
-                whiteSpace: 'pre-wrap',
-              }}
-            >
-              {notices[currentPage].content}
+            <div style={{ fontSize: '16px', color: '#444', whiteSpace: 'pre-wrap' }}>
+              <ReactQuill
+                value={notices[currentPage].content}
+                readOnly={true}
+                theme="snow"
+                modules={{ toolbar: false }}
+              />
             </div>
-            <div className="d-flex justify-content-between mt-3">
-              <Button
-                variant="light"
-                onClick={handlePrev}
-                disabled={currentPage === 0}
-              >
+            <div className="d-flex justify-content-between mt-4">
+              <Button variant="light" onClick={handlePrev} disabled={currentPage === 0}>
                 ◀ 이전
               </Button>
               <span style={{ fontSize: '16px', fontWeight: 'bold' }}>
                 {currentPage + 1} / {notices.length}
               </span>
-              <Button
-                variant="light"
-                onClick={handleNext}
-                disabled={currentPage === notices.length - 1}
-              >
+              <Button variant="light" onClick={handleNext} disabled={currentPage === notices.length - 1}>
                 다음 ▶
               </Button>
             </div>
@@ -138,6 +118,7 @@ const NoticePopup: React.FC = () => {
         </Button>
       </Modal.Footer>
     </Modal>
+
   );
 };
 

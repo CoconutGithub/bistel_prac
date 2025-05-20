@@ -9,4 +9,5 @@ export interface ChooseMenuData {
   isAdd: boolean;
   isDelete: boolean;
   position: number;
+  isNew?: boolean;
 }
