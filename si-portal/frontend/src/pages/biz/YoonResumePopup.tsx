@@ -27,11 +27,7 @@ interface YoonResumePopupProps {
   onClose: () => void;
 }
 
-const YoonResumePopup: React.FC<YoonResumePopupProps> = ({
-  show,
-  resumeData,
-  onClose,
-}) => {
+const YoonResumePopup: React.FC<YoonResumePopupProps> = ({show, resumeData, onClose}) => {
   return (
     <Modal show={show} onHide={onClose} fullscreen centered>
       <Modal.Header closeButton className="bg-primary text-white">
