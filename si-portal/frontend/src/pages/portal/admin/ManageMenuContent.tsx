@@ -18,10 +18,6 @@ import axios from 'axios';
 import { cachedAuthToken } from '~store/AuthSlice';
 import { setMenuItems } from '~store/MenuSlice';
 
-interface ManageMenuContentProps {
-  chooseMenuData: ChooseMenuData | null;
-}
-
 interface Role {
   roleId: number;
   roleName: string;
@@ -206,18 +202,17 @@ const ManageMenuContent: React.FC<{
 
   console.log('chooseMenuData', chooseMenuData);
 
-  // chooseMenuData가 변경될 때마다 상태를 업데이트합니다.
   useEffect(() => {
     if (chooseMenuData) {
       setPosition(Number(chooseMenuData?.position));
       setPath(chooseMenuData?.path);
-      setMenuName(chooseMenuData?.menuName); // menuName 업데이트
+      setMenuName(chooseMenuData?.menuName); 
       setMsgId(chooseMenuData?.msgId);
       setIsActive(chooseMenuData?.status ?? 'INACTIVE');
       fetchData();
       setMenuId(chooseMenuData.menuId);
     }
-  }, [chooseMenuData]); // chooseMenuData가 변경될 때마다 호출됩니다.
+  }, [chooseMenuData]);
 
   useEffect(() => {
     const setDefColumn = () => {
@@ -295,7 +290,7 @@ const ManageMenuContent: React.FC<{
           return {
             ...col,
             cellEditorParams: {
-              values: roleList.map((role: Role) => role.roleName), // 권한 이름만 추가
+              values: roleList.map((role: Role) => role.roleName),
             },
             valueSetter: (params: any) => {
               const newRoleName = params.newValue;
@@ -304,7 +299,7 @@ const ManageMenuContent: React.FC<{
               );
 
               if (selectedRole) {
-                params.data.roleId = selectedRole.roleId; // roleId를 매핑
+                params.data.roleId = selectedRole.roleId;
                 params.data.roleName = selectedRole.roleName;
                 return true;
               }
@@ -345,10 +340,10 @@ const ManageMenuContent: React.FC<{
 
         if (gridRef.current && response.data !== '조회된 데이터가 없습니다') {
           gridRef.current.setRowData(response.data);
-          setRowData(response.data); // ✅ 꼭 추가!
+          setRowData(response.data);
         } else {
           gridRef?.current?.setRowData([]);
-          setRowData([]); // ✅ 이 줄도 추가!
+          setRowData([]);
         }
       }
     } catch (error: any) {
@@ -359,44 +354,6 @@ const ManageMenuContent: React.FC<{
         'Error fetching roles: ' + errorMessage,
         'danger'
       );
-    } finally {
-      comAPIContext.hideProgressBar();
-    }
-  };
-
-  const onchangeMenuName = () => {};
-
-  const checkMenuIdDuplicate = async () => {
-    console.log('✅ API 주소:', process.env.REACT_APP_BACKEND_IP);
-    console.log(
-      '✅ 요청 URL:',
-      `${process.env.REACT_APP_BACKEND_IP}/admin/api/check-menu-id-duplicate`
-    );
-    console.log('✅ 토큰:', cachedAuthToken);
-
-    if (!menuId) {
-      comAPIContext.showToast('Menu ID를 입력해주세요.', 'warning');
-      return;
-    }
-
-    try {
-      comAPIContext.showProgressBar();
-      const res = await axios.get(
-        `${process.env.REACT_APP_BACKEND_IP}/admin/api/check-menu-id-duplicate`,
-        {
-          params: { menuId },
-          headers: { Authorization: `Bearer ${cachedAuthToken}` },
-        }
-      );
-
-      if (res.data.exists) {
-        comAPIContext.showToast('이미 존재하는 Menu ID입니다.', 'danger');
-      } else {
-        comAPIContext.showToast('사용 가능한 Menu ID입니다.', 'success');
-      }
-    } catch (error) {
-      console.error('중복 체크 실패:', error);
-      comAPIContext.showToast('중복 체크 실패', 'danger');
     } finally {
       comAPIContext.hideProgressBar();
     }
@@ -448,7 +405,7 @@ const ManageMenuContent: React.FC<{
         dispatch(setMenuItems(menuInfo));
       })
       .catch((error) => {
-        console.error('❌ Header 메뉴 로드 실패:', error);
+        console.error('Header 메뉴 로드 실패:', error);
       });
     } catch (error) {
       console.error("Error saving menu:", error);

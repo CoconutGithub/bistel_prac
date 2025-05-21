@@ -16,6 +16,7 @@ import SiVerticalDot from '~components/icons/SiVerticalDot';
 import { resetTab } from '~store/RootTabs';
 import ResumeList_hdh from '~pages/portal/layouts/ResumeList_hdh';
 import ChatBot from '~components/chatBot/ChatBot';
+import { setMenuItems } from '~store/MenuSlice';
 
 const GlobalNavbar = React.memo(
   ({
@@ -23,7 +24,8 @@ const GlobalNavbar = React.memo(
   }: {
     onSelectTab: (tab: { key: string; label: string; path: string }) => void;
   }) => {
-    const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+    const menuItems = useSelector((state: RootState) => state.menu.menuItems);
+    
     const isMighty = useSelector(
       (state: RootState) => state.auth.user.isMighty
     );
@@ -54,7 +56,8 @@ const GlobalNavbar = React.memo(
           })
           .then((res) => {
             if (res.data) {
-              setMenuItems(res.data.menuInfo);
+              const menuInfo = res.data.menuInfo || []
+              dispatch(setMenuItems(menuInfo));
             }
           })
           .catch((error) => {
