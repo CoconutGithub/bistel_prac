@@ -65,7 +65,6 @@ public interface MenuRepository extends JpaRepository<Menu, Integer> {
                     JOIN P_MSG_DETAIL M2
                 ON M1.MSG_ID = M2.MSG_ID
                 WHERE M2.LANG_CODE = :langCode
-                AND M1.MSG_TYPE ='label'
             ) B
             ON A.MSG_ID = B.MSG_ID
         WHERE A.STATUS = 'ACTIVE'
@@ -97,7 +96,6 @@ public interface MenuRepository extends JpaRepository<Menu, Integer> {
                     JOIN P_MSG_DETAIL M2
                 ON M1.MSG_ID = M2.MSG_ID
                 WHERE M2.LANG_CODE = :langCode
-                AND M1.MSG_TYPE ='label'
             ) C
                 ON A.MSG_ID = C.MSG_ID
         WHERE 1=1

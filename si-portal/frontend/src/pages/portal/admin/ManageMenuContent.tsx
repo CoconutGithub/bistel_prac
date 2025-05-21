@@ -11,11 +11,12 @@ import AgGridWrapper from '~components/agGridWrapper/AgGridWrapper';
 import { AgGridWrapperHandle } from '~types/GlobalTypes';
 import ComButton from '~pages/portal/buttons/ComButton';
 import MessageSelectPopup from '~pages/portal/admin/MessageSelectPopup';
-import { RootState } from '~store/Store';
-import { useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '~store/Store';
+import { useDispatch, useSelector } from 'react-redux';
 import { ComAPIContext } from '~components/ComAPIContext';
 import axios from 'axios';
 import { cachedAuthToken } from '~store/AuthSlice';
+import { setMenuItems } from '~store/MenuSlice';
 
 interface ManageMenuContentProps {
   chooseMenuData: ChooseMenuData | null;
@@ -192,12 +193,16 @@ const ManageMenuContent: React.FC<{
     chooseMenuData?.menuName
   ); // menuName state 관리
   const state = useSelector((state: RootState) => state.auth);
+  const isMighty = useSelector((state: RootState) => state.auth.user.isMighty);
+  const roleId = useSelector((state: RootState) => state.auth.user.roleId);
+  const langCode = useSelector((state: RootState) => state.auth.user.langCode ?? 'ko');
   const comAPIContext = useContext(ComAPIContext);
   const pathRef = useRef<HTMLInputElement>(null);
   const [msgId, setMsgId] = useState<number>(0);
   const menuNameRef = useRef<HTMLInputElement>(null);
   const [menuId, setMenuId] = useState<string | any>(chooseMenuData?.menuId);
   const [rowData, setRowData] = useState<any[]>([]);
+  const dispatch = useDispatch<AppDispatch>();
 
   console.log('chooseMenuData', chooseMenuData);
 
@@ -404,7 +409,6 @@ const ManageMenuContent: React.FC<{
     const menuNameValue = menuNameRef?.current?.value;
 
     const data = {
-
       menuName: menuNameValue,
       path: pathValue,
       position: position === '' ? 0 : position,
@@ -418,24 +422,34 @@ const ManageMenuContent: React.FC<{
 
     try {
       comAPIContext.showProgressBar();
-      // const res = await axios.post(
-      //   `${process.env.REACT_APP_BACKEND_IP}/admin/api/update-menu-content`,
-      //   data,
-      //   {
-      //     headers: { Authorization: `Bearer ${cachedAuthToken}` },
-      //   }
-      // );
-      const isNew = chooseMenuData?.isAdd === true;
-      const url = isNew
-          ? `${process.env.REACT_APP_BACKEND_IP}/admin/api/insert-menu-content`
-          : `${process.env.REACT_APP_BACKEND_IP}/admin/api/update-menu-content`;
-      const res = await axios.post(url, data, {
-        headers: { Authorization: `Bearer ${cachedAuthToken}` },
-      });
-      console.log(res);
+      await axios.post(
+        `${process.env.REACT_APP_BACKEND_IP}/admin/api/update-menu-content`,
+        data,
+        {
+          headers: { Authorization: `Bearer ${cachedAuthToken}` },
+        }
+      );
       comAPIContext.hideProgressBar();
       alert("Save successfully!");
       onSave();
+      await axios
+      .get(`${process.env.REACT_APP_BACKEND_IP}/menu`, {
+        headers: {
+          Authorization: `Bearer ${cachedAuthToken}`,
+        },
+        params: {
+          roleId,
+          isMighty,
+          langCode,
+        },
+      })
+      .then((res) => {
+        const menuInfo = res.data.menuInfo || []
+        dispatch(setMenuItems(menuInfo));
+      })
+      .catch((error) => {
+        console.error('❌ Header 메뉴 로드 실패:', error);
+      });
     } catch (error) {
       console.error("Error saving menu:", error);
       comAPIContext.hideProgressBar();
@@ -554,7 +568,7 @@ const ManageMenuContent: React.FC<{
       {chooseMenuData && chooseMenuData.menuName !== 'Root' ? (
         <>
           <h4 className="cnt_title">
-            {chooseMenuData.isAdd === true ? 'Add Menu' : 'Selected Menu'}
+            Selected Menu
           </h4>
           <Form>
             {/* Menu Name */}

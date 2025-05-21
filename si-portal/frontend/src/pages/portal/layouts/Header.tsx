@@ -11,6 +11,7 @@ import { resetTab } from '~store/RootTabs';
 import { ComAPIContext } from '~components/ComAPIContext';
 import Form from 'react-bootstrap/Form';
 import NoticePopup from '~pages/portal/admin/NoticePopup';
+import { setMenuItems } from '~store/MenuSlice';
 
 interface HeaderProps {
     onSelectTab: (tab: { key: string; label: string; path: string }) => void;
@@ -18,13 +19,13 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = React.memo(({ onSelectTab }) => {
   const comAPIContext = useContext(ComAPIContext);
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [showPopup, setShowPopup] = useState(false);
   const [langMap, setLangMap] = useState<Record<string, string>>({});
   const [isNew, setIsNew] = useState(true);
 
   const isMighty = useSelector((state: RootState) => state.auth.user.isMighty);
   const roleId = useSelector((state: RootState) => state.auth.user.roleId);
+  const menuItems = useSelector((state: RootState) => state.menu.menuItems);
   const headerColor = useSelector(
     (state: RootState) => state.auth.user.headerColor
   );
@@ -46,7 +47,7 @@ const Header: React.FC<HeaderProps> = React.memo(({ onSelectTab }) => {
     return location.pathname === path ? 'active' : '';
   };
 
-    const [isAdminHovered, setIsAdminHovered] = useState(false);
+  const [isAdminHovered, setIsAdminHovered] = useState(false);
 
   useEffect(() => {
     axios
@@ -61,7 +62,8 @@ const Header: React.FC<HeaderProps> = React.memo(({ onSelectTab }) => {
         },
       })
       .then((res) => {
-        setMenuItems(res.data.menuInfo || []);
+        const menuInfo = res.data.menuInfo || []
+        dispatch(setMenuItems(menuInfo));
       })
       .catch((error) => {
         console.error('❌ Header 메뉴 로드 실패:', error);
