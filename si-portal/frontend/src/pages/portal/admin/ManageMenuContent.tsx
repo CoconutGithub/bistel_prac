@@ -360,8 +360,6 @@ const ManageMenuContent: React.FC<{
   };
 
   const handleSave = async () => {
-    console.log("메뉴 저장 (신규 vs 수정) 분기 처리 시작");
-
     const pathValue = pathRef?.current?.value; // ref로 저장된 값을 가져옴
     const menuNameValue = menuNameRef?.current?.value;
 
@@ -374,8 +372,6 @@ const ManageMenuContent: React.FC<{
       menuId: menuId,
       msgId: msgId,
     };
-
-    console.log(data);
 
     try {
       comAPIContext.showProgressBar();
@@ -536,11 +532,10 @@ const ManageMenuContent: React.FC<{
               <Col sm={4}>
                 <Form.Control
                     type="text"
+                    ref={menuNameRef}
                     value={menuName || ""} // menuName 상태값 사용
                     size="sm"
                     onChange={e => setMenuName(e.target.value)}
-                    disabled={!chooseMenuData?.isNew}
-                    readOnly={!chooseMenuData?.isNew}
                 />
               </Col>
               <Col sm={3}>
