@@ -1,39 +1,46 @@
 import AgGridWrapper from '~components/agGridWrapper/AgGridWrapper';
 import { cachedAuthToken } from '~store/AuthSlice';
-import React, {useState, useRef, useEffect, useCallback, useContext} from "react"; // React는 default export, useState는 기본 export 겠군
+import React, {useState, useRef, useEffect, useCallback, useContext, useMemo} from "react"; // React는 default export, useState는 기본 export 겠군
 import { AgGridWrapperHandle } from '~types/GlobalTypes';
 import axios from 'axios';
 import ComButton from '../portal/buttons/ComButton';
 import { ComAPIContext } from '~components/ComAPIContext';
+import { check } from 'prettier';
 
 
 
 
 
 const YoonTodo=()=>{
-
-    const [canCreate, setCanCreate]= useState(true)
+    const [checkBox, setCheckBox] = useState(false);
+    const [editMode, setEditMode] = useState(false);
+    const [canDelete, setCanDelete]= useState(false);
+    const [canUpdate, setCanUpdate]= useState(false);
+    const [canCreate, setCanCreate]= useState(true);
     const gridRef = useRef<AgGridWrapperHandle>(null);
     const comAPIContext = useContext(ComAPIContext);
-
+    // console.log('editMode', editMode)
         const [columnDefs, setColumnDefs] = useState(
         [   
-            {field : 'id' , hide: true}, 
-            {field : 'todoType' }, 
-            {field : 'worker' },
-            {field : 'title' },
-            {field : 'content' },
-            {field : 'dueDate' },
-            {field : 'progressStatus' }
+            {field : 'id' , hide: true, editable: false}, 
+            {field : 'todoType' , editable: false}, 
+            {field : 'worker' , editable: false},
+            {field : 'title' , editable: false},
+            {field : 'content' , editable: false},
+            {field : 'dueDate', editable: false },
+            {field : 'progressStatus' , editable: false}
         ]
 ); 
 
+        useEffect(() => {
+             console.log("editMode : " + editMode);
+            }, [editMode]);
                 
         const openPopup=()=>{
             
         }
 
-        const handleSearch=()=>{
+        const handleSearch=async ()=>{
             axios.get(`${process.env.REACT_APP_BACKEND_IP}/api/todo`, {
                 headers: {Authorization: `Bearer ${cachedAuthToken}`},
             })
@@ -46,45 +53,42 @@ const YoonTodo=()=>{
             });
         }
         
-        const onSave = useCallback(
-
-            
+        const handleSave = useCallback(
 
             async (lists: { deleteList: any[]; updateList: any[] }) => {
             if (!gridRef.current) return;
 
-            // if (lists.deleteList.length === 0 && lists.updateList.length === 0) {
-            //     comAPIContext.showToast(
-            //     comAPIContext.$msg(
-            //         'message',
-            //         'no_save_data',
-            //         '저장할 데이터가 없습니다.'
-            //     ),
-            //     'dark'
-            //     );
-            //     return;
-            // }
+            if (lists.updateList.length === 0) {
+                comAPIContext.showToast(
+                comAPIContext.$msg(
+                    'message',
+                    'no_save_data',
+                    '저장할 데이터가 없습니다.'
+                ),
+                'dark'
+                );
+                return;
+            }
 
             try {
 
                 comAPIContext.showProgressBar(); 
                 
+                const updateList= lists.updateList;
+                 
                 
-                const payload = {
-                  updateList: lists.updateList,
-                  deleteList: lists.deleteList
-                };
+            
 
         axios
           .put(
             `${process.env.REACT_APP_BACKEND_IP}/api/todo`,
-            payload,
+             updateList,
             {
               headers: { Authorization: `Bearer ${cachedAuthToken}` },
             }
           )
           .then((res) => {
-            if (res.data.messageCode === 'success') {
+            if (res.data) {
               comAPIContext.showToast(
                 comAPIContext.$msg(
                   'message',
@@ -96,6 +100,7 @@ const YoonTodo=()=>{
               );
 
             handleSearch(); // 저장 후 최신 데이터 조회
+            changeEditMode();// editMode 변경
                 }
             });
          } catch(err) {
@@ -105,19 +110,101 @@ const YoonTodo=()=>{
                     'danger'
                 );
                 handleSearch();
+                changeEditMode();
             } finally {
                 comAPIContext.hideProgressBar();
             }
             },
             []
   );
+
+    const handleDelete = useCallback((selectedRows: any[]) => {
+        
+        const selectedIds = selectedRows.map(row => row.id); //js 문법에 대한 이해가 부족함.
+        console.log("handleDelete-selectedIds: "+ selectedIds)
+
+        if (selectedIds.length === 0) {
+            comAPIContext.showToast('삭제할 데이터가 없습니다.', 'dark');
+            return;
+        }
+        const ids=selectedIds;
+
+        // 서버에 삭제 요청
+        axios.delete(`${process.env.REACT_APP_BACKEND_IP}/api/todo`
+             ,{
+              data: ids, // { ids }가 아니라 ids만!
+              headers: { Authorization: `Bearer ${cachedAuthToken}` },
+            }
+        )
+            .then(() => {
+            // 서버에서 삭제 성공 시, 그리드에서도 바로 제거
+            comAPIContext.showToast('삭제되었습니다.', 'success');
+            handleSearch();
+            changeEditMode();
+            
+            })
+            .catch(() => {
+            comAPIContext.showToast('삭제 실패', 'danger');
+            handleSearch();
+            changeEditMode();
+            
+            });
+        },[]);
+
+    const handleUpdate=()=> {
+        setColumnDefs((prev => {
+            prev.map((r) => {
+                if(r.field == 'title' || r.field == 'TodoType'|| r.field == 'ProgressStatus'|| r.field == 'content') {
+                    r.editable = true
+                    return r
+                } else {
+                    return r
+                }
+            })
+            return prev
+        }
+        ))
+          console.log("수정 버튼 클린 전 editMode:"+ editMode)
+         changeEditMode();
+         console.log("수정 버튼 클린 후 editMode:"+ editMode)
+
+      
+    }
+
+    const changeEditMode=()=>{
+            if(editMode==false){
+            setEditMode(true);
+            setCanDelete(true);
+            setCanUpdate(true);
+            setCheckBox(true);
+            setCanCreate(false);
+        } else{
+            setEditMode(false);
+            setCanDelete(false);
+            setCanUpdate(false);
+            setCheckBox(false);
+            setCanCreate(true);
+        }
+    };
         
                 
-        
-        
-
-    const createButton=useCallback(()=>{
+    const updateButton=useMemo(()=>{
         return(
+            <>
+                <ComButton
+                    size="sm"
+                    className='me-2'
+                    onClick={handleUpdate}
+                    disabled={editMode}
+                    >
+                    {comAPIContext.$msg('label', 'update', 'Todo 수정')}
+                </ComButton>
+            </>
+        )
+    },[handleUpdate,canDelete])   
+        console.log("canCreate: "+canCreate)
+        const createButton=useMemo(()=>(
+       
             <>
                 <ComButton
                     size="sm"
@@ -125,11 +212,11 @@ const YoonTodo=()=>{
                     onClick={openPopup}
                     disabled={!canCreate}
                 >
-
+                    {comAPIContext.$msg('label', 'add Todo', 'Todo 추가')}
                 </ComButton>
             </>
-        );
-    },[])
+         ),[openPopup,canCreate]);
+
         
         // useEffect(() => {
         //     if(gridRef.current){ // if문으로 데이터가 없는 경우를 고려하지 않으면 에러가 난다.
@@ -166,13 +253,18 @@ const YoonTodo=()=>{
                     <AgGridWrapper 
                         ref={gridRef} 
                         columnDefs={columnDefs} 
-                        enableCheckbox={false}
+                        enableCheckbox={checkBox}
                         showButtonArea={true}
-                        canCreate={true}
-                        canDelete={true}
-                        canUpdate={true}          
+                        canCreate={false}
+                        canDelete={canDelete}
+                        canUpdate={canUpdate}          
                         useNoColumn={true}
-                    />
+                        onSave={handleSave}
+                        onDelete={handleDelete}
+                    >
+                        {createButton}
+                        {updateButton}
+                    </AgGridWrapper>
                 </div>
 
             </div>
