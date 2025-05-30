@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 public class TodoResponse {
+  private final long id;
   private final String todoType;
   private final String worker;
   private final String title;
@@ -18,6 +19,7 @@ public class TodoResponse {
   private final String progressStatus;
 
   public TodoResponse(Todo todo) {
+    this.id=todo.getId();
     this.todoType = todo.getTodoType();
     this.worker = todo.getWorker();
     this.title = todo.getTitle();

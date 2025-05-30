@@ -194,7 +194,7 @@ const ManageMenuContent: React.FC<{
   const langCode = useSelector((state: RootState) => state.auth.user.langCode ?? 'ko');
   const comAPIContext = useContext(ComAPIContext);
   const pathRef = useRef<HTMLInputElement>(null);
-  const [msgId, setMsgId] = useState<number>(0);
+  const [msgId, setMsgId] = useState<number| null>(null);
   const menuNameRef = useRef<HTMLInputElement>(null);
   const [menuId, setMenuId] = useState<string | any>(chooseMenuData?.menuId);
   const [rowData, setRowData] = useState<any[]>([]);
@@ -535,7 +535,10 @@ const ManageMenuContent: React.FC<{
                     ref={menuNameRef}
                     value={menuName || ""} // menuName 상태값 사용
                     size="sm"
-                    onChange={e => setMenuName(e.target.value)}
+                    onChange={e => {
+                      setMsgId(null);
+                      setMenuName(e.target.value)
+                    }}
                 />
               </Col>
               <Col sm={3}>
