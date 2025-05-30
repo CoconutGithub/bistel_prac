@@ -25,7 +25,7 @@ const GlobalNavbar = React.memo(
     onSelectTab: (tab: { key: string; label: string; path: string }) => void;
   }) => {
     const menuItems = useSelector((state: RootState) => state.menu.menuItems);
-    
+
     const isMighty = useSelector(
       (state: RootState) => state.auth.user.isMighty
     );
@@ -56,7 +56,7 @@ const GlobalNavbar = React.memo(
           })
           .then((res) => {
             if (res.data) {
-              const menuInfo = res.data.menuInfo || []
+              const menuInfo = res.data.menuInfo || [];
               dispatch(setMenuItems(menuInfo));
             }
           })
