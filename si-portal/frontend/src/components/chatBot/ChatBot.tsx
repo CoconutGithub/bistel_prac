@@ -125,7 +125,6 @@ const ChatBot: React.FC<IChatBotProps> = (props) => {
         while (true) {
           const { value, done } = await reader.read();
           if (done) {
-            logger.info('스트림 정상 종료 (done 플래그)');
             // 최종적으로 accumulatedResponse에 대해 포맷팅 및 클리닝 적용
             updateBotMessage(accumulatedResponse, true);
             break;
@@ -137,7 +136,6 @@ const ChatBot: React.FC<IChatBotProps> = (props) => {
             if (line.startsWith('data:')) {
               const textData = line.substring(5).trim();
               if (textData === '[DONE]') {
-                logger.info('스트리밍 완료 ([DONE] 수신, 추가 처리 없음)');
                 // [DONE] 신호는 스트림의 끝을 의미하므로,
                 // 위 done 플래그가 true가 될 때 최종 업데이트됨.
                 continue;
@@ -262,11 +260,11 @@ const ChatBot: React.FC<IChatBotProps> = (props) => {
       {showUpload && <FileUpload onUploadSuccess={handleUploadSuccess} />}
       */}
       <div className={styles.inputArea}>
-        {/* FileUpload 버튼 (SCSS에 스타일 정의 필요)
+        {/* FileUpload 버튼
         <Button
           onClick={() => setShowUpload(!showUpload)}
           variant="outline-secondary"
-          className={styles.fileUploadButton} // SCSS 모듈 사용 시
+          className={styles.fileUploadButton}
         >
           <FontAwesomeIcon icon={faPlusSquare} />
         </Button>
