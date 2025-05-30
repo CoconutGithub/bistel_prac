@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,7 +23,8 @@ import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 
-@RestController("api/todo")
+@RestController
+@RequestMapping("/api/todo")
 @RequiredArgsConstructor
 public class TodoController {
 
@@ -45,15 +47,15 @@ public class TodoController {
     return ResponseEntity.ok().body(response);
   }
 
-  @PutMapping("/{id}")
-  public ResponseEntity<TodoResponse> updateTodo(@PathVariable Long id, @RequestBody UpdateTodoRequest updateTodoRequest){
-     TodoResponse updateResponse = todoService.update(id,updateTodoRequest);
-    return ResponseEntity.ok().body(updateResponse);
+  @PutMapping
+  public ResponseEntity<Integer> updateTodo(@RequestBody List<UpdateTodoRequest> updateTodoRequests){
+     int count = todoService.update(updateTodoRequests);
+    return ResponseEntity.ok().body(count);
   }
 
-  @DeleteMapping("/{id}")
-  public ResponseEntity<Void> removeTodo(@PathVariable Long id){
-    todoService.delete(id);
+  @DeleteMapping
+  public ResponseEntity<Void> removeTodo(@RequestBody List<Long> ids){
+    todoService.delete(ids);
     return ResponseEntity.ok().build();
   }
 }

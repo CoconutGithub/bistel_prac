@@ -150,7 +150,7 @@ const ManageNotice: React.FC = () => {
     axios
       .get(`${process.env.REACT_APP_BACKEND_IP}/notice/api/get-notice`, {
         headers: { Authorization: `Bearer ${cachedAuthToken}` },
-        params: { id: event.data.id },//js 기초 공부 해야할듯 ㅠㅠㅠ
+        params: { id: event.data.id },
       })
       .then((res) => {
         setRowData(res.data);
