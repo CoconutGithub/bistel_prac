@@ -6,6 +6,7 @@ import lombok.Getter;
 
 @Getter
 public class UpdateTodoRequest {
+  private long id;
   private String todoType;
   private String worker;
   private String title;
