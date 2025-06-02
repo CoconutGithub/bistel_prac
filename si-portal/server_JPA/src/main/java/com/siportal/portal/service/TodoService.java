@@ -6,6 +6,8 @@ import com.siportal.portal.dto.todo.TodoResponse;
 import com.siportal.portal.dto.todo.UpdateTodoRequest;
 import com.siportal.portal.repository.TodoRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 
@@ -27,19 +29,24 @@ public class TodoService {
   }
 
   public TodoResponse findById(long id){
-    return new TodoResponse(todoRepository.findById(id) //이러면 optional을 반환하나? 아님 orElseThrow가 optional에서 TodoResponse를 꺼내주나~?
+    return new TodoResponse(todoRepository.findById(id)
                                           .orElseThrow(() ->new IllegalArgumentException("not found"+ id)));
   }
 
   //update
-  public TodoResponse update(long id, UpdateTodoRequest updateTodoRequest){
-    Todo todo = todoRepository.findById(id).orElseThrow(()-> new IllegalArgumentException("not found"+ id)); // 오류가 생기면 프론트는 어떻게 동작할까?
-    todo.update(updateTodoRequest);
-    return new TodoResponse(todo); // 이 코드가 중복 되니까 메서드로 만들 수 있겠다.
+  @Transactional
+  public int update(List<UpdateTodoRequest> updateTodoRequests){
+    int count=0;
+    for(UpdateTodoRequest request: updateTodoRequests){
+      Todo todo = todoRepository.findById(request.getId()).orElseThrow(()->new IllegalArgumentException());
+      count++;
+      todo.update(request);
+    }
+    return count;
   }
 
   //delete
-  public void delete(long id){
-    todoRepository.deleteById(id);
+  public void delete(List<Long> ids){
+    todoRepository.deleteAllById(ids);
   }
 }

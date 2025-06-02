@@ -23,6 +23,7 @@ const FloraResumeDetail = React.lazy(
 const YwkResume = React.lazy(() => import('~pages/biz/YwkResume'));
 const YoonResume = React.lazy(() => import('~pages/biz/YoonResume'));
 const YoonNotice = React.lazy(() => import('~pages/biz/YoonNotice'));
+const YoonTodo = React.lazy(() => import('~pages/biz/YoonTodo'));
 
 const InformationList = React.lazy(
   () => import('~pages/biz/infomationPage/informationList/informationList')
@@ -151,6 +152,14 @@ export default function DefaultRoutes(): RouteObject[] {
         </React.Suspense>
       ),
       loader: checkBtnAuthLoader,
+    },
+        {
+      path: '/main/yoon-todo',
+      element: (
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <YoonTodo />
+        </React.Suspense>
+      ),
     },
     {
       path: '/main/bonnie-info',

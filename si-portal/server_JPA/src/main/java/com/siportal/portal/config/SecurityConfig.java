@@ -52,6 +52,7 @@ public class SecurityConfig {
                         .requestMatchers("/admin/api/update-menu-tree").permitAll() // 인증 없이 허용
                         .requestMatchers("/admin/api/check-menu-id-duplicate").permitAll() // ← 이게 없으면 인증 필요함
                         .requestMatchers("/admin/api/get-menu-tree").permitAll() // ✅ 추가
+                        .requestMatchers("/api/todo").permitAll()
                         .requestMatchers(
                             "/swagger-ui/**", // Swagger UI 경로 허용
                             "/v3/api-docs/**", // OpenAPI 문서 경로 허용

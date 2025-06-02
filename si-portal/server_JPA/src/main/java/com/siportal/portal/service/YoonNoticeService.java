@@ -64,7 +64,7 @@ public class YoonNoticeService {
 
       List<Long> ids = deleteList.stream()
                 .map(map -> ((Number)map.get("id")).longValue())
-                .collect(Collectors.toList()); //stream 쓰는 법 알면 코딩이 너무 재밌을듯 ㄷㄷ <- 조만간 iterater와 stream을 모두 이용해서 구현해보자!
+                .collect(Collectors.toList());
 
       Iterator<Long> it=ids.iterator();
       while(it.hasNext()){
@@ -86,12 +86,9 @@ public class YoonNoticeService {
       //2. 수정
       noticeObj.setContent((String)notice.get("content"));
       noticeObj.setTitle((String)notice.get("title"));
-
       String noticeStart=(String)notice.get("noticeStart");
       //noticeStart=noticeStart.replaceAll("\\.\\d+","");
-      System.out.println("아오 noticeStart: "+noticeStart);
-      noticeObj.setNoticeStart(LocalDateTime.parse(noticeStart,formatter));//이건 저장이 안 되었다.
-
+      noticeObj.setNoticeStart(LocalDateTime.parse(noticeStart,formatter));
       noticeObj.setNoticeStart(LocalDateTime.parse((String)notice.get("noticeEnd"),formatter));
 
     }
