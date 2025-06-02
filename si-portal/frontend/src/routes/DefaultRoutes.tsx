@@ -132,6 +132,7 @@ export default function DefaultRoutes(): RouteObject[] {
           <YwkResume />
         </React.Suspense>
       ),
+      loader: checkBtnAuthLoader,
     },
     {
       path: '/main/yoon-resume',
@@ -140,6 +141,7 @@ export default function DefaultRoutes(): RouteObject[] {
           <YoonResume />
         </React.Suspense>
       ),
+      loader: checkBtnAuthLoader,
     },
     {
       path: '/main/yoon-notice',
@@ -148,6 +150,7 @@ export default function DefaultRoutes(): RouteObject[] {
           <YoonNotice />
         </React.Suspense>
       ),
+      loader: checkBtnAuthLoader,
     },
     {
       path: '/main/bonnie-info',
@@ -156,6 +159,7 @@ export default function DefaultRoutes(): RouteObject[] {
           <InformationList />
         </React.Suspense>
       ),
+      loader: checkBtnAuthLoader,
     },
   ];
 }

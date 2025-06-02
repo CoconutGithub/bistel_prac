@@ -19,7 +19,8 @@ const Home: React.FC = () => {
     <Container>
       {showPopup && (
         <NoticePopup
-            handleClose={handleClosePopup}
+          handleClose={handleClosePopup}
+          isToast={false}
         />
       )}
       <Row className="text-center" style={{ marginTop: '50px' }}>

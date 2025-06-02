@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Nav, Dropdown } from 'react-bootstrap';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation  } from 'react-router-dom';
 import { MenuItem } from '~types/LayoutTypes';
 import cn from 'classnames';
 
@@ -20,16 +20,19 @@ const RecursiveDropdown: React.FC<NavMenuItemProps> = ({
                                                        }) => {
     const [show, setShow] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
 
     const handleToggleClick = (e: React.MouseEvent) => {
         e.preventDefault();
         if (item.path) {
-            onSelectTab({ key: item.menuId, label: item.title, path: item.path });
-            navigate(item.path);
+            onSelectTab({ key: String(item.menuId), label: item.title, path: item.path });
+            // navigate(item.path);
         }
         setShow(prev => !prev);
     };
 
+    const isActive = item.path && location.pathname.startsWith(item.path);
+    
     if (depth >= 4) return null;
 
     if (item.children && item.children.length > 0) {
@@ -38,7 +41,7 @@ const RecursiveDropdown: React.FC<NavMenuItemProps> = ({
                 show={show}
                 autoClose={false}
                 drop={depth === 0 ? 'down' : 'end'}
-                className={depth === 0 ? 'nav-item' : 'position-relative w-100'}
+                className={cn(depth === 0 ? 'nav-item' : 'position-relative w-100', { active: isActive })}
                 onMouseEnter={() => setShow(true)}
                 onMouseLeave={() => setShow(false)}
             >
@@ -47,6 +50,7 @@ const RecursiveDropdown: React.FC<NavMenuItemProps> = ({
                     id={`dropdown-${item.menuId}`}
                     className={cn(depth === 0 ? 'p-2' : '', navLinkClass)}
                     onClick={handleToggleClick}
+                    active={!!isActive}
                 >
                     {item.title}
                 </Dropdown.Toggle>
@@ -65,10 +69,10 @@ const RecursiveDropdown: React.FC<NavMenuItemProps> = ({
                             ) : (
                                 <Dropdown.Item
                                     key={child.menuId}
-                                    className={navLinkClass}
+                                    className={cn(navLinkClass, { active: location.pathname === child.path })}
                                     onClick={e => {
                                         e.preventDefault();
-                                        onSelectTab({ key: child.menuId, label: child.title, path: child.path! });
+                                        onSelectTab({ key: String(child.menuId), label: child.title, path: child.path! });
                                         navigate(child.path!);
                                     }}
                                 >
@@ -92,6 +96,7 @@ const NavMenuItem: React.FC<NavMenuItemProps> = ({
                                                      onSelectTab,
                                                  }) => {
     const navigate = useNavigate();
+    const location = useLocation();
     const [tabDisable, setTabDisable] = useState(false);
 
     useEffect(() => {
@@ -102,6 +107,8 @@ const NavMenuItem: React.FC<NavMenuItemProps> = ({
             if (tabs.length === 8) setTabDisable(true);
         }
     }, []);
+
+    const isActive = item.path && location.pathname.startsWith(item.path);
 
     if (item.children && item.children.length > 0) {
         return (
@@ -118,13 +125,13 @@ const NavMenuItem: React.FC<NavMenuItemProps> = ({
         e.preventDefault();
         if (tabDisable) return;
         if (item.path) {
-            onSelectTab({ key: item.title, label: item.title, path: item.path });
-            navigate(item.path);
+            onSelectTab({ key: String(item.title), label: item.title, path: item.path });
+            // navigate(item.path);
         }
     };
 
     return (
-        <Nav.Item>
+        <Nav.Item className={cn({ active: isActive })}>
             <Nav.Link
                 as={AsComponent}
                 to={tabDisable ? undefined : item.path || '/'}
