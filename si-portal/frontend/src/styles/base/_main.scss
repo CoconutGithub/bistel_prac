@@ -9,14 +9,6 @@ body {
   overflow: hidden;
 }
 
-html, body {
-  min-width: 1080px;
-  margin: 0;
-  height: 100%;
-  overflow: auto;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
 body::-webkit-scrollbar {
   display: none;
 }
