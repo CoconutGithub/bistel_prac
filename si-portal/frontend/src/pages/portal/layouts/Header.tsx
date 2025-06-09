@@ -11,6 +11,7 @@ import { resetTab } from '~store/RootTabs';
 import { ComAPIContext } from '~components/ComAPIContext';
 import Form from 'react-bootstrap/Form';
 import NoticePopup from '~pages/portal/admin/NoticePopup';
+import { setMenuItems } from '~store/MenuSlice';
 
 interface HeaderProps {
     onSelectTab: (tab: { key: string; label: string; path: string }) => void;
@@ -18,13 +19,13 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = React.memo(({ onSelectTab }) => {
   const comAPIContext = useContext(ComAPIContext);
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [showPopup, setShowPopup] = useState(false);
   const [langMap, setLangMap] = useState<Record<string, string>>({});
   const [isNew, setIsNew] = useState(true);
 
   const isMighty = useSelector((state: RootState) => state.auth.user.isMighty);
   const roleId = useSelector((state: RootState) => state.auth.user.roleId);
+  const menuItems = useSelector((state: RootState) => state.menu.menuItems);
   const headerColor = useSelector(
     (state: RootState) => state.auth.user.headerColor
   );
@@ -46,7 +47,7 @@ const Header: React.FC<HeaderProps> = React.memo(({ onSelectTab }) => {
     return location.pathname === path ? 'active' : '';
   };
 
-    const [isAdminHovered, setIsAdminHovered] = useState(false);
+  const [isAdminHovered, setIsAdminHovered] = useState(false);
 
   useEffect(() => {
     axios
@@ -61,7 +62,8 @@ const Header: React.FC<HeaderProps> = React.memo(({ onSelectTab }) => {
         },
       })
       .then((res) => {
-        setMenuItems(res.data.menuInfo || []);
+        const menuInfo = res.data.menuInfo || []
+        dispatch(setMenuItems(menuInfo));
       })
       .catch((error) => {
         console.error('❌ Header 메뉴 로드 실패:', error);
@@ -203,8 +205,9 @@ const Header: React.FC<HeaderProps> = React.memo(({ onSelectTab }) => {
                             onMouseLeave={() => setIsAdminHovered(false)}
                         >
                             <NavDropdown.Item
-                                as={Link}
-                                to="/main/manage-notice"
+                                as="button"
+                                // as={Link}
+                                // to="/main/manage-notice"
                                 className={getMenuItemClass("/main/manage-notice")}
                                 onClick={() =>
                                     onSelectTab({
@@ -218,8 +221,9 @@ const Header: React.FC<HeaderProps> = React.memo(({ onSelectTab }) => {
                             </NavDropdown.Item>
 
                             <NavDropdown.Item
-                                as={Link}
-                                to="/main/manage-menu"
+                                as="button"
+                                // as={Link}
+                                // to="/main/manage-menu"
                                 className={getMenuItemClass("/main/manage-menu")}
                                 onClick={() =>
                                     onSelectTab({
@@ -233,8 +237,9 @@ const Header: React.FC<HeaderProps> = React.memo(({ onSelectTab }) => {
                             </NavDropdown.Item>
 
                             <NavDropdown.Item
-                                as={Link}
-                                to="/main/manage-role"
+                                as="button"
+                                // as={Link}
+                                // to="/main/manage-role"
                                 className={getMenuItemClass("/main/manage-role")}
                                 onClick={() =>
                                     onSelectTab({
@@ -248,8 +253,9 @@ const Header: React.FC<HeaderProps> = React.memo(({ onSelectTab }) => {
                             </NavDropdown.Item>
 
                             <NavDropdown.Item
-                                as={Link}
-                                to="/main/manage-user"
+                                as="button"
+                                // as={Link}
+                                // to="/main/manage-user"
                                 className={getMenuItemClass("/main/manage-user")}
                                 onClick={() =>
                                     onSelectTab({
@@ -263,8 +269,9 @@ const Header: React.FC<HeaderProps> = React.memo(({ onSelectTab }) => {
                             </NavDropdown.Item>
 
                             <NavDropdown.Item
-                                as={Link}
-                                to="/main/manage-email"
+                                as="button"
+                                // as={Link}
+                                // to="/main/manage-email"
                                 className={getMenuItemClass("/main/manage-email")}
                                 onClick={() =>
                                     onSelectTab({
@@ -278,8 +285,9 @@ const Header: React.FC<HeaderProps> = React.memo(({ onSelectTab }) => {
                             </NavDropdown.Item>
 
                             <NavDropdown.Item
-                                as={Link}
-                                to="/main/manage-schedule"
+                                as="button"
+                                // as={Link}
+                                // to="/main/manage-schedule"
                                 className={getMenuItemClass("/main/manage-schedule")}
                                 onClick={() =>
                                     onSelectTab({
@@ -293,8 +301,9 @@ const Header: React.FC<HeaderProps> = React.memo(({ onSelectTab }) => {
                             </NavDropdown.Item>
 
                             <NavDropdown.Item
-                                as={Link}
-                                to="/main/manage-message"
+                                as="button"
+                                // as={Link}
+                                // to="/main/manage-message"
                                 className={getMenuItemClass("/main/manage-message")}
                                 onClick={() =>
                                     onSelectTab({
@@ -308,8 +317,8 @@ const Header: React.FC<HeaderProps> = React.memo(({ onSelectTab }) => {
                             </NavDropdown.Item>
 
                             <NavDropdown.Item
-                                as={Link}
-                                to="/main/manage-code"
+                                as="button"
+                                // to="/main/manage-code"
                                 className={getMenuItemClass("/main/manage-code")}
                                 onClick={() =>
                                     onSelectTab({
@@ -350,6 +359,7 @@ const Header: React.FC<HeaderProps> = React.memo(({ onSelectTab }) => {
             {showPopup && (
                 <NoticePopup
                     handleClose={handleClosePopup}
+                    isToast={true}
                 />
             )}
         </Container>

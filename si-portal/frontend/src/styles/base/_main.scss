@@ -9,14 +9,6 @@ body {
   overflow: hidden;
 }
 
-html, body {
-  min-width: 1080px;
-  margin: 0;
-  height: 100%;
-  overflow: auto;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
 body::-webkit-scrollbar {
   display: none;
 }
@@ -143,7 +135,7 @@ div[class*="MainLayout_start"] {
             left: 0;
             background-color: #39B1BD;
           }
-          a {font-weight: bold;}
+          a.active {font-weight: bold;}
         }
         a {
           display: flex; align-items: center; height: 100%; padding: 0 20px !important; color: #011D49; white-space: nowrap;

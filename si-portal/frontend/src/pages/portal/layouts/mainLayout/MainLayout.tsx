@@ -1,5 +1,5 @@
 import { Container, Tab, Tabs } from 'react-bootstrap';
-import { Outlet, matchPath, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import GlobalNavbar from '~pages/portal/layouts/globalNavbar/GlobalNavbar';
 import GlobalHeader from '../Header';
 
@@ -19,23 +19,17 @@ import DefaultRoutes from '~routes/DefaultRoutes';
 import PortalRoutes from '~routes/PortalRoutes';
 import SiCancelIcon from '~components/icons/SiCancelIcon';
 import NotFound from '../../NotFound';
-import { FaComment } from 'react-icons/fa';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faThumbsUp,
-  faHeart,
-  faComments,
-  faShareSquare,
-} from '@fortawesome/free-regular-svg-icons';
+import { faComments } from '@fortawesome/free-regular-svg-icons';
 import ChatBot from '~components/chatBot/ChatBot';
 
 const useRouteComponents = () => {
   return useMemo(() => {
-    const routes: Record<string, React.ReactNode> = {};
+    const routes: Record<string, React.FC> = {};
 
     [...DefaultRoutes(), ...PortalRoutes()].forEach((route) => {
-      if (route.path) {
-        routes[route.path] = route.element;
+      if (route.path && route.element) {
+        routes[route.path] = () => route.element as React.ReactElement;
       }
     });
 
@@ -51,18 +45,16 @@ const MainLayout = () => {
   const { tabs, activeKey } = useSelector((state: RootState) => state.rootTabs);
   const routeComponents = useRouteComponents();
   const [chatVisible, setChatVisible] = useState(false);
+
   const resetLogoutTimer = useCallback(() => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
-    timeoutRef.current = setTimeout(
-      () => {
-        dispatch(resetTab());
-        dispatch(removeLoginToken()); // 10분간 비활성 상태일 경우 로그아웃
-        navigate('/login', { replace: true });
-      },
-      10 * 60 * 1000
-    );
+    timeoutRef.current = setTimeout(() => {
+      dispatch(resetTab());
+      dispatch(removeLoginToken()); // 10분간 비활성 상태일 경우 로그아웃
+      navigate('/login', { replace: true });
+    }, 10 * 60 * 1000);
   }, []);
 
   const handleSelectTab = useCallback(
@@ -72,7 +64,7 @@ const MainLayout = () => {
         const parsedData = JSON.parse(rootTabsData);
         const cachedTabs = JSON.parse(parsedData.tabs);
 
-        if (cachedTabs.length === 8) {
+        if (cachedTabs.length >= 8 && !cachedTabs.some((cachedTab: any) => cachedTab.key === tab.key)) {
           alert('최대 8개의 탭만 열 수 있습니다.');
           return;
         } else {
@@ -104,20 +96,16 @@ const MainLayout = () => {
     [tabs, activeKey, dispatch, navigate]
   );
 
-  const matchedComponent = useMemo(() => {
-    for (const key in routeComponents) {
-      if (matchPath(key, location.pathname)) {
-        return routeComponents[key];
-      }
-    }
-
-    return <NotFound />;
-  }, [location.pathname, routeComponents]);
-
   useEffect(() => {
-    const activeTab = tabs.find((tab) => tab.key === activeKey);
-    if (activeTab) {
-      navigate(activeTab.path);
+    const activeTab = tabs.find((tab) => String(tab.key) === activeKey);
+    const rootTabsData = sessionStorage.getItem('persist:rootTabs');
+    if (rootTabsData) {
+      const parsedData = JSON.parse(rootTabsData);
+      const cachedTabs = JSON.parse(parsedData.tabs);
+
+      if (activeTab && cachedTabs.length <= 8) {
+        navigate(activeTab.path);
+      }
     }
   }, [activeKey, tabs, navigate]);
 
@@ -159,29 +147,30 @@ const MainLayout = () => {
             activeKey={activeKey || ''}
             onSelect={(k) => dispatch(setActiveTab(k as string))}
           >
-            {tabs.map((tab) => (
-              <Tab
-                key={tab.key}
-                eventKey={tab.key}
-                title={
-                  <div className={styles.rootTab_tile_area}>
-                    <span>{tab.label}</span>
-                    <span
-                      onClick={(event) => handleCloseTab(tab.key, event)}
-                      className={styles.rootTab_close_button}
-                    >
-                      <SiCancelIcon width={14} height={14} currentFill={true} />
-                    </span>
-                  </div>
-                }
-              >
-                <Container className={styles.container}>
-                  {/* <Outlet /> */}
-                  {/* {routeComponents[tab.path] || <NotFound />} */}
-                  {activeKey === tab.key && matchedComponent}
-                </Container>
-              </Tab>
-            ))}
+            {tabs.map((tab) => {
+              const Component = routeComponents[tab.path] || NotFound;
+              return (
+                <Tab
+                  key={tab.key}
+                  eventKey={tab.key}
+                  title={
+                    <div className={styles.rootTab_tile_area}>
+                      <span>{tab.label}</span>
+                      <span
+                        onClick={(event) => handleCloseTab(tab.key, event)}
+                        className={styles.rootTab_close_button}
+                      >
+                        <SiCancelIcon width={14} height={14} currentFill={true} />
+                      </span>
+                    </div>
+                  }
+                >
+                  <Container className={styles.container}>
+                    {activeKey === tab.key && <Component />}
+                  </Container>
+                </Tab>
+              );
+            })}
           </Tabs>
           <button
             className={styles.chat_button}

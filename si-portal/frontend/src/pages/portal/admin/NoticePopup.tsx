@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import axios from 'axios';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { cachedAuthToken } from '~store/AuthSlice';
+import { ComAPIContext } from '~components/ComAPIContext';
 
 interface Notice {
   id: number;
@@ -15,12 +16,14 @@ interface Notice {
 
 interface NoticePopupProps {
   handleClose: () => void;
+  isToast: boolean;
 }
 
-const NoticePopup: React.FC<NoticePopupProps> = ({ handleClose }) => {
+const NoticePopup: React.FC<NoticePopupProps> = ({ handleClose, isToast }) => {
   const [show, setShow] = useState(false);
   const [notices, setNotices] = useState<Notice[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
+  const comAPIContext = useContext(ComAPIContext);
 
   useEffect(() => {
     const hideNotice = localStorage.getItem('hideNoticePopup');
@@ -41,9 +44,19 @@ const NoticePopup: React.FC<NoticePopupProps> = ({ handleClose }) => {
       const activeNotices = response.data.filter(
         (n) => new Date(n.noticeEnd) > new Date()
       );
+
       if (activeNotices.length > 0) {
         setNotices(activeNotices);
         setShow(true);
+      } else if (activeNotices.length === 0 && isToast) {
+          comAPIContext.showToast(
+            comAPIContext.$msg(
+              'message',
+              '등록된 공지사항이 없습니다.',
+              '등록된 공지사항이 없습니다.'
+            ),
+          'dark'
+        );
       }
     } catch (error) {
       console.error('공지사항 불러오기 실패:', error);

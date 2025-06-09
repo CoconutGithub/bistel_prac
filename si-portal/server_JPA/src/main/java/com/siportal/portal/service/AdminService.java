@@ -550,8 +550,7 @@ public class AdminService {
                 String base64Image = Base64.getEncoder().encodeToString(profileImageOpt.get());
                 return ResponseEntity.ok(Collections.singletonMap("profileImage", base64Image));
             } else {
-                // 기본 이미지 경로 반환 (예: /images/default-profile.png)
-                return ResponseEntity.ok(Collections.singletonMap("profileImage", "/images/default-profile.png"));
+                return ResponseEntity.ok(Collections.singletonMap("profileImage", null));
             }
         } catch (Exception e) {
             e.printStackTrace();

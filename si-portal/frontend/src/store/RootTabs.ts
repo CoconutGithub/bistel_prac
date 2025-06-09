@@ -23,7 +23,7 @@ const RootTabs = createSlice({
   initialState,
   reducers: {
     addTab: (state, action: PayloadAction<RootTabItem>) => {
-      if (state.tabs.length >= 8) {
+      if (state.tabs.length >= 8 && !state.tabs.some((tab) => tab.key === action.payload.key)) {
         alert('최대 8개의 탭만 열 수 있습니다.');
         return;
       }
