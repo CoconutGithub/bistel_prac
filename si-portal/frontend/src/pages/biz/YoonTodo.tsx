@@ -7,12 +7,15 @@ import ComButton from '../portal/buttons/ComButton';
 import { ComAPIContext } from '~components/ComAPIContext';
 import { check } from 'prettier';
 import { Prev } from 'react-bootstrap/lib/Pagination';
+import { Modal } from 'react-bootstrap';
+import YoonTodoCreatePopup from './YoonTodoCreatePopup';
 
 
 
 
 
 const YoonTodo=()=>{
+    const [showPopup, setShowPopup] = useState(false);
     const [checkBox, setCheckBox] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [canDelete, setCanDelete]= useState(false);
@@ -37,9 +40,14 @@ const YoonTodo=()=>{
              console.log("editMode : " + editMode);
             }, [editMode]);
                 
-        const openPopup=()=>{
-            
+        const handleShowPopup=()=>{
+            setShowPopup(true)
         }
+
+        const handleClosePopup =() => {
+            setShowPopup(false)
+        }
+
 
         const changeEditMode=()=>{
             console.log("editMode: "+ editMode)
@@ -194,13 +202,13 @@ const YoonTodo=()=>{
             <ComButton
                 size="sm"
                 className="me-2"
-                onClick={openPopup}
+                onClick={handleShowPopup}
                 disabled={!canCreate}
             >
                 {comAPIContext.$msg('label', 'add Todo', 'Todo 추가')}
             </ComButton>
         </>
-        ),[openPopup,canCreate]);
+        ),[handleShowPopup,canCreate]);
 
     
     // useEffect(() => {
@@ -232,7 +240,7 @@ const YoonTodo=()=>{
         <div>
             <div>
                 <h1>안녕하세요</h1>
-                <button>추가</button>
+                <button onClick={handleShowPopup}>추가</button>
             </div>
             <div>
                 <AgGridWrapper 
@@ -251,6 +259,12 @@ const YoonTodo=()=>{
                     {updateButton}
                 </AgGridWrapper>
             </div>
+            {showPopup&&(
+                <YoonTodoCreatePopup 
+                    show={showPopup}
+                    onClose={handleClosePopup}
+                    ></YoonTodoCreatePopup>) 
+            }
 
         </div>
     );
