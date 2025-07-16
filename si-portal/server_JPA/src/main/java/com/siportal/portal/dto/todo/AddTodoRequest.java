@@ -11,6 +11,8 @@ public class AddTodoRequest {
   private String content;
   private LocalDateTime dueDate;
   private String progressStatus;
+  private LocalDateTime createDate;
+  private String createBy;
 
 
   public Todo toEntity(){
@@ -21,6 +23,8 @@ public class AddTodoRequest {
                .content(content)
                .dueDate(dueDate)
                .progressStatus(progressStatus)
+               .createDate(LocalDateTime.now())
+               .createBy(createBy)
                .build();
   }
 

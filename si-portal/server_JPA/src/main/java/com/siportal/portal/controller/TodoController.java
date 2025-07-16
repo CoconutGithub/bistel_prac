@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
 
@@ -36,25 +37,23 @@ public class TodoController {
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
   @GetMapping
-  public ResponseEntity<List<TodoResponse>> findAllTodos(){
-    List<TodoResponse> response= todoService.findAll();
-    return ResponseEntity.ok().body(response);
+  public ResponseEntity<?> findAllTodos(){
+    return todoService.findAll();
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<TodoResponse> getTodo(@PathVariable Long id){
+  public ResponseEntity<TodoResponse> getTodo(@PathVariable Integer id){
     TodoResponse response = todoService.findById(id);
     return ResponseEntity.ok().body(response);
   }
 
   @PutMapping
-  public ResponseEntity<Integer> updateTodo(@RequestBody List<UpdateTodoRequest> updateTodoRequests){
-     int count = todoService.update(updateTodoRequests);
-    return ResponseEntity.ok().body(count);
+  public ResponseEntity<?> updateTodo(@RequestBody Map<String, Object> requestData){
+    return todoService.update(requestData);
   }
 
   @DeleteMapping
-  public ResponseEntity<Void> removeTodo(@RequestBody List<Long> ids){
+  public ResponseEntity<Void> removeTodo(@RequestBody List<Integer> ids){
     todoService.delete(ids);
     return ResponseEntity.ok().build();
   }

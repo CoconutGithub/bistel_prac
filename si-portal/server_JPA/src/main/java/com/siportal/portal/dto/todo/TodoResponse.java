@@ -17,6 +17,10 @@ public class TodoResponse {
   private final String content;
   private final LocalDateTime dueDate;
   private final String progressStatus;
+  private final LocalDateTime createDate;
+  private final String createBy;
+  private final LocalDateTime updateDate;
+  private final String updateBy;
 
   public TodoResponse(Todo todo) {
     this.id=todo.getId();
@@ -26,5 +30,9 @@ public class TodoResponse {
     this.content = todo.getContent();
     this.dueDate = todo.getDueDate();
     this.progressStatus = todo.getProgressStatus();
+    this.createDate = todo.getCreateDate();
+    this.createBy = todo.getCreateBy();
+    this.updateDate = todo.getUpdateDate();
+    this.updateBy = todo.getUpdateBy();
   }
 }

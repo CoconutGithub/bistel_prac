@@ -9,12 +9,27 @@ import { check } from 'prettier';
 import { Prev } from 'react-bootstrap/lib/Pagination';
 import { Modal } from 'react-bootstrap';
 import YoonTodoCreatePopup from './YoonTodoCreatePopup';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store/Store';
+import { Container, Row, Col, Form } from 'react-bootstrap';
 
-
-
-
+const progressItem = [
+    {
+        text: '진행중',
+        value: 'progress'
+    },
+    {
+        text: '완료',
+        value: 'done'
+    },
+    {
+        text: '미완료',
+        value: 'inComplete'
+    },
+]
 
 const YoonTodo=()=>{
+    const state = useSelector((state: RootState) => state.auth);
     const [showPopup, setShowPopup] = useState(false);
     const [checkBox, setCheckBox] = useState(false);
     const [editMode, setEditMode] = useState(false);
@@ -23,114 +38,194 @@ const YoonTodo=()=>{
     const [canCreate, setCanCreate]= useState(true);
     const gridRef = useRef<AgGridWrapperHandle>(null);
     const comAPIContext = useContext(ComAPIContext);
-    // console.log('editMode', editMode)
-        const [columnDefs, setColumnDefs] = useState(
+
+    const [columnDefs, setColumnDefs] = useState(
         [   
             {field : 'id' , hide: true, editable: false}, 
-            {field : 'todoType' , editable: false}, 
-            {field : 'worker' , editable: false},
-            {field : 'title' , editable: false},
-            {field : 'content' , editable: false},
-            {field : 'dueDate', editable: false },
-            {field : 'progressStatus' , editable: false}
+            {field : 'todoType' , editable: true}, 
+            {field : 'worker' , editable: true},
+            {field : 'title' , editable: true},
+            {field : 'content' , editable: true},
+            {
+                field : 'dueDate',
+                editable: true,
+                filter: 'agDateColumnFilter',
+                cellEditor: 'agDateCellEditor',
+                valueGetter: (params:any) => {
+                    const val = params.data.dueDate;
+                    if (!val) return null;
+                    // val이 string이면 Date로 변환
+                    return val instanceof Date ? val : new Date(val);
+                    },
+                valueFormatter: (params: any) => {
+                    if (!params.value) return '';
+                    
+                    const date = new Date(params.value);
+                    if (isNaN(date.getTime())) return params.value;
+                    const yyyy = date.getFullYear();
+                    const mm = String(date.getMonth() + 1).padStart(2, '0');
+                    const dd = String(date.getDate()).padStart(2, '0');
+                    return `${yyyy}-${mm}-${dd}`;
+                }
+            },
+            {
+                field : 'progressStatus' ,
+                editable: true,
+                cellEditor: 'agSelectCellEditor',
+                cellEditorParams: {
+                    values: progressItem.map(item => item.value),
+                },
+                valueFormatter: (params: any) => {
+                    console.log('params', params)
+                    const item = progressItem.find(p => p.value === params.value);
+                    console.log('item', item)
+                    return item ? item.text : params.value;
+                }
+            },
+            {
+                field: 'createDate',
+                headerName: '생성일',
+                sortable: true,
+                width: 200,
+                filter: true,
+            },
+            {
+                field: 'createBy',
+                headerName: '등록자',
+                sortable: true,
+                width: 100,
+                filter: true,
+            },
+            {
+                field: 'updateDate',
+                headerName: '수정일',
+                sortable: true,
+                width: 200,
+                filter: true,
+            },
+            {
+                field: 'updateBy',
+                headerName: '수정자',
+                sortable: true,
+                width: 100,
+                filter: true,
+            },
         ]
-); 
+    ); 
 
-        useEffect(() => {
-             console.log("editMode : " + editMode);
-            }, [editMode]);
-                
-        const handleShowPopup=()=>{
-            setShowPopup(true)
-        }
+    useEffect(() => {
+        console.log("editMode : " + editMode);
+    }, [editMode]);
+            
+    const handleShowPopup=()=>{
+        setShowPopup(true)
+    }
 
-        const handleClosePopup =() => {
-            setShowPopup(false)
-        }
+    const handleClosePopup =() => {
+        setShowPopup(false)
+    }
 
-
-        const changeEditMode=()=>{
-            console.log("editMode: "+ editMode)
-            setEditMode(Prev => !Prev);
-            setCanDelete(Prev => !Prev);
-            setCanUpdate(Prev => !Prev);
-            setCheckBox(Prev => !Prev);
-            setCanCreate(Prev => !Prev);
-
+    const changeEditMode=()=>{
+        console.log("editMode: "+ editMode)
+        setEditMode(Prev => !Prev);
+        setCanDelete(Prev => !Prev);
+        setCanUpdate(Prev => !Prev);
+        setCheckBox(Prev => !Prev);
+        setCanCreate(Prev => !Prev);
     };
 
-        const handleSearch=async ()=>{
-            axios.get(`${process.env.REACT_APP_BACKEND_IP}/api/todo`, {
-                headers: {Authorization: `Bearer ${cachedAuthToken}`},
-            })
-            .then((res) => {
-                console.log(`응답 데이터`, res.data);
+    const handleSearch=async ()=>{
+        axios.get(`${process.env.REACT_APP_BACKEND_IP}/api/todo`, {
+            headers: {Authorization: `Bearer ${cachedAuthToken}`},
+        })
+        .then((res) => {
+            console.log(`응답 데이터`, res.data);
 
-                if (gridRef.current){
-                    gridRef.current.setRowData(res.data);
-                }
-            });
-        }
+            if (gridRef.current){
+                gridRef.current.setRowData(res.data);
+            }
+        });
+    }
         
-        const handleSave = useCallback(
+    const handleSave = useCallback(
+        async (lists: { deleteList: any[]; updateList: any[], createList: any[] }) => {
+        if (!gridRef.current) return;
 
-            async (lists: { deleteList: any[]; updateList: any[] }) => {
-            if (!gridRef.current) return;
+        const validation = [...lists.createList, ...lists.updateList].filter(
+            (row) => !row.dueDate
+        );
 
-            if (lists.updateList.length === 0) {
-                comAPIContext.showToast(
-                comAPIContext.$msg(
-                    'message',
-                    'no_save_data',
-                    '저장할 데이터가 없습니다.'
-                ),
-                'dark'
-                );
-                return;
-            }
-            try {
-                comAPIContext.showProgressBar();   
-                const updateList= lists.updateList;
+        if (validation.length > 0) {
+            comAPIContext.showToast('DueDate는 필수 입력 항목입니다.', 'danger');
+            return;
+        }
 
-                axios
-                    .put(
-                        `${process.env.REACT_APP_BACKEND_IP}/api/todo`,
-                        updateList,
-                        {
-                        headers: { Authorization: `Bearer ${cachedAuthToken}` },
-                        }
-                    )
-                    .then((res) => {
-                        if (res.data) {
-                            comAPIContext.showToast(
-                                comAPIContext.$msg(
-                                'message',
-                                'save_complete',
-                                '저장이 완료됐습니다.' +
-                                    `(update: ${res.data.updatedUsersCnt}, delete: ${res.data.deletedUsersCnt})`
-                                ),
-                                'success'
-                        );
-                         changeEditMode();// editMode 변경
-                         handleSearch(); // 저장 후 최신 데이터 조회
-                       
-                        }
-                    });
-            } catch(err) {
-                    console.error('Error saving data:', err);
-                    comAPIContext.showToast(
-                        comAPIContext.$msg('message', 'save_fail', '저장이 실패했습니다.'),
-                        'danger'
+        if (lists.updateList.length === 0  && lists.createList.length === 0 && lists.deleteList.length === 0) {
+            comAPIContext.showToast(
+            comAPIContext.$msg(
+                'message',
+                'no_save_data',
+                '저장할 데이터가 없습니다.'
+            ),
+            'dark'
+            );
+            return;
+        }
+        try {
+            comAPIContext.showProgressBar();   
+            // const updateList= lists.updateList;
+
+            lists.createList.map((r) => {
+                r.userName = state.user?.userName;
+            });
+            lists.updateList.map((r) => {
+                r.userName = state.user?.userName;
+            });
+
+            const payload = {
+                createList: lists.createList,
+                updateList: lists.updateList,
+                deleteList: lists.deleteList,
+            };
+
+            axios
+                .put(
+                    `${process.env.REACT_APP_BACKEND_IP}/api/todo`,
+                    payload,   // updateList
+                    {
+                    headers: { Authorization: `Bearer ${cachedAuthToken}` },
+                    }
+                )
+                .then((res) => {
+                    if (res.data) {
+                        comAPIContext.showToast(
+                            comAPIContext.$msg(
+                            'message',
+                            'save_complete',
+                            '저장이 완료됐습니다.' +
+                                `(update: ${res.data.updatedUsersCnt}, delete: ${res.data.deletedUsersCnt})`
+                            ),
+                            'success'
                     );
-                    handleSearch();
-                    changeEditMode();
-            } finally {
-                    comAPIContext.hideProgressBar();
-            }
+                    //  changeEditMode();// editMode 변경
+                        handleSearch(); // 저장 후 최신 데이터 조회
+                    
+                    }
+                });
+        } catch(err) {
+                console.error('Error saving data:', err);
+                comAPIContext.showToast(
+                    comAPIContext.$msg('message', 'save_fail', '저장이 실패했습니다.'),
+                    'danger'
+                );
+                handleSearch();
+                // changeEditMode();
+        } finally {
+                comAPIContext.hideProgressBar();
+        }
     },[]);
 
     const handleDelete = useCallback((selectedRows: any[]) => {
-        
         const selectedIds = selectedRows.map(row => row.id); //js 문법에 대한 이해가 부족함.
         console.log("handleDelete-selectedIds: "+ selectedIds)
 
@@ -147,22 +242,22 @@ const YoonTodo=()=>{
               headers: { Authorization: `Bearer ${cachedAuthToken}` },
             }
         )
-            .then(() => {
-            // 서버에서 삭제 성공 시, 그리드에서도 바로 제거
-            comAPIContext.showToast('삭제되었습니다.', 'success');
-            handleSearch();
-            changeEditMode();
+        .then(() => {
+        // 서버에서 삭제 성공 시, 그리드에서도 바로 제거
+        comAPIContext.showToast('삭제되었습니다.', 'success');
+        handleSearch();
+        changeEditMode();
+        
+        })
+        .catch(() => {
+        comAPIContext.showToast('삭제 실패', 'danger');
+        handleSearch();
+        changeEditMode();
             
-            })
-            .catch(() => {
-            comAPIContext.showToast('삭제 실패', 'danger');
-            handleSearch();
-            changeEditMode();
-            
-            });
-        },[]);
+        });
+    },[]);
 
-    const handleUpdate=()=> {
+    const handleUpdate = () => {
         setColumnDefs((prev => {
             prev.map((r) => {
                 if(r.field == 'title' || r.field == 'TodoType'|| r.field == 'ProgressStatus'|| r.field == 'content') {
@@ -175,13 +270,10 @@ const YoonTodo=()=>{
             return prev
         }
         ))
-         changeEditMode(); 
+        changeEditMode(); 
     }
 
-
-        
-                
-    const updateButton=useMemo(()=>{
+    const updateButton = useMemo(()=>{
         return(
             <>
                 <ComButton
@@ -196,8 +288,7 @@ const YoonTodo=()=>{
         )
     },[handleUpdate,canDelete])   
 
-    const createButton=useMemo(()=>(
-    
+    const createButton = useMemo(()=>(
         <>
             <ComButton
                 size="sm"
@@ -208,9 +299,8 @@ const YoonTodo=()=>{
                 {comAPIContext.$msg('label', 'add Todo', 'Todo 추가')}
             </ComButton>
         </>
-        ),[handleShowPopup,canCreate]);
+    ),[handleShowPopup,canCreate]);
 
-    
     // useEffect(() => {
     //     if(gridRef.current){ // if문으로 데이터가 없는 경우를 고려하지 않으면 에러가 난다.
     //         gridRef.current?.setRowData(
@@ -234,41 +324,58 @@ const YoonTodo=()=>{
         });
     },[]);
 
-
-
     return (
-        <div>
-            <div>
-                <h1>안녕하세요</h1>
-                <button onClick={handleShowPopup}>추가</button>
-            </div>
-            <div>
-                <AgGridWrapper 
-                    ref={gridRef} 
-                    columnDefs={columnDefs} 
-                    enableCheckbox={checkBox}
-                    showButtonArea={true}
-                    canCreate={false}
-                    canDelete={canDelete}
-                    canUpdate={canUpdate}          
-                    useNoColumn={true}
-                    onSave={handleSave}
-                    onDelete={handleDelete}
-                >
-                    {createButton}
-                    {updateButton}
-                </AgGridWrapper>
-            </div>
-            {showPopup&&(
-                <YoonTodoCreatePopup 
-                    show={showPopup}
-                    onClose={handleClosePopup}
-                    ></YoonTodoCreatePopup>) 
-            }
+    <Container fluid className="h-100 container_bg">
+        <Row className="container_title">
+            <Col>
+                <h2>
+                    {comAPIContext.$msg('menu', 'yoon_todo', 'Yoon Todo')}
+                </h2>
+            </Col>
+        </Row>
+        <Row className="container_contents">
+            <Row className="search_wrap">
+                {/* <div>
+                    <h1>안녕하세요</h1>
+                    <button onClick={handleShowPopup}>추가</button>
+                </div> */}
+                <Col className="search_cnt">
+                </Col>
+                <Col className="search_btn">
+                    <ComButton size="sm" variant="primary" onClick={handleSearch}>
+                        {comAPIContext.$msg('label', 'search', '검색')}
+                    </ComButton>
+                </Col>
+            </Row>
 
-        </div>
+            <Row className="contents_wrap">
+                <Col>
+                    <AgGridWrapper 
+                        ref={gridRef} 
+                        columnDefs={columnDefs} 
+                        enableCheckbox={true}  // checkBox
+                        showButtonArea={true}
+                        canCreate={true}   // false
+                        canDelete={true}
+                        canUpdate={true}          
+                        useNoColumn={true}
+                        onSave={handleSave}
+                        // onDelete={handleDelete}
+                    >
+                        {/* {createButton}
+                        {updateButton} */}
+                    </AgGridWrapper>
+                </Col>
+                    {/* {showPopup&&(
+                        <YoonTodoCreatePopup 
+                            show={showPopup}
+                            onClose={handleClosePopup}
+                            ></YoonTodoCreatePopup>) 
+                    } */}
+            </Row>
+        </Row>
+    </Container>
     );
-
 }
 
 export default YoonTodo;
