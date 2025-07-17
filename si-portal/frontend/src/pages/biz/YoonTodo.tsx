@@ -76,9 +76,7 @@ const YoonTodo=()=>{
                     values: progressItem.map(item => item.value),
                 },
                 valueFormatter: (params: any) => {
-                    console.log('params', params)
                     const item = progressItem.find(p => p.value === params.value);
-                    console.log('item', item)
                     return item ? item.text : params.value;
                 }
             },
@@ -135,6 +133,7 @@ const YoonTodo=()=>{
     };
 
     const handleSearch=async ()=>{
+        comAPIContext.showProgressBar();
         axios.get(`${process.env.REACT_APP_BACKEND_IP}/api/todo`, {
             headers: {Authorization: `Bearer ${cachedAuthToken}`},
         })
@@ -144,6 +143,8 @@ const YoonTodo=()=>{
             if (gridRef.current){
                 gridRef.current.setRowData(res.data);
             }
+        }).finally(() => {
+            comAPIContext.hideProgressBar();
         });
     }
         
@@ -172,7 +173,7 @@ const YoonTodo=()=>{
             return;
         }
         try {
-            comAPIContext.showProgressBar();   
+            comAPIContext.showProgressBar();
             // const updateList= lists.updateList;
 
             lists.createList.map((r) => {
@@ -221,7 +222,7 @@ const YoonTodo=()=>{
                 handleSearch();
                 // changeEditMode();
         } finally {
-                comAPIContext.hideProgressBar();
+            comAPIContext.hideProgressBar();
         }
     },[]);
 
@@ -236,24 +237,22 @@ const YoonTodo=()=>{
         const ids=selectedIds;
 
         // 서버에 삭제 요청
-        axios.delete(`${process.env.REACT_APP_BACKEND_IP}/api/todo`
-             ,{
-              data: ids, // { ids }가 아니라 ids만!
-              headers: { Authorization: `Bearer ${cachedAuthToken}` },
+        axios.delete(`${process.env.REACT_APP_BACKEND_IP}/api/todo`,
+            {
+                data: ids, // { ids }가 아니라 ids만!
+                headers: { Authorization: `Bearer ${cachedAuthToken}` },
             }
         )
         .then(() => {
-        // 서버에서 삭제 성공 시, 그리드에서도 바로 제거
-        comAPIContext.showToast('삭제되었습니다.', 'success');
-        handleSearch();
-        changeEditMode();
-        
+            // 서버에서 삭제 성공 시, 그리드에서도 바로 제거
+            comAPIContext.showToast('삭제되었습니다.', 'success');
+            handleSearch();
+            changeEditMode();
         })
         .catch(() => {
-        comAPIContext.showToast('삭제 실패', 'danger');
-        handleSearch();
-        changeEditMode();
-            
+            comAPIContext.showToast('삭제 실패', 'danger');
+            handleSearch();
+            changeEditMode();
         });
     },[]);
 
