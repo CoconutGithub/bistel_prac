@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>직원 상세 정보</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 2rem;
+        }
+
+        h2 {
+            margin-bottom: 1rem;
+        }
+
+        table {
+            width: 600px;
+            border-collapse: collapse;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+
+        td.label {
+            font-weight: bold;
+            width: 200px;
+            background-color: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+<h2>직원 상세 정보</h2>
+<table>
+    <tr>
+        <td class="label">사번</td>
+        <td th:text="${employee.empId}">10100001</td>
+    </tr>
+    <tr>
+        <td class="label">이름</td>
+        <td th:text="${employee.firstName} + ' ' + ${employee.lastName}">김 지훈</td>
+    </tr>
+    <tr>
+        <td class="label">입사일</td>
+        <td th:text="${employee.hireDate}">2019-01-15</td>
+    </tr>
+    <tr>
+        <td class="label">부서</td>
+        <td th:text="${employee.dept.deptName}">인사팀</td>
+    </tr>
+    <tr>
+        <td class="label">직책</td>
+        <td th:text="${employee.position.positionTitle}">사원</td>
+    </tr>
+    <tr>
+        <td class="label">급여</td>
+        <td th:text="${#numbers.formatInteger(employee.salary, 3, 'COMMA')} + ' 원'">32,000,000 원</td>
+    </tr>
+    <tr>
+        <td class="label">성과금</td>
+        <td th:text="${#numbers.formatInteger(employee.comm, 3, 'COMMA')} + ' 원'">1,000,000 원</td>
+    </tr>
+    <tr>
+        <td class="label">전화번호</td>
+        <td th:text="${employee.phoneNumber}">010-1111-1111</td>
+    </tr>
+    <tr>
+        <td class="label">이메일</td>
+        <td th:text="${employee.email}">jihun.kim@company.com</td>
+    </tr>
+    <tr>
+        <td class="label">재직 상태</td>
+        <td th:text="${employee.status.statusName}">재직중</td>
+    </tr>
+    <tr>
+        <td class="label">주소</td>
+        <td th:text="${employee.address}">서울 강남구 역삼동 1번지</td>
+    </tr>
+    <tr>
+        <td class="label">주민등록번호</td>
+        <td th:text="${employee.ssn}">900101-1234567</td>
+    </tr>
+</table>
+</body>
+</html>

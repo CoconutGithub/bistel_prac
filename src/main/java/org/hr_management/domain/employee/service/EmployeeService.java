@@ -26,6 +26,7 @@ public class EmployeeService {
         return employeeRepository.findEmployeeSummaries(pageable);
     }
 
+    // TODO null 일 때 예외처리 추가
     public EmployeeEntity findById(Integer id) {
         return employeeRepository.findById(id).orElse(null);
     }
@@ -36,5 +37,9 @@ public class EmployeeService {
 
     public void deleteById(Integer id) {
         employeeRepository.deleteById(id);
+    }
+
+    public EmployeeEntity getEmployeeDetail(Integer empId) {
+        return employeeRepository.findById(empId).orElse(null);
     }
 }

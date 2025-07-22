@@ -32,8 +32,8 @@
                 <td th:text="${employee.positionTitle}"></td>
                 <td th:text="${employee.statusName}"></td>
                 <td>
-                    <a th:href="@{|/employees/${employee.empId}|}" class="btn btn-sm btn-outline-info">상세</a>
-                    <a th:href="@{|/employees/delete/${employee.empId}|}" class="btn btn-sm btn-outline-danger"
+                    <a th:href="@{|/employee/${employee.empId}|}" class="btn btn-sm btn-outline-info">상세</a>
+                    <a th:href="@{|/employee/delete/${employee.empId}|}" class="btn btn-sm btn-outline-danger"
                        onclick="return confirm('정말 삭제하시겠습니까?');">삭제</a>
                 </td>
             </tr>
@@ -44,17 +44,17 @@
         <nav th:if="${employeePage.totalPages > 1}">
             <ul class="pagination justify-content-center">
                 <li class="page-item" th:classappend="${employeePage.first} ? 'disabled'">
-                    <a class="page-link" th:href="@{|/employees?page=${currentPage - 1}&size=10|}">이전</a>
+                    <a class="page-link" th:href="@{|/employee?page=${currentPage - 1}&size=10|}">이전</a>
                 </li>
 
                 <li class="page-item"
                     th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
                     th:classappend="${i == currentPage} ? 'active'">
-                    <a class="page-link" th:href="@{|/employees?page=${i}&size=10|}" th:text="${i + 1}">1</a>
+                    <a class="page-link" th:href="@{|/employee?page=${i}&size=10|}" th:text="${i + 1}">1</a>
                 </li>
 
                 <li class="page-item" th:classappend="${employeePage.last} ? 'disabled'">
-                    <a class="page-link" th:href="@{|/employees?page=${currentPage + 1}&size=10|}">다음</a>
+                    <a class="page-link" th:href="@{|/employee?page=${currentPage + 1}&size=10|}">다음</a>
                 </li>
             </ul>
         </nav>
