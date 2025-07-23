@@ -92,7 +92,7 @@
         <tr>
             <td class="label">급여</td>
             <td>
-                <span th:text="${#numbers.formatInteger(employee.annualSalary, 3, 'COMMA')} + ' 원'">급여</span>
+                <span th:text="${employee.annualSalary != null} ? ${#numbers.formatInteger(employee.annualSalary, 3, 'COMMA')} + ' 원' : ''">급여</span>
                 <input type="text" name="annualSalary" th:value="${employee.annualSalary}" style="display:none;">
             </td>
         </tr>
