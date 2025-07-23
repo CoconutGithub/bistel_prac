@@ -1,4 +1,4 @@
-package org.hr_management.domain.task;
+package org.hr_management.domain.task.db;
 
 import jakarta.persistence.*;
 import lombok.Getter;

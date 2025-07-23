@@ -1,4 +1,7 @@
 spring:
+  config:
+    import: optional:file:.env[.properties]
+
   datasource:
     url: jdbc:oracle:thin:@//${DB_HOST}:${DB_PORT}/XEPDB1
     username: ${DB_USERNAME}
