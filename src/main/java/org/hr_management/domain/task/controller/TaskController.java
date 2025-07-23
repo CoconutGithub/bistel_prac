@@ -3,8 +3,8 @@ package org.hr_management.domain.task.controller;
 import lombok.RequiredArgsConstructor;
 import org.hr_management.domain.employee.db.EmployeeEntity;
 import org.hr_management.domain.employee.db.EmployeeRepository;
-import org.hr_management.domain.status.StatusEntity;
-import org.hr_management.domain.status.StatusRepository;
+import org.hr_management.domain.status.db.StatusEntity;
+import org.hr_management.domain.status.db.StatusRepository;
 import org.hr_management.domain.task.db.TaskEntity;
 import org.hr_management.domain.task.db.TaskRepository;
 import org.hr_management.domain.task.dto.TaskFormDto;
@@ -62,11 +62,11 @@ public class TaskController {
 
         //status, emp 있으면 유효성 검증,없으면 null
         if (formDto.getStatusCode() != null && !formDto.getStatusCode().isBlank()) {
-            if(statusRepository.findById(formDto.getStatusCode()).isEmpty()) {
+            if(statusRepository.findByStatusCode(formDto.getStatusCode()).isEmpty()) {
                 model.addAttribute("error", "존재하지 않는 상태 코드입니다.");
                 return "task/form";
             }
-            task.setStatusCode(statusRepository.findById(formDto.getStatusCode()).orElse(null));
+            task.setStatusCode(statusRepository.findByStatusCode(formDto.getStatusCode()).orElse(null));
         }
         else{
             task.setStatusCode(null);
