@@ -1,4 +1,4 @@
-package org.hr_management.domain.monthly_salary;
+package org.hr_management.domain.monthly_salary.db;
 
 import jakarta.persistence.*;
 import lombok.Getter;
