@@ -24,4 +24,8 @@ public class TaskService {
         return taskRepository.findById(taskId).orElse(null);
     }
 
+    public void saveTask(TaskEntity task) {
+        taskRepository.save(task);
+    }
+
 }
