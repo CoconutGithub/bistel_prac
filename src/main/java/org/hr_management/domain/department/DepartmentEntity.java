@@ -2,17 +2,12 @@ package org.hr_management.domain.department;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hr_management.domain.location.LocationEntity;
+import org.hr_management.domain.employee.db.EmployeeEntity;
 
 import java.util.List;
 
 @Entity
 @Table(name = "department")
-@SequenceGenerator(
-        name = "department_seq_generator",
-        sequenceName = "department_id_seq",
-        allocationSize = 1
-)
 @Builder
 @Getter
 @Setter
@@ -21,14 +16,12 @@ import java.util.List;
 public class DepartmentEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "department_seq_generator")
     private Integer deptId;
 
     private String deptName;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "LOCATION_ID")
-    private LocationEntity location;
+    @Column(length = 150, name = "DEPT_ADDRESS")
+    private String deptAddress;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PARENT_DEPT_ID")
@@ -37,6 +30,7 @@ public class DepartmentEntity {
     @OneToMany(mappedBy = "parentDept")
     private List<DepartmentEntity> children;
 
-    // TODO Employee 추가
-
+    @ManyToOne
+    @JoinColumn(name = "MANAGER_ID")
+    private EmployeeEntity manager;
 }
