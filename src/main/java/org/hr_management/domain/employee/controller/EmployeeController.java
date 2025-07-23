@@ -2,6 +2,9 @@ package org.hr_management.domain.employee.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
+import org.hr_management.domain.department.db.DepartmentEntity;
+import org.hr_management.domain.department.service.DepartmentService;
 import org.hr_management.domain.employee.db.EmployeeEntity;
 import org.hr_management.domain.employee.db.EmployeeSimpleDto;
 import org.hr_management.domain.employee.dto.EmployeeRegisterRequest;
@@ -13,15 +16,20 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Controller
 @RequestMapping("/employee")
+@Slf4j
 public class EmployeeController {
 
     private final EmployeeService employeeService;
+    private final DepartmentService departmentService;
 
     @Autowired
-    public EmployeeController(EmployeeService employeeService) {
+    public EmployeeController(EmployeeService employeeService, DepartmentService departmentService) {
         this.employeeService = employeeService;
+        this.departmentService = departmentService;
     }
 
     @GetMapping("")
@@ -65,6 +73,9 @@ public class EmployeeController {
     )
     @GetMapping("/register")
     public String getRegisterForm(Model model) {
+        List<String> departmentNames = departmentService.getDepartmentNames();
+        log.info("departmentNames: {}", departmentNames);
+        model.addAttribute("departmentNames", departmentNames);
         model.addAttribute("request", new EmployeeRegisterRequest());
         return "employee/register";
     }
@@ -79,6 +90,8 @@ public class EmployeeController {
         if(bindingResult.hasErrors()) {
             return "employee/register";
         }
+        log.info("Employee registering request Dept Name: {}", request.getDeptName());
+
         employeeService.registerEmployee(request);
 
         return "redirect:/employee";

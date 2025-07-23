@@ -3,6 +3,7 @@ package org.hr_management.domain.employee.dto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
@@ -37,9 +38,12 @@ public class EmployeeRegisterRequest {
     @NotBlank
     private String ssn;
 
-    private Integer deptId;
+    @NotBlank
+    private String deptName;
+
     private String position;
     private Long annualSalary;
 
+    @NotNull(message = "입사 날짜는 필수입니다.")
     private LocalDate hireDate;
 }
