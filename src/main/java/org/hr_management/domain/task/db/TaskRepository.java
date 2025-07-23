@@ -13,7 +13,7 @@ public interface TaskRepository extends JpaRepository<TaskEntity,Long> {
 
 
     @Query("SELECT new org.hr_management.domain.task.dto.TaskSimpleDto(t.taskId, t.taskTitle, t.taskDescription) " +
-            "FROM TaskEntity t WHERE t.statusCode = :status")
+            "FROM TaskEntity t WHERE t.statusCode.statusCode = :status")
     Page<TaskSimpleDto> findByStatusCode(@Param("status") String status, Pageable pageable);
 
 }
