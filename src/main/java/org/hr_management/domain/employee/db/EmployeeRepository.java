@@ -18,6 +18,7 @@ public interface EmployeeRepository extends JpaRepository<EmployeeEntity, Intege
     FROM EmployeeEntity e
     JOIN e.dept d
     JOIN e.status s
+    ORDER BY e.empId asc
 """)
     Page<EmployeeSimpleDto> findEmployeeSummaries(Pageable pageable);
 }
