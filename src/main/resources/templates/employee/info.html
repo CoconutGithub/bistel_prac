@@ -35,51 +35,51 @@
 <table>
     <tr>
         <td class="label">사번</td>
-        <td th:text="${employee.empId}">10100001</td>
+        <td th:text="${employee.empId != null ? employee.empId : '정보 없음'}">사번</td>
     </tr>
     <tr>
         <td class="label">이름</td>
-        <td th:text="${employee.firstName} + ' ' + ${employee.lastName}">김 지훈</td>
+        <td th:text="${employee.firstName != null && employee.lastName != null ? employee.firstName + ' ' + employee.lastName : '정보 없음'}">이름</td>
+    </tr>
+    <tr>
+        <td class="label">영문이름</td>
+        <td th:text="${employee.engName != null ? employee.engName : '정보 없음'}">영문이름</td>
     </tr>
     <tr>
         <td class="label">입사일</td>
-        <td th:text="${employee.hireDate}">2019-01-15</td>
+        <td th:text="${employee.hireDate != null ? employee.hireDate : '정보 없음'}">2019-01-15</td>
     </tr>
     <tr>
         <td class="label">부서</td>
-        <td th:text="${employee.dept.deptName}">인사팀</td>
+        <td th:text="${employee.dept != null && employee.dept.deptName != null ? employee.dept.deptName : '정보 없음'}">인사팀</td>
     </tr>
     <tr>
         <td class="label">직책</td>
-        <td th:text="${employee.position.positionTitle}">사원</td>
+        <td th:text="${employee.position != null ? employee.position : '정보 없음'}">사원</td>
     </tr>
     <tr>
         <td class="label">급여</td>
-        <td th:text="${#numbers.formatInteger(employee.salary, 3, 'COMMA')} + ' 원'">32,000,000 원</td>
-    </tr>
-    <tr>
-        <td class="label">성과금</td>
-        <td th:text="${#numbers.formatInteger(employee.comm, 3, 'COMMA')} + ' 원'">1,000,000 원</td>
+        <td th:text="${employee.annualSalary != null ? #numbers.formatInteger(employee.annualSalary, 3, 'COMMA') + ' 원' : '정보 없음'}">32,000,000 원</td>
     </tr>
     <tr>
         <td class="label">전화번호</td>
-        <td th:text="${employee.phoneNumber}">010-1111-1111</td>
+        <td th:text="${employee.phoneNumber != null ? employee.phoneNumber : '정보 없음'}">010-1111-1111</td>
     </tr>
     <tr>
         <td class="label">이메일</td>
-        <td th:text="${employee.email}">jihun.kim@company.com</td>
+        <td th:text="${employee.email != null ? employee.email : '정보 없음'}">jihun.kim@company.com</td>
     </tr>
     <tr>
         <td class="label">재직 상태</td>
-        <td th:text="${employee.status.statusName}">재직중</td>
+        <td th:text="${employee.status != null && employee.status.statusName != null ? employee.status.statusName : '정보 없음'}">재직중</td>
     </tr>
     <tr>
         <td class="label">주소</td>
-        <td th:text="${employee.address}">서울 강남구 역삼동 1번지</td>
+        <td th:text="${employee.address != null ? employee.address : '정보 없음'}">서울 강남구 역삼동 1번지</td>
     </tr>
     <tr>
         <td class="label">주민등록번호</td>
-        <td th:text="${employee.ssn}">900101-1234567</td>
+        <td th:text="${employee.ssn != null ? employee.ssn : '정보 없음'}">900101-1234567</td>
     </tr>
 </table>
 </body>
