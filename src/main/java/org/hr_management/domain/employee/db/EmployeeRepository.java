@@ -12,12 +12,11 @@ public interface EmployeeRepository extends JpaRepository<EmployeeEntity, Intege
         e.empId,
         CONCAT(e.firstName, ' ', e.lastName),
         d.deptName,
-        p.positionTitle,
+        e.position,
         s.statusName
     )
     FROM EmployeeEntity e
     JOIN e.dept d
-    JOIN e.position p
     JOIN e.status s
 """)
     Page<EmployeeSimpleDto> findEmployeeSummaries(Pageable pageable);
