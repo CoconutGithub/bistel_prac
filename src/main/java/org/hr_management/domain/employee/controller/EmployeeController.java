@@ -1,12 +1,16 @@
 package org.hr_management.domain.employee.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import org.hr_management.domain.employee.db.EmployeeEntity;
 import org.hr_management.domain.employee.db.EmployeeSimpleDto;
+import org.hr_management.domain.employee.dto.EmployeeRegisterRequest;
 import org.hr_management.domain.employee.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
@@ -53,5 +57,30 @@ public class EmployeeController {
     ) {
         employeeService.deleteById(empId);
         return "redirect:/employee?message=deleted";
+    }
+
+    @Operation(
+            summary = "직원 등록 페이지 조회",
+            description = "직원 등록할 수 있는 페이지를 리턴한다."
+    )
+    @GetMapping("/register")
+    public String getRegisterForm(Model model) {
+        model.addAttribute("request", new EmployeeRegisterRequest());
+        return "employee/register";
+    }
+
+
+    @PostMapping("")
+    public String registerEmployee(
+        @Valid @ModelAttribute("request") EmployeeRegisterRequest request,
+        BindingResult bindingResult,
+        Model model
+    ) {
+        if(bindingResult.hasErrors()) {
+            return "employee/register";
+        }
+        employeeService.registerEmployee(request);
+
+        return "redirect:/employee";
     }
 }

@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hr_management.domain.employee.db.EmployeeEntity;
-import org.hr_management.domain.status.StatusEntity;
+import org.hr_management.domain.status.db.StatusEntity;
 
 import java.util.Date;
 

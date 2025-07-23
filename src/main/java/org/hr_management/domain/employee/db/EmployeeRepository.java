@@ -11,6 +11,7 @@ public interface EmployeeRepository extends JpaRepository<EmployeeEntity, Intege
     SELECT new org.hr_management.domain.employee.db.EmployeeSimpleDto(
         e.empId,
         CONCAT(e.firstName, ' ', e.lastName),
+        e.engName,
         d.deptName,
         e.position,
         s.statusName
@@ -18,6 +19,7 @@ public interface EmployeeRepository extends JpaRepository<EmployeeEntity, Intege
     FROM EmployeeEntity e
     JOIN e.dept d
     JOIN e.status s
+    ORDER BY e.empId asc
 """)
     Page<EmployeeSimpleDto> findEmployeeSummaries(Pageable pageable);
 }
