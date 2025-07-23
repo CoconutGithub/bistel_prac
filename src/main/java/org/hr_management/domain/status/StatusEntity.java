@@ -1,27 +1,29 @@
 package org.hr_management.domain.status;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
-@Table(name = "status")
-@Builder
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Table(name = "STATUS")
 public class StatusEntity {
 
     @Id
-    @Column(length = 20)
+    @Column(name = "STATUS_CODE", length = 20)
     private String statusCode;
 
-    @Column(length = 20, nullable = false)
+    @Column(name = "STATUS_NAME", length = 20, nullable = false)
     private String statusName;
 
-    @Column(length = 100)
+    @Column(name = "STATUS_DESCRIPTION", length = 100)
     private String statusDescription;
 
-    @Column(length = 20)
+    @Column(name = "TYPE", length = 20)
     private String type;
+
 }
