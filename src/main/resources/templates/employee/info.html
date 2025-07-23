@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>직원 상세 정보</title>
+    <script th:src="@{/js/employee-info-edit.js}"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -28,59 +29,110 @@
             width: 200px;
             background-color: #f5f5f5;
         }
+
+        input[type="text"] {
+            width: 100%;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 <body>
 <h2>직원 상세 정보</h2>
-<table>
-    <tr>
-        <td class="label">사번</td>
-        <td th:text="${employee.empId != null ? employee.empId : '정보 없음'}">사번</td>
-    </tr>
-    <tr>
-        <td class="label">이름</td>
-        <td th:text="${employee.firstName != null && employee.lastName != null ? employee.firstName + ' ' + employee.lastName : '정보 없음'}">이름</td>
-    </tr>
-    <tr>
-        <td class="label">영문이름</td>
-        <td th:text="${employee.engName != null ? employee.engName : '정보 없음'}">영문이름</td>
-    </tr>
-    <tr>
-        <td class="label">입사일</td>
-        <td th:text="${employee.hireDate != null ? employee.hireDate : '정보 없음'}">2019-01-15</td>
-    </tr>
-    <tr>
-        <td class="label">부서</td>
-        <td th:text="${employee.dept != null && employee.dept.deptName != null ? employee.dept.deptName : '정보 없음'}">인사팀</td>
-    </tr>
-    <tr>
-        <td class="label">직책</td>
-        <td th:text="${employee.position != null ? employee.position : '정보 없음'}">사원</td>
-    </tr>
-    <tr>
-        <td class="label">급여</td>
-        <td th:text="${employee.annualSalary != null ? #numbers.formatInteger(employee.annualSalary, 3, 'COMMA') + ' 원' : '정보 없음'}">32,000,000 원</td>
-    </tr>
-    <tr>
-        <td class="label">전화번호</td>
-        <td th:text="${employee.phoneNumber != null ? employee.phoneNumber : '정보 없음'}">010-1111-1111</td>
-    </tr>
-    <tr>
-        <td class="label">이메일</td>
-        <td th:text="${employee.email != null ? employee.email : '정보 없음'}">jihun.kim@company.com</td>
-    </tr>
-    <tr>
-        <td class="label">재직 상태</td>
-        <td th:text="${employee.status != null && employee.status.statusName != null ? employee.status.statusName : '정보 없음'}">재직중</td>
-    </tr>
-    <tr>
-        <td class="label">주소</td>
-        <td th:text="${employee.address != null ? employee.address : '정보 없음'}">서울 강남구 역삼동 1번지</td>
-    </tr>
-    <tr>
-        <td class="label">주민등록번호</td>
-        <td th:text="${employee.ssn != null ? employee.ssn : '정보 없음'}">900101-1234567</td>
-    </tr>
-</table>
+
+<form id="employeeForm" th:action="@{'/employee/' + ${employee.empId}}" th:object="${employee}" method="post">
+    <input type="hidden" name="_method" value="PATCH"/>
+    <button type="button" onclick="toggleEditMode()">수정</button>
+    <button id="saveBtn" type="submit" style="display: none;">저장</button>
+    <button id="cancelBtn" type="button" style="display: none;" onclick="cancelEdit()">취소</button>
+
+    <table>
+        <tr>
+            <td class="label">사번</td>
+            <td>
+                <span th:text="${employee.empId}">사번</span>
+                <input type="hidden" th:field="*{empId}" />
+            </td>
+        </tr>
+        <tr>
+            <td class="label">이름</td>
+            <td>
+                <span th:text="${employee.firstName + ' ' + employee.lastName}">이름</span>
+                <input type="text" name="firstName" th:value="${employee.firstName}" style="display:none;">
+                <input type="text" name="lastName" th:value="${employee.lastName}" style="display:none;">
+            </td>
+        </tr>
+        <tr>
+            <td class="label">영문이름</td>
+            <td>
+                <span th:text="${employee.engName}">영문이름</span>
+                <input type="text" name="engName" th:value="${employee.engName}" style="display:none;">
+            </td>
+        </tr>
+        <tr>
+            <td class="label">입사일</td>
+            <td>
+                <span th:text="${employee.hireDate}">입사일</span>
+                <input type="text" name="hireDate" th:value="${employee.hireDate}" style="display:none;">
+            </td>
+        </tr>
+        <tr>
+            <td class="label">부서</td>
+            <td>
+                <span th:text="${employee.dept.deptName}">부서</span>
+                <input type="text" name="deptName" th:value="${employee.dept.deptName}" style="display:none;">
+            </td>
+        </tr>
+        <tr>
+            <td class="label">직책</td>
+            <td>
+                <span th:text="${employee.position}">직책</span>
+                <input type="text" name="position" th:value="${employee.position}" style="display:none;">
+            </td>
+        </tr>
+        <tr>
+            <td class="label">급여</td>
+            <td>
+                <span th:text="${#numbers.formatInteger(employee.annualSalary, 3, 'COMMA')} + ' 원'">급여</span>
+                <input type="text" name="annualSalary" th:value="${employee.annualSalary}" style="display:none;">
+            </td>
+        </tr>
+        <tr>
+            <td class="label">전화번호</td>
+            <td>
+                <span th:text="${employee.phoneNumber}">전화번호</span>
+                <input type="text" name="phoneNumber" th:value="${employee.phoneNumber}" style="display:none;">
+            </td>
+        </tr>
+        <tr>
+            <td class="label">이메일</td>
+            <td>
+                <span th:text="${employee.email}">이메일</span>
+                <input type="text" name="email" th:value="${employee.email}" style="display:none;">
+            </td>
+        </tr>
+        <tr>
+            <td class="label">재직 상태</td>
+            <td>
+                <span th:text="${employee.status.statusName}">재직 상태</span>
+                <input type="text" name="statusName" th:value="${employee.status.statusName}" style="display:none;">
+            </td>
+        </tr>
+        <tr>
+            <td class="label">주소</td>
+            <td>
+                <span th:text="${employee.address}">주소</span>
+                <input type="text" name="address" th:value="${employee.address}" style="display:none;">
+            </td>
+        </tr>
+        <tr>
+            <td class="label">주민등록번호</td>
+            <td>
+                <span th:text="${employee.ssn}">주민등록번호</span>
+                <input type="text" name="ssn" th:value="${employee.ssn}" style="display:none;">
+            </td>
+        </tr>
+    </table>
+</form>
 </body>
 </html>
+

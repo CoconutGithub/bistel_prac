@@ -8,6 +8,7 @@ import org.hr_management.domain.department.service.DepartmentService;
 import org.hr_management.domain.employee.db.EmployeeEntity;
 import org.hr_management.domain.employee.db.EmployeeSimpleDto;
 import org.hr_management.domain.employee.dto.EmployeeRegisterRequest;
+import org.hr_management.domain.employee.dto.EmployeeUpdateRequest;
 import org.hr_management.domain.employee.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -93,6 +94,21 @@ public class EmployeeController {
         log.info("Employee registering request Dept Name: {}", request.getDeptName());
 
         employeeService.registerEmployee(request);
+
+        return "redirect:/employee";
+    }
+
+
+    @PatchMapping("/{id}")
+    public String updateEmployee(
+            @Valid @ModelAttribute("request") EmployeeUpdateRequest request,
+            BindingResult bindingResult,
+            Model model
+    ) {
+        if(bindingResult.hasErrors()) {
+            return "employee/register";
+        }
+        employeeService.updateEmployee(request);
 
         return "redirect:/employee";
     }
