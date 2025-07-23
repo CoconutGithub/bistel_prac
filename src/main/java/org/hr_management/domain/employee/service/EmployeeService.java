@@ -1,11 +1,14 @@
 package org.hr_management.domain.employee.service;
 
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.hr_management.domain.department.db.DepartmentEntity;
 import org.hr_management.domain.department.db.DepartmentRepository;
 import org.hr_management.domain.employee.db.EmployeeEntity;
 import org.hr_management.domain.employee.db.EmployeeRepository;
 import org.hr_management.domain.employee.db.EmployeeSimpleDto;
 import org.hr_management.domain.employee.dto.EmployeeRegisterRequest;
+import org.hr_management.domain.employee.dto.EmployeeUpdateRequest;
 import org.hr_management.domain.status.db.StatusEntity;
 import org.hr_management.domain.status.db.StatusRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class EmployeeService {
 
     private final EmployeeRepository employeeRepository;
@@ -55,7 +59,8 @@ public class EmployeeService {
     }
 
     public EmployeeEntity registerEmployee(EmployeeRegisterRequest request) {
-        DepartmentEntity deptEntity = departmentRepository.findById(request.getDeptId()).orElseThrow(() -> new RuntimeException("Department not found"));
+        log.info("Employee registering request {}", request);
+        DepartmentEntity deptEntity = departmentRepository.findDepartmentByDeptName(request.getDeptName()).orElseThrow(() -> new RuntimeException("Department not found"));
         StatusEntity statusEntity = statusRepository.findByStatusCode("ACTIVE").orElseThrow(() -> new RuntimeException("Status not found"));
 
         EmployeeEntity entity = EmployeeEntity.builder()
@@ -75,5 +80,27 @@ public class EmployeeService {
                 ;
 
         return employeeRepository.save(entity);
+    }
+
+    public void updateEmployee(EmployeeUpdateRequest request) {
+        DepartmentEntity department =  departmentRepository.findDepartmentByDeptName(request.getDeptName()).orElseThrow(() -> new RuntimeException("Department not found"));
+
+        EmployeeEntity entity = employeeRepository.findById(request.getEmpId()).orElseThrow(()-> new RuntimeException("Employee not found"));
+        entity.setFirstName(request.getFirstName());
+        entity.setLastName(request.getLastName());
+        entity.setEngName(request.getEngName());
+
+        entity.setPhoneNumber(request.getPhoneNumber());
+        entity.setEmail(request.getEmail());
+        entity.setAddress(request.getAddress());
+        entity.setSsn(request.getSsn());
+
+        entity.setDept(department);
+        entity.setPosition(request.getPosition());
+        entity.setAnnualSalary(request.getAnnualSalary());
+
+        entity.setHireDate(request.getHireDate());
+
+        employeeRepository.save(entity);
     }
 }
