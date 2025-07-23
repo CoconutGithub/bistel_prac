@@ -15,6 +15,7 @@ import java.util.Date;
 public class TaskEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "TASK_ID")
     private Long taskId;
 
