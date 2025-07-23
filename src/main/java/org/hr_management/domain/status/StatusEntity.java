@@ -1,16 +1,16 @@
-package org.hr_management.domain.employee_status;
+package org.hr_management.domain.status;
 
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "employee_status")
+@Table(name = "status")
 @Builder
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class EmployeeStatusEntity {
+public class StatusEntity {
 
     @Id
     @Column(length = 20)
@@ -21,4 +21,7 @@ public class EmployeeStatusEntity {
 
     @Column(length = 100)
     private String statusDescription;
+
+    @Column(length = 20)
+    private String type;
 }

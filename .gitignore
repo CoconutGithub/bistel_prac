@@ -1,3 +1,6 @@
+### exclude k8s manifest files
+k8s
+
 ### exlude idea files
 .idea
 
