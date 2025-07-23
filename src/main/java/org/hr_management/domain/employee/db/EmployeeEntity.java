@@ -2,8 +2,8 @@ package org.hr_management.domain.employee.db;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hr_management.domain.department.DepartmentEntity;
-import org.hr_management.domain.status.StatusEntity;
+import org.hr_management.domain.department.db.DepartmentEntity;
+import org.hr_management.domain.status.db.StatusEntity;
 
 import java.time.LocalDate;
 
@@ -14,9 +14,15 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@SequenceGenerator(
+        name = "employee_seq_generator",
+        sequenceName = "employee_id_seq",
+        allocationSize = 1
+)
 public class EmployeeEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "employee_seq_generator")
     private Integer empId;
 
     @Column(name = "FIRST_NAME", nullable = false, length = 10)

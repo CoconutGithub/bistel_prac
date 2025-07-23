@@ -11,6 +11,7 @@ public interface EmployeeRepository extends JpaRepository<EmployeeEntity, Intege
     SELECT new org.hr_management.domain.employee.db.EmployeeSimpleDto(
         e.empId,
         CONCAT(e.firstName, ' ', e.lastName),
+        e.engName,
         d.deptName,
         e.position,
         s.statusName

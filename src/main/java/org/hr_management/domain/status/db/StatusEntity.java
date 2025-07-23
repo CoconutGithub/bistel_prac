@@ -1,4 +1,4 @@
-package org.hr_management.domain.status;
+package org.hr_management.domain.status.db;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

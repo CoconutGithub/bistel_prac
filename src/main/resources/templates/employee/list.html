@@ -15,7 +15,7 @@
     <div class="card shadow-sm p-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="mb-0">직원 목록</h2>
-            <a class="btn btn-primary" th:href="@{/employees/new}">+ 직원 추가</a>
+            <a class="btn btn-primary" th:href="@{/employee/register}">+ 직원 추가</a>
         </div>
 
         <table class="table table-hover">
@@ -23,6 +23,7 @@
             <tr>
                 <th>사번</th>
                 <th>이름</th>
+                <th>영문이름</th>
                 <th>부서</th>
                 <th>직급</th>
                 <th>상태</th>
@@ -33,6 +34,7 @@
             <tr th:each="employee : ${employeePage.content}">
                 <td th:text="${employee.empId}"></td>
                 <td th:text="${employee.fullName}"></td>
+                <td th:text="${employee.engName}"></td>
                 <td th:text="${employee.deptName}"></td>
                 <td th:text="${employee.position}"></td>
                 <td th:text="${employee.statusName}"></td>

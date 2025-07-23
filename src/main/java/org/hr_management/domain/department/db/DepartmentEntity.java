@@ -1,4 +1,4 @@
-package org.hr_management.domain.department;
+package org.hr_management.domain.department.db;
 
 import jakarta.persistence.*;
 import lombok.*;
