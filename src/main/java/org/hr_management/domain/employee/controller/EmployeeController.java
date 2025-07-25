@@ -89,6 +89,8 @@ public class EmployeeController {
         Model model
     ) {
         if(bindingResult.hasErrors()) {
+            List<String> departmentNames = departmentService.getDepartmentNames();
+            model.addAttribute("departmentNames", departmentNames);
             return "employee/register";
         }
         log.info("Employee registering request Dept Name: {}", request.getDeptName());
