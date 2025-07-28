@@ -24,7 +24,7 @@ public class MonthlySalaryService {
         if(employeeRepository.findById(empId).isPresent()) {
             m_sal.setEmpId(employeeRepository.findById(empId).get());
 
-//            m_sal.setPayDate(paymentDto.getPayDate());
+            m_sal.setPayDate(paymentDto.getPayDate());
             m_sal.setBaseSalary(Long.valueOf(paymentDto.getBaseSalary()));
             m_sal.setMealAllow(Long.valueOf(paymentDto.getMealAllow()));
             m_sal.setTransportAllow(Long.valueOf(paymentDto.getTransportAllow()));
