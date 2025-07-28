@@ -18,9 +18,9 @@ public class MonthlySalaryController {
     private final MonthlySalaryService monthlySalaryService;
 
     @GetMapping("/pay/{id}")
-    public String paymentForm(@PathVariable("id") Long m_salId, Model model) {
+    public String paymentForm(@PathVariable("id") Integer empId, Model model) {
         model.addAttribute("paymentDto", new PaymentDto());
-        model.addAttribute("empId", m_salId);
+        model.addAttribute("empId", empId);
         return "/salary/pay";
     }
 
@@ -34,6 +34,6 @@ public class MonthlySalaryController {
             monthlySalaryService.customPayment(paymentDto,empId);
         }
 
-        return "redirect:/employee/list";
+        return "redirect:/employee/" + empId;
     }
 }
