@@ -5,13 +5,21 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hr_management.domain.employee.db.EmployeeEntity;
 
+import java.time.LocalDate;
+
 @Entity
 @Getter
 @Setter
+@SequenceGenerator(
+        name = "m_salary_seq_generator",
+        sequenceName = "monthly_salary_seq",
+        allocationSize = 1
+)
 @Table(name = "MONTHLY_SALARY")
 public class MonthlySalaryEntity {
     @Id
     @Column(name = "MONTHLY_SALARY_ID")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "m_salary_seq_generator")
     private Long monthlySalaryId;
 
     @Column(name = "BASE_SALARY")
@@ -53,4 +61,7 @@ public class MonthlySalaryEntity {
     @JoinColumn(name = "EMP_ID", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     private EmployeeEntity empId;
+
+    @Column(name = "PAY_DATE")
+    private LocalDate payDate;
 }
