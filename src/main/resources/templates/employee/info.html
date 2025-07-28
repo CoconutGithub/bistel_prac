@@ -45,6 +45,10 @@
     <button id="saveBtn" type="submit" style="display: none;">저장</button>
     <button id="cancelBtn" type="button" style="display: none;" onclick="cancelEdit()">취소</button>
 
+    <a th:href="@{'/salary/pay/' + ${employee.empId}}">
+        <button type="button">지급 내역 추가</button>
+    </a>
+
     <table>
         <tr>
             <td class="label">사번</td>
