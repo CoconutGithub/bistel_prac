@@ -14,7 +14,7 @@ export const myTheme = themeQuartz
         borderRadius: 0,
         browserColorScheme: "light",
         chromeBackgroundColor: { ref: "backgroundColor" },
-        fontFamily: { googleFont: "Pixelify Sans" },
+        // fontFamily: { googleFont: "Pixelify Sans" },
         fontSize: 15,
         foregroundColor: "#605E57",
         headerBackgroundColor: "#E4DAD1",
