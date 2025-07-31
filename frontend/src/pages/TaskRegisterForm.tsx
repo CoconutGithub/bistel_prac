@@ -124,8 +124,6 @@ const TaskRegisterForm: React.FC = () => {
                             </div>
                         </div>
                     </div>
-
-                    {/* 업무 설명 텍스트에어리어 */}
                     <div className="col-md-12 mb-3">
                         <div className="form-group row">
                             <label className="col-sm-2 col-form-label">업무 설명</label>

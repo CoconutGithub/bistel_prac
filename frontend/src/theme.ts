@@ -23,5 +23,5 @@ export const myTheme = themeQuartz
         headerTextColor: "#3C3A35",
         rowVerticalPaddingScale: 1.2,
         spacing: 5,
-        wrapperBorderRadius: 0
+        wrapperBorderRadius: 0,
     });

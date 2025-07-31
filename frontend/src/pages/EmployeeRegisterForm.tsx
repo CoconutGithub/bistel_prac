@@ -108,8 +108,6 @@ const EmployeeRegisterForm: React.FC = () => {
                   </div>
                 </div>
             ))}
-
-            {/* 부서 선택 */}
             <div className="col-md-6 mb-3">
               <div className="form-group row">
                 <label className="col-sm-4 col-form-label">부서 선택</label>

@@ -41,7 +41,7 @@ const TaskList: React.FC = () => {
         const formatDate = (d: string | Date | null) => {
             if (!d) return '';
             const date = typeof d === 'string' ? new Date(d) : d;
-            return date.toLocaleDateString('sv-SE'); // YYYY-MM-DD (local time 기준)
+            return date.toLocaleDateString('sv-SE');
         };
 
         const dto = {
@@ -85,7 +85,7 @@ const TaskList: React.FC = () => {
         }
     };
     const handleExport = () => {
-        gridRef.current?.exportToCsv(); // 호출
+        gridRef.current?.exportToCsv();
     };
 
     const columnDefs: ColDef[] = [
