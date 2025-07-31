@@ -7,15 +7,21 @@ import org.hr_management.domain.department.db.DepartmentRepository;
 import org.hr_management.domain.employee.db.EmployeeEntity;
 import org.hr_management.domain.employee.db.EmployeeRepository;
 import org.hr_management.domain.employee.db.EmployeeSimpleDto;
+import org.hr_management.domain.employee.dto.EmployeeListDto;
 import org.hr_management.domain.employee.dto.EmployeeRegisterRequest;
-import org.hr_management.domain.employee.dto.EmployeeUpdateRequest;
+import org.hr_management.domain.employee.dto.EmployeeUpdateDto;
 import org.hr_management.domain.status.db.StatusEntity;
 import org.hr_management.domain.status.db.StatusRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Locale;
 
 @Service
 @Slf4j
@@ -36,9 +42,13 @@ public class EmployeeService {
         this.statusRepository = statusRepository;
     }
 
-    public Page<EmployeeSimpleDto> getEmployeesByPaging(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return employeeRepository.findEmployeeSummaries(pageable);
+//    public Page<EmployeeSimpleDto> getEmployeesByPaging(int page, int size) {
+//        Pageable pageable = PageRequest.of(page, size);
+//        return employeeRepository.findEmployeeSummaries(pageable);
+//    }
+    public List<EmployeeListDto> getEmployeesByList() {
+//        Pageable pageable = PageRequest.of(page, size,Sort.by(Sort.Direction.ASC, "empId"));
+        return employeeRepository.findAllEmployees();
     }
 
     // TODO null 일 때 예외처리 추가
@@ -82,25 +92,28 @@ public class EmployeeService {
         return employeeRepository.save(entity);
     }
 
-    public void updateEmployee(EmployeeUpdateRequest request) {
-        DepartmentEntity department =  departmentRepository.findDepartmentByDeptName(request.getDeptName()).orElseThrow(() -> new RuntimeException("Department not found"));
+    @Transactional
+    public void updateEmployee(Integer empId, EmployeeUpdateDto dto) {
+        EmployeeEntity e = employeeRepository.findById(empId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid empId: " + empId));
 
-        EmployeeEntity entity = employeeRepository.findById(request.getEmpId()).orElseThrow(()-> new RuntimeException("Employee not found"));
-        entity.setFirstName(request.getFirstName());
-        entity.setLastName(request.getLastName());
-        entity.setEngName(request.getEngName());
+        e.setEngName(dto.getEngName());
+        e.setHireDate(dto.getHireDate());
+        e.setQuitDate(dto.getQuitDate());
 
-        entity.setPhoneNumber(request.getPhoneNumber());
-        entity.setEmail(request.getEmail());
-        entity.setAddress(request.getAddress());
-        entity.setSsn(request.getSsn());
+        // Department, Status 매핑
+        e.setDept(departmentRepository
+                .findDepartmentByDeptName(dto.getDepartment())
+                .orElseThrow(() -> new RuntimeException("Department not found")));
 
-        entity.setDept(department);
-        entity.setPosition(request.getPosition());
-        entity.setAnnualSalary(request.getAnnualSalary());
+        e.setPosition(dto.getPosition());
+        e.setAnnualSalary(dto.getAnnualSalary());
+        e.setPhoneNumber(dto.getPhoneNumber());
+        e.setEmail(dto.getEmail());
+        e.setAddress(dto.getAddress());
 
-        entity.setHireDate(request.getHireDate());
-
-        employeeRepository.save(entity);
+        e.setStatus(statusRepository
+                .findByStatusCode(dto.getStatus())
+                .orElseThrow(() -> new RuntimeException("Status not found")));
     }
 }

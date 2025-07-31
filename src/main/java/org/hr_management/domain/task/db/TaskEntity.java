@@ -1,8 +1,7 @@
 package org.hr_management.domain.task.db;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hr_management.domain.employee.db.EmployeeEntity;
 import org.hr_management.domain.status.db.StatusEntity;
 
@@ -11,19 +10,28 @@ import java.util.Date;
 
 @Entity
 @Table(name = "TASK")
+@IdClass(TaskId.class)
 @Getter
 @Setter
-@SequenceGenerator(
-        name = "task_seq_generator",
-        sequenceName = "task_id_seq",
-        allocationSize = 1
-)
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+//@SequenceGenerator(
+//        name = "task_seq_generator",
+//        sequenceName = "task_id_seq",
+//        allocationSize = 1
+//)
 public class TaskEntity {
 
     @Id
     @Column(name = "TASK_ID")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "task_seq_generator")
+//    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "task_seq_generator")
     private Long taskId;
+
+    @Id
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "EMP_ID", nullable = false)
+    private EmployeeEntity employee;
 
     @Column(name = "TASK_TITLE", length = 100, nullable = false)
     private String taskTitle;
@@ -34,8 +42,8 @@ public class TaskEntity {
     @Column(name = "DUE_DATE")
     private LocalDate dueDate;
 
-    @JoinColumn(name = "STATUS_CODE")
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "STATUS_CODE")
     private StatusEntity statusCode;
 
     @Column(name = "PRIORITY")
@@ -47,10 +55,4 @@ public class TaskEntity {
 
     @Column(name = "ASSIGNED_DATE")
     private LocalDate assignedDate;
-
-    @JoinColumn(name = "EMP_ID")
-    @ManyToOne(fetch = FetchType.LAZY)
-    private EmployeeEntity empId;
-
-
 }

@@ -9,6 +9,7 @@ import java.util.Date;
 @Getter
 @Setter
 public class TaskFormDto {
+    private Long taskId;
     private String taskTitle;
     private LocalDate startDate;
     private LocalDate dueDate;

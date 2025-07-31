@@ -17,7 +17,7 @@ import java.time.LocalDate;
 @SequenceGenerator(
         name = "employee_seq_generator",
         sequenceName = "employee_id_seq",
-        allocationSize = 1
+        allocationSize =30
 )
 public class EmployeeEntity {
 
