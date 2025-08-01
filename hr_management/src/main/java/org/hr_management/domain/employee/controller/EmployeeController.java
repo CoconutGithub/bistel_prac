@@ -10,9 +10,11 @@ import org.hr_management.domain.employee.db.EmployeeSimpleDto;
 import org.hr_management.domain.employee.dto.EmployeeListDto;
 import org.hr_management.domain.employee.dto.EmployeeRegisterRequest;
 import org.hr_management.domain.employee.dto.EmployeeUpdateDto;
+import org.hr_management.domain.employee.dto.LoginDto;
 import org.hr_management.domain.employee.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -46,6 +48,16 @@ public class EmployeeController {
 //
 //        return ResponseEntity.ok(employee);
 //    }
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginDto request) {
+        boolean authenticated = employeeService.authenticate(request.getUserId(), request.getPassword());
+        if (authenticated) {
+            return ResponseEntity.ok().body("로그인 성공");
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+
     @GetMapping("/check")
     public ResponseEntity<Boolean> checkIdDuplicate(@RequestParam String userId) {
         boolean isDuplicate = employeeService.isIdDuplicate(userId);

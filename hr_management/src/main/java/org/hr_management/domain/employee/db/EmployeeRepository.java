@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface EmployeeRepository extends JpaRepository<EmployeeEntity, Integer> {
 
@@ -51,4 +52,6 @@ public interface EmployeeRepository extends JpaRepository<EmployeeEntity, Intege
 
 
     boolean existsByUserId(String userId);
+
+    Optional<Object> findByUserIdAndPassword(String userId, String password);
 }

@@ -50,6 +50,9 @@ public class EmployeeService {
 //        Pageable pageable = PageRequest.of(page, size,Sort.by(Sort.Direction.ASC, "empId"));
         return employeeRepository.findAllEmployees();
     }
+    public boolean authenticate(String userId, String password) {
+        return employeeRepository.findByUserIdAndPassword(userId, password).isPresent();
+    }
     public boolean isIdDuplicate(String id) {
         return employeeRepository.existsByUserId(id);
     }
