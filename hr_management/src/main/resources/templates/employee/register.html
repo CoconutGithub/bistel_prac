@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>직원 등록</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container py-5">
+    <h2>직원 등록</h2>
+    <form th:action="@{/employee}" th:object="${request}" method="post">
+        <div class="mb-3">
+            <label class="form-label">이름</label>
+            <input type="text" th:field="*{firstName}" class="form-control">
+            <div class="text-danger" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">성</label>
+            <input type="text" th:field="*{lastName}" class="form-control">
+            <div class="text-danger" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">영문 이름</label>
+            <input type="text" th:field="*{engName}" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">전화번호</label>
+            <input type="text" th:field="*{phoneNumber}" class="form-control" placeholder="010-1234-5678">
+            <div class="text-danger" th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}"></div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">이메일</label>
+            <input type="email" th:field="*{email}" class="form-control">
+            <div class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">주소</label>
+            <input type="text" th:field="*{address}" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">주민등록번호</label>
+            <input type="text" th:field="*{ssn}" class="form-control">
+            <div class="text-danger" th:if="${#fields.hasErrors('ssn')}" th:errors="*{ssn}"></div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">부서 선택</label>
+            <select th:field="*{deptName}" class="form-select">
+                <option value="">-- 부서를 선택하세요 --</option>
+                <option th:each="name : ${departmentNames}" th:value="${name}" th:text="${name}"></option>
+            </select>
+            <div class="text-danger" th:if="${#fields.hasErrors('deptName')}" th:errors="*{deptName}"></div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">직급</label>
+            <input type="text" th:field="*{position}" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">연봉</label>
+            <input type="number" th:field="*{annualSalary}" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">입사일</label>
+            <input type="date" th:field="*{hireDate}" class="form-control">
+        </div>
+
+        <button type="submit" class="btn btn-primary">등록</button>
+    </form>
+</div>
+
+</body>
+</html>

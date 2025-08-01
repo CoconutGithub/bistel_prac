@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>월급 지급</title>
+    <meta charset="UTF-8">
+    <script>
+        function toggleCustomFields() {
+            const typeSelect = document.getElementById('type');
+            const customFields = document.getElementById('customFields');
+            if (typeSelect.value === 'custom') {
+                customFields.style.display = 'block';
+            } else {
+                customFields.style.display = 'none';
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', function () {
+            toggleCustomFields(); // 초기 로딩 시에도 적용
+            document.getElementById('type').addEventListener('change', toggleCustomFields);
+        });
+    </script>
+</head>
+<body>
+<h1>월급 지급</h1>
+
+<form th:action="@{'/salary/pay/' + ${empId}}" th:object="${paymentDto}" method="post">
+    <label>지급 형태:</label>
+    <select id="type" th:field="*{type}">
+        <option value="default">기본 지급</option>
+        <option value="custom">사용자 정의</option>
+    </select>
+    <br/><br/>
+
+    <div id="customFields">
+        <label>지급일자:</label>
+        <input type="date" th:field="*{payDate}" />
+        <br/>
+
+        <label>기본급:</label>
+        <input type="number" th:field="*{baseSalary}" />
+        <br/>
+
+        <label>식대:</label>
+        <input type="number" th:field="*{mealAllow}" />
+        <br/>
+
+        <label>교통비:</label>
+        <input type="number" th:field="*{transportAllow}" />
+        <br/>
+
+        <label>성과금:</label>
+        <input type="number" th:field="*{comm}" />
+        <br/>
+
+        <label>기타지급:</label>
+        <input type="number" th:field="*{paymentOthers}" />
+        <br/>
+
+        <label>국민연금:</label>
+        <input type="number" th:field="*{nationalPension}" />
+        <br/>
+
+        <label>건강보험:</label>
+        <input type="number" th:field="*{healthInsurance}" />
+        <br/>
+
+        <label>고용보험:</label>
+        <input type="number" th:field="*{employmentInsurance}" />
+        <br/>
+
+        <label>장기요양보험:</label>
+        <input type="number" th:field="*{longtermCareInsurance}" />
+        <br/>
+
+        <label>소득세:</label>
+        <input type="number" th:field="*{incomeTax}" />
+        <br/>
+
+        <label>지방소득세:</label>
+        <input type="number" th:field="*{localIncomeTax}" />
+        <br/>
+
+        <label>기타공제:</label>
+        <input type="number" th:field="*{deductionOthers}" />
+        <br/>
+    </div>
+
+    <br/>
+    <button type="submit">지급</button>
+</form>
+</body>
+</html>
