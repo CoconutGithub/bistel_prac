@@ -46,4 +46,10 @@ public class EmployeeRegisterRequest {
 
     @NotNull(message = "입사 날짜는 필수입니다.")
     private LocalDate hireDate;
+
+    @NotBlank
+    private String userId;
+
+    @NotBlank
+    private String password;
 }

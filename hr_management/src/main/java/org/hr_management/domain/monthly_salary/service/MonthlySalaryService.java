@@ -5,7 +5,12 @@ import org.hr_management.domain.employee.db.EmployeeRepository;
 import org.hr_management.domain.monthly_salary.db.MonthlySalaryEntity;
 import org.hr_management.domain.monthly_salary.db.MonthlySalaryRepository;
 import org.hr_management.domain.monthly_salary.dto.PaymentDto;
+import org.hr_management.domain.monthly_salary.dto.SalaryListDto;
+import org.hr_management.domain.monthly_salary.dto.SalaryUpdateDto;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -40,5 +45,36 @@ public class MonthlySalaryService {
 
             monthlySalaryRepository.save(m_sal);
         }
+    }
+
+    @Transactional
+    public void cleanMonthlySalary() {
+        monthlySalaryRepository.deleteAllMonthlySalaryNotinEmp();
+    }
+
+    public List<SalaryListDto> getAll() {
+        return monthlySalaryRepository.findAllSalaryWithEmpInfo();
+    }
+    public void deleteBySalaryId(Long salaryId) {
+        monthlySalaryRepository.deleteById(salaryId);
+    }
+
+    @Transactional
+    public void updateSalary(Long salaryId, SalaryUpdateDto dto) {
+        MonthlySalaryEntity m_sal = monthlySalaryRepository.findById(salaryId).orElseThrow(() -> new IllegalArgumentException("Invalid salaryId: " + salaryId));
+
+        m_sal.setBaseSalary(dto.getBaseSalary());
+        m_sal.setMealAllow(dto.getMealAllow());
+        m_sal.setTransportAllow(dto.getTransportAllow());
+        m_sal.setComm(dto.getComm());
+        m_sal.setPaymentOthers(dto.getPaymentOthers());
+        m_sal.setNationalPension(dto.getNationalPension());
+        m_sal.setHealthInsurance(dto.getHealthInsurance());
+        m_sal.setEmploymentInsurance(dto.getEmploymentInsurance());
+        m_sal.setLongtermCareInsurance(dto.getLongtermCareInsurance());
+        m_sal.setIncomeTax(dto.getIncomeTax());
+        m_sal.setLocalIncomeTax(dto.getLocalIncomeTax());
+        m_sal.setDeductionOthers(dto.getDeductionOthers());
+        m_sal.setPayDate(dto.getPayDate());
     }
 }

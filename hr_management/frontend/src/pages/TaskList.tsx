@@ -4,6 +4,7 @@ import AgGridWrapper from '../components/AgGridWrapper';
 import axios from 'axios';
 import { ColDef, ICellRendererParams, CellValueChangedEvent } from 'ag-grid-community';
 import { useNavigate } from 'react-router-dom';
+import * as XLSX from 'xlsx';
 
 axios.defaults.baseURL = 'http://localhost:8080';
 
@@ -87,6 +88,38 @@ const TaskList: React.FC = () => {
     const handleExport = () => {
         gridRef.current?.exportToCsv();
     };
+    //
+    // const handleExcelImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+    //     const file = event.target.files?.[0];
+    //     if (!file) return;
+    //
+    //     const reader = new FileReader();
+    //
+    //     reader.onload = (e) => {
+    //         const data = new Uint8Array(e.target?.result as ArrayBuffer);
+    //         const workbook = XLSX.read(data, { type: 'array' });
+    //
+    //         const firstSheetName = workbook.SheetNames[0];
+    //         const worksheet = workbook.Sheets[firstSheetName];
+    //
+    //         const jsonData = XLSX.utils.sheet_to_json(worksheet);
+    //
+    //         const filteredData = (jsonData as any[]).map(row => ({
+    //             taskTitle: row.taskTitle,
+    //             startDate: row.startDate,
+    //             dueDate: row.dueDate,
+    //             statusCode: row.statusCode,
+    //             priority: row.priority,
+    //             taskDescription: row.taskDescription,
+    //             assignedDate: row.assignedDate
+    //         }));
+    //
+    //         setRowData(filteredData as Task[]);
+    //     };
+    //
+    //     reader.readAsArrayBuffer(file);
+    // };
+
 
     const columnDefs: ColDef[] = [
         { headerName: '업무ID', field: 'taskId', filter: 'agNumberColumnFilter', editable: false ,width:120,spanRows: true},
@@ -116,10 +149,10 @@ const TaskList: React.FC = () => {
             }, spanRows: true},
         { headerName: '사번', field: 'empId', filter: 'agNumberColumnFilter', width:120, editable:false },
         {
-            headerName: 'Actions',
+            headerName: '업무 내역 삭제',
             field: 'actions',
             cellRenderer: (params: ICellRendererParams) => (
-                <button onClick={() => handleDelete(params.data.taskId,params.data.empId)}>업무 삭제</button>
+                <button style={{backgroundColor: '#E4DAD1', color: '#50352b', borderRadius:5, width:'100%', borderColor:'#382017'}} onClick={() => handleDelete(params.data.taskId,params.data.empId)}>업무 삭제</button>
             ),
             filter: false,
             sortable: false,
@@ -143,6 +176,12 @@ const TaskList: React.FC = () => {
             >
                 CSV 내보내기
             </button>
+            {/*<input*/}
+            {/*    type="file"*/}
+            {/*    accept=".xlsx, .xls"*/}
+            {/*    onChange={handleExcelImport}*/}
+            {/*    style={{ marginLeft:'20px', marginBottom: '10px', backgroundColor: '#382017', color: 'white', padding: '8px 16px', border: 'none', borderRadius: '4px' }}*/}
+            {/*/>*/}
             <AgGridWrapper
                 columnDefs={columnDefs}
                 rowData={rowData}

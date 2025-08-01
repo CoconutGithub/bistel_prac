@@ -46,6 +46,11 @@ public class EmployeeController {
 //
 //        return ResponseEntity.ok(employee);
 //    }
+    @GetMapping("/check")
+    public ResponseEntity<Boolean> checkIdDuplicate(@RequestParam String userId) {
+        boolean isDuplicate = employeeService.isIdDuplicate(userId);
+        return ResponseEntity.ok(isDuplicate);
+    }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteEmployee(@PathVariable(name = "id") Integer empId) {
@@ -62,6 +67,12 @@ public class EmployeeController {
     public ResponseEntity<?> registerEmployee(@Valid @RequestBody EmployeeRegisterRequest request) {
         employeeService.registerEmployee(request);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/excel")
+    public ResponseEntity<?> inportEmployeeExcel(@RequestBody List<@Valid EmployeeRegisterRequest> requestList) {
+        employeeService.excelRegister(requestList);
+        return ResponseEntity.ok("직원 정보가 성공적으로 등록되었습니다.");
     }
 
 

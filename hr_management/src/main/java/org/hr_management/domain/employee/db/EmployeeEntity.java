@@ -17,7 +17,7 @@ import java.time.LocalDate;
 @SequenceGenerator(
         name = "employee_seq_generator",
         sequenceName = "employee_id_seq",
-        allocationSize =30
+        allocationSize = 30
 )
 public class EmployeeEntity {
 
@@ -65,4 +65,10 @@ public class EmployeeEntity {
 
     @Column(name = "SSN", nullable = false, length = 14)
     private String ssn;
+
+    @Column(name = "ID", nullable = false, length = 30)
+    private String userId;
+
+    @Column(name = "PASSWORD", nullable = false, length = 20)
+    private String password;
 }

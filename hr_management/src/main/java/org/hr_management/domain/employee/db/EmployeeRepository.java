@@ -50,4 +50,5 @@ public interface EmployeeRepository extends JpaRepository<EmployeeEntity, Intege
     List<EmployeeListDto> findAllEmployees();
 
 
+    boolean existsByUserId(String userId);
 }

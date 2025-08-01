@@ -50,6 +50,9 @@ public class EmployeeService {
 //        Pageable pageable = PageRequest.of(page, size,Sort.by(Sort.Direction.ASC, "empId"));
         return employeeRepository.findAllEmployees();
     }
+    public boolean isIdDuplicate(String id) {
+        return employeeRepository.existsByUserId(id);
+    }
 
     // TODO null 일 때 예외처리 추가
     public EmployeeEntity findById(Integer id) {
@@ -86,10 +89,34 @@ public class EmployeeService {
                 .status(statusEntity)
                 .address(request.getAddress())
                 .ssn(request.getSsn())
-                .build()
-                ;
+                .userId(request.getUserId())
+                .password(request.getPassword())
+                .build();
 
         return employeeRepository.save(entity);
+    }
+    @Transactional
+    public void excelRegister(List<EmployeeRegisterRequest> requestList) {
+        List<EmployeeEntity> entities = requestList.stream().map(req -> EmployeeEntity.builder()
+                .firstName(req.getFirstName())
+                .lastName(req.getLastName())
+                .engName(req.getEngName())
+                .phoneNumber(req.getPhoneNumber())
+                .email(req.getEmail())
+                .address(req.getAddress())
+                .ssn(req.getSsn())
+                .dept(departmentRepository.findDepartmentByDeptName(req.getDeptName())
+                        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 부서입니다: " + req.getDeptName())))
+                .position(req.getPosition())
+                .annualSalary(req.getAnnualSalary())
+                .hireDate(req.getHireDate())
+                .status(statusRepository.findByStatusCode("ACTIVE") // 기본적으로 재직 상태
+                        .orElseThrow(() -> new IllegalArgumentException("기본 상태 코드가 존재하지 않습니다.")))
+                .userId(req.getUserId())
+                .password(req.getPassword())
+                .build()).toList();
+
+        employeeRepository.saveAll(entities);
     }
 
     @Transactional
