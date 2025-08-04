@@ -15,8 +15,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class FilterService {
-    private FilterRepository filterRepository;
-    private EmployeeRepository employeeRepository;
+    private final FilterRepository filterRepository;
+    private final EmployeeRepository employeeRepository;
 
     public ResponseEntity<?> setUserFilter(FilterDto dto) {
 
@@ -40,7 +40,26 @@ public class FilterService {
     }
 
     public List<UserFilterEntity> getUserFilter(Integer empId, String tableName) {
-        return filterRepository.findByEmployeeAndTableName(employeeRepository.findById(empId).get(), tableName);
+        EmployeeEntity employee = employeeRepository.findById(empId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 사원이 존재하지 않습니다: " + empId));
 
+        List<UserFilterEntity> filters = filterRepository.findByEmployeeAndTableName(employee, tableName);
+
+        if (filters.isEmpty()) {
+            // 기본값 저장 예시 (원래 필드 다 채워야 함)
+            UserFilterEntity defaultFilter = new UserFilterEntity();
+            defaultFilter.setEmployee(employee);
+            defaultFilter.setTableName(tableName);
+            defaultFilter.setFilterName("default"); // 기본값 예시
+            defaultFilter.setFilterType("equals");
+            defaultFilter.setFilterValue("");
+            defaultFilter.setValueType("text");
+
+            filterRepository.save(defaultFilter);
+
+            return List.of(defaultFilter);
+        }
+
+        return filters;
     }
 }
