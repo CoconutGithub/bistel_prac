@@ -1,6 +1,7 @@
 package org.hr_management.domain.employee.service;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hr_management.domain.department.db.DepartmentEntity;
 import org.hr_management.domain.department.db.DepartmentRepository;
@@ -25,22 +26,12 @@ import java.util.Locale;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class EmployeeService {
 
     private final EmployeeRepository employeeRepository;
     private final DepartmentRepository departmentRepository;
     private final StatusRepository statusRepository;
-
-    @Autowired
-    public EmployeeService(
-            EmployeeRepository employeeRepository,
-            DepartmentRepository departmentRepository,
-            StatusRepository statusRepository
-    ) {
-        this.employeeRepository = employeeRepository;
-        this.departmentRepository = departmentRepository;
-        this.statusRepository = statusRepository;
-    }
 
 //    public Page<EmployeeSimpleDto> getEmployeesByPaging(int page, int size) {
 //        Pageable pageable = PageRequest.of(page, size);

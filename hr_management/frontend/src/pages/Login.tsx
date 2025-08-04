@@ -23,7 +23,8 @@ const Login: React.FC = () => {
         setError('');
 
         try {
-            const res = await axios.post('/employee/login', form); // 로그인 API
+            const res = await axios.post('/employee/login', form,{withCredentials: true
+            }); // 로그인 API
             if (res.status === 200) {
                 alert('로그인 성공');
                 navigate('/menu'); // 로그인 후 이동할 페이지

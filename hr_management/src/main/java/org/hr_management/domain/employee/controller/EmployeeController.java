@@ -1,6 +1,8 @@
 package org.hr_management.domain.employee.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.hr_management.domain.department.db.DepartmentEntity;
@@ -49,9 +51,16 @@ public class EmployeeController {
 //        return ResponseEntity.ok(employee);
 //    }
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginDto request) {
+    public ResponseEntity<?> login(@RequestBody LoginDto request, HttpServletResponse response) {
         boolean authenticated = employeeService.authenticate(request.getUserId(), request.getPassword());
         if (authenticated) {
+            Cookie cookie = new Cookie("userId", request.getUserId());
+            cookie.setPath("/");
+            cookie.setHttpOnly(true);
+//            cookie.setSecure(true);
+            cookie.setMaxAge(3600);
+            response.addCookie(cookie);
+
             return ResponseEntity.ok().body("로그인 성공");
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
