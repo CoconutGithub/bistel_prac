@@ -1,5 +1,6 @@
 package org.hr_management.domain.filter.db;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,10 +14,12 @@ import org.hr_management.domain.employee.db.EmployeeEntity;
 @IdClass(FilterId.class)
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "USER_FILTER")
 public class UserFilterEntity {
     @Id
     @JoinColumn(name = "EMP_ID", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     private EmployeeEntity employee;
     @Id
     @Column(name = "TABLE_NAME",nullable = false,length = 50)
