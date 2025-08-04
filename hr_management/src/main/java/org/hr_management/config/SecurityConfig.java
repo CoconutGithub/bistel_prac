@@ -17,6 +17,8 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import java.util.Arrays;
 import java.util.Collections;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -43,6 +45,7 @@ public class SecurityConfig {
 //                            }
 //                        }));
         http
+                .cors(withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .httpBasic((auth -> auth.disable()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
