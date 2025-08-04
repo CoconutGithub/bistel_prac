@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -96,6 +97,12 @@ public class EmployeeController {
     public ResponseEntity<?> inportEmployeeExcel(@RequestBody List<@Valid EmployeeRegisterRequest> requestList) {
         employeeService.excelRegister(requestList);
         return ResponseEntity.ok("직원 정보가 성공적으로 등록되었습니다.");
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser() {
+        Integer empId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return ResponseEntity.ok(empId);
     }
 
 
