@@ -24,6 +24,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/employee")
@@ -52,19 +53,20 @@ public class EmployeeController {
 //    }
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDto request, HttpServletResponse response) {
-        boolean authenticated = employeeService.authenticate(request.getUserId(), request.getPassword());
-        if (authenticated) {
-            Cookie cookie = new Cookie("userId", request.getUserId());
+        if(!Objects.equals(employeeService.authenticate(request.getUserId(), request.getPassword()), "로그인 정보 오류")) {
+            String token = employeeService.authenticate(request.getUserId(), request.getPassword());
+
+            Cookie cookie = new Cookie("token", token);
+            cookie.setMaxAge(86400);
             cookie.setPath("/");
-            cookie.setHttpOnly(true);
-//            cookie.setSecure(true);
-            cookie.setMaxAge(3600);
+
             response.addCookie(cookie);
 
-            return ResponseEntity.ok().body("로그인 성공");
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+//            return ResponseEntity.ok(Map.of("token", "Bearer " + token)).header(HttpHeaders.SET_COOKIE, cookie.toString());
+            return ResponseEntity.ok("Login successful");
+            // return ResponseEntity.ok(Map.of("token", "Bearer " + token));
         }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     @GetMapping("/check")

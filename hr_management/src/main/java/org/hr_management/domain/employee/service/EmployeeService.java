@@ -11,6 +11,7 @@ import org.hr_management.domain.employee.db.EmployeeSimpleDto;
 import org.hr_management.domain.employee.dto.EmployeeListDto;
 import org.hr_management.domain.employee.dto.EmployeeRegisterRequest;
 import org.hr_management.domain.employee.dto.EmployeeUpdateDto;
+import org.hr_management.domain.jwt.JwtUtil;
 import org.hr_management.domain.status.db.StatusEntity;
 import org.hr_management.domain.status.db.StatusRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,7 @@ public class EmployeeService {
     private final EmployeeRepository employeeRepository;
     private final DepartmentRepository departmentRepository;
     private final StatusRepository statusRepository;
+    private final JwtUtil jwtToken;
 
 //    public Page<EmployeeSimpleDto> getEmployeesByPaging(int page, int size) {
 //        Pageable pageable = PageRequest.of(page, size);
@@ -41,8 +43,11 @@ public class EmployeeService {
 //        Pageable pageable = PageRequest.of(page, size,Sort.by(Sort.Direction.ASC, "empId"));
         return employeeRepository.findAllEmployees();
     }
-    public boolean authenticate(String userId, String password) {
-        return employeeRepository.findByUserIdAndPassword(userId, password).isPresent();
+    public String authenticate(String userId, String password) {
+        if (employeeRepository.findByUserIdAndPassword(userId, password).isPresent()) {
+            return jwtToken.createJwt(employeeRepository.findByUserIdAndPassword(userId,password).get().getEmpId(), 86400000L);
+        }
+        return "로그인 정보 오류";
     }
     public boolean isIdDuplicate(String id) {
         return employeeRepository.existsByUserId(id);

@@ -53,5 +53,5 @@ public interface EmployeeRepository extends JpaRepository<EmployeeEntity, Intege
 
     boolean existsByUserId(String userId);
 
-    Optional<Object> findByUserIdAndPassword(String userId, String password);
+    Optional<EmployeeEntity> findByUserIdAndPassword(String userId, String password);
 }
