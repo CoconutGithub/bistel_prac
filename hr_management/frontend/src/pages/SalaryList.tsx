@@ -31,8 +31,8 @@ const SalaryList: React.FC = () => {
     const gridRef = useRef<any>(null);
 
     useEffect(() => {
-        axios.delete('/salary/cleanup')
-        axios.get('/salary/all').then((res) => setRowData(res.data));
+        axios.delete('/salary/cleanup',{withCredentials:true})
+        axios.get('/salary/all',{withCredentials:true}).then((res) => setRowData(res.data));
     }, []);
 
     const onCellValueChanged = async (params: CellValueChangedEvent) => {
@@ -61,7 +61,7 @@ const SalaryList: React.FC = () => {
         };
 
         try {
-            await axios.patch(`/salary/update/${updated.monthlySalaryId}`, dto);
+            await axios.patch(`/salary/update/${updated.monthlySalaryId}`, dto,{withCredentials:true});
             console.log(dto)
         } catch (e) {
             console.error('Update failed', e);
@@ -70,8 +70,8 @@ const SalaryList: React.FC = () => {
 
     const handleDelete = async (id: number) => {
         if (window.confirm('정말 삭제하시겠습니까?')) {
-            await axios.delete(`/salary/delete/${id}`);
-            axios.get('/salary/all').then((res) => setRowData(res.data));
+            await axios.delete(`/salary/delete/${id}`,{withCredentials:true});
+            axios.get('/salary/all',{withCredentials:true}).then((res) => setRowData(res.data));
         }
     };
 

@@ -35,7 +35,7 @@ const EmployeeList: React.FC = () => {
 
     const fetchEmployees = async () => {
         try {
-            const { data } = await axios.get<Employee[]>('/employee/all');
+            const { data } = await axios.get<Employee[]>('/employee/all',{withCredentials:true});
             setRowData(data);
         } catch (error) {
             console.error('Fetch employees failed:', error);
@@ -64,7 +64,7 @@ const EmployeeList: React.FC = () => {
             address: updated.address,
         };
         try {
-            await axios.patch(`/employee/update/${updated.empId}`, dto);
+            await axios.patch(`/employee/update/${updated.empId}`, dto,{withCredentials:true});
             console.log(dto)
         } catch (e) {
             console.error('Update failed', e);
@@ -73,17 +73,17 @@ const EmployeeList: React.FC = () => {
 
     useEffect(() => {
         fetchEmployees();
-        axios.get<string[]>('/department/names').then((res) => {
+        axios.get<string[]>('/department/names',{withCredentials:true}).then((res) => {
             setDepartments(res.data);
         });
-        axios.get<string[]>('/status/codes/emp').then((res) => {
+        axios.get<string[]>('/status/codes/emp',{withCredentials:true}).then((res) => {
             setStatusCodes(res.data);
         });
     }, []);
 
     const handleDelete = async (id: number) => {
         if (window.confirm('정말 삭제하시겠습니까?')) {
-            await axios.delete(`/employee/delete/${id}`);
+            await axios.delete(`/employee/delete/${id}`,{withCredentials:true});
             fetchEmployees();
         }
     };
@@ -191,7 +191,7 @@ const EmployeeList: React.FC = () => {
         try {
             const payload = localStorage.getItem('uploadPayload');
             if (!payload) throw new Error('전송할 데이터가 없습니다.');
-            await axios.post('/employee/excel', JSON.parse(payload));
+            await axios.post('/employee/excel',{withCredentials:true}, JSON.parse(payload));
             alert('저장 성공');
 
             fetchEmployees();

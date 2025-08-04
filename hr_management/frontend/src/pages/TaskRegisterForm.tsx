@@ -35,7 +35,7 @@ const TaskRegisterForm: React.FC = () => {
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     useEffect(() => {
-        axios.get<string[]>('/status/codes/task').then((res) => {
+        axios.get<string[]>('/status/codes/task',{withCredentials:true}).then((res) => {
             setStatusCodes(res.data);
         });
     }, []);
@@ -66,7 +66,7 @@ const TaskRegisterForm: React.FC = () => {
         if (!validate()) return;
 
         try {
-            await axios.post('/task/new', form);
+            await axios.post('/task/new', form,{withCredentials:true});
             alert('업무가 등록되었습니다.');
             navigate('/task');
         } catch (error) {

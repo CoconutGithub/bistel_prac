@@ -42,7 +42,7 @@ const SalaryPaymentForm: React.FC = () => {
         }
 
         try {
-            await axios.get(`/employee/${empId}`);
+            await axios.get(`/employee/${empId}`,{withCredentials:true});
         } catch (error: any) {
             if (error.response && error.response.status === 404) {
                 setError('해당 사번의 직원이 존재하지 않습니다.');
@@ -53,7 +53,7 @@ const SalaryPaymentForm: React.FC = () => {
         }
 
         try {
-            await axios.post(`/salary/pay/${empId}`, salary);
+            await axios.post(`/salary/pay/${empId}`, salary,{withCredentials:true});
             alert('지급 완료');
             navigate('/salary');
         } catch (error) {

@@ -29,7 +29,7 @@ const TaskList: React.FC = () => {
 
     const fetchTasks = async () => {
         try {
-            const { data } = await axios.get<Task[]>('/task/all');
+            const { data } = await axios.get<Task[]>('/task/all',{withCredentials:true});
             setRowData(data);
         } catch (error) {
             console.error('업무 불러오기 실패', error);
@@ -56,7 +56,7 @@ const TaskList: React.FC = () => {
         };
 
         try {
-            await axios.patch(`/task/update/${updated.taskId}/${updated.empId}`, dto);
+            await axios.patch(`/task/update/${updated.taskId}/${updated.empId}`, dto,{withCredentials:true});
         } catch (e) {
             console.error('업데이트 실패', e);
         }
@@ -65,7 +65,7 @@ const TaskList: React.FC = () => {
 
     useEffect(() => {
         fetchTasks();
-        axios.get<string[]>('/status/codes/task').then((res) => {
+        axios.get<string[]>('/status/codes/task',{withCredentials:true}).then((res) => {
             setStatusCodes(res.data);
         });
     }, []);
@@ -78,7 +78,7 @@ const TaskList: React.FC = () => {
 
         if (window.confirm('정말 삭제하시겠습니까?')) {
             try {
-                await axios.delete(`/task/delete/${taskId}/${empId}`);
+                await axios.delete(`/task/delete/${taskId}/${empId}`,{withCredentials:true});
                 fetchTasks();
             } catch (error) {
                 console.error('삭제 실패', error);

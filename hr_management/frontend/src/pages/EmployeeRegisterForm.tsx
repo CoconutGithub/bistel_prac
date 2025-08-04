@@ -47,7 +47,7 @@ const EmployeeRegisterForm: React.FC = () => {
 
 
   useEffect(() => {
-    axios.get<string[]>('/department/names').then((res) => {
+    axios.get<string[]>('/department/names',{withCredentials:true}).then((res) => {
       setDepartments(res.data);
     });
   }, []);
@@ -81,6 +81,7 @@ const EmployeeRegisterForm: React.FC = () => {
     setIsChecking(true);
     try {
       const res = await axios.get<boolean>(`/employee/check`, {
+        withCredentials: true,
         params: {userId: form.userId},
       });
 
@@ -105,7 +106,7 @@ const EmployeeRegisterForm: React.FC = () => {
     if (!validate()) return;
 
     try {
-      await axios.post('/employee', form);
+      await axios.post('/employee', form,{withCredentials:true});
       alert('직원 등록 성공!');
       navigate('/employee');
     } catch (error) {
