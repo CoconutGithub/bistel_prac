@@ -16,8 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/filter")
 public class FilterController {
-    private final Filter springSecurityFilterChain;
-    private FilterService filterService;
+    private final FilterService filterService;
 
     @PostMapping("/set")
     public ResponseEntity<?> setFilter(@RequestBody FilterDto filterDto){
@@ -28,6 +27,7 @@ public class FilterController {
     @GetMapping("/get/{table}")
     public List<UserFilterEntity> getFilter(@PathVariable("table") String tableName) {
         Integer empId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        System.out.println("empId:"+empId);
 
         return filterService.getUserFilter(empId, tableName);
     }
