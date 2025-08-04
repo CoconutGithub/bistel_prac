@@ -32,6 +32,7 @@ const EmployeeList: React.FC = () => {
     const [pageSize, setPageSize] = useState<number>(20);
     const navigate = useNavigate();
     const gridRef = useRef<any>(null);
+    const [empId, setEmpId] = useState<number | undefined>(undefined);
 
     const fetchEmployees = async () => {
         try {
@@ -71,6 +72,107 @@ const EmployeeList: React.FC = () => {
         }
     };
 
+    const [filtersLoaded, setFiltersLoaded] = useState(false);
+
+    // 👇 사용자 필터 불러오기
+    const fetchUserFilters = async () => {
+        try {
+            const { data } = await axios.get('/filter/get/employee', { withCredentials: true });
+
+            const filterModel: any = {};
+            const sortModel: any[] = [];
+            const columnState: any[] = [];
+
+            data.forEach((f: any) => {
+                if (f.filterType === 'Sort') {
+                    sortModel.push({ colId: f.filterName, sort: f.filterValue });
+                } else {
+                    filterModel[f.filterName] = {
+                        filterType: f.valueType,
+                        type: f.filterType,
+                        filter: f.filterValue
+                    };
+                }
+            });
+
+            setTimeout(() => {
+                gridRef.current?.setFilterModel(filterModel);
+                gridRef.current?.setSortModel(sortModel);
+                // gridRef.current?.setColumnState(columnState); // 컬럼 위치/정렬도 추가하고 싶다면
+                setFiltersLoaded(true);
+            }, 0);
+        } catch (e) {
+            console.error('필터 불러오기 실패', e);
+        }
+    };
+
+// 👇 필터 저장 함수
+    const saveFilterToServer = async () => {
+        if (!filtersLoaded) {
+            return;
+        }
+        if (!empId) {
+            console.log('사번(empId) 없음');
+            return;
+        }
+        const filterModel = gridRef.current?.getFilterModel();
+        const sortModel = gridRef.current?.getSortModel();
+
+        const payload: {
+            tableName: string;
+            empId: number | undefined;
+            filters: {
+                filterName: string;
+                filterType: string;
+                filterValue: any;
+                valueType: string;
+            }[];
+        } = {
+            tableName: 'employee',
+            empId: empId,
+            filters: []
+        };
+
+        for (const colId in filterModel) {
+            const model = filterModel[colId];
+            payload.filters.push({
+                filterName: colId,
+                filterType: model.type,
+                filterValue: model.filter,
+                valueType: model.filterType
+            });
+        }
+
+        sortModel.forEach((sort: any) => {
+            payload.filters.push({
+                filterName: sort.colId,
+                filterType: 'Sort',
+                filterValue: sort.sort,
+                valueType: 'text'
+            });
+        });
+
+        try {
+            console.log('[SEND] 필터 저장 요청 전송', payload);
+            await axios.post('/filter/set', payload, { withCredentials: true });
+            console.log('[OK] 필터 저장 완료');
+        } catch (e) {
+            console.error('[FAIL] 필터 저장 실패', e);
+        }
+    };
+
+// 👇 onGridReady 등록
+    const onGridReady = (params: GridReadyEvent) => {
+        fetchUserFilters();
+    };
+
+// 👇 필터, 정렬 변경 시 저장
+    const onFilterChanged = () => {
+        saveFilterToServer();
+    }
+    const onSortChanged = () => {
+        saveFilterToServer();
+    }
     useEffect(() => {
         fetchEmployees();
         axios.get<string[]>('/department/names',{withCredentials:true}).then((res) => {
@@ -78,6 +180,9 @@ const EmployeeList: React.FC = () => {
         });
         axios.get<string[]>('/status/codes/emp',{withCredentials:true}).then((res) => {
             setStatusCodes(res.data);
+        });
+        axios.get('/employee/me', { withCredentials: true }).then(res => {
+            setEmpId(res.data);
         });
     }, []);
 
@@ -280,8 +385,10 @@ const EmployeeList: React.FC = () => {
             <AgGridWrapper
                 columnDefs={columnDefs}
                 rowData={rowData}
-                // onGridReady={onGridReady}
+                onGridReady={onGridReady}
                 onCellValueChanged={onCellValueChanged}
+                onFilterChanged={onFilterChanged}
+                onSortChanged={onSortChanged}
                 // onPaginationChanged={onPaginationChanged}
                 ref={gridRef}
             />
