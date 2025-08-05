@@ -69,6 +69,14 @@ public class EmployeeController {
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+        Cookie cookie = new Cookie("token", null);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+        return ResponseEntity.ok("Logout successful");
+    }
 
     @GetMapping("/check")
     public ResponseEntity<Boolean> checkIdDuplicate(@RequestParam String userId) {

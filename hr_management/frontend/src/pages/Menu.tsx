@@ -1,12 +1,35 @@
 // src/pages/Menu.tsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from "axios";
 
 const Menu: React.FC = () => {
     const navigate = useNavigate();
 
+    const handleLogout = () => {
+        axios.post('/employee/logout', null, { withCredentials: true });
+        console.log('로그아웃 완료');
+        navigate('/login');
+    };
+
     return (
-        <div style={{ padding: '50px', textAlign: 'center' }}>
+        <div style={{ position: 'relative', height: '100vh', padding: '50px', textAlign: 'center' }}>
+            <button
+                onClick={handleLogout}
+                style={{
+                    position: 'absolute',
+                    top: '20px',
+                    right: '30px',
+                    backgroundColor: '#382017',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    padding: '8px 12px',
+                    cursor: 'pointer'
+                }}
+            >
+                로그아웃
+            </button>
             <h2 style={{ marginBottom: '30px', color: '#E4DAD1' }}>메뉴 페이지</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center' ,}}>
                 <button
