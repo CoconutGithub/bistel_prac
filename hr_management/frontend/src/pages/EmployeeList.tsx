@@ -380,7 +380,7 @@ const EmployeeList: React.FC = () => {
 
     return (
         <div style={{ margin: '20px', height: '100%', width: '100%' }}>
-            <h2 style={{color:'#E4DAD1'}}>직원 목록</h2>
+            <h2 style={{color:'#E4DAD1', marginRight:'80%'}} onClick={() => navigate('/menu')}>직원 목록</h2>
             <button
                 onClick={() => navigate('/employee/register')}
                 style={{ marginBottom: '10px', backgroundColor: '#382017', color: 'white', padding: '8px 16px', border: 'none', borderRadius: '4px' }}

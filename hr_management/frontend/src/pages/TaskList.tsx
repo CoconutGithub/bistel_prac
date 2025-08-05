@@ -163,7 +163,7 @@ const TaskList: React.FC = () => {
 
     return (
         <div style={{ margin: '20px', height: '100%', width: '100%' }}>
-            <h2 style={{color:'#E4DAD1'}}>업무 목록</h2>
+            <h2 style={{color:'#E4DAD1', marginRight:'80%'}} onClick={() => navigate('/menu')}>업무 목록</h2>
             <button
                 onClick={() => navigate('/task/register')}
                 style={{ marginBottom: '10px', backgroundColor: '#382017', color: 'white', padding: '8px 16px', border: 'none', borderRadius: '4px' }}
