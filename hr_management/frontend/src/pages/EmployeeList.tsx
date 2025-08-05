@@ -196,6 +196,7 @@ const EmployeeList: React.FC = () => {
     const onSortChanged = () => {
         saveFilterToServer();
     }
+
     useEffect(() => {
         fetchEmployees();
         axios.get<string[]>('/department/names',{withCredentials:true}).then((res) => {
