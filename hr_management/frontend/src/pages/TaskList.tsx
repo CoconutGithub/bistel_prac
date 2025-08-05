@@ -2,7 +2,7 @@
 import React, { useState, useEffect , useRef} from 'react';
 import AgGridWrapper from '../components/AgGridWrapper';
 import axios from 'axios';
-import { ColDef, ICellRendererParams, CellValueChangedEvent } from 'ag-grid-community';
+import { ColDef, ICellRendererParams, CellValueChangedEvent,GridReadyEvent } from 'ag-grid-community';
 import { useNavigate } from 'react-router-dom';
 import * as XLSX from 'xlsx';
 
@@ -26,6 +26,7 @@ const TaskList: React.FC = () => {
     const [statusCode, setStatusCodes] = useState<string[]>([]);
     const navigate = useNavigate();
     const gridRef = useRef<any>(null);
+    const [empId, setEmpId] = useState<number | undefined>(undefined);
 
     const fetchTasks = async () => {
         try {
@@ -62,11 +63,138 @@ const TaskList: React.FC = () => {
         }
     };
 
+    const [filtersLoaded, setFiltersLoaded] = useState(false);
+
+    // 👇 사용자 필터 불러오기
+    const fetchUserFilters = async () => {
+        try {
+            const { data } = await axios.get('/filter/get/task', { withCredentials: true });
+
+            const filterModel: any = {};
+            const sortModel: any[] = [];
+            // const columnState: any[] = [];
+
+            data.forEach((f: any) => {
+                if (f.filterType === 'Sort') {
+                    sortModel.push({ colId: f.filterName, sort: f.filterValue });
+                } else if (f.valueType === 'date') {
+                    filterModel[f.filterName] = {
+                        filterType: 'date',
+                        type: f.filterType,
+                        dateFrom: f.filterValue // 'YYYY-MM-DD' 형식이어야 함
+                    };
+                } else {
+                    filterModel[f.filterName] = {
+                        filterType: f.valueType,
+                        type: f.filterType,
+                        filter: f.filterValue
+                    };
+                }
+            });
+
+            setTimeout(() => {
+                gridRef.current?.setFilterModel(filterModel);
+                gridRef.current?.setSortModel(sortModel);
+                // gridRef.current?.setColumnState(columnState); // 컬럼 위치/정렬도 추가하고 싶다면
+                setFiltersLoaded(true);
+            }, 0);
+        } catch (e) {
+            console.error('필터 불러오기 실패', e);
+        }
+    };
+
+    // 👇 필터 저장 함수
+    const saveFilterToServer = async () => {
+        if (!filtersLoaded) {
+            return;
+        }
+        if (!empId) {
+            console.log('사번(empId) 없음');
+            return;
+        }
+        const filterModel = gridRef.current?.getFilterModel();
+        const sortModel = gridRef.current?.getSortModel();
+
+        const payload: {
+            tableName: string;
+            empId: number | undefined;
+            filters: {
+                filterName: string;
+                filterType: string;
+                filterValue: any;
+                valueType: string;
+            }[];
+        } = {
+            tableName: 'task',
+            empId: empId,
+            filters: []
+        };
+
+        let value;
+        const formatDate = (d: string | Date | null): string => {
+            if (!d) return '';
+            const date = typeof d === 'string' ? new Date(d) : d;
+            return date.toLocaleDateString('sv-SE'); // 'YYYY-MM-DD'
+        };
+
+        for (const colId in filterModel) {
+            const model = filterModel[colId];
+            if (model.filterType == 'date'&&model.dateFrom) {
+                value = formatDate(model.dateFrom);
+                payload.filters.push({
+                    filterName: colId,
+                    filterType: model.type,
+                    filterValue: value,
+                    valueType: model.filterType
+                });
+            } else {
+                payload.filters.push({
+                    filterName: colId,
+                    filterType: model.type,
+                    filterValue: model.filter,
+                    valueType: model.filterType
+                });
+            }
+        }
+
+        sortModel.forEach((sort: any) => {
+            payload.filters.push({
+                filterName: sort.colId,
+                filterType: 'Sort',
+                filterValue: sort.sort,
+                valueType: 'text'
+            });
+        });
+
+        try {
+            console.log('[SEND] 필터 저장 요청 전송', payload);
+            await axios.post('/filter/set', payload, { withCredentials: true });
+            console.log('[OK] 필터 저장 완료');
+        } catch (e) {
+            console.error('[FAIL] 필터 저장 실패', e);
+        }
+    };
+
+// 👇 onGridReady 등록
+    const onGridReady = (params: GridReadyEvent) => {
+        fetchUserFilters();
+    };
+
+// 👇 필터, 정렬 변경 시 저장
+    const onFilterChanged = () => {
+        saveFilterToServer();
+    }
+    const onSortChanged = () => {
+        saveFilterToServer();
+    }
 
     useEffect(() => {
         fetchTasks();
         axios.get<string[]>('/status/codes/task',{withCredentials:true}).then((res) => {
             setStatusCodes(res.data);
+        });
+        axios.get('/employee/me', { withCredentials: true }).then(res => {
+            setEmpId(res.data);
         });
     }, []);
 
@@ -187,6 +315,9 @@ const TaskList: React.FC = () => {
                 rowData={rowData}
                 onCellValueChanged={onCellValueChanged}
                 ref={gridRef}
+                onGridReady={onGridReady}
+                onFilterChanged={onFilterChanged}
+                onSortChanged={onSortChanged}
             />
         </div>
     );
