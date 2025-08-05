@@ -93,7 +93,7 @@ const SalaryList: React.FC = () => {
                 valueType: string;
             }[];
         } = {
-            tableName: 'employee',
+            tableName: 'salary',
             empId: empId,
             filters: []
         };
