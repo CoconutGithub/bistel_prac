@@ -1,0 +1,25 @@
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  jackson:
+    time-zone: Asia/Seoul
+
+  datasource:
+    url: jdbc:oracle:thin:@//${DB_HOST}:${DB_PORT}/XEPDB1
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: oracle.jdbc.OracleDriver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    database: oracle
+    generate-ddl: false
+  jwt:
+    secret: d2on37hrhod273mdh24o8mohd2438m4jx
+
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    cache: false

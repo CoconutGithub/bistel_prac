@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>업무 목록</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container py-5">
+  <div class="card shadow-sm p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="mb-0">업무 목록</h2>
+      <div>
+        <a class="btn btn-outline-primary me-2"
+           th:classappend="${status == 'OPEN'} ? 'active'"
+           th:href="@{/task/list(status='OPEN')}">Open</a>
+        <a class="btn btn-outline-warning me-2"
+           th:classappend="${status == 'IN_PROGRESS'} ? 'active'"
+           th:href="@{/task/list(status='IN_PROGRESS')}">In Progress</a>
+        <a class="btn btn-outline-success me-2"
+           th:classappend="${status == 'COMPLETE'} ? 'active'"
+           th:href="@{/task/list(status='COMPLETE')}">Complete</a>
+        <a class="btn btn-outline-secondary"
+           th:classappend="${status == 'CANCELLED'} ? 'active'"
+           th:href="@{/task/list(status='CANCELLED')}">Cancelled</a>
+        <a class="btn btn-primary ms-3"
+           th:href="@{/task/new}">
+          + 업무 등록
+        </a>
+      </div>
+    </div>
+
+    <table class="table table-hover">
+      <thead class="table-secondary">
+      <tr>
+        <th>업무ID</th>
+        <th>제목</th>
+        <th>설명</th>
+        <th>상세</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="task : ${taskPage.content}">
+        <td th:text="${task.taskId}"></td>
+        <td th:text="${task.taskTitle}"></td>
+        <td th:text="${task.taskDescription}"></td>
+        <td>
+          <a th:href="@{|/task/info/${task.taskId}|}" class="btn btn-sm btn-outline-info">상세</a>
+        </td>
+      </tr>
+      <tr th:if="${taskPage.content.size() == 0}">
+        <td colspan="4" class="text-center text-muted">업무가 없습니다.</td>
+      </tr>
+      </tbody>
+    </table>
+
+    <!-- 페이지네이션 -->
+    <nav th:if="${taskPage.totalPages > 1}">
+      <ul class="pagination justify-content-center">
+        <li class="page-item" th:classappend="${taskPage.first} ? 'disabled'">
+          <a class="page-link"
+             th:href="@{/task/list(status=${status}, page=${currentPage - 1}, size=${taskPage.size})}">이전</a>
+        </li>
+        <li class="page-item"
+            th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+            th:classappend="${i == currentPage} ? 'active'">
+          <a class="page-link"
+             th:href="@{/task/list(status=${status}, page=${i}, size=${taskPage.size})}"
+             th:text="${i + 1}">1</a>
+        </li>
+        <li class="page-item" th:classappend="${taskPage.last} ? 'disabled'">
+          <a class="page-link"
+             th:href="@{/task/list(status=${status}, page=${currentPage + 1}, size=${taskPage.size})}">다음</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>
+</body>
+</html>

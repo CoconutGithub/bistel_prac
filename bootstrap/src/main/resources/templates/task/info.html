@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>업무 상세</title>
+</head>
+<body>
+<h1>상세 정보</h1>
+<div th:if="${taskDetail != null}">
+  <p><strong>Task ID:</strong> <span th:text="${taskDetail.taskId}">1</span></p>
+  <p><strong>Title:</strong> <span th:text="${taskDetail.taskTitle}">Task Title</span></p>
+  <p><strong>Description:</strong> <span th:text="${taskDetail.taskDescription}">Task Description</span></p>
+  <p><strong>Status:</strong> <span th:text="${taskDetail.statusCode}">Status</span></p>
+  <p><strong>Start Date:</strong> <span th:text="${taskDetail.startDate}">2025-01-01</span></p>
+  <p><strong>Due Date:</strong> <span th:text="${taskDetail.dueDate}">2025-01-10</span></p>
+  <p><strong>Priority:</strong> <span th:text="${taskDetail.priority}">3</span></p>
+  <!-- 필요 시 더 많은 필드를 추가하세요 -->
+</div>
+<div th:if="${taskDetail == null}">
+  <p>해당 Task를 찾을 수 없습니다.</p>
+</div>
+<a href="javascript:history.back()">목록으로 돌아가기</a>
+</body>
+</html>
