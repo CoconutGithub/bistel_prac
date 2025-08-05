@@ -35,7 +35,7 @@ const SalaryList: React.FC = () => {
 
     const fetchUserFilters = async () => {
         try {
-            const { data } = await axios.get('/filter/get/employee', { withCredentials: true });
+            const { data } = await axios.get('/filter/get/salary', { withCredentials: true });
 
             const filterModel: any = {};
             const sortModel: any[] = [];
