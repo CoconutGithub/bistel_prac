@@ -10,8 +10,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FilterDetailDto {
-    private String filterName;
-    private String filterType;
-    private String filterValue;
-    private String valueType;
+    private String filterName;//컬럼명
+    private String filterType;//필터종류
+    private String filterValue;//필터값
+    private String valueType;//필터타입
 }
