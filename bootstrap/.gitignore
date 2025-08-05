@@ -4,6 +4,10 @@ k8s
 ### exlude idea files
 .idea
 
+
+**/node_modules/
+
+
 ### exclude env
 .env
 
