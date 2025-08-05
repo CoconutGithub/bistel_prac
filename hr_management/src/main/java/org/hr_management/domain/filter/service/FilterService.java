@@ -8,6 +8,7 @@ import org.hr_management.domain.filter.db.UserFilterEntity;
 import org.hr_management.domain.filter.dto.FilterDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,10 +19,13 @@ public class FilterService {
     private final FilterRepository filterRepository;
     private final EmployeeRepository employeeRepository;
 
+    @Transactional
     public ResponseEntity<?> setUserFilter(FilterDto dto) {
 
         EmployeeEntity employee = employeeRepository.findById(dto.getEmpId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사원입니다: " + dto.getEmpId()));
+
+        filterRepository.deleteByEmployeeAndTableName(employee, dto.getTableName());
 
         List<UserFilterEntity> filters = dto.getFilters().stream()
                 .map(f -> {
@@ -36,7 +40,8 @@ public class FilterService {
                 }).collect(Collectors.toList());
 
         filterRepository.saveAll(filters);
-        return ResponseEntity.ok("필터 등록 완료");
+//        System.out.println(filterRepository.findByEmployee(employee));
+        return ResponseEntity.ok(filterRepository.findByEmployeeAndTableName(employee, dto.getTableName()));
     }
 
     public List<UserFilterEntity> getUserFilter(Integer empId, String tableName) {
@@ -46,11 +51,10 @@ public class FilterService {
         List<UserFilterEntity> filters = filterRepository.findByEmployeeAndTableName(employee, tableName);
 
         if (filters.isEmpty()) {
-            // 기본값 저장 예시 (원래 필드 다 채워야 함)
             UserFilterEntity defaultFilter = new UserFilterEntity();
             defaultFilter.setEmployee(employee);
             defaultFilter.setTableName(tableName);
-            defaultFilter.setFilterName("default"); // 기본값 예시
+            defaultFilter.setFilterName("default");
             defaultFilter.setFilterType("equals");
             defaultFilter.setFilterValue("");
             defaultFilter.setValueType("text");

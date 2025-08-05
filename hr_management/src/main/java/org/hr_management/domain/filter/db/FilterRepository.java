@@ -8,5 +8,5 @@ import java.util.logging.Filter;
 
 public interface FilterRepository extends JpaRepository<UserFilterEntity, FilterId> {
     List<UserFilterEntity> findByEmployeeAndTableName(EmployeeEntity employee, String tableName);
-
+    void deleteByEmployeeAndTableName(EmployeeEntity employee, String tableName);
 }
