@@ -81,11 +81,17 @@ const EmployeeList: React.FC = () => {
 
             const filterModel: any = {};
             const sortModel: any[] = [];
-            const columnState: any[] = [];
+            // const columnState: any[] = [];
 
             data.forEach((f: any) => {
                 if (f.filterType === 'Sort') {
                     sortModel.push({ colId: f.filterName, sort: f.filterValue });
+                } else if (f.valueType === 'date') {
+                    filterModel[f.filterName] = {
+                        filterType: 'date',
+                        type: f.filterType,
+                        dateFrom: f.filterValue // 'YYYY-MM-DD' 형식이어야 함
+                    };
                 } else {
                     filterModel[f.filterName] = {
                         filterType: f.valueType,
@@ -133,14 +139,31 @@ const EmployeeList: React.FC = () => {
             filters: []
         };
 
+        let value;
+        const formatDate = (d: string | Date | null): string => {
+            if (!d) return '';
+            const date = typeof d === 'string' ? new Date(d) : d;
+            return date.toLocaleDateString('sv-SE'); // 'YYYY-MM-DD'
+        };
+
         for (const colId in filterModel) {
             const model = filterModel[colId];
-            payload.filters.push({
-                filterName: colId,
-                filterType: model.type,
-                filterValue: model.filter,
-                valueType: model.filterType
-            });
+            if (model.filterType == 'date'&&model.dateFrom) {
+                value = formatDate(model.dateFrom);
+                payload.filters.push({
+                    filterName: colId,
+                    filterType: model.type,
+                    filterValue: value,
+                    valueType: model.filterType
+                });
+            } else {
+                payload.filters.push({
+                    filterName: colId,
+                    filterType: model.type,
+                    filterValue: model.filter,
+                    valueType: model.filterType
+                });
+            }
         }
 
         sortModel.forEach((sort: any) => {
