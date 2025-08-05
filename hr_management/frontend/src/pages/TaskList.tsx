@@ -65,7 +65,6 @@ const TaskList: React.FC = () => {
 
     const [filtersLoaded, setFiltersLoaded] = useState(false);
 
-    // 👇 사용자 필터 불러오기
     const fetchUserFilters = async () => {
         try {
             const { data } = await axios.get('/filter/get/task', { withCredentials: true });
@@ -103,7 +102,6 @@ const TaskList: React.FC = () => {
         }
     };
 
-    // 👇 필터 저장 함수
     const saveFilterToServer = async () => {
         if (!filtersLoaded) {
             return;
@@ -175,12 +173,10 @@ const TaskList: React.FC = () => {
         }
     };
 
-// 👇 onGridReady 등록
     const onGridReady = (params: GridReadyEvent) => {
         fetchUserFilters();
     };
 
-// 👇 필터, 정렬 변경 시 저장
     const onFilterChanged = () => {
         saveFilterToServer();
     }
