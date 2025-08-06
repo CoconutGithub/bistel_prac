@@ -5,6 +5,7 @@ import axios from 'axios';
 import { ColDef, ICellRendererParams, CellValueChangedEvent,GridReadyEvent } from 'ag-grid-community';
 import { useNavigate } from 'react-router-dom';
 import * as XLSX from 'xlsx';
+import { Container, Row, Col, Button } from 'react-bootstrap';
 
 axios.defaults.baseURL = 'http://localhost:8080';
 
@@ -276,7 +277,19 @@ const TaskList: React.FC = () => {
             headerName: '업무 내역 삭제',
             field: 'actions',
             cellRenderer: (params: ICellRendererParams) => (
-                <button style={{backgroundColor: '#E4DAD1', color: '#50352b', borderRadius:5, width:'100%', borderColor:'#382017'}} onClick={() => handleDelete(params.data.taskId,params.data.empId)}>업무 삭제</button>
+                <button
+                    style={{backgroundColor: '#E4DAD1',
+                        color: '#50352b',
+                        borderRadius: 5,
+                        width: '100%',
+                        padding: '4px 6px',
+                        lineHeight: '1.2',
+                        fontSize: '14px',
+                        border: '1px solid #382017',
+                        boxSizing: 'border-box',}}
+                    onClick={() => handleDelete(params.data.taskId,params.data.empId)}
+                >
+                    업무 삭제</button>
             ),
             filter: false,
             sortable: false,
@@ -286,36 +299,86 @@ const TaskList: React.FC = () => {
     ];
 
     return (
-        <div style={{ margin: '20px', height: '100%', width: '100%' }}>
-            <h2 style={{color:'#E4DAD1', marginRight:'80%'}} onClick={() => navigate('/menu')}>업무 목록</h2>
-            <button
-                onClick={() => navigate('/task/register')}
-                style={{ marginBottom: '10px', backgroundColor: '#382017', color: 'white', padding: '8px 16px', border: 'none', borderRadius: '4px' }}
-            >
-                업무 등록
-            </button>
-            <button
-                onClick={handleExport}
-                style={{ marginLeft:'20px', marginBottom: '10px', backgroundColor: '#382017', color: 'white', padding: '8px 16px', border: 'none', borderRadius: '4px' }}
-            >
-                CSV 내보내기
-            </button>
-            {/*<input*/}
-            {/*    type="file"*/}
-            {/*    accept=".xlsx, .xls"*/}
-            {/*    onChange={handleExcelImport}*/}
-            {/*    style={{ marginLeft:'20px', marginBottom: '10px', backgroundColor: '#382017', color: 'white', padding: '8px 16px', border: 'none', borderRadius: '4px' }}*/}
-            {/*/>*/}
-            <AgGridWrapper
-                columnDefs={columnDefs}
-                rowData={rowData}
-                onCellValueChanged={onCellValueChanged}
-                ref={gridRef}
-                onGridReady={onGridReady}
-                onFilterChanged={onFilterChanged}
-                onSortChanged={onSortChanged}
-            />
-        </div>
+        <Container fluid style={{ margin: '20px', height: '100%', width: '100%' }}>
+            <Row className="mb-3">
+                <Col>
+                    <h2
+                        style={{ color: '#E4DAD1', marginRight: '80%', cursor: 'pointer' }}
+                        onClick={() => navigate('/menu')}
+                    >
+                        업무 목록
+                    </h2>
+                </Col>
+            </Row>
+
+            <Row className="mb-3">
+                <Col xs="auto" style={{marginLeft: '11px'}}>
+                    <Button
+                        onClick={() => navigate('/task/register')}
+                        style={{
+                            marginBottom: '10px',
+                            backgroundColor: '#382017',
+                            color: 'white',
+                            padding: '8px 16px',
+                            border: 'none',
+                            borderRadius: '4px'
+                        }}
+                    >
+                        업무 등록
+                    </Button>
+                </Col>
+
+                <Col xs="auto">
+                    <Button
+                        onClick={handleExport}
+                        style={{
+                            marginBottom: '10px',
+                            backgroundColor: '#382017',
+                            color: 'white',
+                            padding: '8px 16px',
+                            border: 'none',
+                            borderRadius: '4px'
+                        }}
+                    >
+                        CSV 내보내기
+                    </Button>
+                </Col>
+
+                {/*
+      <Col xs="auto">
+        <Form.Control
+          type="file"
+          accept=".xlsx, .xls"
+          onChange={handleExcelImport}
+          style={{
+            marginLeft: '20px',
+            marginBottom: '10px',
+            backgroundColor: '#382017',
+            color: 'white',
+            padding: '8px 16px',
+            border: 'none',
+            borderRadius: '4px',
+            width: 170
+          }}
+        />
+      </Col>
+      */}
+            </Row>
+
+            <Row>
+                <Col>
+                    <AgGridWrapper
+                        columnDefs={columnDefs}
+                        rowData={rowData}
+                        onCellValueChanged={onCellValueChanged}
+                        ref={gridRef}
+                        onGridReady={onGridReady}
+                        onFilterChanged={onFilterChanged}
+                        onSortChanged={onSortChanged}
+                    />
+                </Col>
+            </Row>
+        </Container>
     );
 };
 

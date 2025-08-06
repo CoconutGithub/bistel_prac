@@ -3,6 +3,7 @@ import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import {setState} from "ag-grid-community/dist/types/src/misc/state/stateApi";
+import { Container, Form, Row, Col, Button } from 'react-bootstrap';
 
 interface TaskFormDto {
     taskId: number | null;
@@ -76,10 +77,11 @@ const TaskRegisterForm: React.FC = () => {
     };
 
     return (
-        <div style={{ margin: '20px', height: '100%', width: '100%' }} className="container py-5">
+        <Container style={{ margin: '20px', height: '100%', width: '100%' }} className="py-5">
             <h2 style={{ color: '#E4DAD1' }}>업무 등록</h2>
-            <form onSubmit={handleSubmit} style={{ color: '#E4DAD1', fontSize: '17px', padding: '10px' }}>
-                <div className="row">
+
+            <Form onSubmit={handleSubmit} style={{ color: '#E4DAD1', fontSize: '17px', padding: '10px' }}>
+                <Row>
                     {[
                         { label: '업무 ID', name: 'taskId', type: 'number' },
                         { label: '업무 제목', name: 'taskTitle', type: 'text' },
@@ -87,66 +89,68 @@ const TaskRegisterForm: React.FC = () => {
                         { label: '마감일', name: 'dueDate', type: 'date' },
                         { label: '우선순위', name: 'priority', type: 'number' },
                         { label: '배정일', name: 'assignedDate', type: 'date' },
-                        { label: '사번', name: 'empId', type: 'number' }
+                        { label: '사번', name: 'empId', type: 'number' },
                     ].map(({ label, name, type }) => (
-                        <div className="col-md-6 mb-3" key={name}>
-                            <div className="form-group row">
-                                <label className="col-sm-4 col-form-label">{label}</label>
-                                <div className="col-sm-8">
-                                    <input
+                        <Col md={6} className="mb-3" key={name}>
+                            <Form.Group as={Row} controlId={name}>
+                                <Form.Label column sm={4}>{label}</Form.Label>
+                                <Col sm={8}>
+                                    <Form.Control
                                         type={type}
                                         name={name}
-                                        className="form-control"
                                         value={form[name as keyof TaskFormDto] ?? ''}
                                         onChange={handleChange}
                                     />
                                     {errors[name] && <div className="text-danger">{errors[name]}</div>}
-                                </div>
-                            </div>
-                        </div>
+                                </Col>
+                            </Form.Group>
+                        </Col>
                     ))}
-                    <div className="col-md-6 mb-3">
-                        <div className="form-group row">
-                            <label className="col-sm-4 col-form-label">상태 선택</label>
-                            <div className="col-sm-8">
-                                <select
+
+                    {/* 상태 코드 선택 */}
+                    <Col md={6} className="mb-3">
+                        <Form.Group as={Row} controlId="statusCode">
+                            <Form.Label column sm={4}>상태 선택</Form.Label>
+                            <Col sm={8}>
+                                <Form.Select
                                     name="statusCode"
-                                    className="form-select"
                                     value={form.statusCode}
                                     onChange={handleChange}
                                 >
                                     <option value="">-- 상태를 선택하세요 --</option>
-                                    {statusCode.map((code) => (
+                                    {statusCode.map(code => (
                                         <option key={code} value={code}>{code}</option>
                                     ))}
-                                </select>
+                                </Form.Select>
                                 {errors.statusCode && <div className="text-danger">{errors.statusCode}</div>}
-                            </div>
-                        </div>
-                    </div>
-                    <div className="col-md-12 mb-3">
-                        <div className="form-group row">
-                            <label className="col-sm-2 col-form-label">업무 설명</label>
-                            <div className="col-sm-10">
-                <textarea
-                    name="taskDescription"
-                    className="form-control"
-                    rows={4}
-                    value={form.taskDescription}
-                    onChange={handleChange}
-                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                            </Col>
+                        </Form.Group>
+                    </Col>
+
+                    {/* 업무 설명 */}
+                    <Col md={12} className="mb-3">
+                        <Form.Group as={Row} controlId="taskDescription">
+                            <Form.Label column sm={2}>업무 설명</Form.Label>
+                            <Col sm={10}>
+                                <Form.Control
+                                    as="textarea"
+                                    rows={4}
+                                    name="taskDescription"
+                                    value={form.taskDescription}
+                                    onChange={handleChange}
+                                />
+                            </Col>
+                        </Form.Group>
+                    </Col>
+                </Row>
 
                 <div className="text-end">
-                    <button type="submit" className="btn btn-primary" style={{ height: '100%', margin: '10px' }}>
+                    <Button type="submit" variant="outline-light" style={{ height: '100%', margin: '10px', backgroundColor:'#382017', color:'#E4DAD1' }}>
                         등록
-                    </button>
+                    </Button>
                 </div>
-            </form>
-        </div>
+            </Form>
+        </Container>
     );
 };
 

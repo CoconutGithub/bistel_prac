@@ -6,6 +6,7 @@ import {
     CellValueChangedEvent,
     GridApi,
 } from 'ag-grid-community';
+import { Container, Row, Col } from 'react-bootstrap';
 import { myTheme } from '../theme';
 
 interface AgGridWrapperProps {
@@ -58,33 +59,39 @@ const AgGridWrapper = forwardRef<any, AgGridWrapperProps>(({
     }));
 
     return (
-        <div style={{ height: '80%', width: '97%' }} className="ag-theme-alpine">
-            <AgGridReact
-                ref={gridRef}
-                theme={myTheme}
-                columnDefs={columnDefs}
-                rowData={rowData}
-                headerHeight={50}
-                floatingFiltersHeight={40}
-                defaultColDef={{
-                    sortable: true,
-                    filter: true,
-                    floatingFilter: true,
-                    resizable: true,
-                    editable: true,
-                }}
-                pagination={true}
-                paginationPageSize={20}
-                onGridReady={(params) => {
-                    apiRef.current = params.api;
-                    onGridReady?.(params);
-                }}
-                onPaginationChanged={onPaginationChanged}
-                onCellValueChanged={onCellValueChanged}
-                onFilterChanged={onFilterChanged}
-                onSortChanged={onSortChanged}
-            />
-        </div>
+        <Container fluid className="py-3">
+            <Row>
+                <Col>
+                    <div className="ag-theme-alpine" style={{ height: '80vh', width: '97%' }}>
+                        <AgGridReact
+                            theme={myTheme}
+                            ref={gridRef}
+                            columnDefs={columnDefs}
+                            rowData={rowData}
+                            headerHeight={50}
+                            floatingFiltersHeight={40}
+                            defaultColDef={{
+                                sortable: true,
+                                filter: true,
+                                floatingFilter: true,
+                                resizable: true,
+                                editable: true,
+                            }}
+                            pagination={true}
+                            paginationPageSize={20}
+                            onGridReady={(params) => {
+                                apiRef.current = params.api;
+                                onGridReady?.(params);
+                            }}
+                            onPaginationChanged={onPaginationChanged}
+                            onCellValueChanged={onCellValueChanged}
+                            onFilterChanged={onFilterChanged}
+                            onSortChanged={onSortChanged}
+                        />
+                    </div>
+                </Col>
+            </Row>
+        </Container>
     );
 });
 

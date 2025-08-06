@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 
 interface EmployeeRegisterRequest {
   firstName: string;
@@ -52,7 +53,7 @@ const EmployeeRegisterForm: React.FC = () => {
     });
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const {name, value} = e.target;
     setForm(prev => ({...prev, [name]: value}));
   };
@@ -116,104 +117,103 @@ const EmployeeRegisterForm: React.FC = () => {
   };
 
   return (
-      <div style={{margin: '20px', height: '100%', width: '100%'}} className="container py-5">
-        <h2 style={{color: '#E4DAD1'}}>직원 등록</h2>
-        <form onSubmit={handleSubmit} style={{color: '#E4DAD1', fontSize: '17px', padding: '10px'}}>
-          <div className="row">
+      <Container className="py-5" style={{ margin: '20px', height: '100%', width: '100%' }}>
+        <h2 style={{ color: '#E4DAD1' }}>직원 등록</h2>
+
+        <Form onSubmit={handleSubmit} style={{ color: '#E4DAD1', fontSize: '17px', padding: '10px' }}>
+          <Row>
             {[
-              {label: '이름', name: 'firstName', type: 'text'},
-              {label: '성', name: 'lastName', type: 'text'},
-              {label: '영문 이름', name: 'engName', type: 'text'},
-              {label: '전화번호', name: 'phoneNumber', type: 'text'},
-              {label: '이메일', name: 'email', type: 'email'},
-              {label: '주소', name: 'address', type: 'text'},
-              {label: '주민등록번호', name: 'ssn', type: 'text'},
-              {label: '직급', name: 'position', type: 'text'},
-              {label: '연봉', name: 'annualSalary', type: 'number'},
-              {label: '입사일', name: 'hireDate', type: 'date'},
-            ].map(({label, name, type}) => (
-                <div className="col-md-6 mb-3" key={name}>
-                  <div className="form-group row">
-                    <label className="col-sm-4 col-form-label">{label}</label>
-                    <div className="col-sm-8">
-                      <input
+              { label: '이름', name: 'firstName', type: 'text' },
+              { label: '성', name: 'lastName', type: 'text' },
+              { label: '영문 이름', name: 'engName', type: 'text' },
+              { label: '전화번호', name: 'phoneNumber', type: 'text' },
+              { label: '이메일', name: 'email', type: 'email' },
+              { label: '주소', name: 'address', type: 'text' },
+              { label: '주민등록번호', name: 'ssn', type: 'text' },
+              { label: '직급', name: 'position', type: 'text' },
+              { label: '연봉', name: 'annualSalary', type: 'number' },
+              { label: '입사일', name: 'hireDate', type: 'date' },
+            ].map(({ label, name, type }) => (
+                <Col md={6} className="mb-3" key={name}>
+                  <Form.Group as={Row} controlId={name}>
+                    <Form.Label column sm={4}>{label}</Form.Label>
+                    <Col sm={8}>
+                      <Form.Control
                           type={type}
                           name={name}
-                          className="form-control"
                           value={form[name as keyof EmployeeRegisterRequest] as string}
                           onChange={handleChange}
                       />
                       {errors[name] && <div className="text-danger">{errors[name]}</div>}
-                    </div>
-                  </div>
-                </div>
+                    </Col>
+                  </Form.Group>
+                </Col>
             ))}
 
             {/* 유저 ID + 중복 체크 */}
-            <div className="col-md-6 mb-3">
-              <div className="form-group row">
-                <label className="col-sm-4 col-form-label">유저 ID</label>
-                <div className="col-sm-8 d-flex">
-                  <input
-                      type="text"
-                      name="userId"
-                      className="form-control me-2"
-                      value={form.userId}
-                      onChange={handleChange}
-                  />
-                  <button type="button" className="btn btn-outline-secondary" onClick={checkIdDuplicate}>
-                    중복 확인
-                  </button>
-                </div>
-                {errors.userId && <div className="text-danger">{errors.userId}</div>}
-                {idCheckMessage && <div className={`text-${idChecked ? 'success' : 'danger'}`}>{idCheckMessage}</div>}
-              </div>
-            </div>
+            <Col md={6} className="mb-3">
+              <Form.Group as={Row}>
+                <Form.Label column sm={4}>유저 ID</Form.Label>
+                <Col sm={8}>
+                  <div className="d-flex">
+                    <Form.Control
+                        type="text"
+                        name="userId"
+                        className="me-2"
+                        value={form.userId}
+                        onChange={handleChange}
+                    />
+                    <Button   type="button"
+                              variant="outline-light"
+                              onClick={checkIdDuplicate}
+                              style={{ whiteSpace: 'nowrap', color:'#E4DAD1',backgroundColor:'#382017' }}>중복 확인</Button>
+                  </div>
+                  {errors.userId && <div className="text-danger">{errors.userId}</div>}
+                  {idCheckMessage && <div className={`text-${idChecked ? 'success' : 'danger'}`}>{idCheckMessage}</div>}
+                </Col>
+              </Form.Group>
+            </Col>
 
             {/* 비밀번호 */}
-            <div className="col-md-6 mb-3">
-              <div className="form-group row">
-                <label className="col-sm-4 col-form-label">비밀번호</label>
-                <div className="col-sm-8">
-                  <input
+            <Col md={6} className="mb-3">
+              <Form.Group as={Row}>
+                <Form.Label column sm={4}>비밀번호</Form.Label>
+                <Col sm={8}>
+                  <Form.Control
                       type="password"
                       name="password"
-                      className="form-control"
                       value={form.password}
                       onChange={handleChange}
                   />
                   {errors.password && <div className="text-danger">{errors.password}</div>}
-                </div>
-              </div>
-            </div>
+                </Col>
+              </Form.Group>
+            </Col>
 
             {/* 부서 선택 */}
-            <div className="col-md-6 mb-3">
-              <div className="form-group row">
-                <label className="col-sm-4 col-form-label">부서 선택</label>
-                <div className="col-sm-8">
-                  <select
-                      name="deptName"
-                      className="form-select"
-                      value={form.deptName}
-                      onChange={handleChange}
-                  >
+            <Col md={6} className="mb-3">
+              <Form.Group as={Row}>
+                <Form.Label column sm={4}>부서 선택</Form.Label>
+                <Col sm={8}>
+                  <Form.Select name="deptName" value={form.deptName} onChange={handleChange}>
                     <option value="">-- 부서를 선택하세요 --</option>
                     {departments.map((dept) => (
                         <option key={dept} value={dept}>{dept}</option>
                     ))}
-                  </select>
+                  </Form.Select>
                   {errors.deptName && <div className="text-danger">{errors.deptName}</div>}
-                </div>
-              </div>
-            </div>
-          </div>
+                </Col>
+              </Form.Group>
+            </Col>
+          </Row>
 
           <div className="text-end">
-            <button type="submit" className="btn btn-primary" style={{height: '100%', margin: '10px'}}>등록</button>
+            <Button type="submit" variant="outline-light" style={{ height: '100%', margin: '10px', backgroundColor:'#382017', color:'#E4DAD1' }}>
+              등록
+            </Button>
           </div>
-        </form>
-      </div>
+        </Form>
+      </Container>
   );
 }
 export default EmployeeRegisterForm;
