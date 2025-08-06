@@ -28,7 +28,7 @@ Ag-grid(Community ver)를 사용한 차트 관리
 >Ag-grid 웹 사이트에서 theme custom후 가져오기\
 > AgGridWrapper에 columnDef로 넘겨준 값들로 표 생성\
 > AgGridWrapper에 rowData로 넘겨준 값들로 표 생성
-> >Column Option\
+> >Column Option:\
 > 클릭으로 오름, 내림차순 정렬 / shift를 누르고 다른 컬럼 누를 시 동시에 sorting가능\
 > filter 옵션으로 컬럼 속성들 필터링 가능\
 > floatingFilter 옵션으로 다양한 필터링 추가 / Equals, Does Not Equal, Contains, Does Not contain 등\
@@ -41,7 +41,7 @@ Ag-grid(Community ver)를 사용한 차트 관리
 > \
 > CellValueChanged 라이브러리 추가하여 editable 옵션으로 변경된 셀 값 가져오기 가능\
 > GirdApi 라이브러리 추가로 현재 grid 상태에 대한 api 받아오기 가능\
-> CSV 파일로 Export
+> CSV 파일로 Export\
 > Excel 파일 import
 
 ### 추가한 기능들
@@ -61,7 +61,7 @@ Ag-grid(Community ver)를 사용한 차트 관리
 
 Ag-grid를 사용하고 연습해보기 위한 프로젝트이기 때문에 front의 기능을 보조할 기능들만 구현
 
-`Config`에서 SecurityFilter와 cors 설정
+`Config`에서 SecurityFilter와 cors 설정\
 `Domain`들은 `Controller`, `DB`, `Service`,`Dto`로 나누어 관리
 
 `Controller`와`Service`는 front의 요청에 맞는 기본적인 CRUD 응답 생성 후 전송\
@@ -73,7 +73,7 @@ Ag-grid를 사용하고 연습해보기 위한 프로젝트이기 때문에 fron
 ### Oracle Database 21c Express
 
 테이블은 총 6개로 구성\
-`Department`,`Employee`,`Monthly_Salary`,`Status`,`Task`,`User_Filter`
+`Department`, `Employee`, `Monthly_Salary`, `Status`, `Task`, `User_Filter`
 
 현업에서 사용하는 큰 데이터들은 아니지만 연습해보기 위해 실무에서 자주 사용하는 반정규화 적용\
 테이블의 컬럼 수는 늘리고, 제약 조건들을 완화하기 위해 FK도 설정하지 않음\
