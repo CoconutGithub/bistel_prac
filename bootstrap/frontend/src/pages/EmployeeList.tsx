@@ -5,7 +5,7 @@ import axios from 'axios';
 import { ColDef, ICellRendererParams, GridReadyEvent, CellValueChangedEvent } from 'ag-grid-community';
 import { useNavigate } from 'react-router-dom';
 import * as XLSX from 'xlsx';
-
+import { Container, Row, Col, Button, Form } from 'react-bootstrap';
 
 axios.defaults.baseURL = 'http://localhost:8080';
 
@@ -36,7 +36,7 @@ const EmployeeList: React.FC = () => {
 
     const fetchEmployees = async () => {
         try {
-            const { data } = await axios.get<Employee[]>('/employee/all',{withCredentials:true});
+            const {data} = await axios.get<Employee[]>('/employee/all', {withCredentials: true});
             setRowData(data);
         } catch (error) {
             console.error('Fetch employees failed:', error);
@@ -65,7 +65,7 @@ const EmployeeList: React.FC = () => {
             address: updated.address,
         };
         try {
-            await axios.patch(`/employee/update/${updated.empId}`, dto,{withCredentials:true});
+            await axios.patch(`/employee/update/${updated.empId}`, dto, {withCredentials: true});
             console.log(dto)
         } catch (e) {
             console.error('Update failed', e);
@@ -77,7 +77,7 @@ const EmployeeList: React.FC = () => {
     // 👇 사용자 필터 불러오기
     const fetchUserFilters = async () => {
         try {
-            const { data } = await axios.get('/filter/get/employee', { withCredentials: true });
+            const {data} = await axios.get('/filter/get/employee', {withCredentials: true});
 
             const filterModel: any = {};
             const sortModel: any[] = [];
@@ -85,7 +85,7 @@ const EmployeeList: React.FC = () => {
 
             data.forEach((f: any) => {
                 if (f.filterType === 'Sort') {
-                    sortModel.push({ colId: f.filterName, sort: f.filterValue });
+                    sortModel.push({colId: f.filterName, sort: f.filterValue});
                 } else if (f.valueType === 'date') {
                     filterModel[f.filterName] = {
                         filterType: 'date',
@@ -148,7 +148,7 @@ const EmployeeList: React.FC = () => {
 
         for (const colId in filterModel) {
             const model = filterModel[colId];
-            if (model.filterType == 'date'&&model.dateFrom) {
+            if (model.filterType == 'date' && model.dateFrom) {
                 value = formatDate(model.dateFrom);
                 payload.filters.push({
                     filterName: colId,
@@ -177,7 +177,7 @@ const EmployeeList: React.FC = () => {
 
         try {
             console.log('[SEND] 필터 저장 요청 전송', payload);
-            await axios.post('/filter/set', payload, { withCredentials: true });
+            await axios.post('/filter/set', payload, {withCredentials: true});
             console.log('[OK] 필터 저장 완료');
         } catch (e) {
             console.error('[FAIL] 필터 저장 실패', e);
@@ -199,20 +199,20 @@ const EmployeeList: React.FC = () => {
 
     useEffect(() => {
         fetchEmployees();
-        axios.get<string[]>('/department/names',{withCredentials:true}).then((res) => {
+        axios.get<string[]>('/department/names', {withCredentials: true}).then((res) => {
             setDepartments(res.data);
         });
-        axios.get<string[]>('/status/codes/emp',{withCredentials:true}).then((res) => {
+        axios.get<string[]>('/status/codes/emp', {withCredentials: true}).then((res) => {
             setStatusCodes(res.data);
         });
-        axios.get('/employee/me', { withCredentials: true }).then(res => {
+        axios.get('/employee/me', {withCredentials: true}).then(res => {
             setEmpId(res.data);
         });
     }, []);
 
     const handleDelete = async (id: number) => {
         if (window.confirm('정말 삭제하시겠습니까?')) {
-            await axios.delete(`/employee/delete/${id}`,{withCredentials:true});
+            await axios.delete(`/employee/delete/${id}`, {withCredentials: true});
             fetchEmployees();
         }
     };
@@ -241,9 +241,9 @@ const EmployeeList: React.FC = () => {
 
         reader.onload = (e) => {
             const data = new Uint8Array(e.target?.result as ArrayBuffer);
-            const workbook = XLSX.read(data, { type: 'array' });
+            const workbook = XLSX.read(data, {type: 'array'});
             const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-            const jsonData = XLSX.utils.sheet_to_json(worksheet,{raw: false});
+            const jsonData = XLSX.utils.sheet_to_json(worksheet, {raw: false});
 
             const filteredData: Employee[] = [];
             const uploadPayload: any[] = [];
@@ -260,7 +260,7 @@ const EmployeeList: React.FC = () => {
             (jsonData as any[]).forEach(row => {
                 const errors = validateRow(row);
                 if (errors.length > 0) {
-                    invalid.push({ row, errors });
+                    invalid.push({row, errors});
                 } else {
                     filteredData.push({
                         fullName: `${row.firstName} ${row.lastName}`,
@@ -281,7 +281,7 @@ const EmployeeList: React.FC = () => {
                         firstName: row.firstName,
                         lastName: row.lastName,
                         engName: row.engName,
-                        hireDate:formatToIsoDate(row.hireDate),
+                        hireDate: formatToIsoDate(row.hireDate),
                         quitDate: row.quitDate ? formatToIsoDate(row.quitDate) : null,
                         deptName: row.deptName,
                         position: row.position,
@@ -320,7 +320,7 @@ const EmployeeList: React.FC = () => {
         try {
             const payload = localStorage.getItem('uploadPayload');
             if (!payload) throw new Error('전송할 데이터가 없습니다.');
-            await axios.post('/employee/excel',{withCredentials:true}, JSON.parse(payload));
+            await axios.post('/employee/excel', {withCredentials: true}, JSON.parse(payload));
             alert('저장 성공');
 
             fetchEmployees();
@@ -342,24 +342,57 @@ const EmployeeList: React.FC = () => {
     // };
 
     const columnDefs: ColDef[] = [
-        { headerName: '사번', field: 'empId', filter: 'agNumberColumnFilter', editable: false ,width:120},
-        { headerName: '이름', field: 'fullName', filter: 'agTextColumnFilter', editable:false, width:180},
-        { headerName: '영문명', field: 'engName', filter: 'agTextColumnFilter' },
-        { headerName: '고용일', field: 'hireDate', filter: 'agDateColumnFilter', valueFormatter: params => params.value ? new Date(params.value).toLocaleDateString() : '', width:170 },
-        { headerName: '퇴사일', field: 'quitDate', filter: 'agDateColumnFilter', valueFormatter: params => params.value ? new Date(params.value).toLocaleDateString() : '',cellEditor:'agDateCellEditor',width: 170 },
-        { headerName: '부서', field: 'deptName', filter: 'agTextColumnFilter',width:170,cellEditor:'agSelectCellEditor', cellEditorParams:{values:departments} },
-        { headerName: '직급', field: 'position', filter: 'agTextColumnFilter',width:100 },
-        { headerName: '연봉', field: 'annualSalary', filter: 'agNumberColumnFilter', width:150 },
-        { headerName: '전화번호', field: 'phoneNumber', filter: 'agTextColumnFilter', width:150 },
-        { headerName: 'Email', field: 'email', filter: 'agTextColumnFilter' },
-        { headerName: '상태', field: 'statusCode', filter: 'agTextColumnFilter',width:100 ,cellEditor:'agSelectCellEditor', cellEditorParams:{values:statusCode}},
-        { headerName: '주소', field: 'address', filter: 'agTextColumnFilter' },
-        { headerName: '주민번호', field: 'ssn', filter: 'agTextColumnFilter', editable: false },
+        {headerName: '사번', field: 'empId', filter: 'agNumberColumnFilter', editable: false, width: 120},
+        {headerName: '이름', field: 'fullName', filter: 'agTextColumnFilter', editable: false, width: 180},
+        {headerName: '영문명', field: 'engName', filter: 'agTextColumnFilter'},
+        {
+            headerName: '고용일',
+            field: 'hireDate',
+            filter: 'agDateColumnFilter',
+            valueFormatter: params => params.value ? new Date(params.value).toLocaleDateString() : '',
+            width: 170
+        },
+        {
+            headerName: '퇴사일',
+            field: 'quitDate',
+            filter: 'agDateColumnFilter',
+            valueFormatter: params => params.value ? new Date(params.value).toLocaleDateString() : '',
+            cellEditor: 'agDateCellEditor',
+            width: 170
+        },
+        {
+            headerName: '부서',
+            field: 'deptName',
+            filter: 'agTextColumnFilter',
+            width: 170,
+            cellEditor: 'agSelectCellEditor',
+            cellEditorParams: {values: departments}
+        },
+        {headerName: '직급', field: 'position', filter: 'agTextColumnFilter', width: 100},
+        {headerName: '연봉', field: 'annualSalary', filter: 'agNumberColumnFilter', width: 150},
+        {headerName: '전화번호', field: 'phoneNumber', filter: 'agTextColumnFilter', width: 150},
+        {headerName: 'Email', field: 'email', filter: 'agTextColumnFilter'},
+        {
+            headerName: '상태',
+            field: 'statusCode',
+            filter: 'agTextColumnFilter',
+            width: 100,
+            cellEditor: 'agSelectCellEditor',
+            cellEditorParams: {values: statusCode}
+        },
+        {headerName: '주소', field: 'address', filter: 'agTextColumnFilter'},
+        {headerName: '주민번호', field: 'ssn', filter: 'agTextColumnFilter', editable: false},
         {
             headerName: '직원 정보 삭제',
             field: 'actions',
             cellRenderer: (params: ICellRendererParams) => (
-                <button style={{backgroundColor: '#E4DAD1', color: '#50352b', borderRadius:5, width:'100%', borderColor:'#382017'}} onClick={() => handleDelete(params.data.empId)}>정보 삭제</button>
+                <button style={{
+                    backgroundColor: '#E4DAD1',
+                    color: '#50352b',
+                    borderRadius: 5,
+                    width: '100%',
+                    borderColor: '#382017'
+                }} onClick={() => handleDelete(params.data.empId)}>정보 삭제</button>
             ),
             filter: false,
             sortable: false,
@@ -370,7 +403,13 @@ const EmployeeList: React.FC = () => {
             headerName: '월급 지급',
             field: 'salary',
             cellRenderer: (params: ICellRendererParams) => (
-                <button style={{backgroundColor: '#E4DAD1', color: '#50352b', borderRadius:5, width:'100%', borderColor:'#382017'}} onClick={() => navigate(`/salary/payment/${params.data.empId}`)}>월급 지급</button>
+                <button style={{
+                    backgroundColor: '#E4DAD1',
+                    color: '#50352b',
+                    borderRadius: 5,
+                    width: '100%',
+                    borderColor: '#382017'
+                }} onClick={() => navigate(`/salary/payment/${params.data.empId}`)}>월급 지급</button>
             ),
             filter: false,
             sortable: false,
@@ -380,44 +419,98 @@ const EmployeeList: React.FC = () => {
     ];
 
     return (
-        <div style={{ margin: '20px', height: '100%', width: '100%' }}>
-            <h2 style={{color:'#E4DAD1', marginRight:'80%'}} onClick={() => navigate('/menu')}>직원 목록</h2>
-            <button
-                onClick={() => navigate('/employee/register')}
-                style={{ marginBottom: '10px', backgroundColor: '#382017', color: 'white', padding: '8px 16px', border: 'none', borderRadius: '4px' }}
-            >
-                직원 등록
-            </button>
-            <button
-                onClick={handleExport}
-                style={{ marginLeft:'20px', marginBottom: '10px', backgroundColor: '#382017', color: 'white', padding: '8px 16px', border: 'none', borderRadius: '4px' }}
-            >
-                CSV 내보내기
-            </button>
-            <input
-                type="file"
-                accept=".xlsx, .xls"
-                onChange={handleExcelImport}
-                style={{ marginLeft:'20px', marginBottom: '10px', backgroundColor: '#382017', color: 'white', padding: '8px 16px', border: 'none', borderRadius: '4px' , width:170}}
-            />
-            <button
-                onClick={handleUploadToServer}
-                style={{ marginLeft:'20px', marginBottom: '10px', backgroundColor: '#382017', color: 'white', padding: '8px 16px', border: 'none', borderRadius: '4px'}}
-            >
-                엑셀 데이터 저장
-            </button>
-            <AgGridWrapper
-                columnDefs={columnDefs}
-                rowData={rowData}
-                onGridReady={onGridReady}
-                onCellValueChanged={onCellValueChanged}
-                onFilterChanged={onFilterChanged}
-                onSortChanged={onSortChanged}
-                // onPaginationChanged={onPaginationChanged}
-                ref={gridRef}
-            />
-        </div>
+        <Container fluid style={{ margin: '20px', height: '100%', width: '100%' }}>
+            <Row className="mb-3">
+                <Col>
+                    <h2
+                        style={{ color: '#E4DAD1', marginRight: '80%', cursor: 'pointer' }}
+                        onClick={() => navigate('/menu')}
+                    >
+                        직원 목록
+                    </h2>
+                </Col>
+            </Row>
+
+            <Row className="mb-3">
+                <Col xs="auto" style={{marginLeft: '11px'}}>
+                    <Button
+                        onClick={() => navigate('/employee/register')}
+                        style={{
+                            marginBottom: '10px',
+                            backgroundColor: '#382017',
+                            color: 'white',
+                            padding: '8px 16px',
+                            border: 'none',
+                            borderRadius: '4px'
+                        }}
+                    >
+                        직원 등록
+                    </Button>
+                </Col>
+
+                <Col xs="auto">
+                    <Button
+                        onClick={handleExport}
+                        style={{
+                            marginBottom: '10px',
+                            backgroundColor: '#382017',
+                            color: 'white',
+                            padding: '8px 16px',
+                            border: 'none',
+                            borderRadius: '4px'
+                        }}
+                    >
+                        CSV 내보내기
+                    </Button>
+                </Col>
+
+                <Col xs="auto">
+                    <Form.Control
+                        type="file"
+                        accept=".xlsx, .xls"
+                        onChange={handleExcelImport}
+                        style={{
+                            marginBottom: '10px',
+                            backgroundColor: '#382017',
+                            color: 'white',
+                            padding: '8px 16px',
+                            border: 'none',
+                            borderRadius: '4px'
+                        }}
+                    />
+                </Col>
+
+                <Col xs="auto">
+                    <Button
+                        onClick={handleUploadToServer}
+                        style={{
+                            marginBottom: '10px',
+                            backgroundColor: '#382017',
+                            color: 'white',
+                            padding: '8px 16px',
+                            border: 'none',
+                            borderRadius: '4px'
+                        }}
+                    >
+                        엑셀 데이터 저장
+                    </Button>
+                </Col>
+            </Row>
+
+            <Row>
+                <Col>
+                    <AgGridWrapper
+                        columnDefs={columnDefs}
+                        rowData={rowData}
+                        onGridReady={onGridReady}
+                        onCellValueChanged={onCellValueChanged}
+                        onFilterChanged={onFilterChanged}
+                        onSortChanged={onSortChanged}
+                        ref={gridRef}
+                    />
+                </Col>
+            </Row>
+        </Container>
     );
 };
-
 export default EmployeeList;
