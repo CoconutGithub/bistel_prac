@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Container, Form, Row, Col, Button } from 'react-bootstrap';
 
 const SalaryPaymentForm: React.FC = () => {
     const navigate = useNavigate();
@@ -63,21 +64,35 @@ const SalaryPaymentForm: React.FC = () => {
     };
 
     return (
-        <div className="container py-5" style={{ margin: '20px', height: '100%', width: '100%' }}>
+        <Container className="py-5" style={{ margin: '20px', height: '100%', width: '100%' }}>
             <h2 style={{ color: '#E4DAD1' }}>월급 지급</h2>
-            <form onSubmit={handleSubmit} style={{ color: '#E4DAD1' ,fontSize:'17px',padding:'10px'}}>
-                <div className="row mb-3">
-                    <div className="col-md-6">
-                        <label style={{marginRight:"20px"}}>사번</label>
-                        <input className="form-control" value={empId} readOnly={!!routeEmpId} onChange={(e) => setEmpId(e.target.value)} />
-                    </div>
-                    <div className="col-md-6">
-                        <label style={{marginRight:"20px"}}>지급일</label>
-                        <input className="form-control" type="date" name="payDate" value={salary.payDate} onChange={handleDateChange} />
-                    </div>
-                </div>
 
-                <div className="row">
+            <Form onSubmit={handleSubmit} style={{ color: '#E4DAD1', fontSize: '17px', padding: '10px' }}>
+                <Row className="mb-3">
+                    <Col md={6}>
+                        <Form.Group controlId="empId">
+                            <Form.Label>사번</Form.Label>
+                            <Form.Control
+                                value={empId}
+                                readOnly={!!routeEmpId}
+                                onChange={(e) => setEmpId(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Col>
+                    <Col md={6}>
+                        <Form.Group controlId="payDate">
+                            <Form.Label>지급일</Form.Label>
+                            <Form.Control
+                                type="date"
+                                name="payDate"
+                                value={salary.payDate}
+                                onChange={handleDateChange}
+                            />
+                        </Form.Group>
+                    </Col>
+                </Row>
+
+                <Row>
                     {[
                         { label: '기본급', name: 'baseSalary' },
                         { label: '식대', name: 'mealAllow' },
@@ -90,28 +105,29 @@ const SalaryPaymentForm: React.FC = () => {
                         { label: '장기요양보험', name: 'longtermCareInsurance' },
                         { label: '소득세', name: 'incomeTax' },
                         { label: '지방소득세', name: 'localIncomeTax' },
-                        { label: '기타공제', name: 'deductionOthers' }
+                        { label: '기타공제', name: 'deductionOthers' },
                     ].map(({ label, name }) => (
-                        <div className="col-md-6 mb-3" key={name}>
-                            <label style={{marginRight:"20px"}}>{label}</label>
-                            <input
-                                className="form-control"
-                                type="number"
-                                name={name}
-                                value={salary[name as keyof typeof salary]}
-                                onChange={handleChange}
-                            />
-                        </div>
+                        <Col md={6} className="mb-3" key={name}>
+                            <Form.Group controlId={name}>
+                                <Form.Label>{label}</Form.Label>
+                                <Form.Control
+                                    type="number"
+                                    name={name}
+                                    value={salary[name as keyof typeof salary]}
+                                    onChange={handleChange}
+                                />
+                            </Form.Group>
+                        </Col>
                     ))}
-                </div>
+                </Row>
 
                 {error && <div className="text-danger mb-3">{error}</div>}
 
                 <div className="text-end">
-                    <button type="submit" className="btn btn-primary">지급</button>
+                    <Button type="submit" variant="outline-light" style={{ height: '100%', margin: '10px', backgroundColor:'#382017', color:'#E4DAD1' }}>지급</Button>
                 </div>
-            </form>
-        </div>
+            </Form>
+        </Container>
     );
 };
 
