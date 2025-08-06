@@ -231,7 +231,16 @@ const SalaryList: React.FC = () => {
             headerName: '지급 내역 삭제',
             field: 'actions',
             cellRenderer: (params: ICellRendererParams) => (
-                <button style={{backgroundColor: '#E4DAD1', color: '#50352b', borderRadius:5, width:'100%', borderColor:'#382017'}} onClick={() => handleDelete(params.data.monthlySalaryId)}>정보 삭제</button>
+                <button style={{backgroundColor: '#E4DAD1',
+                    color: '#50352b',
+                    borderRadius: 5,
+                    width: '100%',
+                    padding: '4px 6px',
+                    lineHeight: '1.2',
+                    fontSize: '14px',
+                    border: '1px solid #382017',
+                    boxSizing: 'border-box'}}>
+                    정보 삭제</button>
             ),
             filter: false,
             sortable: false,
