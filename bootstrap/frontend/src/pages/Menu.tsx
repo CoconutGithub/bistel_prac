@@ -2,6 +2,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
+import { Container, Button } from 'react-bootstrap';
 
 const Menu: React.FC = () => {
     const navigate = useNavigate();
@@ -13,8 +14,16 @@ const Menu: React.FC = () => {
     };
 
     return (
-        <div style={{ position: 'relative', height: '100vh', padding: '50px', textAlign: 'center' }}>
-            <button
+        <Container
+            fluid
+            style={{
+                position: 'relative',
+                height: '100vh',
+                padding: '50px',
+                textAlign: 'center'
+            }}
+        >
+            <Button
                 onClick={handleLogout}
                 style={{
                     position: 'absolute',
@@ -29,34 +38,60 @@ const Menu: React.FC = () => {
                 }}
             >
                 로그아웃
-            </button>
+            </Button>
+
             <h2 style={{ marginBottom: '30px', color: '#E4DAD1' }}>메뉴 페이지</h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center' ,}}>
-                <button
+
+            <div
+                className="d-flex flex-column align-items-center"
+                style={{ gap: '20px' }}
+            >
+                <Button
+                    style={{
+                        width: '200px',
+                        fontSize: '18px',
+                        backgroundColor: '#382017',
+                        color: 'white',
+                        padding: '8px 16px',
+                        border: 'none',
+                        borderRadius: '4px'
+                    }}
                     onClick={() => navigate('/employee')}
-                    className="btn btn-primary"
-                    style={{ width: '200px', fontSize: '18px' ,backgroundColor: '#382017', color: 'white', padding: '8px 16px', border: 'none', borderRadius: '4px'}}
                 >
                     직원 목록
-                </button>
+                </Button>
 
-                <button
+                <Button
+                    style={{
+                        width: '200px',
+                        fontSize: '18px',
+                        backgroundColor: '#382017',
+                        color: 'white',
+                        padding: '8px 16px',
+                        border: 'none',
+                        borderRadius: '4px'
+                    }}
                     onClick={() => navigate('/task')}
-                    className="btn btn-success"
-                    style={{ width: '200px', fontSize: '18px',backgroundColor: '#382017', color: 'white', padding: '8px 16px', border: 'none', borderRadius: '4px' }}
                 >
                     업무 목록
-                </button>
+                </Button>
 
-                <button
+                <Button
+                    style={{
+                        width: '200px',
+                        fontSize: '18px',
+                        backgroundColor: '#382017',
+                        color: 'white',
+                        padding: '8px 16px',
+                        border: 'none',
+                        borderRadius: '4px'
+                    }}
                     onClick={() => navigate('/salary')}
-                    className="btn btn-warning"
-                    style={{ width: '200px', fontSize: '18px' ,backgroundColor: '#382017', color: 'white', padding: '8px 16px', border: 'none', borderRadius: '4px'}}
                 >
                     월급 지급 내역
-                </button>
+                </Button>
             </div>
-        </div>
+        </Container>
     );
 };
 
