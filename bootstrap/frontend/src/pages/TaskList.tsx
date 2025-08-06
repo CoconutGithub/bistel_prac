@@ -316,7 +316,6 @@ const TaskList: React.FC = () => {
                     <Button
                         onClick={() => navigate('/task/register')}
                         style={{
-                            marginBottom: '10px',
                             backgroundColor: '#382017',
                             color: 'white',
                             padding: '8px 16px',
@@ -332,7 +331,6 @@ const TaskList: React.FC = () => {
                     <Button
                         onClick={handleExport}
                         style={{
-                            marginBottom: '10px',
                             backgroundColor: '#382017',
                             color: 'white',
                             padding: '8px 16px',

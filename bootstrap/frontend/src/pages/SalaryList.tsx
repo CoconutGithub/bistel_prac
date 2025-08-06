@@ -272,7 +272,6 @@ const SalaryList: React.FC = () => {
                             padding: '8px 16px',
                             border: 'none',
                             borderRadius: '4px',
-                            marginBottom: '10px'
                         }}
                     >
                         월급 내역 생성
@@ -283,7 +282,6 @@ const SalaryList: React.FC = () => {
                     <Button
                         onClick={handleExport}
                         style={{
-                            marginBottom: '10px',
                             backgroundColor: '#382017',
                             color: 'white',
                             padding: '8px 16px',

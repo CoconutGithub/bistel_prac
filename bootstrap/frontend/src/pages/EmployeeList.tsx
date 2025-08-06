@@ -444,7 +444,6 @@ const EmployeeList: React.FC = () => {
                     <Button
                         onClick={() => navigate('/employee/register')}
                         style={{
-                            marginBottom: '10px',
                             backgroundColor: '#382017',
                             color: 'white',
                             padding: '8px 16px',
@@ -460,7 +459,6 @@ const EmployeeList: React.FC = () => {
                     <Button
                         onClick={handleExport}
                         style={{
-                            marginBottom: '10px',
                             backgroundColor: '#382017',
                             color: 'white',
                             padding: '8px 16px',
@@ -478,7 +476,6 @@ const EmployeeList: React.FC = () => {
                         accept=".xlsx, .xls"
                         onChange={handleExcelImport}
                         style={{
-                            marginBottom: '10px',
                             backgroundColor: '#382017',
                             color: 'white',
                             padding: '8px 16px',
@@ -492,7 +489,6 @@ const EmployeeList: React.FC = () => {
                     <Button
                         onClick={handleUploadToServer}
                         style={{
-                            marginBottom: '10px',
                             backgroundColor: '#382017',
                             color: 'white',
                             padding: '8px 16px',
