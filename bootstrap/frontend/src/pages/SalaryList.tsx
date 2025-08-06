@@ -4,6 +4,7 @@ import axios from 'axios';
 import {ColDef, ICellRendererParams, CellValueChangedEvent, GridReadyEvent} from 'ag-grid-community';
 import AgGridWrapper from '../components/AgGridWrapper';
 import { useNavigate } from 'react-router-dom';
+import { Container, Row, Col, Button } from 'react-bootstrap';
 
 interface Salary {
     monthlySalaryId?: number;
@@ -240,30 +241,66 @@ const SalaryList: React.FC = () => {
     ];
 
     return (
-        <div style={{ margin: '20px', height: '100%', width: '100%' }}>
-            <h2 style={{ color: '#E4DAD1' , marginRight:'80%'}} onClick={() => navigate('/menu')}>월급 지급 목록</h2>
-            <button
-                onClick={() => navigate('/salary/payment')}
-                style={{ marginBottom: '10px', backgroundColor: '#382017', color: 'white', padding: '8px 16px', border: 'none', borderRadius: '4px' }}
-            >
-                월급 내역 생성
-            </button>
-            <button
-                onClick={handleExport}
-                style={{ marginLeft:'20px', marginBottom: '10px', backgroundColor: '#382017', color: 'white', padding: '8px 16px', border: 'none', borderRadius: '4px' }}
-            >
-                CSV 내보내기
-            </button>
-            <AgGridWrapper
-                columnDefs={columnDefs}
-                rowData={rowData}
-                ref={gridRef}
-                onCellValueChanged={onCellValueChanged}
-                onGridReady={onGridReady}
-                onFilterChanged={onFilterChanged}
-                onSortChanged={onSortChanged}
-            />
-        </div>
+        <Container fluid style={{ margin: '20px', height: '100%', width: '100%' }}>
+            <Row className="mb-3">
+                <Col>
+                    <h2
+                        style={{ color: '#E4DAD1', marginRight: '80%', cursor: 'pointer' }}
+                        onClick={() => navigate('/menu')}
+                    >
+                        월급 지급 목록
+                    </h2>
+                </Col>
+            </Row>
+
+            <Row className="mb-3">
+                <Col xs="auto" style={{marginLeft: '11px'}}>
+                    <Button
+                        onClick={() => navigate('/salary/payment')}
+                        style={{
+                            backgroundColor: '#382017',
+                            color: 'white',
+                            padding: '8px 16px',
+                            border: 'none',
+                            borderRadius: '4px',
+                            marginBottom: '10px'
+                        }}
+                    >
+                        월급 내역 생성
+                    </Button>
+                </Col>
+
+                <Col xs="auto">
+                    <Button
+                        onClick={handleExport}
+                        style={{
+                            marginBottom: '10px',
+                            backgroundColor: '#382017',
+                            color: 'white',
+                            padding: '8px 16px',
+                            border: 'none',
+                            borderRadius: '4px'
+                        }}
+                    >
+                        CSV 내보내기
+                    </Button>
+                </Col>
+            </Row>
+
+            <Row>
+                <Col>
+                    <AgGridWrapper
+                        columnDefs={columnDefs}
+                        rowData={rowData}
+                        ref={gridRef}
+                        onCellValueChanged={onCellValueChanged}
+                        onGridReady={onGridReady}
+                        onFilterChanged={onFilterChanged}
+                        onSortChanged={onSortChanged}
+                    />
+                </Col>
+            </Row>
+        </Container>
     );
 };
 
