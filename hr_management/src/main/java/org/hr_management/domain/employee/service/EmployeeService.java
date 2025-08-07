@@ -41,6 +41,7 @@ public class EmployeeService {
 //    }
     public List<EmployeeListDto> getEmployeesByList() {
 //        Pageable pageable = PageRequest.of(page, size,Sort.by(Sort.Direction.ASC, "empId"));
+        System.out.println(employeeRepository.findHightestSalaryEmployees());
         return employeeRepository.findAllEmployees();
     }
     public String authenticate(String userId, String password) {
@@ -51,6 +52,10 @@ public class EmployeeService {
     }
     public boolean isIdDuplicate(String id) {
         return employeeRepository.existsByUserId(id);
+    }
+
+    public boolean isEmpExist(Integer empId) {
+        return employeeRepository.existsByEmpId(empId);
     }
 
     // TODO null 일 때 예외처리 추가
