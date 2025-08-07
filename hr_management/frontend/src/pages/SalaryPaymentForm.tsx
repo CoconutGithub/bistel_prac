@@ -9,25 +9,27 @@ const SalaryPaymentForm: React.FC = () => {
     const [empId, setEmpId] = useState(''|| routeEmpId);
     const [salary, setSalary] = useState({
         payDate: '',
-        baseSalary: 0,
-        mealAllow: 0,
-        transportAllow: 0,
-        comm: 0,
-        paymentOthers: 0,
-        nationalPension: 0,
-        healthInsurance: 0,
-        employmentInsurance: 0,
-        longtermCareInsurance: 0,
-        incomeTax: 0,
-        localIncomeTax: 0,
-        deductionOthers: 0
+        baseSalary: '0',
+        mealAllow: '0',
+        transportAllow: '0',
+        comm: '0',
+        paymentOthers: '0',
+        nationalPension: '0',
+        healthInsurance: '0',
+        employmentInsurance: '0',
+        longtermCareInsurance: '0',
+        incomeTax: '0',
+        localIncomeTax: '0',
+        deductionOthers: '0'
     });
 
     const [error, setError] = useState('');
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setSalary({ ...salary, [name]: Number(value) || 0 });
+        if (/^\d*$/.test(value)) {
+            setSalary({ ...salary, [name]: value });
+        }
     };
 
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,7 +44,7 @@ const SalaryPaymentForm: React.FC = () => {
         }
 
         try {
-            await axios.get(`/employee/${empId}`,{withCredentials:true});
+            await axios.get(`/employee/exist/${empId}`,{withCredentials:true});
         } catch (error: any) {
             if (error.response && error.response.status === 404) {
                 setError('해당 사번의 직원이 존재하지 않습니다.');
