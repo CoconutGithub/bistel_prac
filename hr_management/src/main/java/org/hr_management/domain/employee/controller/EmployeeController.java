@@ -54,7 +54,7 @@ public class EmployeeController {
 //    }
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDto request, HttpServletResponse response) {
-        if(!Objects.equals(employeeService.authenticate(request.getUserId(), request.getPassword()), "로그인 정보 오류")) {
+        if (!Objects.equals(employeeService.authenticate(request.getUserId(), request.getPassword()), "로그인 정보 오류")) {
             String token = employeeService.authenticate(request.getUserId(), request.getPassword());
 
             Cookie cookie = new Cookie("token", token);
@@ -113,6 +113,13 @@ public class EmployeeController {
         return ResponseEntity.ok(empId);
     }
 
+    @GetMapping("/exist/{empId}")
+    public ResponseEntity<?> getEmployeeExists(@PathVariable Integer empId) {
+        if (employeeService.isEmpExist(empId)) {
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
 
     //=======================================================직원 목록 ag grid 테스트
 
@@ -129,8 +136,6 @@ public class EmployeeController {
 //        model.addAttribute("request", new EmployeeRegisterRequest());
 //        return "employee/register";
 //    }
-
-
 
 
 }
