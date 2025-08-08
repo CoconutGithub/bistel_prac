@@ -65,7 +65,7 @@ const SalaryPaymentForm: React.FC = () => {
 
     return (
         <Container className="py-5" style={{ margin: '20px', height: '100%', width: '100%' }}>
-            <h2 style={{ color: '#E4DAD1' }}>월급 지급</h2>
+            <h2 style={{ color: '#E4DAD1', marginRight: '80%' }} onClick={() => navigate('/salary')}>월급 지급</h2>
 
             <Form onSubmit={handleSubmit} style={{ color: '#E4DAD1', fontSize: '17px', padding: '10px' }}>
                 <Row className="mb-3">

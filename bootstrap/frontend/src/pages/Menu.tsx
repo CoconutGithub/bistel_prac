@@ -30,7 +30,7 @@ const Menu: React.FC = () => {
                     top: '20px',
                     right: '30px',
                     backgroundColor: '#382017',
-                    color: 'white',
+                    color: '#E4DAD1',
                     border: 'none',
                     borderRadius: '4px',
                     padding: '8px 12px',
@@ -51,7 +51,7 @@ const Menu: React.FC = () => {
                         width: '200px',
                         fontSize: '18px',
                         backgroundColor: '#382017',
-                        color: 'white',
+                        color: '#E4DAD1',
                         padding: '8px 16px',
                         border: 'none',
                         borderRadius: '4px'
@@ -66,7 +66,7 @@ const Menu: React.FC = () => {
                         width: '200px',
                         fontSize: '18px',
                         backgroundColor: '#382017',
-                        color: 'white',
+                        color: '#E4DAD1',
                         padding: '8px 16px',
                         border: 'none',
                         borderRadius: '4px'
@@ -81,7 +81,7 @@ const Menu: React.FC = () => {
                         width: '200px',
                         fontSize: '18px',
                         backgroundColor: '#382017',
-                        color: 'white',
+                        color: '#E4DAD1',
                         padding: '8px 16px',
                         border: 'none',
                         borderRadius: '4px'

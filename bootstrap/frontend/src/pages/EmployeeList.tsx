@@ -445,7 +445,7 @@ const EmployeeList: React.FC = () => {
                         onClick={() => navigate('/employee/register')}
                         style={{
                             backgroundColor: '#382017',
-                            color: 'white',
+                            color: '#E4DAD1',
                             padding: '8px 16px',
                             border: 'none',
                             borderRadius: '4px'
@@ -460,7 +460,7 @@ const EmployeeList: React.FC = () => {
                         onClick={handleExport}
                         style={{
                             backgroundColor: '#382017',
-                            color: 'white',
+                            color: '#E4DAD1',
                             padding: '8px 16px',
                             border: 'none',
                             borderRadius: '4px'
@@ -477,7 +477,7 @@ const EmployeeList: React.FC = () => {
                         onChange={handleExcelImport}
                         style={{
                             backgroundColor: '#382017',
-                            color: 'white',
+                            color: '#E4DAD1',
                             padding: '8px 16px',
                             border: 'none',
                             borderRadius: '4px'
@@ -490,7 +490,7 @@ const EmployeeList: React.FC = () => {
                         onClick={handleUploadToServer}
                         style={{
                             backgroundColor: '#382017',
-                            color: 'white',
+                            color: '#E4DAD1',
                             padding: '8px 16px',
                             border: 'none',
                             borderRadius: '4px'
