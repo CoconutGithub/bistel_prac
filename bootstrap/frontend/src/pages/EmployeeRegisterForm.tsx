@@ -118,7 +118,7 @@ const EmployeeRegisterForm: React.FC = () => {
 
   return (
       <Container className="py-5" style={{ margin: '20px', height: '100%', width: '100%' }}>
-        <h2 style={{ color: '#E4DAD1' }}>직원 등록</h2>
+        <h2 style={{ color: '#E4DAD1',  marginRight: '80%' }} onClick={() => navigate('/employee')}>직원 등록</h2>
 
         <Form onSubmit={handleSubmit} style={{ color: '#E4DAD1', fontSize: '17px', padding: '10px' }}>
           <Row>

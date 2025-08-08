@@ -78,7 +78,7 @@ const TaskRegisterForm: React.FC = () => {
 
     return (
         <Container style={{ margin: '20px', height: '100%', width: '100%' }} className="py-5">
-            <h2 style={{ color: '#E4DAD1' }}>업무 등록</h2>
+            <h2 style={{ color: '#E4DAD1' , marginRight: '80%'}} onClick={() => navigate('/task')}>업무 등록</h2>
 
             <Form onSubmit={handleSubmit} style={{ color: '#E4DAD1', fontSize: '17px', padding: '10px' }}>
                 <Row>
