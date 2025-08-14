@@ -166,7 +166,7 @@ const EmployeeRegisterForm: React.FC = () => {
                     <Button   type="button"
                               variant="outline-light"
                               onClick={checkIdDuplicate}
-                              style={{ whiteSpace: 'nowrap', color:'#E4DAD1',backgroundColor:'#382017' }}>중복 확인</Button>
+                              style={{ whiteSpace: 'nowrap', color:'#E4DAD1',backgroundColor:'#382017', borderColor:'#382017' }}>중복 확인</Button>
                   </div>
                   {errors.userId && <div className="text-danger">{errors.userId}</div>}
                   {idCheckMessage && <div className={`text-${idChecked ? 'success' : 'danger'}`}>{idCheckMessage}</div>}
@@ -208,7 +208,7 @@ const EmployeeRegisterForm: React.FC = () => {
           </Row>
 
           <div className="text-end">
-            <Button type="submit" variant="outline-light" style={{ height: '100%', margin: '10px', backgroundColor:'#382017', color:'#E4DAD1' }}>
+            <Button type="submit"  style={{ height: '100%', margin: '10px', backgroundColor:'#382017', color:'#E4DAD1', borderColor:'#382017' }}>
               등록
             </Button>
           </div>

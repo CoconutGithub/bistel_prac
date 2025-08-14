@@ -124,7 +124,7 @@ const SalaryPaymentForm: React.FC = () => {
                 {error && <div className="text-danger mb-3">{error}</div>}
 
                 <div className="text-end">
-                    <Button type="submit" variant="outline-light" style={{ height: '100%', margin: '10px', backgroundColor:'#382017', color:'#E4DAD1' }}>지급</Button>
+                    <Button type="submit" variant="outline-light" style={{ height: '100%', margin: '10px', backgroundColor:'#382017', color:'#E4DAD1', borderColor:'#382017' }}>지급</Button>
                 </div>
             </Form>
         </Container>

@@ -145,7 +145,7 @@ const TaskRegisterForm: React.FC = () => {
                 </Row>
 
                 <div className="text-end">
-                    <Button type="submit" variant="outline-light" style={{ height: '100%', margin: '10px', backgroundColor:'#382017', color:'#E4DAD1' }}>
+                    <Button type="submit" variant="outline-light" style={{ height: '100%', margin: '10px', backgroundColor:'#382017', color:'#E4DAD1', borderColor:'#382017'}}>
                         등록
                     </Button>
                 </div>
