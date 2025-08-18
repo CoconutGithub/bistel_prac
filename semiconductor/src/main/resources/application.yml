@@ -5,7 +5,7 @@ spring:
     time-zone: Asia/Seoul
 
   datasource:
-    url: jdbc:oracle:thin:@//${DB_HOST}:${DB_PORT}/XEPDB1
+    url: jdbc:oracle:thin:@//${DB_HOST}:${DB_PORT}/semiconductor
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: oracle.jdbc.OracleDriver
