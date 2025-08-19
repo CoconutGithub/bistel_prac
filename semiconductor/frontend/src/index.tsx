@@ -1,20 +1,25 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-import axios from 'axios'; // axios 임포트
+// index.tsx
+import React from "react";
+import ReactDOM from "react-dom/client";
+import "./index.css";
 
-// Axios 기본 URL 설정
-axios.defaults.baseURL = 'http://localhost:8080';
+import "ag-grid-community/styles/ag-grid.css";
+
+import App from "./App";
+import { myTheme } from "./theme";  // ✅ 빠진 부분 추가!
+
+import { provideGlobalGridOptions } from "ag-grid-community";
+import axios from "axios";
+axios.defaults.baseURL = "http://localhost:8080";
+
+// 전역 테마 적용
+provideGlobalGridOptions({ theme: myTheme });
 
 const root = ReactDOM.createRoot(
-    document.getElementById('root') as HTMLElement
+    document.getElementById("root") as HTMLElement
 );
 root.render(
     <React.StrictMode>
         <App />
     </React.StrictMode>
 );
-
-// ...
