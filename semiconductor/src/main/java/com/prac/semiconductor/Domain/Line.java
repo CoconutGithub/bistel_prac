@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "LINE", uniqueConstraints = {
@@ -36,6 +38,6 @@ public class Line {
 
     @Builder.Default
     @OneToMany(mappedBy = "line", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Process> processes = new ArrayList<>();
+    private Set<Process> processes = new HashSet<>();
 
 }
