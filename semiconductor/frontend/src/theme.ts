@@ -6,7 +6,7 @@ ModuleRegistry.registerModules([AllCommunityModule]);
 
 // Build a custom Quartz-based theme
 export const myTheme = themeQuartz
-    .withPart(iconSetAlpine)
+    // .withPart(iconSetAlpine)
     .withParams({
         accentColor: "#382017",
         backgroundColor: "#F1EDE1",

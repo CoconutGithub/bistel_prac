@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "EQUIPMENT", uniqueConstraints = {
@@ -46,5 +48,5 @@ public class Equipment {
     // 양방향 관계 설정
     @Builder.Default
     @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SetValue> setValues = new ArrayList<>();
+    private Set<SetValue> setValues = new HashSet<>();
 }

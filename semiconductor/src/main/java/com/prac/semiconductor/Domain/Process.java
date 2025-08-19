@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "PROCESS", uniqueConstraints = {
@@ -42,5 +44,5 @@ public class Process {
     // 양방향 관계 설정 (Process 하나에 여러 Equipment)
     @Builder.Default
     @OneToMany(mappedBy = "process", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Equipment> equipments = new ArrayList<>();
+    private Set<Equipment> equipments = new HashSet<>();
 }
