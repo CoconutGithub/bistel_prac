@@ -1,7 +1,7 @@
 package com.prac.semiconductor.Service;
 
 import com.prac.semiconductor.Domain.Line;
-import com.prac.semiconductor.Dto.LineResponseDto;
+import com.prac.semiconductor.Dto.LineDto;
 import com.prac.semiconductor.Repository.LineRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,13 +15,11 @@ import java.util.stream.Collectors;
 public class LineService {
     private final LineRepository lineRepository;
 
-    @Transactional(readOnly = true) // 조회 전용 트랜잭션으로 성능 최적화
-    public List<LineResponseDto> findAllLines() {
-        List<Line> lines = lineRepository.findAll();
-
-        // Stream API를 사용하여 List<Line>을 List<LineResponseDto>로 변환
-        return lines.stream()
-                .map(LineResponseDto::fromEntity)
+    @Transactional(readOnly = true) // 조회 성능 최적화
+    public List<LineDto> getFullFactoryData() {
+        // Repository에서 JOIN FETCH로 모든 데이터를 조회
+        return lineRepository.findAllWithDetails().stream()
+                .map(LineDto::new) // Line Entity를 LineDto로 변환
                 .collect(Collectors.toList());
     }
 }
