@@ -145,7 +145,7 @@ const EquipmentGrid: React.FC = () => {
                         <AgGridReact
                             rowData={detailRowData}
                             headerHeight={50}
-                            rowHeight={40}
+                            rowHeight={35}
                             columnDefs={detailColumnDefs}
                             defaultColDef={{
                                 flex: 1,
