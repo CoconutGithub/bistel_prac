@@ -1,0 +1,113 @@
+.start {
+  width: 100%;
+  height: 100%;
+  & > .container {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    .tableInfo {
+      margin: 0;
+      height: 30px;
+      .countColumn {
+        padding: 0;
+        display: flex;
+        align-items: center;
+        flex: 1;
+        .count {
+          margin: 0;
+          color: #000000a6;
+          font-size: 14px;
+        }
+      }
+      .buttonColumn {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 0;
+        flex: 2;
+        gap: 6px;
+        & > button {
+          padding-left: 12px;
+          padding-right: 12px;
+          min-width: 50px;
+          height: 30px;
+          font-size: 14px;
+        }
+      }
+    }
+    .tableArea {
+      margin-top: 10px;
+      width: 100%;
+      --bs-gutter-x: 0px;
+      .grid {
+        width: 100%;
+        padding: 0;
+        margin: 0;
+        --bs-gutter-x: 0;
+        & > :global(.ag-root-wrapper) {
+          border-radius: 0;
+          border-left: 0;
+          border-right: 0;
+          :global(.ag-root) {
+            :global(.ag-header) {
+              :global(.ag-header-container) {
+                :global(.ag-header-cell) {
+                  padding: 0 14px;
+                }
+              }
+            }
+            :global(.ag-body) {
+              :global(.ag-center-cols-container) {
+                :global(.ag-row-selected), :global(.ag-row-hover) {
+                  &::before {
+                    background-color: #034ea21a !important;
+                  }
+                }
+                :global(.ag-row-hover.ag-row-selected::before) {
+                  background-image: unset;
+                  background-color: #034ea233 !important;
+                }
+                :global(.ag-row) {
+                  :global(.ag-cell) {
+                    padding: 0 14px;
+                    &:global(.ag-cell-inline-editing) {
+                      border-radius: 0;
+                      box-shadow: none;
+                      background-color: #fff;
+                      input[class*="ag-"] {
+                        padding: 0;
+                        border: none;
+                        background-color: transparent;
+                        &:focus {background-color: transparent !important;}
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        & :global(.ag-overlay .ag-overlay-panel .ag-overlay-wrapper) {
+          & :global(.ag-overlay-no-rows-center) {
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            height: 140px;
+            color: #999;
+            &::before {
+              content: "";
+              position: absolute;
+              width: 101px;
+              height: 97px;
+              background: url(../../../public/assets/icons/no-data.svg);
+              top: 0;
+              opacity: 0.6;
+            }
+          }
+        }
+      }
+    }
+  }
+}

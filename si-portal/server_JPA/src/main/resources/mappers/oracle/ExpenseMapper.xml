@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.siportal.portal.mapper.ExpenseMapper">
+    <insert id="insertExpense" parameterType="com.siportal.portal.dto.ExpenseRequest">
+        INSERT INTO p_expense (user_name, category, item, price, file_group_id, created_by, updated_by)
+        VALUES (#{userName}, #{category}, #{item}, #{price}, #{fileGroupId}, #{createdBy}, #{updatedBy})
+    </insert>
+</mapper>

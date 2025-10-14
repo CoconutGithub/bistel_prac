@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.siportal.portal.mapper.PortalMapper">
+
+    <update id="updateUserSettings">
+        UPDATE P_USER
+           SET FOOTER_YN = #{footerYn},
+               HEADER_COLOR = #{headerColor},
+               UPDATE_DATE = SYSDATE
+         WHERE USER_ID = #{userId}
+    </update>
+
+    <select id="getUserSettings" resultType="java.util.Map">
+        SELECT FOOTER_YN AS footerYn,
+        HEADER_COLOR AS headerColor
+        FROM P_USER
+        WHERE USER_ID = #{userId}
+    </select>
+
+</mapper>
