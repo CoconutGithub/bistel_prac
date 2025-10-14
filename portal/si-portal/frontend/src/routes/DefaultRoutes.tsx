@@ -26,9 +26,6 @@ const YoonNotice = React.lazy(() => import('~pages/biz/YoonNotice'));
 const YoonTodo = React.lazy(() => import('~pages/biz/YoonTodo'));
 const TrainAbilityUnitSelection = React.lazy(()=>import('~pages/biz/TrainAbilityUnitSelection'));
 
-const InformationList = React.lazy(
-  () => import('~pages/biz/infomationPage/informationList/informationList')
-);
 
 export default function DefaultRoutes(): RouteObject[] {
   return [
@@ -167,15 +164,6 @@ export default function DefaultRoutes(): RouteObject[] {
       element: (
         <React.Suspense fallback={<div>Loading...</div>}>
           <TrainAbilityUnitSelection />
-        </React.Suspense>
-      ),
-      loader: checkBtnAuthLoader,
-    },
-    {
-      path: '/main/bonnie-info',
-      element: (
-        <React.Suspense fallback={<div>Loading...</div>}>
-          <InformationList />
         </React.Suspense>
       ),
       loader: checkBtnAuthLoader,
