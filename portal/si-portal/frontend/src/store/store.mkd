@@ -1,0 +1,94 @@
+# 상태 관리 (Redux/Context 등..)
+- 여러 컴포넌트 간에 상태를 공유 또는 관리할 때 사용
+- 전역 상태 관리, action 또는 reducer를 통해 상태 변경 처리
+- 여러 컴포넌트에서 재사용 가능
+---
+```js
+// src/store/actions/userActions.js
+// 상태를 변경하기 위한 액션 생성자들을 정의
+// 각 액션은 상태를 어떻게 업데이트할 것인지 설명하는 객체를 반환
+export const setUser = (user) => {
+  return {
+    type: 'SET_USER',
+    payload: user,
+  };
+};
+```
+```js
+// src/store/reducers/userReducer.js
+// 상태를 변경하는 로직 작성 및 dispatch 된 액션을 처리
+const initialState = {
+  user: null,
+};
+
+const userReducer = (state = initialState, action) => {
+  switch (action.type) {
+    case 'SET_USER':
+      return {
+        ...state,
+        user: action.payload,
+      };
+    default:
+      return state;
+  }
+};
+
+export default userReducer;
+```
+```js
+// src/store/types/userTypes.js
+// 하드코딩 방지 및 일관성 유지
+export const SET_USER = 'SET_USER';
+```
+```js
+// src/store/index.js
+// store 통합
+import { createStore } from 'redux';
+import { Provider } from 'react-redux';
+import userReducer from './reducers/userReducer';
+
+const store = createStore(userReducer);
+
+function App() {
+  return (
+    <Provider store={store}>
+      <YourAppComponents />
+    </Provider>
+  );
+}
+
+export default store;
+```
+
+### 사용 예시
+```js
+// src/components/UserProfile.js
+import React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { setUser } from '../store/actions/userActions';
+
+function UserProfile() {
+  const user = useSelector(state => state.user);
+  const dispatch = useDispatch();
+
+  const handleLogin = () => {
+    dispatch(setUser({ name: 'John Doe', email: 'john@example.com' }));
+  };
+
+  return (
+    <div>
+      <h1>User Profile</h1>
+      {user ? (
+        <div>
+          <p>Name: {user.name}</p>
+          <p>Email: {user.email}</p>
+        </div>
+      ) : (
+        <button onClick={handleLogin}>Login</button>
+      )}
+    </div>
+  );
+}
+
+export default UserProfile;
+```

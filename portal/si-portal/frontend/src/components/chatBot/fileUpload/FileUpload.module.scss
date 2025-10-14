@@ -1,0 +1,14 @@
+﻿.fileUpload {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.dropZone {
+  background-color: #f8f9fa;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #e9ecef;
+  }
+}

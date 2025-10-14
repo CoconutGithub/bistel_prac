@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="a19dc35c-b236-4a70-928c-be4202b117be" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/frontend/public/assets/icons/Translate_ko.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/public/assets/icons/angry.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/public/assets/icons/bell.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/public/assets/icons/chevron-down.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/public/assets/icons/file-earmark-plus.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/public/assets/icons/floppy.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/public/assets/icons/icon-menu-focus.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/public/assets/icons/icon-menu.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/public/assets/icons/no-data.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/public/assets/icons/pencil.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/public/assets/icons/person-add.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/public/assets/icons/polygon_down.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/public/assets/icons/polygon_right.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/public/assets/icons/search.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/public/assets/icons/trash.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/public/assets/icons/user-circle.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/public/assets/images/bistelligence_logo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/agGridWrapper/AgGridWrapper.module.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/agGridWrapper/AgGridWrapper.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/agGridWrapper/AgGridWrapper.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/chart/MenuVisitorChart.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/chatBot/ChatBot.module.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/chatBot/ChatBot.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/fileCellRenderer/FileCellRenderer.module.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/fileCellRenderer/FileCellRenderer.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/icons/SiCancelIcon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/icons/SiCheckIcon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/icons/SiLockIcon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/icons/SiNewIcon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/icons/SiRefreshIcon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/icons/SiTableIcon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/icons/SiUserIcon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/icons/SiVerticalDot.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/biz/CshResume.modules.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/biz/CshResume.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/biz/CshResumePopup.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/biz/ServiceC.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/biz/SubServiceA1.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/biz/SubServiceA1A1.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/biz/SubServiceA2.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/biz/SubServiceB1.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/biz/SubServiceB2.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/biz/SubServiceC1.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/biz/SubServiceC2.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/biz/YoonNotice.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/biz/YoonResume.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/biz/YoonResumePopup.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/biz/YwkResume.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/biz/YwkResumePopup.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/biz/YwkResumeRegist.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/biz/floraResume/floraResumeCreate/FloraResumeCreate.module.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/biz/floraResume/floraResumeCreate/FloraResumeCreate.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/biz/floraResume/floraResumeDetail/FloraResumeDetail.module.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/biz/floraResume/floraResumeDetail/FloraResumeDetail.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/biz/floraResume/floraResumeList/FloraResumeList.module.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/biz/floraResume/floraResumeList/FloraResumeList.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/biz/infomationPage/informationList/informationList.module.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/biz/infomationPage/informationList/informationList.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/NotFound.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/admin/ManageCode.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/admin/ManageCodeContent.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/admin/ManageCodeTree.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/admin/ManageEmail.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/admin/ManageMenuContent.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/admin/ManageMenuTree.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/admin/ManageMessage.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/admin/ManageNotice.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/admin/ManageNoticePopup.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/admin/ManageRole.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/admin/ManageSchedule.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/admin/ManageUser.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/admin/MangeMenu.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/admin/MessageSelectPopup.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/admin/NoticePopup.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/admin/RoleRegistPopup.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/admin/UserRegistPopup.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/buttons/ComButton.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/example/ExamButton.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/layouts/Dashboard.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/layouts/Footer.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/layouts/Header.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/layouts/Home.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/layouts/HowToUse.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/layouts/NavMenuItem.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/layouts/Profile.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/layouts/ResumeList_hdh.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/layouts/ResumePopup_hdh.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/layouts/SendEmail.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/layouts/Settings.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/layouts/Sidebar.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/layouts/expenseManagement/ExpenseManagement.module.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/layouts/expenseManagement/ExpenseManagement.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/layouts/globalNavbar/GlobalNavbar.module.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/layouts/globalNavbar/GlobalNavbar.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/layouts/mainLayout/MainLayout.module.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/portal/layouts/mainLayout/MainLayout.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/styles/base/_index.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/styles/base/_main.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/styles/components/_index.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/styles/components/grid.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/styles/layouts/_header.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/styles/layouts/_index.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/siportal/portal/SIPortalApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/siportal/portal/com/auth/AfterLoginFilter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/siportal/portal/com/auth/JwtUtils.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/siportal/portal/com/auth/LoginFilter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/siportal/portal/com/auth/SecurityConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/siportal/portal/com/batch/config/QuartzDynamicConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/siportal/portal/com/batch/job/DynamicJob.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/siportal/portal/com/batch/job/SecondJob.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/siportal/portal/com/result/ComResultMap.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/siportal/portal/config/MinioConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/siportal/portal/config/MyBatisConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/siportal/portal/controller/AdminController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/siportal/portal/controller/EmailController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/siportal/portal/controller/MinioController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/siportal/portal/controller/PortalController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/siportal/portal/dto/LoginRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/siportal/portal/dto/PMenuDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/siportal/portal/dto/SchedulDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/siportal/portal/dto/User.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/siportal/portal/mapper/AdminMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/siportal/portal/mapper/PortalMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/siportal/portal/service/AdminService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/siportal/portal/service/EmailService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/siportal/portal/service/MinioService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/siportal/portal/service/PortalService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/resources/application-oracle.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/resources/application-postgresql.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/resources/logback-spring.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/resources/mappers/oracle/AdminMapper.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/resources/mappers/oracle/PortalMapper.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/resources/mappers/postgresql/AdminMapper.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/resources/mappers/postgresql/PortalMapper.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/resources/templates/manageEmail.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/test/java/com/siportal/MyprojectApplicationTests.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/SIPortalApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/com/auth/AfterLoginFilter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/com/auth/JwtUtils.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/com/auth/LoginFilter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/com/batch/config/QuartzDynamicConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/com/batch/job/DynamicJob.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/com/batch/job/SecondJob.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/com/result/ComResultMap.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/config/JPAConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/config/MinioConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/config/MyBatisConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/config/RestTemplateConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/config/SecurityConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/config/SwaggerConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/controller/AdminController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/controller/EmailController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/controller/ExpenseController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/controller/MinioController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/controller/NoticeController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/controller/PortalController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/controller/YwkController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/controller/biz/ChatbotController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/controller/biz/CshController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/controller/biz/FloraResumeController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/controller/biz/InformationController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/controller/biz/ResumeController_hdh.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/controller/biz/YoonNoticeController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/controller/biz/YoonResumeController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/domain/Code.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/domain/Expense.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/domain/File.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/domain/Information.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/domain/Menu.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/domain/MsgDetail.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/domain/MsgMain.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/domain/Notice.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/domain/Permission.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/domain/Resume.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/domain/Resume_hdh.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/domain/Role.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/domain/Scheduler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/domain/User.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/domain/UserRole.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/dto/AddNoticeRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/dto/ChatbotRequestDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/dto/ChatbotResponseDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/dto/CshResumeDto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/dto/ExpenseRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/dto/FileRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/dto/FloraResumeDto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/dto/FloraResumeProjection.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/dto/InformationDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/dto/LoginRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/dto/MenuDto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/dto/MenuRoleDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/dto/NoticeDto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/dto/PPermissionDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/dto/PageBtnDto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/dto/ResumeDTO_hdh.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/dto/ResumeRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/dto/SchedulDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/dto/UserDto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/dto/YoonNoticeDto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/dto/YoonNoticeProjection.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/dto/YoonResumeListProjection.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/dto/YoonResumeListResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/dto/YoonResumeProjection.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/dto/YoonResumeResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/dto/YoonUpdateNoticeRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/mapper/AdminMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/mapper/ExpenseMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/mapper/FileMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/mapper/PortalMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/mapper/ResumeMapper_hdh.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/repository/CodeRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/repository/CshResumeRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/repository/ExpenseRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/repository/FileRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/repository/FloraResumeRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/repository/InformationRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/repository/LoginRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/repository/MenuRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/repository/MsgDetailRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/repository/MsgMainRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/repository/NoticeRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/repository/PermissionRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/repository/ResumeRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/repository/ResumeRepository_hdh.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/repository/RoleRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/repository/SchedulerRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/repository/UserRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/repository/UserRoleRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/repository/YoonNoticeRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/repository/YoonResumeRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/service/AdminService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/service/CshService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/service/EmailService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/service/ExpenseService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/service/FileService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/service/FloraResumeService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/service/InformationService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/service/InformationServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/service/MinioService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/service/NoticeService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/service/PortalService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/service/RagChatbotService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/service/RestTemplateService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/service/ResumeService_hdh.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/service/YoonNoticeService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/service/YoonResumeService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/java/com/siportal/portal/service/YwkService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/resources/application-oracle.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/resources/application-postgresql.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/resources/logback-spring.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/resources/mappers/oracle/AdminMapper.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/resources/mappers/oracle/ExpenseMapper.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/resources/mappers/oracle/FileMapper.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/resources/mappers/oracle/PortalMapper.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/resources/mappers/postgresql/AdminMapper.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/resources/mappers/postgresql/ExpenseMapper.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/resources/mappers/postgresql/FileMapper.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/resources/mappers/postgresql/PortalMapper.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/main/resources/templates/manageEmail.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_JPA/src/test/java/com/siportal/MyprojectApplicationTests.java" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 0
+}]]></component>
+  <component name="ProjectId" id="2xcVvgglffezyeTpK3TfxYQfySu" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "C:/MyWork/bistelligence-portal/si-portal"
+  }
+}]]></component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="a19dc35c-b236-4a70-928c-be4202b117be" name="Changes" comment="" />
+      <created>1748237581127</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1748237581127</updated>
+    </task>
+    <servers />
+  </component>
+</project>

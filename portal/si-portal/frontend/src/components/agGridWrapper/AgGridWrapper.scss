@@ -1,0 +1,13 @@
+.ag-theme-alpine.siportal-theme-grid {
+  --ag-border-radius: 6px;
+  --ag-border-color: color-mix(
+    in srgb,
+    transparent,
+    var(--ag-foreground-color) 15%
+  );
+  --ag-header-background-color: color-mix(
+    in srgb,
+    var(--ag-background-color),
+    var(--ag-foreground-color) 2%
+  );
+}
