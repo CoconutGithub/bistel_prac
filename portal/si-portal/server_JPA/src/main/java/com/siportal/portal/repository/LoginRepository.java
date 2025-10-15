@@ -49,7 +49,6 @@ public class LoginRepository {
         sql.append("\n  , P_USER_ROLE B ");
         sql.append("\n  , P_ROLE C ");
         sql.append("\n WHERE 1=1 ");
-        sql.append("\n AND A.STATUS ='ACTIVE' ");
         sql.append("\n AND A.USER_ID = B.USER_ID ");
         sql.append("\n AND B.ROLE_ID = C.ROLE_ID ");
         sql.append("\n AND A.USER_ID = :userId");
