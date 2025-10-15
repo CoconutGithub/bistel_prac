@@ -10,10 +10,12 @@ interface Experience {
 }
 
 interface Education {
-  school: string;
-  schoolEnd: string;
-  graduateYn: string;
-  schoolStart: string;
+  schoolName: string;
+  educationLevel:string;
+  status: string;
+  period: string;
+  // schoolEnd: string;
+  // schoolStart: string;
 }
 
 interface Skills {
@@ -136,12 +138,13 @@ const YoonResumePopup: React.FC<YoonResumePopupProps> = ({show, resumeData, onCl
                 {resumeData.education?.map((edu: Education, index: number) => (
                   <tr key={index}>
                     <td>{index + 1}</td>
-                    <td>{edu.school}</td>
-                    <td></td>
+                    <td>{edu.schoolName}</td>
+                    <td>{edu.educationLevel}</td>
                     <td>
-                      {edu.schoolStart} ~ {edu.schoolEnd}
+                      {edu.period}
+                      {/*{edu.schoolStart} ~ {edu.schoolEnd}*/}
                     </td>
-                    <td>{edu.graduateYn}</td>
+                    <td>{edu.status}</td>
                   </tr>
                 ))}
               </tbody>
