@@ -215,22 +215,6 @@ const GlobalNavbar = React.memo(
               {/*>*/}
               {/*  Expense management*/}
               {/*</Nav.Link>*/}
-
-              <Nav.Link
-                as={NavLink}
-                to="/main/bonnie-info"
-                className={styles.nav_link}
-                onClick={() =>
-                  onSelectTab({
-                    key: 'information',
-                    label: 'Information',
-                    path: '/main/bonnie-info',
-                  })
-                }
-              >
-                Information (Demo)
-              </Nav.Link>
-
               {/* <Nav.Link onClick={handleLogout}>Logout</Nav.Link> */}
             </Nav>
           </div>

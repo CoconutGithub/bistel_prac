@@ -44,14 +44,14 @@ public class FloraResumeController {
     }
 
     @GetMapping("/detail/{id}")
-    public ResponseEntity<FloraResumeProjection> getResume(@PathVariable Integer id) {
+    public ResponseEntity<?> getResume(@PathVariable Integer id) {
 
         try {
 
             FloraResumeProjection data = floraResumeService.getResumeById(id);
 
             if (data == null) {
-                return ResponseEntity.status(404).body(null);
+                return ResponseEntity.status(404).body("데이터를 찾을 수 없음");
             }
 
             return ResponseEntity.ok(data);

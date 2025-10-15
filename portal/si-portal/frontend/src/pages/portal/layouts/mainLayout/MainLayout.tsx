@@ -1,5 +1,6 @@
+// 수정된 부분은 주석으로 표시했습니다.
 import { Container, Tab, Tabs } from 'react-bootstrap';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, matchPath } from 'react-router-dom'; // 수정: matchPath import
 import GlobalNavbar from '~pages/portal/layouts/globalNavbar/GlobalNavbar';
 import GlobalHeader from '../Header';
 
@@ -25,15 +26,9 @@ import ChatBot from '~components/chatBot/ChatBot';
 
 const useRouteComponents = () => {
   return useMemo(() => {
-    const routes: Record<string, React.FC> = {};
-
-    [...DefaultRoutes(), ...PortalRoutes()].forEach((route) => {
-      if (route.path && route.element) {
-        routes[route.path] = () => route.element as React.ReactElement;
-      }
-    });
-
-    return routes;
+    // 수정: route.path를 키로 사용하는 대신, 전체 라우트 정보를 배열로 저장
+    const allRoutes = [...DefaultRoutes(), ...PortalRoutes()];
+    return allRoutes;
   }, []);
 };
 
@@ -43,7 +38,7 @@ const MainLayout = () => {
   const dispatch = useDispatch();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { tabs, activeKey } = useSelector((state: RootState) => state.rootTabs);
-  const routeComponents = useRouteComponents();
+  const allRoutes = useRouteComponents(); // 수정: 변수명 변경
   const [chatVisible, setChatVisible] = useState(false);
 
   const resetLogoutTimer = useCallback(() => {
@@ -55,7 +50,7 @@ const MainLayout = () => {
       dispatch(removeLoginToken()); // 10분간 비활성 상태일 경우 로그아웃
       navigate('/login', { replace: true });
     }, 10 * 60 * 1000);
-  }, []);
+  }, [dispatch, navigate]);
 
   const handleSelectTab = useCallback(
     (tab: { key: string; label: string; path: string }) => {
@@ -123,16 +118,22 @@ const MainLayout = () => {
         clearTimeout(timeoutRef.current);
       }
     };
-  }, []);
+  }, [resetLogoutTimer]); // 수정: 의존성 배열에 resetLogoutTimer 추가
+
+  //모든탭 닫기
+  const handleCloseAllTabs = useCallback(() => {
+    dispatch(resetTab());
+    navigate('/main/home');
+  }, [dispatch, navigate]);
 
   useEffect(() => {
     if (
       location.pathname === '/main/home' &&
-      !tabs.some((tab) => tab.key === 'home')
+      !tabs.some((tab) => tab.key === 'Home') // 수정: 'home' -> 'Home' (addTab에서 사용하는 키와 일치)
     ) {
       dispatch(addTab({ key: 'Home', label: 'Home', path: '/main/home' }));
     }
-  }, []);
+  }, [location.pathname, tabs, dispatch]); // 수정: 의존성 배열 수정
 
   console.log('메인레이아웃 리렌더링 횟수');
 
@@ -148,7 +149,14 @@ const MainLayout = () => {
             onSelect={(k) => dispatch(setActiveTab(k as string))}
           >
             {tabs.map((tab) => {
-              const Component = routeComponents[tab.path] || NotFound;
+              // 1. 현재 탭의 경로(예: '/main/flora-resume/detail/41')와 일치하는 라우트 정의를 찾습니다.
+              const matchedRoute = allRoutes.find(route =>
+                route.path && matchPath(route.path, tab.path)
+              );
+
+              // 2. 일치하는 라우트가 있으면 해당 element를, 없으면 NotFound를 컴포넌트로 사용합니다.
+              const Component = matchedRoute ? () => matchedRoute.element as React.ReactElement : NotFound;
+
               return (
                 <Tab
                   key={tab.key}
@@ -172,6 +180,16 @@ const MainLayout = () => {
               );
             })}
           </Tabs>
+          {tabs.length > 1 && (
+            <button
+              className={styles.close_all_button}
+              onClick={handleCloseAllTabs}
+            >
+              모든 탭 닫기
+            </button>
+          )}
+
+
           <button
             className={styles.chat_button}
             onClick={() => setChatVisible(true)}
