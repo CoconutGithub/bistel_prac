@@ -15,6 +15,7 @@
     display: flex; height: calc(100% - 60px);
   }
   .main {
+    position: relative; /* 수정: 자식 요소의 absolute positioning을 위한 기준점 설정 */
     width: calc(100% - 300px);
     height: 100%;
     display: flex;
@@ -147,4 +148,40 @@
       background-color: #3f51b5;
     }
   }
+
+  .close_all_button_nav {
+    // 버튼이 NavLink와 높이를 맞추도록 세부 조정
+    margin-top: 5px;
+    margin-right: 5px;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+    border: 1px solid transparent;
+    background-color: transparent;
+    color: #6c757d; // 기본 텍스트 색상
+    cursor: pointer;
+  }
+
+  /* ########## 수정된 부분 시작 ########## */
+  .close_all_button {
+    position: absolute;
+    bottom: 4px;      // 탭 바 높이(34px) 내에 위치하도록 조정
+    right: 15px;
+    z-index: 10;      // 다른 요소 위에 표시되도록 z-index 설정
+    padding: 3px 10px;
+    font-size: 12px;
+    color: #fff;
+    background-color: #39B1BD;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+
+    &:hover {
+      background-color: #e9e9eb;
+      color: #333;
+      border-color: #ccc;
+    }
+  }
+  /* ########## 수정된 부분 끝 ########## */
 }

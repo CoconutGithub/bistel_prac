@@ -120,6 +120,12 @@ const MainLayout = () => {
     };
   }, [resetLogoutTimer]); // 수정: 의존성 배열에 resetLogoutTimer 추가
 
+  //모든탭 닫기
+  const handleCloseAllTabs = useCallback(() => {
+    dispatch(resetTab());
+    navigate('/main/home');
+  }, [dispatch, navigate]);
+
   useEffect(() => {
     if (
       location.pathname === '/main/home' &&
@@ -176,6 +182,19 @@ const MainLayout = () => {
               );
             })}
           </Tabs>
+
+          {/* ########## 수정된 부분 시작 ########## */}
+          {/* 탭이 1개 이상 있을 때만 '모든 탭 닫기' 버튼 표시 */}
+          {tabs.length > 1 && (
+            <button
+              className={styles.close_all_button}
+              onClick={handleCloseAllTabs}
+            >
+              모든 탭 닫기
+            </button>
+          )}
+          {/* ########## 수정된 부분 끝 ########## */}
+
           <button
             className={styles.chat_button}
             onClick={() => setChatVisible(true)}
