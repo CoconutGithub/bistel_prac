@@ -46,7 +46,7 @@ const columnDefs = [
   },
   {
     field: 'phoneNumber',
-    headerName: 'Phone Number',
+    headerName: '전화번호',
     sortable: true,
     filter: true,
     editable: true,
@@ -152,7 +152,7 @@ const ManageUser: React.FC = () => {
         } else if (column.headerName === '상태') {
           column.headerName = comAPIContext.$msg('label', 'status', '상태');
         } else if (column.headerName === '언어코드') {
-          column.headerName = comAPIContext.$msg('label', 'status', '언어코드');
+          column.headerName = comAPIContext.$msg('label', 'langCode', '언어코드');
         } else if (column.headerName === '최근접속일') {
           column.headerName = comAPIContext.$msg(
             'label',
