@@ -149,7 +149,6 @@ const MainLayout = () => {
             onSelect={(k) => dispatch(setActiveTab(k as string))}
           >
             {tabs.map((tab) => {
-              // ########## 수정된 핵심 로직 시작 ##########
               // 1. 현재 탭의 경로(예: '/main/flora-resume/detail/41')와 일치하는 라우트 정의를 찾습니다.
               const matchedRoute = allRoutes.find(route =>
                 route.path && matchPath(route.path, tab.path)
@@ -157,7 +156,6 @@ const MainLayout = () => {
 
               // 2. 일치하는 라우트가 있으면 해당 element를, 없으면 NotFound를 컴포넌트로 사용합니다.
               const Component = matchedRoute ? () => matchedRoute.element as React.ReactElement : NotFound;
-              // ########## 수정된 핵심 로직 끝 ##########
 
               return (
                 <Tab
@@ -182,9 +180,6 @@ const MainLayout = () => {
               );
             })}
           </Tabs>
-
-          {/* ########## 수정된 부분 시작 ########## */}
-          {/* 탭이 1개 이상 있을 때만 '모든 탭 닫기' 버튼 표시 */}
           {tabs.length > 1 && (
             <button
               className={styles.close_all_button}
@@ -193,7 +188,7 @@ const MainLayout = () => {
               모든 탭 닫기
             </button>
           )}
-          {/* ########## 수정된 부분 끝 ########## */}
+
 
           <button
             className={styles.chat_button}
