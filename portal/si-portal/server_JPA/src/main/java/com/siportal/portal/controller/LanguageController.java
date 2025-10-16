@@ -30,9 +30,9 @@ public class LanguageController {
 
     @PostMapping("/set-lang")
     public ResponseEntity<?> setUserLang(@RequestBody SetLangRequest req) {
-        Integer userId = Integer.parseInt(req.getUserId());  // ← 여기 추가
+//        Integer userId = Integer.parseInt(req.getUserId());  // ← 여기 추가
 
-        Optional<User> userOpt = userRepo.findById(userId);
+        Optional<User> userOpt = userRepo.findByUserId(req.getUserId());
         if (userOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자 없음");
         }
