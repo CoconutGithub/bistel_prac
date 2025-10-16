@@ -6,9 +6,9 @@ import { ComAPIContext } from '~components/ComAPIContext';
 const Dashboard: React.FC = () => {
   const sampleData = [
     { menu: '홈', visitors: 1200 },
-    { menu: '상품', visitors: 800 },
-    { menu: '이벤트', visitors: 500 },
-    { menu: '고객센터', visitors: 300 },
+    { menu: '이력서', visitors: 800 },
+    { menu: '프로필', visitors: 500 },
+    { menu: '훈련단위', visitors: 300 },
   ];
 
   const comAPIContext = useContext(ComAPIContext);
