@@ -340,9 +340,9 @@ const Header: React.FC<HeaderProps> = React.memo(({ onSelectTab }) => {
                             />
                         </div>
                         <div className="profileCnt">
-                            <div className="user_info_text">
+                            <div className="user_info_text" style={{width:'50px'}}>
                                 <p className="userstatus">{roleName}</p>
-                                <p className="userid">{userName}</p>
+                                <p className="userid" style={{wordBreak:"break-all"}}>{userName}</p>
                             </div>
                         </div>
                         {isPopupVisible && (
