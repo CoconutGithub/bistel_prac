@@ -106,6 +106,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String token = generateJwtToken(authResult);
 
         // 응답 헤더 또는 바디에 JWT 추가
+        response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json");
         response.getWriter().write("{\"token\": \"" + token +
                 "\", \"databaseType\": \"" + databaseType +
