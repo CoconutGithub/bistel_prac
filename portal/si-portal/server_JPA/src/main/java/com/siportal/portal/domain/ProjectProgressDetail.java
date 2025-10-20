@@ -34,6 +34,9 @@ public class ProjectProgressDetail {
     @Column(name = "progress_percentage", nullable = false)
     private Integer progressPercentage = 0;
 
+    @Column(name = "weight", nullable = false)
+    private Integer weight=0;
+
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
