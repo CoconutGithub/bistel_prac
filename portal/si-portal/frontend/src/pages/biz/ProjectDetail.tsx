@@ -447,12 +447,38 @@ const ProjectDetail: React.FC = () => {
             // 데이터 새로고침
             window.location.reload();
 
-        } catch (error) {
+        } catch (error: any) { // 'any' 타입을 명시하여 error 객체에 접근
             console.error("프로젝트 수정에 실패했습니다.", error);
-            alert("프로젝트 수정 중 오류가 발생했습니다.");
+
+            if (error.response) {
+                // 서버가 에러 응답을 반환한 경우 (4xx, 5xx)
+                const status = error.response.status;
+                // 백엔드 컨트롤러가 body에 담아 보낸 에러 메시지
+                const message = error.response.data || "알 수 없는 서버 오류";
+
+                switch (status) {
+                    case 403: // Forbidden (PM 권한 없음)
+                        alert(`권한이 없습니다 : ${message}`);
+                        break;
+                    case 404: // Not Found (프로젝트 없음)
+                        alert(`데이터를 찾을 수 없습니다 : ${message}`);
+                        break;
+                    case 500: // Internal Server Error
+                        alert(`서버 내부 오류가 발생했습니다. 관리자에게 문의하세요.`);
+                        break;
+                    default:
+                        alert(`오류가 발생했습니다. (Status: ${status})\n${message}`);
+                }
+                window.location.reload();
+            } else if (error.request) {
+                // 요청은 보냈으나 응답을 받지 못한 경우 (네트워크 오류 등)
+                alert("서버에서 응답을 받지 못했습니다. 네트워크 연결을 확인해주세요.");
+            } else {
+                // 요청을 설정하는 중에 발생한 오류
+                alert(`오류가 발생했습니다: ${error.message}`);
+            }
         }
     };
-    // ########## [수정 완료] ##########
 
     // 'Delete' 버튼 핸들러
     const handleDelete = async () => {
@@ -485,9 +511,35 @@ const ProjectDetail: React.FC = () => {
                 path: '/main/project/list', // (수정) ProjectList의 실제 경로
             });
 
-        } catch (error) {
+        } catch (error: any) { // 'any' 타입을 명시하여 error 객체에 접근
             console.error("프로젝트 삭제에 실패했습니다.", error);
-            alert("프로젝트 삭제 중 오류가 발생했습니다.");
+
+            if (error.response) {
+                // 서버가 에러 응답을 반환한 경우 (4xx, 5xx)
+                const status = error.response.status;
+                const message = error.response.data || "알 수 없는 서버 오류";
+
+                switch (status) {
+                    case 403: // Forbidden (PM 권한 없음)
+                        alert(`권한이 없습니다 : ${message}`);
+                        break;
+                    case 404: // Not Found (프로젝트 없음)
+                        alert(`데이터를 찾을 수 없습니다 : ${message}`);
+                        break;
+                    case 500: // Internal Server Error
+                        alert(`서버 내부 오류가 발생했습니다. 관리자에게 문의하세요.`);
+                        break;
+                    default:
+                        alert(`오류가 발생했습니다. (Status: ${status})\n${message}`);
+                }
+                window.location.reload();
+            } else if (error.request) {
+                // 요청은 보냈으나 응답을 받지 못한 경우 (네트워크 오류 등)
+                alert("서버에서 응답을 받지 못했습니다. 네트워크 연결을 확인해주세요.");
+            } else {
+                // 요청을 설정하는 중에 발생한 오류
+                alert(`오류가 발생했습니다: ${error.message}`);
+            }
         }
     };
 
