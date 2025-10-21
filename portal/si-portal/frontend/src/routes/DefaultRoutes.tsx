@@ -18,7 +18,8 @@ const YoonResume = React.lazy(() => import('~pages/biz/YoonResume'));
 const YoonNotice = React.lazy(() => import('~pages/biz/YoonNotice'));
 const YoonTodo = React.lazy(() => import('~pages/biz/YoonTodo'));
 const TrainAbilityUnitSelection = React.lazy(()=>import('~pages/biz/TrainAbilityUnitSelection'));
-
+const ProjectList = React.lazy(() => import('~pages/biz/ProjectList'));
+const ProjectDetail = React.lazy(() => import('~pages/biz/ProjectDetail'));
 
 export default function DefaultRoutes(): RouteObject[] {
   return [
@@ -107,5 +108,24 @@ export default function DefaultRoutes(): RouteObject[] {
       ),
       loader: checkBtnAuthLoader,
     },
+    {
+      path: '/main/project/list',
+      element: (
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <ProjectList />
+        </React.Suspense>
+      ),
+      loader: checkBtnAuthLoader,
+    },
+    {
+      path: '/main/project/detail/:id',
+      element: (
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <ProjectDetail />
+        </React.Suspense>
+      ),
+      loader: checkBtnAuthLoader,
+    },
+    
   ];
 }
