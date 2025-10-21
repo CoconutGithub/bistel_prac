@@ -2,11 +2,14 @@ import React from 'react';
 import axios from 'axios';
 import { ColDef, ICellRendererParams } from '@ag-grid-community/core';
 import { Container, Row, Col } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { addTab, setActiveTab } from '~store/RootTabs'; // (수정) 실제 경로에 맞게 수정 필요
 
 // ## 제공해주신 AgGridWrapper와 관련 타입/컴포넌트를 import한다고 가정합니다. ##
 // ## 경로와 파일명은 실제 프로젝트 구조에 맞게 수정이 필요합니다. ##
 import AgGridWrapper from '../../components/agGridWrapper/AgGridWrapper';
-import { AgGridWrapperHandle } from '../../types/GlobalTypes';
+import { AgGridWrapperHandle } from '~types/GlobalTypes';
 
 // --- Progress Bar를 위한 커스텀 셀 렌더러 ---
 const ProgressBarRenderer = (props: ICellRendererParams<any, number>) => {
@@ -44,6 +47,9 @@ const ProgressBarRenderer = (props: ICellRendererParams<any, number>) => {
 const ProjectList: React.FC = () => {
   const gridRef = React.useRef<AgGridWrapperHandle>(null);
 
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const fetchProjects = React.useCallback(async () => {
     try {
       const token = sessionStorage.getItem('authToken');
@@ -54,7 +60,12 @@ const ProjectList: React.FC = () => {
       });
 
       if (response.data) {
-        gridRef.current?.setRowData(response.data);
+        // (수정) 고유 ID가 없는 경우를 대비해 gridRowId 추가 (AgGridWrapper가 id나 gridRowId를 사용함)
+        const aData = response.data.map((row: any) => ({
+          ...row,
+          gridRowId: row.projectId || row.projectCode, // projectId나 projectCode를 고유 ID로 사용
+        }))
+        gridRef.current?.setRowData(aData);
       }
     } catch (error) {
       console.error("프로젝트 목록을 불러오는 데 실패했습니다.", error);
@@ -106,6 +117,69 @@ const ProjectList: React.FC = () => {
       }
     }, 0); // 레이아웃이 안정화될 시간을 벌기 위해 setTimeout은 유지
   }, []);
+
+  // --- (수정) 탭 선택 핸들러 ---
+  const handleSelectTab = React.useCallback(
+    (tab: { key: string; label: string; path: string }) => {
+      // (수정) 디버깅 로그 추가
+      console.log('--- handleSelectTab ---', tab);
+      const rootTabsData = sessionStorage.getItem('persist:rootTabs');
+      console.log('persist:rootTabs data:', rootTabsData);
+
+      if (rootTabsData) {
+        try {
+          const parsedData = JSON.parse(rootTabsData);
+          // (수정) persist state 구조에 'tabs' 키가 있는지 확인 필요
+          const cachedTabs = JSON.parse(parsedData.tabs);
+          console.log('Cached tabs:', cachedTabs);
+
+          if (cachedTabs.length >= 8) { // (수정) 8개 '이상'일 경우
+            alert('최대 8개의 탭만 열 수 있습니다.');
+            return;
+          } else {
+            console.log('Dispatching addTab and setActiveTab...');
+            dispatch(addTab(tab));
+            dispatch(setActiveTab(tab.key));
+            console.log('Navigating to:', tab.path);
+            navigate(tab.path);
+          }
+        } catch (e) {
+          console.error("persist:rootTabs 파싱 실패:", e, rootTabsData);
+          // (수정) 파싱 실패 시 비상 처리
+          dispatch(addTab(tab));
+          dispatch(setActiveTab(tab.key));
+          navigate(tab.path);
+        }
+      } else {
+        // (수정) persist:rootTabs가 없는 경우의 비상 처리
+        console.log('No rootTabsData, proceeding with navigation...');
+        dispatch(addTab(tab));
+        dispatch(setActiveTab(tab.key));
+        navigate(tab.path);
+      }
+    },
+    [dispatch, navigate] // <--- 🚨🚨 여기가 [dispatch, navigate] 인지 꼭 확인하세요!
+  );
+
+  // --- (수정) 행 클릭 핸들러 ---
+  const handleRowClick = React.useCallback((event: any) => {
+    const projectData = event.data;
+
+    // [수정] projectCode 대신 projectId가 있는지 확인
+    if (!projectData || !projectData.projectId) {
+      console.error('ERROR: projectData or projectId is missing!', projectData);
+      return;
+    }
+
+    handleSelectTab({
+      // [수정] key를 projectId로 구성
+      key: `project-detail-${projectData.projectId}`,
+      label: `상세: ${projectData.projectName || projectData.projectCode}`,
+      // [수정] path를 projectId로 구성
+      path: `/main/project/detail/${projectData.projectId}`,
+    });
+  }, [handleSelectTab]);
+
 
   const [columnDefs] = React.useState<ColDef[]>([
     {
@@ -202,6 +276,7 @@ const ProjectList: React.FC = () => {
               rowSelection="multiple"
               enableCheckbox={true}
               onGridLoaded={handleGridReady}
+              onRowClicked={handleRowClick}
             />
           </Col>
         </Row>
