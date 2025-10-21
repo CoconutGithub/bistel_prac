@@ -22,7 +22,6 @@ public class ProjectListDTO {
     private String projectStatus;
     private String pmId;
 
-    // [수정] Project 엔티티를 받아서 DTO 객체로 변환하는 생성자
     public ProjectListDTO(Project project) {
         this.projectId = project.getProjectId();
         this.projectCode = project.getProjectCode();

@@ -6,12 +6,9 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { addTab, setActiveTab } from '~store/RootTabs'; // (수정) 실제 경로에 맞게 수정 필요
 
-// ## 제공해주신 AgGridWrapper와 관련 타입/컴포넌트를 import한다고 가정합니다. ##
-// ## 경로와 파일명은 실제 프로젝트 구조에 맞게 수정이 필요합니다. ##
 import AgGridWrapper from '../../components/agGridWrapper/AgGridWrapper';
 import { AgGridWrapperHandle } from '~types/GlobalTypes';
 
-// --- Progress Bar를 위한 커스텀 셀 렌더러 ---
 const ProgressBarRenderer = (props: ICellRendererParams<any, number>) => {
   const value = props.value ?? 0;
   const valueAsPercent = value + '%';
@@ -40,13 +37,8 @@ const ProgressBarRenderer = (props: ICellRendererParams<any, number>) => {
   );
 };
 
-// ########## [수정] 날짜 변환 헬퍼 함수 (LocalDate 대응) ##########
-/**
- * Date 객체 또는 날짜 문자열을 YYYY-MM-DD 형식의 문자열로 변환합니다.
- * 서버의 LocalDate 타입과 맞추기 위함입니다.
- * @param date Date 객체, 날짜 문자열, null 또는 undefined
- * @returns YYYY-MM-DD 형식의 문자열 또는 null
- */
+
+
 const formatDateForServer = (date: Date | string): string | null => {
   if (!date) return null; // null, undefined, 빈 문자열 등은 null로 처리
 
@@ -76,13 +68,7 @@ const formatDateForServer = (date: Date | string): string | null => {
   return `${yyyy}-${mm}-${dd}`;
 };
 
-// ########## [수정] 행 데이터의 날짜 필드를 변환하는 헬퍼 함수 ##########
-/**
- * 저장 목록(createList, updateList)의 행 데이터에서
- * 날짜 필드(startDate, endDate)를 서버 형식(YYYY-MM-DD)으로 변환합니다.
- * @param row AgGrid의 행 데이터
- * @returns 날짜 필드가 변환된 행 데이터
- */
+
 const convertDatesInRow = (row: any) => {
   const newRow = { ...row }; // 원본 수정을 피하기 위해 복사
 
@@ -117,16 +103,15 @@ const ProjectList: React.FC = () => {
       });
 
       if (response.data) {
-        // (수정) 고유 ID가 없는 경우를 대비해 gridRowId 추가 (AgGridWrapper가 id나 gridRowId를 사용함)
+
         const aData = response.data.map((row: any) => ({
           ...row,
           gridRowId: row.projectId || row.projectCode, // projectId나 projectCode를 고유 ID로 사용
 
-          // ########## [수정] 서버 날짜 문자열을 JS Date 객체로 변환 ##########
           // agDateCellEditor가 Date 객체를 사용하도록 하기 위함
           startDate: row.startDate ? new Date(row.startDate) : null,
           endDate: row.endDate ? new Date(row.endDate) : null,
-          // #############################################################
+
         }))
         gridRef.current?.setRowData(aData);
       }
@@ -144,7 +129,6 @@ const ProjectList: React.FC = () => {
     updateList: any[];
     createList: any[];
   }) => {
-    // [수정] 변환 전 데이터 로그
     console.log("저장할 데이터 (변환 전):", lists);
 
     if (lists.createList.length === 0 && lists.updateList.length === 0 && lists.deleteList.length === 0) {
@@ -152,21 +136,18 @@ const ProjectList: React.FC = () => {
       return;
     }
 
-    // ########## [수정] 서버 전송 직전에 날짜 형식 변환 ##########
     const payload = {
       // deleteList는 보통 id만 사용하므로 변환이 필요 없을 수 있습니다.
       deleteList: lists.deleteList,
       updateList: lists.updateList.map(convertDatesInRow), // 날짜 변환 적용
       createList: lists.createList.map(convertDatesInRow)  // 날짜 변환 적용
     };
-    // ################################################################
 
-    // [수정] 변환 후 데이터 로그
     console.log("서버로 보낼 데이터 (변환 후):", payload);
 
     try {
       const token = sessionStorage.getItem('authToken');
-      // [수정] 변환된 payload를 전송합니다.
+
       await axios.post('http://localhost:8080/project/save', payload, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -179,7 +160,7 @@ const ProjectList: React.FC = () => {
       console.error("데이터 저장에 실패했습니다.", error);
       alert('데이터 저장 중 오류가 발생했습니다.');
     }
-  }, [fetchProjects]); // [수정] 의존성 배열에 fetchProjects만 남김
+  }, [fetchProjects]);
 
 
   //강제로 행을 다시 그리도록(redraw)
@@ -195,10 +176,8 @@ const ProjectList: React.FC = () => {
     }, 0); // 레이아웃이 안정화될 시간을 벌기 위해 setTimeout은 유지
   }, []);
 
-  // --- (수정) 탭 선택 핸들러 ---
   const handleSelectTab = React.useCallback(
       (tab: { key: string; label: string; path: string }) => {
-        // (수정) 디버깅 로그 추가
         console.log('--- handleSelectTab ---', tab);
         const rootTabsData = sessionStorage.getItem('persist:rootTabs');
         console.log('persist:rootTabs data:', rootTabsData);
@@ -206,7 +185,7 @@ const ProjectList: React.FC = () => {
         if (rootTabsData) {
           try {
             const parsedData = JSON.parse(rootTabsData);
-            // (수정) persist state 구조에 'tabs' 키가 있는지 확인 필요
+
             const cachedTabs = JSON.parse(parsedData.tabs);
             console.log('Cached tabs:', cachedTabs);
 
@@ -222,13 +201,11 @@ const ProjectList: React.FC = () => {
             }
           } catch (e) {
             console.error("persist:rootTabs 파싱 실패:", e, rootTabsData);
-            // (수정) 파싱 실패 시 비상 처리
             dispatch(addTab(tab));
             dispatch(setActiveTab(tab.key));
             navigate(tab.path);
           }
         } else {
-          // (수정) persist:rootTabs가 없는 경우의 비상 처리
           console.log('No rootTabsData, proceeding with navigation...');
           dispatch(addTab(tab));
           dispatch(setActiveTab(tab.key));
@@ -238,21 +215,21 @@ const ProjectList: React.FC = () => {
       [dispatch, navigate] // <--- 🚨🚨 여기가 [dispatch, navigate] 인지 꼭 확인하세요!
   );
 
-  // --- (수정) 행 클릭 핸들러 ---
+
   const handleRowClick = React.useCallback((event: any) => {
     const projectData = event.data;
 
-    // [수정] projectCode 대신 projectId가 있는지 확인
+
     if (!projectData || !projectData.projectId) {
       console.error('ERROR: projectData or projectId is missing!', projectData);
       return;
     }
 
     handleSelectTab({
-      // [수정] key를 projectId로 구성
+
       key: `project-detail-${projectData.projectId}`,
       label: `상세: ${projectData.projectName || projectData.projectCode}`,
-      // [수정] path를 projectId로 구성
+
       path: `/main/project/detail/${projectData.projectId}`,
     });
   }, [handleSelectTab]);
