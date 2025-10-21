@@ -1,5 +1,6 @@
 package com.siportal.portal.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +11,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "p_project_human_resource")
+@Table(name = "project_human_resource")
 @Getter
 @Builder
 @NoArgsConstructor
@@ -25,6 +26,7 @@ public class ProjectHumanResource {
     // Project 엔티티와 다대일(N:1) 관계
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", nullable = false)
+    @JsonBackReference
     private Project project;
 
     @Column(name = "user_id", nullable = false, length = 100)

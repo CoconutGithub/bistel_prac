@@ -1,5 +1,6 @@
 package com.siportal.portal.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +12,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "p_project_progress_detail")
+@Table(name = "project_progress_detail")
 @Getter
 @Builder
 @NoArgsConstructor
@@ -26,6 +27,7 @@ public class ProjectProgressDetail {
     // Project 엔티티와 다대일(N:1) 관계
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", nullable = false)
+    @JsonBackReference
     private Project project;
 
     @Column(name = "task_name", nullable = false, length = 200)
