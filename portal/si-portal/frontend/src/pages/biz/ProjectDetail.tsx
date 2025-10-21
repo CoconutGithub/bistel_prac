@@ -62,8 +62,10 @@ interface IProjectHumanResource {
     roleId: number | null; // Role 엔티티 대신 ID로 관리 (혹은 Role 객체 전체)
     plannedMm: number;
     actualMm: number;
-    startDate: string; // YYYY-MM-DD
-    endDate: string; // YYYY-MM-DD
+    actualStartDate: string; // YYYY-MM-DD
+    actualEndDate: string; // YYYY-MM-DD
+    plannedStartDate: string; // YYYY-MM-DD
+    plannedEndDate: string; // YYYY-MM-DD
     isCreated?: boolean; // 신규 행 여부
     isUpdated?: boolean; // 수정된 행 여부
 }
@@ -159,8 +161,10 @@ const ProjectDetail: React.FC = () => {
                     })),
                     humanResources: (data.humanResources || []).map((item: any, index: number) => ({
                         ...item,
-                        startDate: formatDate(item.startDate),
-                        endDate: formatDate(item.endDate),
+                        actualStartDate: formatDate(item.actualStartDate),
+                        actualEndDate: formatDate(item.actualEndDate),
+                        plannedStartDate: formatDate(item.plannedStartDate),
+                        plannedEndDate: formatDate(item.plannedEndDate),
                         gridRowId: item.resourceAllocationId || `temp-resource-${index}`,
                     })),
                 };
@@ -245,15 +249,29 @@ const ProjectDetail: React.FC = () => {
             flex: 1
         },
         {
-            headerName: '시작일',
-            field: 'startDate',
+            headerName: '실제 투입일',
+            field: 'actualStartDate',
             editable: true,
             cellEditor: 'agDateCellEditor',
             flex: 1
         },
         {
-            headerName: '종료일',
-            field: 'endDate',
+            headerName: '실제 종료일',
+            field: 'actualEndDate',
+            editable: true,
+            cellEditor: 'agDateCellEditor',
+            flex: 1
+        },
+        {
+            headerName: '예상 투입일',
+            field: 'plannedStartDate',
+            editable: true,
+            cellEditor: 'agDateCellEditor',
+            flex: 1
+        },
+        {
+            headerName: '예상 종료일',
+            field: 'plannedEndDate',
             editable: true,
             cellEditor: 'agDateCellEditor',
             flex: 1
