@@ -62,8 +62,10 @@ interface IProjectHumanResource {
     roleId: number | null; // Role 엔티티 대신 ID로 관리 (혹은 Role 객체 전체)
     plannedMm: number;
     actualMm: number;
-    startDate: string; // YYYY-MM-DD
-    endDate: string; // YYYY-MM-DD
+    actualStartDate: string; // YYYY-MM-DD
+    actualEndDate: string; // YYYY-MM-DD
+    plannedStartDate: string; // YYYY-MM-DD
+    plannedEndDate: string; // YYYY-MM-DD
     isCreated?: boolean; // 신규 행 여부
     isUpdated?: boolean; // 수정된 행 여부
 }
@@ -159,8 +161,10 @@ const ProjectDetail: React.FC = () => {
                     })),
                     humanResources: (data.humanResources || []).map((item: any, index: number) => ({
                         ...item,
-                        startDate: formatDate(item.startDate),
-                        endDate: formatDate(item.endDate),
+                        actualStartDate: formatDate(item.actualStartDate),
+                        actualEndDate: formatDate(item.actualEndDate),
+                        plannedStartDate: formatDate(item.plannedStartDate),
+                        plannedEndDate: formatDate(item.plannedEndDate),
                         gridRowId: item.resourceAllocationId || `temp-resource-${index}`,
                     })),
                 };
@@ -245,15 +249,29 @@ const ProjectDetail: React.FC = () => {
             flex: 1
         },
         {
-            headerName: '시작일',
-            field: 'startDate',
+            headerName: '실제 투입일',
+            field: 'actualStartDate',
             editable: true,
             cellEditor: 'agDateCellEditor',
             flex: 1
         },
         {
-            headerName: '종료일',
-            field: 'endDate',
+            headerName: '실제 종료일',
+            field: 'actualEndDate',
+            editable: true,
+            cellEditor: 'agDateCellEditor',
+            flex: 1
+        },
+        {
+            headerName: '예상 투입일',
+            field: 'plannedStartDate',
+            editable: true,
+            cellEditor: 'agDateCellEditor',
+            flex: 1
+        },
+        {
+            headerName: '예상 종료일',
+            field: 'plannedEndDate',
             editable: true,
             cellEditor: 'agDateCellEditor',
             flex: 1
@@ -522,8 +540,8 @@ const ProjectDetail: React.FC = () => {
                     <Form>
                         <Row>
                             <Form.Group as={Row} className="mb-3">
-                                <Form.Label column sm={2}>프로젝트명</Form.Label>
-                                <Col sm={8}>
+                                <Form.Label column sm={1}>프로젝트명</Form.Label>
+                                <Col sm={6}>
                                     <Form.Control id="projectName" value={formData.projectName} onChange={handleInputChange} />
                                 </Col>
                             </Form.Group>
@@ -531,15 +549,15 @@ const ProjectDetail: React.FC = () => {
                         <Row>
                             <Col md={4}>
                                 <Form.Group as={Row} className="mb-3">
-                                    <Form.Label column sm={2}>프로젝트 코드</Form.Label>
-                                    <Col sm={8}>
+                                    <Form.Label column sm={3}>프로젝트 코드</Form.Label>
+                                    <Col sm={5}>
                                         <Form.Control id="projectCode" value={formData.projectCode} readOnly disabled />
                                     </Col>
                                 </Form.Group>
                             </Col>
                             <Col md={4}>
                                 <Form.Group as={Row} className="mb-3">
-                                    <Form.Label column sm={2}>전체 진행률</Form.Label>
+                                    <Form.Label column sm={3}>전체 진행률</Form.Label>
                                     <Col sm={2}>
                                         <Form.Control id="overallProgress" value={formData.overallProgress} readOnly disabled />
                                     </Col>
@@ -547,8 +565,8 @@ const ProjectDetail: React.FC = () => {
                             </Col>
                             <Col md={4}>
                                 <Form.Group as={Row} className="mb-3">
-                                    <Form.Label column sm={2}>프로젝트 상태</Form.Label>
-                                    <Col sm={8}>
+                                    <Form.Label column sm={3}>프로젝트 상태</Form.Label>
+                                    <Col sm={4}>
                                         <Form.Select id="projectStatus" value={formData.projectStatus} onChange={handleInputChange}>
                                             <option value="WAITING">WAITING</option>
                                             <option value="ON-TIME">ON-TIME</option>
@@ -563,8 +581,8 @@ const ProjectDetail: React.FC = () => {
                         <Row>
                             <Col md={4}>
                                 <Form.Group as={Row} className="mb-3">
-                                    <Form.Label column sm={2}>진행 단계</Form.Label>
-                                    <Col sm={8}>
+                                    <Form.Label column sm={3}>진행 단계</Form.Label>
+                                    <Col sm={5}>
                                         <Form.Select id="step" value={formData.step} onChange={handleInputChange}>
                                             <option value="IN PLANNING">IN PLANNING</option>
                                             <option value="PREPARING">PREPARING</option>
@@ -577,16 +595,16 @@ const ProjectDetail: React.FC = () => {
                             </Col>
                             <Col md={4}>
                                 <Form.Group as={Row} className="mb-3">
-                                    <Form.Label column sm={2}>담당 PM</Form.Label>
-                                    <Col sm={8}>
+                                    <Form.Label column sm={3}>담당 PM</Form.Label>
+                                    <Col sm={2}>
                                         <Form.Control id="pmId" value={formData.pmId} onChange={handleInputChange} />
                                     </Col>
                                 </Form.Group>
                             </Col>
                             <Col md={4}>
                                 <Form.Group as={Row} className="mb-3">
-                                    <Form.Label column sm={2}>기간</Form.Label>
-                                    <Col sm={8}>
+                                    <Form.Label column sm={3}>기간</Form.Label>
+                                    <Col sm={7}>
                                         <Row className="g-2">
                                             <Col md={6}> {/* 50% */}
                                                 <Form.Control type="date" id="startDate" value={formData.startDate} onChange={handleInputChange} />
@@ -633,6 +651,7 @@ const ProjectDetail: React.FC = () => {
                                         useNoColumn={true}
                                         onCellValueChanged={(e) => handleGridCellChange(e, 'progress')}
                                         onDelete={(rows) => handleGridDelete(rows, 'progress')}
+                                        enableCheckbox={true}
                                     />
                                 </Tab>
                                 <Tab eventKey="resource" title="투입 인력 (Human Resources)">
@@ -648,6 +667,7 @@ const ProjectDetail: React.FC = () => {
                                         useNoColumn={true}
                                         onCellValueChanged={(e) => handleGridCellChange(e, 'resource')}
                                         onDelete={(rows) => handleGridDelete(rows, 'resource')}
+                                        enableCheckbox={true}
                                     />
                                 </Tab>
                             </Tabs>

@@ -6,7 +6,7 @@ import axios from 'axios';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '~store/Store';
-import { removeLoginToken, cachedAuthToken, setLangCode } from '~store/AuthSlice';
+import { removeLoginToken, cachedAuthToken, setLangCode,setProfileImage } from '~store/AuthSlice';
 import { resetTab } from '~store/RootTabs';
 import { ComAPIContext } from '~components/ComAPIContext';
 import Form from 'react-bootstrap/Form';
@@ -32,7 +32,9 @@ const Header: React.FC<HeaderProps> = React.memo(({ onSelectTab }) => {
   const title = useSelector((state: RootState) => state.auth.title);
   const userName = useSelector((state: RootState) => state.auth.user.userName);
   const roleName = useSelector((state: RootState) => state.auth.user.roleName);
-  const userId = useSelector((state: RootState) => state.auth.user.userId);
+  const userId = useSelector((state: RootState) => state.auth.user.userId);const profileImage = useSelector(
+    (state: RootState) => state.auth.user.profileImage
+  );
 
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
@@ -48,6 +50,44 @@ const Header: React.FC<HeaderProps> = React.memo(({ onSelectTab }) => {
   };
 
   const [isAdminHovered, setIsAdminHovered] = useState(false);
+
+
+  useEffect(() => {
+    // [로그 추가] 1. useEffect가 실행되는 시점과 userId 값을 확인합니다.
+    console.log('🔍 1. 프로필 이미지 로딩 시작. userId:', userId);
+    if (userId) {
+      axios
+        .get(
+          `${process.env.REACT_APP_BACKEND_IP}/admin/api/user-profile-image`,
+          {
+            headers: { Authorization: `Bearer ${cachedAuthToken}` },
+            params: { userId },
+          }
+        )
+        .then((res) => {
+          // [로그 추가] 2. 서버로부터 받은 응답 데이터를 그대로 출력합니다.
+          console.log('✅ 2. 서버 응답 받음:', res.data);
+
+          if (res.data && res.data.profileImage) {
+            // [로그 추가] 3-1. 프로필 이미지가 존재할 경우, Redux로 전달할 값을 확인합니다.
+            console.log(
+              '➡️ 3-1. 프로필 이미지 URL 감지. Redux 상태 업데이트:',
+              res.data.profileImage
+            );
+            dispatch(setProfileImage(res.data.profileImage));
+          } else {
+            // [로그 추가] 3-2. 프로필 이미지가 없을 경우를 확인합니다.
+            console.log('➡️ 3-2. 서버 응답에 프로필 이미지가 없음. 기본값으로 설정.');
+            dispatch(setProfileImage(null));
+          }
+        })
+        .catch((error) => {
+          // [로그 추가] API 요청 실패 시 에러를 확인합니다.
+          console.error('❌ 프로필 이미지 로딩 중 에러 발생:', error);
+          dispatch(setProfileImage(null));
+        });
+    }
+  }, [userId, dispatch]);
 
   useEffect(() => {
     axios
@@ -148,6 +188,7 @@ const Header: React.FC<HeaderProps> = React.memo(({ onSelectTab }) => {
     setShowPopup(false);
   };
 
+  console.log('🎨 4. Header 컴포넌트 렌더링. Redux store의 profileImage 값:', profileImage);
   return (
     <Navbar expand="lg">
       <Container fluid>
@@ -334,10 +375,21 @@ const Header: React.FC<HeaderProps> = React.memo(({ onSelectTab }) => {
                     )}
                     <div className="profile" onClick={togglePopup}>
                         <div className="profileIcon">
-                            <img
-                                alt="사용자 아이콘"
-                                src={`${process.env.REACT_APP_PUBLIC_URL}/assets/icons/user-circle.svg`}
-                            />
+                          <img
+                            alt="사용자 아이콘"
+                            src={profileImage ? `data:image/png;base64,${profileImage}` : `${process.env.REACT_APP_PUBLIC_URL}/assets/icons/user-circle.svg`}
+                            style={{
+                              width: '34px',
+                              height: '34px',
+                              objectFit: 'cover', // 이미지 비율을 유지하면서 컨테이너를 꽉 채웁니다.
+                              borderRadius: '50%', // 컨테이너가 원형일 가능성이 높으므로 이미지도 원형으로 만듭니다.
+                            }}
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.onerror = null;
+                              target.src = `${process.env.REACT_APP_PUBLIC_URL}/assets/icons/user-circle.svg`;
+                            }}
+                          />
                         </div>
                         <div className="profileCnt">
                             <div className="user_info_text" style={{width:'50px'}}>

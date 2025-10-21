@@ -1,6 +1,7 @@
 package com.siportal.portal.controller;
 
 import com.siportal.portal.domain.Project;
+import com.siportal.portal.dto.ProjectSaveDTO;
 import com.siportal.portal.service.ProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,5 +25,17 @@ public class ProjectController {
     @GetMapping("/detail/{project_id}")
     public ResponseEntity<?> detailProject(@PathVariable("project_id") Long projectId){
         return projectService.detailProject(projectId);
+    }
+    @PostMapping("/save")
+    public ResponseEntity<?> saveProjects(@RequestBody ProjectSaveDTO saveRequest) {
+        try {
+            projectService.saveProjects(saveRequest);
+            return ResponseEntity.ok().body("프로젝트 목록 저장 완료.");
+        } catch (Exception e) {
+            // 예외 발생 시 500 에러와 메시지 반환
+            return ResponseEntity
+                    .internalServerError()
+                    .body("Error saving projects: " + e.getMessage());
+        }
     }
 }

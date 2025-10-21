@@ -195,19 +195,19 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
 
     const handleCellValueChange = (event: any) => {
       const { data } = event; // 변경된 행 데이터 가져오기
-      if (
-        event.colDef.cellEditor === 'agDateCellEditor' 
-      ) {
-        const dateObj = new Date(data[event.column.colId]);
-        const yyyy = dateObj.getFullYear();
-        const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
-        const dd = String(dateObj.getDate()).padStart(2, '0');
-        const hh = String(dateObj.getHours()).padStart(2, '0');
-        const mi = String(dateObj.getMinutes()).padStart(2, '0');
-        const ss = String(dateObj.getSeconds()).padStart(2, '0');
-
-        data[event.column.colId] = `${yyyy}-${mm}-${dd}T${hh}:${mi}:${ss}`;
-      }
+      // if (
+      //   event.colDef.cellEditor === 'agDateCellEditor'
+      // ) {
+      //   const dateObj = new Date(data[event.column.colId]);
+      //   const yyyy = dateObj.getFullYear();
+      //   const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+      //   const dd = String(dateObj.getDate()).padStart(2, '0');
+      //   const hh = String(dateObj.getHours()).padStart(2, '0');
+      //   const mi = String(dateObj.getMinutes()).padStart(2, '0');
+      //   const ss = String(dateObj.getSeconds()).padStart(2, '0');
+      //
+      //   data[event.column.colId] = `${yyyy}-${mm}-${dd}T${hh}:${mi}:${ss}`;
+      // }
 
       if (data.isCreated === true) {
         createList.current.set(data.gridRowId, data); // 고유 ID를 키로 사용

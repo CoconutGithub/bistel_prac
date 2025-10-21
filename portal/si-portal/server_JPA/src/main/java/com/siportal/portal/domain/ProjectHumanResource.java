@@ -47,9 +47,15 @@ public class ProjectHumanResource {
     @Column(name = "actual_mm", nullable = false, precision = 5, scale = 2)
     private BigDecimal actualMm = BigDecimal.ZERO;
 
-    @Column(name = "start_date")
-    private LocalDate startDate;
+    @Column(name = "actual_start_date")
+    private LocalDate actualStartDate;
 
-    @Column(name = "end_date")
-    private LocalDate endDate;
+    @Column(name = "actual_end_date")
+    private LocalDate actualEndDate;
+
+    @Column(name = "planned_start_date")
+    private LocalDate plannedStartDate;
+
+    @Column(name = "planned_end_date")
+    private LocalDate plannedEndDate;
 }
