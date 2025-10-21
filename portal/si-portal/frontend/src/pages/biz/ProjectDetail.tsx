@@ -522,8 +522,8 @@ const ProjectDetail: React.FC = () => {
                     <Form>
                         <Row>
                             <Form.Group as={Row} className="mb-3">
-                                <Form.Label column sm={2}>프로젝트명</Form.Label>
-                                <Col sm={8}>
+                                <Form.Label column sm={1}>프로젝트명</Form.Label>
+                                <Col sm={6}>
                                     <Form.Control id="projectName" value={formData.projectName} onChange={handleInputChange} />
                                 </Col>
                             </Form.Group>
@@ -531,15 +531,15 @@ const ProjectDetail: React.FC = () => {
                         <Row>
                             <Col md={4}>
                                 <Form.Group as={Row} className="mb-3">
-                                    <Form.Label column sm={2}>프로젝트 코드</Form.Label>
-                                    <Col sm={8}>
+                                    <Form.Label column sm={3}>프로젝트 코드</Form.Label>
+                                    <Col sm={5}>
                                         <Form.Control id="projectCode" value={formData.projectCode} readOnly disabled />
                                     </Col>
                                 </Form.Group>
                             </Col>
                             <Col md={4}>
                                 <Form.Group as={Row} className="mb-3">
-                                    <Form.Label column sm={2}>전체 진행률</Form.Label>
+                                    <Form.Label column sm={3}>전체 진행률</Form.Label>
                                     <Col sm={2}>
                                         <Form.Control id="overallProgress" value={formData.overallProgress} readOnly disabled />
                                     </Col>
@@ -547,8 +547,8 @@ const ProjectDetail: React.FC = () => {
                             </Col>
                             <Col md={4}>
                                 <Form.Group as={Row} className="mb-3">
-                                    <Form.Label column sm={2}>프로젝트 상태</Form.Label>
-                                    <Col sm={8}>
+                                    <Form.Label column sm={3}>프로젝트 상태</Form.Label>
+                                    <Col sm={4}>
                                         <Form.Select id="projectStatus" value={formData.projectStatus} onChange={handleInputChange}>
                                             <option value="WAITING">WAITING</option>
                                             <option value="ON-TIME">ON-TIME</option>
@@ -563,8 +563,8 @@ const ProjectDetail: React.FC = () => {
                         <Row>
                             <Col md={4}>
                                 <Form.Group as={Row} className="mb-3">
-                                    <Form.Label column sm={2}>진행 단계</Form.Label>
-                                    <Col sm={8}>
+                                    <Form.Label column sm={3}>진행 단계</Form.Label>
+                                    <Col sm={5}>
                                         <Form.Select id="step" value={formData.step} onChange={handleInputChange}>
                                             <option value="IN PLANNING">IN PLANNING</option>
                                             <option value="PREPARING">PREPARING</option>
@@ -577,16 +577,16 @@ const ProjectDetail: React.FC = () => {
                             </Col>
                             <Col md={4}>
                                 <Form.Group as={Row} className="mb-3">
-                                    <Form.Label column sm={2}>담당 PM</Form.Label>
-                                    <Col sm={8}>
+                                    <Form.Label column sm={3}>담당 PM</Form.Label>
+                                    <Col sm={2}>
                                         <Form.Control id="pmId" value={formData.pmId} onChange={handleInputChange} />
                                     </Col>
                                 </Form.Group>
                             </Col>
                             <Col md={4}>
                                 <Form.Group as={Row} className="mb-3">
-                                    <Form.Label column sm={2}>기간</Form.Label>
-                                    <Col sm={8}>
+                                    <Form.Label column sm={3}>기간</Form.Label>
+                                    <Col sm={7}>
                                         <Row className="g-2">
                                             <Col md={6}> {/* 50% */}
                                                 <Form.Control type="date" id="startDate" value={formData.startDate} onChange={handleInputChange} />
@@ -633,6 +633,7 @@ const ProjectDetail: React.FC = () => {
                                         useNoColumn={true}
                                         onCellValueChanged={(e) => handleGridCellChange(e, 'progress')}
                                         onDelete={(rows) => handleGridDelete(rows, 'progress')}
+                                        enableCheckbox={true}
                                     />
                                 </Tab>
                                 <Tab eventKey="resource" title="투입 인력 (Human Resources)">
@@ -648,6 +649,7 @@ const ProjectDetail: React.FC = () => {
                                         useNoColumn={true}
                                         onCellValueChanged={(e) => handleGridCellChange(e, 'resource')}
                                         onDelete={(rows) => handleGridDelete(rows, 'resource')}
+                                        enableCheckbox={true}
                                     />
                                 </Tab>
                             </Tabs>

@@ -186,20 +186,13 @@ const ProjectList: React.FC = () => {
       headerName: '프로젝트 코드',
       field: 'projectCode',
       editable: (params) => params.data.isCreated === true,
-      width: 150
+      width: 170
     },
     {
       headerName: '프로젝트명',
       field: 'projectName',
       editable: true,
       width: 250
-    },
-    {
-      headerName: '상세 설명',
-      field: 'description',
-      editable: true,
-      cellEditor: 'agLargeTextCellEditor',
-      width: 300
     },
     {
       headerName: '진행 단계',
@@ -216,19 +209,19 @@ const ProjectList: React.FC = () => {
       field: 'startDate',
       editable: true,
       cellEditor: 'agDateCellEditor',
-      width: 150
+      width: 120
     },
     {
       headerName: '종료일',
       field: 'endDate',
       editable: true,
       cellEditor: 'agDateCellEditor',
-      width: 150
+      width: 120
     },
     {
       headerName: '전체 진행률',
       field: 'overallProgress',
-      width: 180,
+      width: 200,
       cellRenderer: ProgressBarRenderer,
       editable: false
     },
@@ -236,7 +229,7 @@ const ProjectList: React.FC = () => {
       headerName: '프로젝트 상태',
       field: 'projectStatus',
       editable: true,
-      width: 150,
+      width: 120,
       cellEditor: 'agSelectCellEditor',
       cellEditorParams: {
         values: ['PLANNING', 'IN_PROGRESS', 'COMPLETED', 'ON_HOLD']
@@ -247,7 +240,14 @@ const ProjectList: React.FC = () => {
       field: 'pmId',
       editable: true,
       width: 120
-    }
+    },
+    {
+      headerName: '상세 설명',
+      field: 'description',
+      editable: true,
+      cellEditor: 'agLargeTextCellEditor',
+      width: 300
+    },
   ]);
 
 
