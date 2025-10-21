@@ -4,12 +4,10 @@ import { useDispatch } from 'react-redux';
 import axios from 'axios';
 import { Container, Row, Col, Form, Button, Tabs, Tab } from 'react-bootstrap';
 import { ColDef, ICellRendererParams } from '@ag-grid-community/core';
-// (수정) 사용자님 프로젝트 경로 별칭(~) 사용
 import { AgGridWrapperHandle } from '~types/GlobalTypes';
 import AgGridWrapper from '~components/agGridWrapper/AgGridWrapper';
 import { addTab, setActiveTab } from '~store/RootTabs';
 
-// --- (ProjectList에서 복사) Progress Bar를 위한 커스텀 셀 렌더러 ---
 const ProgressBarRenderer = (props: ICellRendererParams<any, number>) => {
     const value = props.value ?? 0;
     const valueAsPercent = value + '%';
@@ -70,7 +68,7 @@ interface IProjectHumanResource {
     isUpdated?: boolean; // 수정된 행 여부
 }
 
-// 페이지 전체 폼 데이터 타입 (DTO 기반 + humanResources 추가)
+
 interface IProjectDetailData {
     projectId: number | null;
     projectName: string;
@@ -120,28 +118,23 @@ const ProjectDetail: React.FC = () => {
 
     const [activeTabKey, setActiveTabKey] = useState('progress');
 
-// --- [수정] 데이터 로드 (타입 변환 추가) ---
     useEffect(() => {
-        // 2. fetchProjectDetail 함수는 명확하게 number 타입의 projectId를 받도록 수정
         const fetchProjectDetail = async (projectId: number) => {
             try {
                 const token = sessionStorage.getItem('authToken');
 
-                // 3. projectId(숫자)가 URL 문자열로 자동 변환되어 요청됨 (예: .../id/123)
                 const response = await axios.get(`http://localhost:8080/project/detail/${projectId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
                 const data = response.data;
 
-                // ... (데이터 매핑 로직은 동일)
                 const formatDate = (dateStr: string | null | undefined) => {
                     if (!dateStr) return '';
                     return dateStr.split('T')[0];
                 };
-                // [수정] 폼에 바인딩되는 모든 필드에 대해 null 방어 코드 추가
                 const formattedData: IProjectDetailData = {
-                    ...data, // projectId, overallProgress 등 다른 값들은 그대로 복사
+                    ...data,
 
                     // --- 폼 입력 필드 Null Safety 처리 ---
                     projectName: data.projectName || '', // null이면 ""
@@ -178,7 +171,6 @@ const ProjectDetail: React.FC = () => {
             }
         };
 
-        // 4. id(string)가 존재하는지 확인하고, Number()로 형 변환하여 함수 호출
         if (id) {
             fetchProjectDetail(Number(id));
         }
@@ -228,10 +220,10 @@ const ProjectDetail: React.FC = () => {
     const resourceColumns = useMemo<ColDef[]>(() => [
         { headerName: '인력 (UserID)', field: 'userId', editable: true, flex: 1 },
         {
-            headerName: '역할 (RoleID)', // (수정) Role 객체 대신 ID 사용 가정. 필요시 Select Editor 사용
+            headerName: '역할 (RoleID)',
             field: 'roleId',
             editable: true,
-            cellEditor: 'agNumberCellEditor', // (수정) 또는 agSelectCellEditor
+            cellEditor: 'agNumberCellEditor',
             flex: 1
         },
         {
@@ -278,18 +270,15 @@ const ProjectDetail: React.FC = () => {
         },
     ], []);
 
-
-    // --- AgGrid 이벤트 핸들러 ---
-
     // 그리드 셀 값 변경 핸들러
     const handleGridCellChange = useCallback((event: any, type: 'progress' | 'resource') => {
         const { data } = event; // 변경된 행 데이터
 
         setFormData((prev) => {
-            // (수정) 타입에 따라 올바른 listName을 지정
+
             const listName = type === 'progress' ? 'progressDetails' : 'humanResources';
 
-            // (수정) prev에서 올바른 리스트를 가져오도록 수정
+
             const list = prev[listName] as (IProjectProgressDetail[] | IProjectHumanResource[]);
 
             const index = list.findIndex((item) => item.gridRowId === data.gridRowId);
@@ -321,7 +310,6 @@ const ProjectDetail: React.FC = () => {
     const handleGridDelete = (deletedRows: any[], type: 'progress' | 'resource') => {
         if (!deletedRows || deletedRows.length === 0) return;
 
-        // (수정) listName 제거 (setFormData 내부에서 type으로 직접 처리)
         const idFieldName = type === 'progress' ? 'detailId' : 'resourceAllocationId';
         const deletedIdsListSetter = type === 'progress' ? setDeletedProgressDetails : setDeletedHumanResources;
 
@@ -339,7 +327,6 @@ const ProjectDetail: React.FC = () => {
         setFormData((prev) => {
             const deletedGridRowIds = new Set(deletedRows.map(row => row.gridRowId));
 
-            // ##### (수정된 부분) #####
             // type을 기준으로 분기하여 TypeScript가 타입을 명확히 추론하도록 함
             if (type === 'progress') {
                 const newList = prev.progressDetails.filter(
@@ -358,21 +345,15 @@ const ProjectDetail: React.FC = () => {
                     humanResources: newList
                 };
             }
-            // ##### (수정 완료) #####
         });
     };
 
     // --- 상단 버튼 핸들러 (저장/삭제) ---
-
-    // (수정) 탭 닫기 및 이동 핸들러 (ProjectList와 동일한 로직 필요)
     const handleSelectTab = React.useCallback(
         (tab: { key: string; label: string; path: string }) => {
-            // (참고) 탭을 닫는 로직(removeTab)이 있다면 여기서 구현해야 함
-            // 예제(Flora)에는 탭 닫기 로직이 없어, 리스트로 이동하는 로직만 구현
             const rootTabsData = sessionStorage.getItem('persist:rootTabs');
             if (rootTabsData) {
                 const parsedData = JSON.parse(rootTabsData);
-                // (수정) 'tabs' 키가 실제 persist 상태에 맞는지 확인 필요
                 const cachedTabs = JSON.parse(parsedData.tabs);
 
                 if (cachedTabs.length === 8) {
@@ -400,8 +381,6 @@ const ProjectDetail: React.FC = () => {
         [dispatch, navigate]
     );
 
-
-    // ########## [수정] 'Update' 버튼 핸들러 ##########
     // 그리드 데이터를 제외하고, 상단의 프로젝트 '기본 정보'만 전송하도록 수정
     const handleUpdate = async () => {
         if (!formData.projectId) {
@@ -410,8 +389,6 @@ const ProjectDetail: React.FC = () => {
         }
 
         // 백엔드로 전송할 최종 '기본 정보' 데이터
-        // [수정] 폼 데이터에서 필요한 필드만 추출합니다.
-        // (formData에 있는 progressDetails, humanResources 배열은 제외)
         const dataToSave = {
             projectName: formData.projectName,
             projectDescription: formData.projectDescription, // DTO 필드명(description)에 맞게 매핑
@@ -421,27 +398,18 @@ const ProjectDetail: React.FC = () => {
             startDate: formData.startDate, // 폼의 'date' input은 이미 YYYY-MM-DD 형식
             endDate: formData.endDate,     // 폼의 'date' input은 이미 YYYY-MM-DD 형식
 
-            // [제거] 그리드 관련 데이터는 모두 제외
-            // progressDetails: ...,
-            // humanResources: ...,
-            // deletedProgressDetailIds: ...,
-            // deletedHumanResourceIds: ...
-        };
 
-        // (수정) DTO에 없는 필드(projectDescription) 제거
-        // -> 이 로직은 dataToSave를 수동으로 구성하면서 불필요해졌습니다.
+        };
 
         console.log("Saving project info:", dataToSave);
 
         try {
             const token = sessionStorage.getItem('authToken');
-            // [참고] 백엔드에서 이 부분 DTO가
-            // progressDetails, humanResources 없이도 받을 수 있어야 합니다.
+
             await axios.put(`http://localhost:8080/project/update/${formData.projectId}`, dataToSave, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
-            // [수정] 알림 메시지 명확화
             alert("프로젝트 기본 정보가 성공적으로 수정되었습니다.");
 
             // 데이터 새로고침
@@ -500,15 +468,11 @@ const ProjectDetail: React.FC = () => {
 
             alert("프로젝트가 삭제되었습니다.");
 
-            // (수정) 현재 탭을 닫고 리스트 탭으로 이동
-            // 탭 닫는 로직(removeTab)이 있다면 여기서 dispatch
-            // dispatch(removeTab(key));
-
             // 프로젝트 리스트 탭으로 이동
             handleSelectTab({
-                key: 'project-list-key', // (수정) ProjectList 탭의 고정 키
-                label: '프로젝트 관리',      // (수정) ProjectList 탭의 레이블
-                path: '/main/project/list', // (수정) ProjectList의 실제 경로
+                key: 'project-list-key',
+                label: '프로젝트 관리',
+                path: '/main/project/list',
             });
 
         } catch (error: any) { // 'any' 타입을 명시하여 error 객체에 접근
@@ -549,7 +513,6 @@ const ProjectDetail: React.FC = () => {
         setActiveTabKey(key);
 
         // 탭이 변경되어 그리드가 표시될 때, AgGrid의 크기를 다시 계산하도록 함
-        // (숨겨져 있던 그리드가 다시 나타날 때 컬럼이 깨지는 현상 방지)
         setTimeout(() => {
             if (key === 'progress') {
                 progressGridRef.current?.gridApi?.sizeColumnsToFit();
@@ -560,13 +523,11 @@ const ProjectDetail: React.FC = () => {
     }, []);
 
     return (
-        // ProjectList의 className을 참조하여 유사하게 구성
         <Container fluid className="h-100 container_bg" style={{ padding: '20px' }}>
 
             {/* --- 상단 헤더 --- */}
             <Row className="container_title" style={{ marginBottom: '20px' }}>
                 <Col xs={6}>
-                    {/* (수정) Flora 예제 스타일 참조 */}
                     <h2>프로젝트 : {formData.projectName}</h2>
                 </Col>
                 <Col xs={6} className="d-flex justify-content-end">
@@ -582,7 +543,6 @@ const ProjectDetail: React.FC = () => {
             {/* --- 메인 컨텐츠 --- */}
             <Row className="container_contents">
                 <Col>
-                    {/* --- 기본 정보 폼 (이미지 참조) --- */}
                     <Form>
                         <Row>
                             <Form.Group as={Row} className="mb-3">
@@ -667,14 +627,12 @@ const ProjectDetail: React.FC = () => {
                             <Col>
                                 <Form.Group className="mb-3">
                                     <Form.Label>상세 설명</Form.Label>
-                                    {/* (수정) DTO 필드명에 맞게 id 변경 (description -> projectDescription) */}
                                     <Form.Control as="textarea" rows={3} id="projectDescription" value={formData.projectDescription} onChange={handleInputChange} />
                                 </Form.Group>
                             </Col>
                         </Row>
                     </Form>
 
-                    {/* --- [수정] 하단 그리드 영역을 Tabs로 변경 --- */}
                     <Row style={{ marginTop: '20px' }}>
                         <Col>
                             <Tabs

@@ -145,20 +145,19 @@ public class ProjectService {
 
 
     private Project getProjectAndCheckPMAccess(Long projectId, String currentUsername) {
-        // 1. 프로젝트 조회
+        //프로젝트 조회
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + projectId));
 
         String pmId = project.getPmId();
 
-        // 2. 권한 확인 로직
-        // StringUtils.hasText()는 null, "", " " (공백)을 모두 false로 처리합니다.
-        // 즉, pmId가 "존재하는데(hasText)" "현재 사용자와 다르면" -> 예외 발생
+        // 권한 확인 로직
+        // pmId가 "존재하는데(hasText)" "현재 사용자와 다르면" -> 예외 발생
         if (StringUtils.hasText(pmId) && !pmId.equals(currentUsername)) {
             throw new AccessDeniedException("해당 프로젝트의 PM만 이 작업을 수행할 수 있습니다.");
         }
 
-        // 3. 권한이 있거나 PM이 없으면 프로젝트 반환
+        // 권한이 있거나 PM이 없으면 프로젝트 반환
         return project;
     }
 }
