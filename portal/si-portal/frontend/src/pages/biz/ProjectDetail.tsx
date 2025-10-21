@@ -401,56 +401,49 @@ const ProjectDetail: React.FC = () => {
     );
 
 
-    // 'Update' 버튼 핸들러
+    // ########## [수정] 'Update' 버튼 핸들러 ##########
+    // 그리드 데이터를 제외하고, 상단의 프로젝트 '기본 정보'만 전송하도록 수정
     const handleUpdate = async () => {
         if (!formData.projectId) {
             alert("프로젝트 ID가 유효하지 않습니다.");
             return;
         }
 
-        // AgGridWrapper에서 최신 데이터 가져오기 (isCreated, isUpdated 등 포함)
-        const currentProgressRows = progressGridRef.current?.getRowData() || [];
-        const currentResourceRows = resourceGridRef.current?.getRowData() || [];
-
-        // gridRowId, isUpdated 등 프론트엔드 전용 필드 제거
-        const cleanGridData = (rows: any[]) => {
-            return rows.map(row => {
-                // (수정) row가 undefined일 경우를 대비
-                if (!row) return null;
-                const { gridRowId, isCreated, isUpdated, add, ...rest } = row; // AgGridWrapper의 'add' 플래그도 제거
-                return rest;
-            }).filter(item => item !== null); // null 제거
-        };
-
-        // 백엔드로 전송할 최종 데이터
+        // 백엔드로 전송할 최종 '기본 정보' 데이터
+        // [수정] 폼 데이터에서 필요한 필드만 추출합니다.
+        // (formData에 있는 progressDetails, humanResources 배열은 제외)
         const dataToSave = {
-            // (수정) DTO에 맞는 필드명으로 변경 (projectDescription -> description)
-            ...formData,
-            description: formData.projectDescription,
-            // 그리드 데이터는 AgGridWrapper의 최신 상태를 반영
-            progressDetails: cleanGridData(currentProgressRows),
-            humanResources: cleanGridData(currentResourceRows),
-            // 삭제된 ID 목록 전송 (백엔드에서 처리 방식에 따라 수정 필요)
-            deletedProgressDetailIds: deletedProgressDetails,
-            deletedHumanResourceIds: deletedHumanResources,
+            projectName: formData.projectName,
+            projectDescription: formData.projectDescription, // DTO 필드명(description)에 맞게 매핑
+            projectStatus: formData.projectStatus,
+            step: formData.step,
+            pmId: formData.pmId,
+            startDate: formData.startDate, // 폼의 'date' input은 이미 YYYY-MM-DD 형식
+            endDate: formData.endDate,     // 폼의 'date' input은 이미 YYYY-MM-DD 형식
+
+            // [제거] 그리드 관련 데이터는 모두 제외
+            // progressDetails: ...,
+            // humanResources: ...,
+            // deletedProgressDetailIds: ...,
+            // deletedHumanResourceIds: ...
         };
 
         // (수정) DTO에 없는 필드(projectDescription) 제거
-        delete (dataToSave as any).projectDescription;
+        // -> 이 로직은 dataToSave를 수동으로 구성하면서 불필요해졌습니다.
 
-
-        // (수정) 백엔드 API 명세에 따라 dataToSave 객체 구조를 맞춰야 합니다.
-        // 예: Spring @RequestBody에서 deleted IDs를 별도 DTO나 Map으로 받는 경우
-        console.log("Saving data:", dataToSave);
+        console.log("Saving project info:", dataToSave);
 
         try {
             const token = sessionStorage.getItem('authToken');
-            // (수정) 백엔드 API 경로는 실제 경로에 맞게 수정해주세요.
+            // [참고] 백엔드에서 이 부분 DTO가
+            // progressDetails, humanResources 없이도 받을 수 있어야 합니다.
             await axios.put(`http://localhost:8080/project/update/${formData.projectId}`, dataToSave, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
-            alert("프로젝트가 성공적으로 수정되었습니다.");
+            // [수정] 알림 메시지 명확화
+            alert("프로젝트 기본 정보가 성공적으로 수정되었습니다.");
+
             // 데이터 새로고침
             window.location.reload();
 
@@ -459,6 +452,7 @@ const ProjectDetail: React.FC = () => {
             alert("프로젝트 수정 중 오류가 발생했습니다.");
         }
     };
+    // ########## [수정 완료] ##########
 
     // 'Delete' 버튼 핸들러
     const handleDelete = async () => {
@@ -525,10 +519,10 @@ const ProjectDetail: React.FC = () => {
                 </Col>
                 <Col xs={6} className="d-flex justify-content-end">
                     <Button variant="outline-danger" size="sm" style={{ marginRight: '10px' }} onClick={handleDelete}>
-                        Delete
+                        프로젝트 삭제
                     </Button>
                     <Button variant="primary" size="sm" onClick={handleUpdate}>
-                        Update
+                        수정
                     </Button>
                 </Col>
             </Row>
@@ -596,7 +590,7 @@ const ProjectDetail: React.FC = () => {
                             <Col md={4}>
                                 <Form.Group as={Row} className="mb-3">
                                     <Form.Label column sm={3}>담당 PM</Form.Label>
-                                    <Col sm={2}>
+                                    <Col sm={4}>
                                         <Form.Control id="pmId" value={formData.pmId} onChange={handleInputChange} />
                                     </Col>
                                 </Form.Group>
@@ -604,7 +598,7 @@ const ProjectDetail: React.FC = () => {
                             <Col md={4}>
                                 <Form.Group as={Row} className="mb-3">
                                     <Form.Label column sm={3}>기간</Form.Label>
-                                    <Col sm={7}>
+                                    <Col sm={8}>
                                         <Row className="g-2">
                                             <Col md={6}> {/* 50% */}
                                                 <Form.Control type="date" id="startDate" value={formData.startDate} onChange={handleInputChange} />
