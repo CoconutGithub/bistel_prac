@@ -11,12 +11,14 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -113,9 +115,7 @@ public class ProjectService {
             currentUsername = authentication.getName();
         }
 
-        //프로젝트가 없을 경우 예외를 발생
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + projectId));
+        Project project = getProjectAndCheckPMAccess(projectId, currentUsername);
 
         project.setProjectName(projectDTO.getProjectName());
         project.setProjectStatus(projectDTO.getProjectStatus());
@@ -129,6 +129,36 @@ public class ProjectService {
         return project;
     }
 
-//    public ResponseEntity<?> deleteProject(Long projectId) {}
+    @Transactional
+    public void deleteProject(Long projectId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = "SYSTEM"; // 기본값
+        if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
+            currentUsername = authentication.getName();
+        }
 
+        Project project = getProjectAndCheckPMAccess(projectId, currentUsername);
+
+        projectRepository.delete(project);
+    }
+
+
+
+    private Project getProjectAndCheckPMAccess(Long projectId, String currentUsername) {
+        // 1. 프로젝트 조회
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + projectId));
+
+        String pmId = project.getPmId();
+
+        // 2. 권한 확인 로직
+        // StringUtils.hasText()는 null, "", " " (공백)을 모두 false로 처리합니다.
+        // 즉, pmId가 "존재하는데(hasText)" "현재 사용자와 다르면" -> 예외 발생
+        if (StringUtils.hasText(pmId) && !pmId.equals(currentUsername)) {
+            throw new AccessDeniedException("해당 프로젝트의 PM만 이 작업을 수행할 수 있습니다.");
+        }
+
+        // 3. 권한이 있거나 PM이 없으면 프로젝트 반환
+        return project;
+    }
 }
