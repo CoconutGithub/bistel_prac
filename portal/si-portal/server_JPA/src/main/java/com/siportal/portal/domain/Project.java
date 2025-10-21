@@ -1,5 +1,6 @@
 package com.siportal.portal.domain;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -72,9 +73,11 @@ public class Project {
     // 양방향 연관관계 설정 (Project가 삭제될 때 하위 항목도 함께 삭제)
     @Builder.Default
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<ProjectProgressDetail> progressDetails = new ArrayList<>();
 
     @Builder.Default
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<ProjectHumanResource> humanResources = new ArrayList<>();
 }
