@@ -31,13 +31,70 @@ const ProgressBarRenderer = (props: ICellRendererParams<any, number>) => {
   };
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', height: '100%', padding: '0 5px' }}>
-      <div style={wrapperStyle}>
-        <div style={progressBarStyle} />
+      <div style={{ display: 'flex', alignItems: 'center', height: '100%', padding: '0 5px' }}>
+        <div style={wrapperStyle}>
+          <div style={progressBarStyle} />
+        </div>
+        <span style={{ marginLeft: '8px' }}>{valueAsPercent}</span>
       </div>
-      <span style={{ marginLeft: '8px' }}>{valueAsPercent}</span>
-    </div>
   );
+};
+
+// ########## [수정] 날짜 변환 헬퍼 함수 (LocalDate 대응) ##########
+/**
+ * Date 객체 또는 날짜 문자열을 YYYY-MM-DD 형식의 문자열로 변환합니다.
+ * 서버의 LocalDate 타입과 맞추기 위함입니다.
+ * @param date Date 객체, 날짜 문자열, null 또는 undefined
+ * @returns YYYY-MM-DD 형식의 문자열 또는 null
+ */
+const formatDateForServer = (date: Date | string): string | null => {
+  if (!date) return null; // null, undefined, 빈 문자열 등은 null로 처리
+
+  let dateObj: Date;
+
+  if (typeof date === 'string') {
+    // "2025-10-21" 또는 "2025-10-21T..." 형식의 문자열을 Date 객체로 변환
+    dateObj = new Date(date);
+  } else if (date instanceof Date) {
+    dateObj = date; // 이미 Date 객체인 경우
+  } else {
+    console.warn("알 수 없는 날짜 형식:", date);
+    return null; // 처리할 수 없는 타입
+  }
+
+  // 유효한 Date 객체인지 확인 (예: "Invalid Date")
+  if (isNaN(dateObj.getTime())) {
+    console.warn("유효하지 않은 날짜 값:", date);
+    return null;
+  }
+
+  const yyyy = dateObj.getFullYear();
+  const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const dd = String(dateObj.getDate()).padStart(2, '0');
+
+  // LocalDate에 맞게 YYYY-MM-DD 형식으로 반환
+  return `${yyyy}-${mm}-${dd}`;
+};
+
+// ########## [수정] 행 데이터의 날짜 필드를 변환하는 헬퍼 함수 ##########
+/**
+ * 저장 목록(createList, updateList)의 행 데이터에서
+ * 날짜 필드(startDate, endDate)를 서버 형식(YYYY-MM-DD)으로 변환합니다.
+ * @param row AgGrid의 행 데이터
+ * @returns 날짜 필드가 변환된 행 데이터
+ */
+const convertDatesInRow = (row: any) => {
+  const newRow = { ...row }; // 원본 수정을 피하기 위해 복사
+
+  // startDate와 endDate가 존재하면 서버 형식으로 변환
+  if (newRow.startDate) {
+    newRow.startDate = formatDateForServer(newRow.startDate);
+  }
+  if (newRow.endDate) {
+    newRow.endDate = formatDateForServer(newRow.endDate);
+  }
+
+  return newRow;
 };
 
 
@@ -64,6 +121,12 @@ const ProjectList: React.FC = () => {
         const aData = response.data.map((row: any) => ({
           ...row,
           gridRowId: row.projectId || row.projectCode, // projectId나 projectCode를 고유 ID로 사용
+
+          // ########## [수정] 서버 날짜 문자열을 JS Date 객체로 변환 ##########
+          // agDateCellEditor가 Date 객체를 사용하도록 하기 위함
+          startDate: row.startDate ? new Date(row.startDate) : null,
+          endDate: row.endDate ? new Date(row.endDate) : null,
+          // #############################################################
         }))
         gridRef.current?.setRowData(aData);
       }
@@ -81,16 +144,30 @@ const ProjectList: React.FC = () => {
     updateList: any[];
     createList: any[];
   }) => {
-    console.log("저장할 데이터:", lists);
+    // [수정] 변환 전 데이터 로그
+    console.log("저장할 데이터 (변환 전):", lists);
 
     if (lists.createList.length === 0 && lists.updateList.length === 0 && lists.deleteList.length === 0) {
       alert('저장할 변경 내용이 없습니다.');
       return;
     }
 
+    // ########## [수정] 서버 전송 직전에 날짜 형식 변환 ##########
+    const payload = {
+      // deleteList는 보통 id만 사용하므로 변환이 필요 없을 수 있습니다.
+      deleteList: lists.deleteList,
+      updateList: lists.updateList.map(convertDatesInRow), // 날짜 변환 적용
+      createList: lists.createList.map(convertDatesInRow)  // 날짜 변환 적용
+    };
+    // ################################################################
+
+    // [수정] 변환 후 데이터 로그
+    console.log("서버로 보낼 데이터 (변환 후):", payload);
+
     try {
       const token = sessionStorage.getItem('authToken');
-      await axios.post('http://localhost:8080/project/save', lists, {
+      // [수정] 변환된 payload를 전송합니다.
+      await axios.post('http://localhost:8080/project/save', payload, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -102,7 +179,7 @@ const ProjectList: React.FC = () => {
       console.error("데이터 저장에 실패했습니다.", error);
       alert('데이터 저장 중 오류가 발생했습니다.');
     }
-  }, [fetchProjects]);
+  }, [fetchProjects]); // [수정] 의존성 배열에 fetchProjects만 남김
 
 
   //강제로 행을 다시 그리도록(redraw)
@@ -120,45 +197,45 @@ const ProjectList: React.FC = () => {
 
   // --- (수정) 탭 선택 핸들러 ---
   const handleSelectTab = React.useCallback(
-    (tab: { key: string; label: string; path: string }) => {
-      // (수정) 디버깅 로그 추가
-      console.log('--- handleSelectTab ---', tab);
-      const rootTabsData = sessionStorage.getItem('persist:rootTabs');
-      console.log('persist:rootTabs data:', rootTabsData);
+      (tab: { key: string; label: string; path: string }) => {
+        // (수정) 디버깅 로그 추가
+        console.log('--- handleSelectTab ---', tab);
+        const rootTabsData = sessionStorage.getItem('persist:rootTabs');
+        console.log('persist:rootTabs data:', rootTabsData);
 
-      if (rootTabsData) {
-        try {
-          const parsedData = JSON.parse(rootTabsData);
-          // (수정) persist state 구조에 'tabs' 키가 있는지 확인 필요
-          const cachedTabs = JSON.parse(parsedData.tabs);
-          console.log('Cached tabs:', cachedTabs);
+        if (rootTabsData) {
+          try {
+            const parsedData = JSON.parse(rootTabsData);
+            // (수정) persist state 구조에 'tabs' 키가 있는지 확인 필요
+            const cachedTabs = JSON.parse(parsedData.tabs);
+            console.log('Cached tabs:', cachedTabs);
 
-          if (cachedTabs.length >= 8) { // (수정) 8개 '이상'일 경우
-            alert('최대 8개의 탭만 열 수 있습니다.');
-            return;
-          } else {
-            console.log('Dispatching addTab and setActiveTab...');
+            if (cachedTabs.length >= 8) { // (수정) 8개 '이상'일 경우
+              alert('최대 8개의 탭만 열 수 있습니다.');
+              return;
+            } else {
+              console.log('Dispatching addTab and setActiveTab...');
+              dispatch(addTab(tab));
+              dispatch(setActiveTab(tab.key));
+              console.log('Navigating to:', tab.path);
+              navigate(tab.path);
+            }
+          } catch (e) {
+            console.error("persist:rootTabs 파싱 실패:", e, rootTabsData);
+            // (수정) 파싱 실패 시 비상 처리
             dispatch(addTab(tab));
             dispatch(setActiveTab(tab.key));
-            console.log('Navigating to:', tab.path);
             navigate(tab.path);
           }
-        } catch (e) {
-          console.error("persist:rootTabs 파싱 실패:", e, rootTabsData);
-          // (수정) 파싱 실패 시 비상 처리
+        } else {
+          // (수정) persist:rootTabs가 없는 경우의 비상 처리
+          console.log('No rootTabsData, proceeding with navigation...');
           dispatch(addTab(tab));
           dispatch(setActiveTab(tab.key));
           navigate(tab.path);
         }
-      } else {
-        // (수정) persist:rootTabs가 없는 경우의 비상 처리
-        console.log('No rootTabsData, proceeding with navigation...');
-        dispatch(addTab(tab));
-        dispatch(setActiveTab(tab.key));
-        navigate(tab.path);
-      }
-    },
-    [dispatch, navigate] // <--- 🚨🚨 여기가 [dispatch, navigate] 인지 꼭 확인하세요!
+      },
+      [dispatch, navigate] // <--- 🚨🚨 여기가 [dispatch, navigate] 인지 꼭 확인하세요!
   );
 
   // --- (수정) 행 클릭 핸들러 ---
@@ -201,7 +278,7 @@ const ProjectList: React.FC = () => {
       width: 150,
       cellEditor: 'agSelectCellEditor',
       cellEditorParams: {
-        values: ['PROPOSAL', 'ANALYSIS', 'DESIGN', 'DEVELOPMENT', 'TEST', 'DEPLOYMENT']
+        values: ['IN PLANNING', 'PREPARING', 'IN PROGRESS', 'WAITING FOR ACCEPTANCE', 'CLOSED']
       }
     },
     {
@@ -232,7 +309,7 @@ const ProjectList: React.FC = () => {
       width: 120,
       cellEditor: 'agSelectCellEditor',
       cellEditorParams: {
-        values: ['PLANNING', 'IN_PROGRESS', 'COMPLETED', 'ON_HOLD']
+        values: ['WAITING', 'ON-TIME', 'SERIOUS', 'CLOSED']
       }
     },
     {
@@ -252,36 +329,36 @@ const ProjectList: React.FC = () => {
 
 
   return (
-    <Container fluid className="h-100 container_bg">
-      <Row className="container_title">
-        <Col>
-          <h2>프로젝트 관리</h2>
-        </Col>
-      </Row>
-      <Row className="container_contents">
-        <Row className="search_wrap">
-          <Col className="search_btn">
-            {/* 필요시 여기에 검색 버튼 등을 추가할 수 있습니다. */}
-          </Col>
-        </Row>
-        <Row className="contents_wrap">
+      <Container fluid className="h-100 container_bg">
+        <Row className="container_title">
           <Col>
-            <AgGridWrapper
-              ref={gridRef}
-              columnDefs={columnDefs}
-              canCreate={true}
-              canUpdate={true}
-              canDelete={true}
-              onSave={handleSave}
-              rowSelection="multiple"
-              enableCheckbox={true}
-              onGridLoaded={handleGridReady}
-              onRowClicked={handleRowClick}
-            />
+            <h2>프로젝트 관리</h2>
           </Col>
         </Row>
-      </Row>
-    </Container>
+        <Row className="container_contents">
+          <Row className="search_wrap">
+            <Col className="search_btn">
+              {/* 필요시 여기에 검색 버튼 등을 추가할 수 있습니다. */}
+            </Col>
+          </Row>
+          <Row className="contents_wrap">
+            <Col>
+              <AgGridWrapper
+                  ref={gridRef}
+                  columnDefs={columnDefs}
+                  canCreate={true}
+                  canUpdate={true}
+                  canDelete={true}
+                  onSave={handleSave}
+                  rowSelection="multiple"
+                  enableCheckbox={true}
+                  onGridLoaded={handleGridReady}
+                  onRowClicked={handleRowClick}
+              />
+            </Col>
+          </Row>
+        </Row>
+      </Container>
   );
 };
 
