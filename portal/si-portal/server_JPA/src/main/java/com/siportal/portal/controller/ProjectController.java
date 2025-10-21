@@ -8,6 +8,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -52,10 +53,33 @@ public class ProjectController {
         } catch (EntityNotFoundException e) {
             // 프로젝트를 찾지 못했을 경우 404 Not Found 응답
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (AccessDeniedException e) {
+            // 서비스에서 권한 없음을 확인한 경우 403 Forbidden 응답
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity
                     .internalServerError()
                     .body("Error updating project: " + e.getMessage());
         }
     }
+
+    @DeleteMapping("/delete/{project_id}")
+    public ResponseEntity<?> deleteProject(@PathVariable("project_id") Long projectId) {
+        try {
+            projectService.deleteProject(projectId);
+            // 성공 시 업데이트된 객체 정보와 함께 200 OK 응답
+            return ResponseEntity.ok().body("프로젝트 삭제 완료.");
+        } catch (EntityNotFoundException e) {
+            // 프로젝트를 찾지 못했을 경우 404 Not Found 응답
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (AccessDeniedException e) {
+            // 서비스에서 권한 없음을 확인한 경우 403 Forbidden 응답
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity
+                    .internalServerError()
+                    .body("Error deleting project: " + e.getMessage());
+        }
+    }
+
 }
