@@ -228,7 +228,7 @@ const ProjectList: React.FC = () => {
     handleSelectTab({
 
       key: `project-detail-${projectData.projectId}`,
-      label: `상세: ${projectData.projectName || projectData.projectCode}`,
+      label: `Project Detail : ${projectData.projectName || projectData.projectCode}`,
 
       path: `/main/project/detail/${projectData.projectId}`,
     });

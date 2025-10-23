@@ -1,6 +1,8 @@
 package com.siportal.portal.service;
 
 import com.siportal.portal.domain.Project;
+import com.siportal.portal.domain.ProjectProgressDetail;
+import com.siportal.portal.dto.ProgressSaveDTO;
 import com.siportal.portal.dto.ProjectDetailDTO;
 import com.siportal.portal.dto.ProjectListDTO;
 import com.siportal.portal.dto.ProjectSaveDTO;
@@ -19,6 +21,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -159,5 +162,90 @@ public class ProjectService {
 
         // 권한이 있거나 PM이 없으면 프로젝트 반환
         return project;
+    }
+
+    @Transactional
+    public void saveProgressDetails(Long projectId, ProgressSaveDTO payload) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = "SYSTEM"; // 기본값
+        if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
+            currentUsername = authentication.getName();
+        }
+
+        Project project = getProjectAndCheckPMAccess(projectId, currentUsername);
+
+        //create 진행상세
+        if (payload.getCreateList() != null) {
+            for (ProjectProgressDetail detail : payload.getCreateList()) {
+                detail.setProject(project);
+                detail.setCreateBy(currentUsername);
+                projectProgressDetailRepository.save(detail);
+            }
+        }
+
+        //update 진행상세
+        if (payload.getUpdateList() != null) {
+            for (ProjectProgressDetail detail : payload.getUpdateList()) {
+                if (detail.getDetailId() == null) continue;
+
+                ProjectProgressDetail existingDetail = projectProgressDetailRepository.findById(detail.getDetailId())
+                        .orElseThrow(() -> new EntityNotFoundException("Progress detail not found: " + detail.getDetailId()));
+
+                if (!existingDetail.getProject().getProjectId().equals(project.getProjectId())) {
+                    throw new AccessDeniedException("이 프로젝트에 속한 상세 항목이 아닙니다.");
+                }
+
+                existingDetail.setTaskName(detail.getTaskName());
+                existingDetail.setAssigneeId(detail.getAssigneeId());
+                existingDetail.setProgressPercentage(detail.getProgressPercentage());
+                existingDetail.setWeight(detail.getWeight());
+                existingDetail.setDescription(detail.getDescription());
+                existingDetail.setUpdateBy(currentUsername);
+            }
+        }
+
+        //delete 진행상세
+        if (payload.getDeleteList() != null) {
+            for (ProjectProgressDetail detail : payload.getDeleteList()) {
+                if (detail.getDetailId() != null) {
+                    projectProgressDetailRepository.deleteById(detail.getDetailId());
+                }
+            }
+        }
+        List<ProjectProgressDetail> latestDetails = projectProgressDetailRepository.findByProject(project);
+
+        double overallProgress = 0.0;
+        int totalWeight = 0;
+
+        if (!latestDetails.isEmpty()) {
+            //가중치 총합 계산
+            totalWeight = latestDetails.stream()
+                    .mapToInt(ProjectProgressDetail::getWeight)
+                    .sum();
+
+            //가중치 총합이 100이 아닌 경우 예외 발생
+            if (totalWeight != 100) {
+                throw new WeightValidationException("가중치의 총합은 100이어야 합니다. (현재 합계: " + totalWeight + ")");
+            }
+
+            //전체 진행률 계산
+            for (ProjectProgressDetail detail : latestDetails) {
+                // (진행률 * (가중치 / 100.0))
+                overallProgress += (double) detail.getProgressPercentage() * ((double) detail.getWeight() / totalWeight);
+            }
+        }
+
+        //전체 진행률 저장
+        project.setOverallProgress((int) Math.round(overallProgress));
+        project.setUpdateBy(currentUsername); // 프로젝트도 수정되었으므로 updateBy 설정
+        projectRepository.save(project);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public class WeightValidationException extends RuntimeException {
+        public WeightValidationException(String message) {
+            super(message);
+        }
     }
 }

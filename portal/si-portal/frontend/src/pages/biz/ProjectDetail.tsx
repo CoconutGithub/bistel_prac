@@ -133,6 +133,20 @@ const ProjectDetail: React.FC = () => {
                     if (!dateStr) return '';
                     return dateStr.split('T')[0];
                 };
+
+              const unsortedProgressDetails = (data.projectProgressDetails || []).map((item: any, index: number) => ({
+                ...item,
+                gridRowId: item.detailId || `temp-progress-${index}`,
+              }));
+
+              //'detailId' 기준으로 오름차순 정렬합니다.
+              // detailId가 없는 신규 행(undefined)은 0으로 간주하여 맨 위로 보냅니다.
+              const sortedProgressDetails = unsortedProgressDetails.sort((a: IProjectProgressDetail, b: IProjectProgressDetail) => {
+                const idA = a.detailId || 0;
+                const idB = b.detailId || 0;
+                return idA - idB;
+              });
+
                 const formattedData: IProjectDetailData = {
                     ...data,
 
@@ -148,10 +162,7 @@ const ProjectDetail: React.FC = () => {
                     // --- 날짜 및 그리드 처리 (기존과 동일) ---
                     startDate: formatDate(data.startDate),
                     endDate: formatDate(data.endDate),
-                    progressDetails: (data.projectProgressDetails || []).map((item: any, index: number) => ({
-                        ...item,
-                        gridRowId: item.detailId || `temp-progress-${index}`,
-                    })),
+                    progressDetails: sortedProgressDetails,
                     humanResources: (data.humanResources || []).map((item: any, index: number) => ({
                         ...item,
                         actualStartDate: formatDate(item.actualStartDate),
@@ -190,7 +201,7 @@ const ProjectDetail: React.FC = () => {
 
     // 진행 상세 (ProjectProgressDetail) 컬럼
     const progressColumns = useMemo<ColDef[]>(() => [
-        { headerName: '작업명', field: 'taskName', editable: true, flex: 2 },
+        { headerName: '작업명', field: 'taskName', editable: true, flex: 1.5 },
         { headerName: '담당자', field: 'assigneeId', editable: true, flex: 1 },
         {
             headerName: '진행률(%)',
@@ -198,14 +209,14 @@ const ProjectDetail: React.FC = () => {
             editable: true,
             cellEditor: 'agNumberCellEditor',
             cellRenderer: ProgressBarRenderer, // 커스텀 렌더러 사용
-            flex: 1
+            flex: 1.5
         },
         {
-            headerName: '가중치',
+            headerName: '가중치(%)',
             field: 'weight',
             editable: true,
             cellEditor: 'agNumberCellEditor',
-            flex: 1
+            flex: 0.7
         },
         {
             headerName: '상세설명',
@@ -270,83 +281,74 @@ const ProjectDetail: React.FC = () => {
         },
     ], []);
 
-    // 그리드 셀 값 변경 핸들러
-    const handleGridCellChange = useCallback((event: any, type: 'progress' | 'resource') => {
-        const { data } = event; // 변경된 행 데이터
+  // [수정] 'resource' 탭 전용 핸들러로 변경
+  const handleGridCellChange = useCallback((event: any, type: 'resource') => {
+    // 'progress' 탭은 AgGridWrapper의 onSave가 처리하므로,
+    // 이 핸들러는 'resource' 탭의 상태만 관리합니다.
+    // (추후 'resource' 탭도 onSave로 변경 시 이 로직은 필요 없어짐)
 
-        setFormData((prev) => {
+    if (type !== 'resource') return; // 방어 코드
 
-            const listName = type === 'progress' ? 'progressDetails' : 'humanResources';
+    const { data } = event; // 변경된 행 데이터
 
+    setFormData((prev) => {
+      const listName = 'humanResources'; // 'progress' 분기 제거
+      const list = prev[listName] as IProjectHumanResource[];
+      const index = list.findIndex((item) => item.gridRowId === data.gridRowId);
 
-            const list = prev[listName] as (IProjectProgressDetail[] | IProjectHumanResource[]);
+      const updatedItem = {
+        ...data,
+        isUpdated: data.isCreated !== true,
+      };
 
-            const index = list.findIndex((item) => item.gridRowId === data.gridRowId);
+      let newList;
+      if (index > -1) {
+        newList = [...list];
+        newList[index] = updatedItem;
+      } else {
+        newList = [...list, updatedItem];
+      }
 
-            // 신규 행(isCreated)이 아닌 경우 isUpdated 플래그 설정
-            const updatedItem = {
-                ...data,
-                isUpdated: data.isCreated !== true,
-            };
+      return {
+        ...prev,
+        [listName]: newList,
+      };
+    });
+  }, []);
 
-            let newList;
-            if (index > -1) {
-                // 기존 항목 업데이트
-                newList = [...list];
-                newList[index] = updatedItem;
-            } else {
-                // 항목이 없는 경우 (거의 발생 안 함, AgGridWrapper가 'add'로 처리)
-                newList = [...list, updatedItem];
-            }
+  // [수정] 'resource' 탭 전용 핸들러로 변경
+  const handleGridDelete = (deletedRows: any[], type: 'resource') => {
+    // 'progress' 탭은 AgGridWrapper의 onSave가 처리하므로,
+    // 이 핸들러는 'resource' 탭의 삭제 상태만 관리합니다.
 
-            return {
-                ...prev,
-                [listName]: newList,
-            };
-        });
-    }, []);
+    if (type !== 'resource') return; // 방어 코드
 
-    // 그리드 행 삭제 핸들러 (AgGridWrapper의 '삭제' 버튼 클릭 시)
-    const handleGridDelete = (deletedRows: any[], type: 'progress' | 'resource') => {
-        if (!deletedRows || deletedRows.length === 0) return;
+    if (!deletedRows || deletedRows.length === 0) return;
 
-        const idFieldName = type === 'progress' ? 'detailId' : 'resourceAllocationId';
-        const deletedIdsListSetter = type === 'progress' ? setDeletedProgressDetails : setDeletedHumanResources;
+    const idFieldName = 'resourceAllocationId'; // 'progress' 분기 제거
+    const deletedIdsListSetter = setDeletedHumanResources; // 'progress' 분기 제거
 
-        // 삭제할 ID 목록(DB에서 삭제 위함)
-        const idsToDelete = deletedRows
-            .map(row => row[idFieldName])
-            .filter(id => id != null); // 신규 추가(isCreated)된 행은 ID가 없으므로 필터링
+    const idsToDelete = deletedRows
+      .map(row => row[idFieldName])
+      .filter(id => id != null);
 
-        // DB ID가 있는 행들만 삭제 목록에 추가
-        if (idsToDelete.length > 0) {
-            deletedIdsListSetter((prevIds) => [...prevIds, ...idsToDelete]);
-        }
+    if (idsToDelete.length > 0) {
+      deletedIdsListSetter((prevIds) => [...prevIds, ...idsToDelete]);
+    }
 
-        // FormData 상태에서 해당 행들 제거
-        setFormData((prev) => {
-            const deletedGridRowIds = new Set(deletedRows.map(row => row.gridRowId));
+    setFormData((prev) => {
+      const deletedGridRowIds = new Set(deletedRows.map(row => row.gridRowId));
 
-            // type을 기준으로 분기하여 TypeScript가 타입을 명확히 추론하도록 함
-            if (type === 'progress') {
-                const newList = prev.progressDetails.filter(
-                    item => !deletedGridRowIds.has(item.gridRowId)
-                );
-                return {
-                    ...prev,
-                    progressDetails: newList
-                };
-            } else { // type === 'resource'
-                const newList = prev.humanResources.filter(
-                    item => !deletedGridRowIds.has(item.gridRowId)
-                );
-                return {
-                    ...prev,
-                    humanResources: newList
-                };
-            }
-        });
-    };
+      // 'progress' 분기 제거
+      const newList = prev.humanResources.filter(
+        item => !deletedGridRowIds.has(item.gridRowId)
+      );
+      return {
+        ...prev,
+        humanResources: newList
+      };
+    });
+  };
 
     // --- 상단 버튼 핸들러 (저장/삭제) ---
     const handleSelectTab = React.useCallback(
@@ -437,7 +439,7 @@ const ProjectDetail: React.FC = () => {
                     default:
                         alert(`오류가 발생했습니다. (Status: ${status})\n${message}`);
                 }
-                window.location.reload();
+                // window.location.reload();
             } else if (error.request) {
                 // 요청은 보냈으나 응답을 받지 못한 경우 (네트워크 오류 등)
                 alert("서버에서 응답을 받지 못했습니다. 네트워크 연결을 확인해주세요.");
@@ -461,7 +463,6 @@ const ProjectDetail: React.FC = () => {
 
         try {
             const token = sessionStorage.getItem('authToken');
-            // (수정) 백엔드 API 경로는 실제 경로에 맞게 수정해주세요.
             await axios.delete(`http://localhost:8080/project/delete/${formData.projectId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -479,7 +480,6 @@ const ProjectDetail: React.FC = () => {
             console.error("프로젝트 삭제에 실패했습니다.", error);
 
             if (error.response) {
-                // 서버가 에러 응답을 반환한 경우 (4xx, 5xx)
                 const status = error.response.status;
                 const message = error.response.data || "알 수 없는 서버 오류";
 
@@ -496,7 +496,7 @@ const ProjectDetail: React.FC = () => {
                     default:
                         alert(`오류가 발생했습니다. (Status: ${status})\n${message}`);
                 }
-                window.location.reload();
+                // window.location.reload();
             } else if (error.request) {
                 // 요청은 보냈으나 응답을 받지 못한 경우 (네트워크 오류 등)
                 alert("서버에서 응답을 받지 못했습니다. 네트워크 연결을 확인해주세요.");
@@ -506,6 +506,55 @@ const ProjectDetail: React.FC = () => {
             }
         }
     };
+
+  const handleProgressSave = async (lists: {
+    deleteList: any[];
+    updateList: any[];
+    createList: any[];
+  }) => {
+    const { createList, updateList, deleteList } = lists;
+
+    if (createList.length === 0 && updateList.length === 0 && deleteList.length === 0) {
+      alert('저장할 변경 내용이 없습니다.');
+      return;
+    }
+
+    // 백엔드로 보낼 데이터. projectId를 포함해야 합니다.
+    const payload = {
+      createList,
+      updateList,
+      deleteList
+    };
+
+    console.log("Saving Progress Details:", payload);
+
+    try {
+      const token = sessionStorage.getItem('authToken');
+      await axios.post(`http://localhost:8080/project/progress/save/${formData.projectId}`, payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      alert('진행 상세 정보가 성공적으로 저장되었습니다.');
+      // 저장이 성공하면, 그리드 데이터를 새로고침
+      window.location.reload();
+
+    } catch (error: any) {
+      console.error("진행 상세 저장에 실패했습니다.", error);
+      if (error.response) {
+        const status = error.response.status;
+        const message = error.response.data || "알 수 없는 서버 오류";
+        switch (status) {
+          case 400:alert(`저장 실패: ${message}`);break;//(가중치합이 !100)
+          case 403: alert(`권한이 없습니다 : ${message}`); break; // (PM 권한)
+          case 404: alert(`데이터를 찾을 수 없습니다 : ${message}`); break; // (프로젝트가 없음)
+          case 500: alert(`서버 내부 오류가 발생했습니다. 관리자에게 문의하세요.`); break;
+          default: alert(`오류가 발생했습니다. (Status: ${status})\n${message}`);
+        }
+      } else {
+        alert("서버 응답 오류. 네트워크를 확인해주세요.");
+      }
+    }
+  };
 
     // --- [수정] 탭 변경 시 그리드 크기 재조정 핸들러 ---
     const handleTabSelect = useCallback((key: string | null) => {
@@ -649,12 +698,11 @@ const ProjectDetail: React.FC = () => {
                                         columnDefs={progressColumns}
                                         canCreate={true}
                                         canDelete={true}
-                                        canUpdate={false}
+                                        canUpdate={true}
                                         showButtonArea={true}
                                         tableHeight="400px"
                                         useNoColumn={true}
-                                        onCellValueChanged={(e) => handleGridCellChange(e, 'progress')}
-                                        onDelete={(rows) => handleGridDelete(rows, 'progress')}
+                                        onSave={handleProgressSave}
                                         enableCheckbox={true}
                                     />
                                 </Tab>
