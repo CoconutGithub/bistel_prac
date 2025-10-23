@@ -8,6 +8,12 @@ import { AgGridWrapperHandle } from '~types/GlobalTypes';
 import AgGridWrapper from '~components/agGridWrapper/AgGridWrapper';
 import { addTab, setActiveTab } from '~store/RootTabs';
 
+// [수정] 새로 만든 컴포넌트 import
+import HumanResourcePivotGrid from '~components/HumanResourcePivotGrid';
+import EmployeeSelectModal, { ComUser } from '~components/EmployeeSelectModal';
+// [수정] 모달 2의 SaveData import
+import ResourceDetailModal, { SaveData as ResourceSaveData } from '~components/ResourceDetailModal';
+
 const ProgressBarRenderer = (props: ICellRendererParams<any, number>) => {
     const value = props.value ?? 0;
     const valueAsPercent = value + '%';
@@ -111,12 +117,18 @@ const ProjectDetail: React.FC = () => {
 
     const [formData, setFormData] = useState<IProjectDetailData>(initialState);
     const [deletedProgressDetails, setDeletedProgressDetails] = useState<number[]>([]);
-    const [deletedHumanResources, setDeletedHumanResources] = useState<number[]>([]);
 
     const progressGridRef = useRef<AgGridWrapperHandle>(null);
-    const resourceGridRef = useRef<AgGridWrapperHandle>(null);
+    // const resourceGridRef = useRef<AgGridWrapperHandle>(null);
 
     const [activeTabKey, setActiveTabKey] = useState('progress');
+
+// [수정] 모달 상태 관리
+  const [showEmployeeModal, setShowEmployeeModal] = useState(false);
+  const [showResourceModal, setShowResourceModal] = useState(false);
+  const [currentModalType, setCurrentModalType] = useState<'planned' | 'actual'>('planned');
+  // [수정] string | null -> ComUser | null
+  const [selectedEmployee, setSelectedEmployee] = useState<ComUser | null>(null);
 
     useEffect(() => {
         const fetchProjectDetail = async (projectId: number) => {
@@ -163,18 +175,20 @@ const ProjectDetail: React.FC = () => {
                     startDate: formatDate(data.startDate),
                     endDate: formatDate(data.endDate),
                     progressDetails: sortedProgressDetails,
-                    humanResources: (data.humanResources || []).map((item: any, index: number) => ({
-                        ...item,
-                        actualStartDate: formatDate(item.actualStartDate),
-                        actualEndDate: formatDate(item.actualEndDate),
-                        plannedStartDate: formatDate(item.plannedStartDate),
-                        plannedEndDate: formatDate(item.plannedEndDate),
-                        gridRowId: item.resourceAllocationId || `temp-resource-${index}`,
-                    })),
+                  humanResources: (data.projectHumanResources || []).map((item: any, index: number) => ({
+                    ...item,
+                    // [수정] gridRowId는 HumanResourcePivotGrid에서 직접 사용하지 않지만,
+                    //       다른 로직(예: AgGrid)과 호환성을 위해 유지할 수 있습니다.
+                    gridRowId: item.resourceAllocationId || `temp-resource-${index}`,
+                    // [수정] 백엔드에서 받은 날짜 포맷팅
+                    actualStartDate: formatDate(item.actualStartDate),
+                    actualEndDate: formatDate(item.actualEndDate),
+                    plannedStartDate: formatDate(item.plannedStartDate),
+                    plannedEndDate: formatDate(item.plannedEndDate),
+                  })),
                 };
                 setFormData(formattedData);
                 progressGridRef.current?.setRowData(formattedData.progressDetails);
-                resourceGridRef.current?.setRowData(formattedData.humanResources);
 
             } catch (error) {
                 console.error("프로젝트 상세 정보를 불러오는 데 실패했습니다.", error);
@@ -227,128 +241,59 @@ const ProjectDetail: React.FC = () => {
         },
     ], []);
 
-    // 투입 인력 (ProjectHumanResource) 컬럼
-    const resourceColumns = useMemo<ColDef[]>(() => [
-        { headerName: '인력 (UserID)', field: 'userId', editable: true, flex: 1 },
-        {
-            headerName: '역할 (RoleID)',
-            field: 'roleId',
-            editable: true,
-            cellEditor: 'agNumberCellEditor',
-            flex: 1
-        },
-        {
-            headerName: '계획 M/M',
-            field: 'plannedMm',
-            editable: true,
-            cellEditor: 'agNumberCellEditor',
-            flex: 1
-        },
-        {
-            headerName: '실행 M/M',
-            field: 'actualMm',
-            editable: true,
-            cellEditor: 'agNumberCellEditor',
-            flex: 1
-        },
-        {
-            headerName: '실제 투입일',
-            field: 'actualStartDate',
-            editable: true,
-            cellEditor: 'agDateCellEditor',
-            flex: 1
-        },
-        {
-            headerName: '실제 종료일',
-            field: 'actualEndDate',
-            editable: true,
-            cellEditor: 'agDateCellEditor',
-            flex: 1
-        },
-        {
-            headerName: '예상 투입일',
-            field: 'plannedStartDate',
-            editable: true,
-            cellEditor: 'agDateCellEditor',
-            flex: 1
-        },
-        {
-            headerName: '예상 종료일',
-            field: 'plannedEndDate',
-            editable: true,
-            cellEditor: 'agDateCellEditor',
-            flex: 1
-        },
-    ], []);
-
-  // [수정] 'resource' 탭 전용 핸들러로 변경
-  const handleGridCellChange = useCallback((event: any, type: 'resource') => {
-    // 'progress' 탭은 AgGridWrapper의 onSave가 처리하므로,
-    // 이 핸들러는 'resource' 탭의 상태만 관리합니다.
-    // (추후 'resource' 탭도 onSave로 변경 시 이 로직은 필요 없어짐)
-
-    if (type !== 'resource') return; // 방어 코드
-
-    const { data } = event; // 변경된 행 데이터
-
-    setFormData((prev) => {
-      const listName = 'humanResources'; // 'progress' 분기 제거
-      const list = prev[listName] as IProjectHumanResource[];
-      const index = list.findIndex((item) => item.gridRowId === data.gridRowId);
-
-      const updatedItem = {
-        ...data,
-        isUpdated: data.isCreated !== true,
-      };
-
-      let newList;
-      if (index > -1) {
-        newList = [...list];
-        newList[index] = updatedItem;
-      } else {
-        newList = [...list, updatedItem];
-      }
-
-      return {
-        ...prev,
-        [listName]: newList,
-      };
-    });
-  }, []);
-
-  // [수정] 'resource' 탭 전용 핸들러로 변경
-  const handleGridDelete = (deletedRows: any[], type: 'resource') => {
-    // 'progress' 탭은 AgGridWrapper의 onSave가 처리하므로,
-    // 이 핸들러는 'resource' 탭의 삭제 상태만 관리합니다.
-
-    if (type !== 'resource') return; // 방어 코드
-
-    if (!deletedRows || deletedRows.length === 0) return;
-
-    const idFieldName = 'resourceAllocationId'; // 'progress' 분기 제거
-    const deletedIdsListSetter = setDeletedHumanResources; // 'progress' 분기 제거
-
-    const idsToDelete = deletedRows
-      .map(row => row[idFieldName])
-      .filter(id => id != null);
-
-    if (idsToDelete.length > 0) {
-      deletedIdsListSetter((prevIds) => [...prevIds, ...idsToDelete]);
-    }
-
-    setFormData((prev) => {
-      const deletedGridRowIds = new Set(deletedRows.map(row => row.gridRowId));
-
-      // 'progress' 분기 제거
-      const newList = prev.humanResources.filter(
-        item => !deletedGridRowIds.has(item.gridRowId)
-      );
-      return {
-        ...prev,
-        humanResources: newList
-      };
-    });
-  };
+    // // 투입 인력 (ProjectHumanResource) 컬럼
+    // const resourceColumns = useMemo<ColDef[]>(() => [
+    //     { headerName: '인력 (UserID)', field: 'userId', editable: true, flex: 1 },
+    //     {
+    //         headerName: '역할 (RoleID)',
+    //         field: 'roleId',
+    //         editable: true,
+    //         cellEditor: 'agNumberCellEditor',
+    //         flex: 1
+    //     },
+    //     {
+    //         headerName: '계획 M/M',
+    //         field: 'plannedMm',
+    //         editable: true,
+    //         cellEditor: 'agNumberCellEditor',
+    //         flex: 1
+    //     },
+    //     {
+    //         headerName: '실행 M/M',
+    //         field: 'actualMm',
+    //         editable: true,
+    //         cellEditor: 'agNumberCellEditor',
+    //         flex: 1
+    //     },
+    //     {
+    //         headerName: '실제 투입일',
+    //         field: 'actualStartDate',
+    //         editable: true,
+    //         cellEditor: 'agDateCellEditor',
+    //         flex: 1
+    //     },
+    //     {
+    //         headerName: '실제 종료일',
+    //         field: 'actualEndDate',
+    //         editable: true,
+    //         cellEditor: 'agDateCellEditor',
+    //         flex: 1
+    //     },
+    //     {
+    //         headerName: '예상 투입일',
+    //         field: 'plannedStartDate',
+    //         editable: true,
+    //         cellEditor: 'agDateCellEditor',
+    //         flex: 1
+    //     },
+    //     {
+    //         headerName: '예상 종료일',
+    //         field: 'plannedEndDate',
+    //         editable: true,
+    //         cellEditor: 'agDateCellEditor',
+    //         flex: 1
+    //     },
+    // ], []);
 
     // --- 상단 버튼 핸들러 (저장/삭제) ---
     const handleSelectTab = React.useCallback(
@@ -383,6 +328,132 @@ const ProjectDetail: React.FC = () => {
         [dispatch, navigate]
     );
 
+  /**
+   * '인력 추가' 버튼 클릭 시 (모달 1 열기)
+   */
+  const handleAddClick = (type: 'planned' | 'actual') => {
+    // ########## [추가] 요청하신 로그 ##########
+    console.log(`[handleAddClick] '${type}' 인력 추가 버튼 클릭됨`);
+    // ######################################
+
+    setCurrentModalType(type);
+    setSelectedEmployee(null); // 직원 선택 초기화
+    setShowEmployeeModal(true); // 모달 1 열기
+  };
+
+  /**
+   * 모달 1(인력 선택) 완료 시 (모달 2 열기)
+   */
+  const handleEmployeeSelect = (user: ComUser) => {
+    console.log("[handleEmployeeSelect] 선택된 직원:", user);
+    setSelectedEmployee(user);    // 1. 선택된 직원 정보 저장
+    setShowEmployeeModal(false);  // 2. 모달 1 닫기
+    setShowResourceModal(true);   // 3. 모달 2 열기
+  };
+
+  /**
+   * [수정] 모달 2(정보 입력) 저장 핸들러 (API 연동 및 중복 코드 정리)
+   */
+  const handleResourceAdd = async (modalData: ResourceSaveData) => {
+    if (!selectedEmployee || !formData.projectId) {
+      alert("필수 정보(직원 또는 프로젝트 ID)가 없습니다.");
+      return;
+    }
+
+    const newResourceData = {
+      projectId: formData.projectId,
+      userId: selectedEmployee.userId,
+      roleId: Number(modalData.roleId),
+      plannedStartDate: currentModalType === 'planned' ? modalData.startDate : null,
+      plannedEndDate: currentModalType === 'planned' ? modalData.endDate : null,
+      plannedMm: currentModalType === 'planned' ? modalData.calculatedMm : 0,
+      actualStartDate: currentModalType === 'actual' ? modalData.startDate : null,
+      actualEndDate: currentModalType === 'actual' ? modalData.endDate : null,
+      actualMm: currentModalType === 'actual' ? modalData.calculatedMm : 0,
+    };
+
+    console.log("신규 리소스 저장 (API 호출):", newResourceData);
+
+    try {
+      const token = sessionStorage.getItem('authToken');
+      // (주의) 백엔드 /project/resource/add API 구현 필요
+      const response = await axios.post(
+        'http://localhost:8080/project/resource/add',
+        newResourceData,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      // API가 저장된 객체(resourceAllocationId 포함)를 반환한다고 가정
+      const savedResource: IProjectHumanResource = response.data;
+
+      // 프론트엔드 상태(formData)에 즉시 반영
+      setFormData(prev => ({
+        ...prev,
+        // [수정] humanResources 타입이 IProjectHumanResource[]여야 함
+        humanResources: [...prev.humanResources, savedResource]
+      }));
+
+      setShowResourceModal(false); // 모달 2 닫기
+      alert("인력이 성공적으로 추가되었습니다.");
+
+    } catch (error: any) {
+      console.error("인력 추가 실패:", error);
+      if (error.response) {
+        const { status, data } = error.response;
+        alert(`인력 추가에 실패했습니다 (Status: ${status}): ${data || '서버 오류'}`);
+      } else {
+        alert("인력 추가 중 네트워크 오류가 발생했습니다.");
+      }
+    }
+  };
+
+  /**
+   * [수정] 피벗 테이블 '삭제' 버튼 클릭 핸들러 (API 연동 및 중복 코드 정리)
+   */
+  const handleResourceDelete = async (resourceAllocationId: number) => {
+    if (!window.confirm("해당 인력 정보를 삭제하시겠습니까? (즉시 DB 반영)")) {
+      return;
+    }
+
+    console.log("리소스 삭제 (API 호출):", resourceAllocationId);
+
+    try {
+      const token = sessionStorage.getItem('authToken');
+      // (주의) 백엔드 /project/resource/delete/{id} API 구현 필요
+      await axios.delete(
+        `http://localhost:8080/project/resource/delete/${resourceAllocationId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      // 프론트엔드 상태(formData)에서 즉시 제거
+      setFormData(prev => ({
+        ...prev,
+        humanResources: prev.humanResources.filter(
+          (res: IProjectHumanResource) => res.resourceAllocationId !== resourceAllocationId
+        )
+      }));
+      alert('인력이 성공적으로 삭제되었습니다.');
+
+    } catch (error: any) {
+      console.error("인력 삭제 실패:", error);
+      if (error.response) {
+        const status = error.response.status;
+        const message = error.response.data || "알 수 없는 서버 오류";
+        switch (status) {
+          case 403: alert(`권한이 없습니다 : ${message}`); break;
+          case 404: alert(`데이터를 찾을 수 없습니다 : ${message}`); break;
+          case 500: alert(`서버 내부 오류가 발생했습니다.`); break;
+          default: alert(`오류가 발생했습니다 (Status: ${status}): ${message}`);
+        }
+      } else {
+        alert("인력 삭제 중 네트워크 오류가 발생했습니다.");
+      }
+    }
+  };
     // 그리드 데이터를 제외하고, 상단의 프로젝트 '기본 정보'만 전송하도록 수정
     const handleUpdate = async () => {
         if (!formData.projectId) {
@@ -566,7 +637,7 @@ const ProjectDetail: React.FC = () => {
             if (key === 'progress') {
                 progressGridRef.current?.gridApi?.sizeColumnsToFit();
             } else if (key === 'resource') {
-                resourceGridRef.current?.gridApi?.sizeColumnsToFit();
+                // resourceGridRef.current?.gridApi?.sizeColumnsToFit();
             }
         }, 0);
     }, []);
@@ -708,19 +779,27 @@ const ProjectDetail: React.FC = () => {
                                 </Tab>
                                 <Tab eventKey="resource" title="투입 인력 (Human Resources)">
                                     {/* 투입 인력 그리드 */}
-                                    <AgGridWrapper
-                                        ref={resourceGridRef}
-                                        columnDefs={resourceColumns}
-                                        canCreate={true}
-                                        canDelete={true}
-                                        canUpdate={false}
-                                        showButtonArea={true}
-                                        tableHeight="400px"
-                                        useNoColumn={true}
-                                        onCellValueChanged={(e) => handleGridCellChange(e, 'resource')}
-                                        onDelete={(rows) => handleGridDelete(rows, 'resource')}
-                                        enableCheckbox={true}
-                                    />
+                                  {/* [추가] 계획 리소스 피벗 테이블 */}
+                                  <HumanResourcePivotGrid
+                                    title="Planned Resource"
+                                    resources={formData.humanResources}
+                                    projectStartDate={formData.startDate}
+                                    projectEndDate={formData.endDate}
+                                    type="planned"
+                                    onAdd={() => handleAddClick('planned')}
+                                    onDelete={handleResourceDelete}
+                                  />
+
+                                  {/* [추가] 실제 리소스 피벗 테이블 */}
+                                  <HumanResourcePivotGrid
+                                    title="Actual Resource"
+                                    resources={formData.humanResources}
+                                    projectStartDate={formData.startDate}
+                                    projectEndDate={formData.endDate}
+                                    type="actual"
+                                    onAdd={() => handleAddClick('actual')}
+                                    onDelete={handleResourceDelete}
+                                  />
                                 </Tab>
                             </Tabs>
                         </Col>
@@ -728,6 +807,23 @@ const ProjectDetail: React.FC = () => {
 
                 </Col>
             </Row>
+          <EmployeeSelectModal
+            show={showEmployeeModal}
+            onHide={() => setShowEmployeeModal(false)}
+            onSelect={handleEmployeeSelect}
+          />
+
+          <ResourceDetailModal
+            show={showResourceModal}
+            onHide={() => setShowResourceModal(false)}
+            onSave={handleResourceAdd}
+            type={currentModalType}
+            // (주의) ComUser의 userName 키가 실제와 맞는지 확인 필요
+            employeeName={selectedEmployee?.userName || ''}
+
+            projectStartDate={formData.startDate}
+            projectEndDate={formData.endDate}
+          />
         </Container>
     );
 };
