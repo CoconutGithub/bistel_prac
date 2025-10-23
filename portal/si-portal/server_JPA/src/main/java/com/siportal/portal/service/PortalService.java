@@ -22,13 +22,19 @@ public class PortalService {
     private final PortalMapper portalMapper;
     private final MenuRepository menuRepository;
     private final PermissionRepository permissionRepository;
+    private final JwtUtils jwtUtils;
 
     @Autowired
-    public PortalService(PortalMapper portalMapper, MenuRepository menuRepository
-            , PermissionRepository permissionRepository) {
+    public PortalService(
+            PortalMapper portalMapper,
+            MenuRepository menuRepository,
+            PermissionRepository permissionRepository,
+            JwtUtils jwtUtils
+    ) {
         this.portalMapper = portalMapper;
         this.menuRepository = menuRepository;
         this.permissionRepository = permissionRepository;
+        this.jwtUtils = jwtUtils;
     }
 
 
@@ -48,7 +54,7 @@ public class PortalService {
 
         try {
             String oldToken = requestBody.get("token");
-            String newToken = JwtUtils.refreshExpiration(oldToken);
+            String newToken = jwtUtils.refreshExpiration(oldToken);
 
             return ResponseEntity.ok(Collections.singletonMap("token", newToken));
         } catch (ExpiredJwtException e) {

@@ -28,15 +28,21 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private String databaseType;
     private final AuthenticationManager authenticationManager;
     private LoginRepository loginRepository;
+    private final JwtUtils jwtUtils;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    public LoginFilter(AuthenticationManager authenticationManager, LoginRepository loginRepository, String title, String databaseType) {
+    public LoginFilter(
+            AuthenticationManager authenticationManager,
+            JwtUtils jwtUtils,
+            LoginRepository loginRepository,
+            String title,
+            String databaseType) {
         this.authenticationManager = authenticationManager;
+        this.jwtUtils=jwtUtils;
         this.loginRepository = loginRepository;
         this.title = title;
         this.databaseType = databaseType;
         setFilterProcessesUrl("/login"); // 필터가 처리할 URL
-
     }
 
     @Override
@@ -123,7 +129,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private String generateJwtToken(Authentication authResult) {
         String userId = authResult.getName();
-        return JwtUtils.generateToken(userId);
+        return jwtUtils.generateToken(userId);
     }
 
     private ResponseEntity<?> validateUserFromDB(String userId, String password) {
