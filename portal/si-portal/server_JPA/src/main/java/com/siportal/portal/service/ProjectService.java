@@ -1,14 +1,14 @@
 package com.siportal.portal.service;
 
 import com.siportal.portal.domain.Project;
+import com.siportal.portal.domain.ProjectHumanResource;
 import com.siportal.portal.domain.ProjectProgressDetail;
-import com.siportal.portal.dto.ProgressSaveDTO;
-import com.siportal.portal.dto.ProjectDetailDTO;
-import com.siportal.portal.dto.ProjectListDTO;
-import com.siportal.portal.dto.ProjectSaveDTO;
+import com.siportal.portal.domain.Role;
+import com.siportal.portal.dto.*;
 import com.siportal.portal.repository.ProjectHumanResourceRepository;
 import com.siportal.portal.repository.ProjectProgressDetailRepository;
 import com.siportal.portal.repository.ProjectRepository;
+import com.siportal.portal.repository.RoleRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,6 +24,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -36,6 +37,7 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final ProjectHumanResourceRepository projectHumanResourceRepository;
     private final ProjectProgressDetailRepository projectProgressDetailRepository;
+    private final RoleRepository roleRepository;
 
     public ResponseEntity<?> allProject() {
         List<Project> projects = projectRepository.findAll();
@@ -45,7 +47,7 @@ public class ProjectService {
         return ResponseEntity.ok().body(dtoList);
     }
 
-    public ResponseEntity<?> detailProject(Long projectId) {
+    public ProjectDetailDTO detailProject(Long projectId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found with id: " + projectId));
 
@@ -62,9 +64,15 @@ public class ProjectService {
         dto.setEndDate(project.getEndDate());
         dto.setOverallProgress(project.getOverallProgress());
         dto.setProjectProgressDetails(project.getProgressDetails()); // progressDetails -> projectProgressDetails
-        dto.setProjectHumanResources(project.getHumanResources()); // humanResources 추가
+        if (project.getHumanResources() != null) {
+            dto.setProjectHumanResources(
+                    project.getHumanResources().stream()
+                            .map(ProjectDetailHumanResourceDTO::fromEntity) // 메소드 레퍼런스 사용
+                            .collect(Collectors.toList())
+            );
+        }
 
-        return ResponseEntity.ok(dto);
+        return dto;
     }
 
     @Transactional
@@ -248,4 +256,59 @@ public class ProjectService {
             super(message);
         }
     }
+
+    @Transactional
+    public ProjectHumanResource addHumanResource(HumanResourceDTO requestDTO) {
+        // 1. 사용자 인증 및 프로젝트 권한 확인 (기존 헬퍼 재사용)
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = "SYSTEM"; // 기본값
+        if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
+            currentUsername = authentication.getName();
+        }
+        Project project = getProjectAndCheckPMAccess(requestDTO.getProjectId(), currentUsername);
+
+        // 2. Role 엔티티 조회 (roleId가 null이 아닐 경우)
+        Role role = null;
+        if (requestDTO.getRoleId() != null) {
+            role = roleRepository.findById(Math.toIntExact(requestDTO.getRoleId()))
+                    .orElseThrow(() -> new EntityNotFoundException("Role not found with id: " + requestDTO.getRoleId()));
+        }
+
+        // 3. DTO -> Entity 변환
+        ProjectHumanResource newResource = ProjectHumanResource.builder()
+                .project(project) // 연관관계 설정
+                .userId(requestDTO.getUserId())
+                .role(role) // 조회된 Role 엔티티 설정
+                .plannedStartDate(requestDTO.getPlannedStartDate())
+                .plannedEndDate(requestDTO.getPlannedEndDate())
+                .plannedMm(requestDTO.getPlannedMm() != null ? requestDTO.getPlannedMm() : BigDecimal.ZERO) // Null 방지
+                .actualStartDate(requestDTO.getActualStartDate())
+                .actualEndDate(requestDTO.getActualEndDate())
+                .actualMm(requestDTO.getActualMm() != null ? requestDTO.getActualMm() : BigDecimal.ZERO) // Null 방지
+                .build();
+
+        // 4. 저장 및 반환 (ID가 채번된 객체 반환)
+        return projectHumanResourceRepository.save(newResource);
+    }
+
+    // ########## [추가] 투입 인력(Human Resource) 삭제 로직 ##########
+    @Transactional
+    public void deleteHumanResource(Long resourceId) {
+        // 1. 삭제할 리소스 조회
+        ProjectHumanResource resource = projectHumanResourceRepository.findById(resourceId)
+                .orElseThrow(() -> new EntityNotFoundException("Human resource not found with id: " + resourceId));
+
+        // 2. 해당 리소스가 속한 프로젝트에 대한 PM 권한 확인
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = "SYSTEM"; // 기본값
+        if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
+            currentUsername = authentication.getName();
+        }
+        // 리소스 객체에서 Project ID를 가져와 권한 확인
+        getProjectAndCheckPMAccess(resource.getProject().getProjectId(), currentUsername);
+
+        // 3. 삭제 수행
+        projectHumanResourceRepository.delete(resource);
+    }
+
 }
