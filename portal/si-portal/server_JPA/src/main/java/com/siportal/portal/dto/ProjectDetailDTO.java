@@ -22,5 +22,5 @@ public class ProjectDetailDTO {
     private LocalDate endDate;
     private Integer overallProgress;
     private List<ProjectProgressDetail>  projectProgressDetails;
-    private List<ProjectHumanResource> projectHumanResources;
+    private List<ProjectDetailHumanResourceDTO> projectHumanResources;
 }

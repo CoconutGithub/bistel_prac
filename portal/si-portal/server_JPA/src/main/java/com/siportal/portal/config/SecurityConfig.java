@@ -1,10 +1,12 @@
 package com.siportal.portal.config;
 
 import com.siportal.portal.com.auth.AfterLoginFilter;
+import com.siportal.portal.com.auth.JwtUtils;
 import com.siportal.portal.com.auth.LoginFilter;
 import com.siportal.portal.repository.LoginRepository;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +21,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-
+@Slf4j
 @Configuration
 public class SecurityConfig {
 
@@ -32,9 +34,12 @@ public class SecurityConfig {
     @Autowired
     private LoginRepository loginRepository;
 
+    @Autowired
+    private JwtUtils jwtUtils;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
-        System.out.println("load FilterChain");
+        log.info("load sprint security filter chain");
         return http.csrf(csrf -> csrf.disable()) // CSRF 비활성화
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정
                 .authorizeHttpRequests(auth -> auth
@@ -55,9 +60,9 @@ public class SecurityConfig {
                         .requestMatchers("/admin/api/get-menu-tree").permitAll() // ✅ 추가
                         .requestMatchers("/api/todo").permitAll()
                         .requestMatchers(
-                            "/swagger-ui/**", // Swagger UI 경로 허용
-                            "/v3/api-docs/**", // OpenAPI 문서 경로 허용
-                            "/swagger-ui.html" // Swagger HTML 경로 허용
+                                "/swagger-ui/**", // Swagger UI 경로 허용
+                                "/v3/api-docs/**", // OpenAPI 문서 경로 허용
+                                "/swagger-ui.html" // Swagger HTML 경로 허용
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
@@ -66,14 +71,14 @@ public class SecurityConfig {
                         .authorities("ROLE_ANONYMOUS")
                 ) // 익명 사용자 설정 추가
                 .exceptionHandling(exception -> exception
-                                .authenticationEntryPoint((request, response, authException) -> {
-                                    if (!response.isCommitted()) {
-                                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized"); // ✅ 인증되지 않은 요청 시 401 에러 반환
-                                    } else {
-                                        // 이미 응답이 커밋된 경우, 에러 로깅 또는 다른 처리
-                                        System.err.println("AuthenticationEntryPoint: Response already committed for request: " + request.getRequestURI() + ", cannot send SC_UNAUTHORIZED.");
-                                    }
-                                })
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            if (!response.isCommitted()) {
+                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized"); // ✅ 인증되지 않은 요청 시 401 에러 반환
+                            } else {
+                                // 이미 응답이 커밋된 경우, 에러 로깅 또는 다른 처리
+                                System.err.println("AuthenticationEntryPoint: Response already committed for request: " + request.getRequestURI() + ", cannot send SC_UNAUTHORIZED.");
+                            }
+                        })
                 )
                 .requestCache(cache -> cache.disable())
                 .securityContext(context -> context.disable())
@@ -81,8 +86,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .addFilter(new LoginFilter(authenticationManager, loginRepository, title, databaseType))
-                .addFilter(new AfterLoginFilter(authenticationManager))
+                .addFilter(new LoginFilter(authenticationManager, jwtUtils, loginRepository, title, databaseType))
+                .addFilter(new AfterLoginFilter(authenticationManager, jwtUtils))
                 .build();
     }
     @Bean

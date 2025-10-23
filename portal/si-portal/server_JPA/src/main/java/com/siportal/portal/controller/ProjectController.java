@@ -1,6 +1,8 @@
 package com.siportal.portal.controller;
 
 import com.siportal.portal.domain.Project;
+import com.siportal.portal.domain.ProjectHumanResource;
+import com.siportal.portal.dto.HumanResourceDTO;
 import com.siportal.portal.dto.ProgressSaveDTO;
 import com.siportal.portal.dto.ProjectDetailDTO;
 import com.siportal.portal.dto.ProjectSaveDTO;
@@ -29,7 +31,19 @@ public class ProjectController {
 
     @GetMapping("/detail/{project_id}")
     public ResponseEntity<?> detailProject(@PathVariable("project_id") Long projectId) {
-        return projectService.detailProject(projectId);
+        try {
+            // [수정] 서비스가 변환된 DTO를 반환
+            ProjectDetailDTO projectDetail = projectService.detailProject(projectId);
+            return ResponseEntity.ok().body(projectDetail);
+
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            // [수정] 에러 메시지 개선
+            return ResponseEntity
+                    .internalServerError()
+                    .body("Error fetching project detail: " + e.getMessage());
+        }
     }
 
     @PostMapping("/save")
@@ -101,6 +115,48 @@ public class ProjectController {
             return ResponseEntity
                     .internalServerError()
                     .body("Error saving progress details: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/resource/add")
+    public ResponseEntity<?> addHumanResource(@RequestBody HumanResourceDTO requestDTO) {
+        try {
+            // 서비스 호출 시 projectId를 requestDTO에서 가져옵니다.
+            ProjectHumanResource savedResource = projectService.addHumanResource(requestDTO);
+            // 성공 시 생성된 리소스 객체(ID 포함)와 200 OK 응답 반환
+            return ResponseEntity.ok().body(savedResource);
+
+        } catch (EntityNotFoundException e) {
+            // Project 또는 Role을 찾지 못한 경우 404 응답
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (AccessDeniedException e) {
+            // PM 권한이 없는 경우 403 응답
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity
+                    .internalServerError()
+                    .body("Error adding human resource: " + e.getMessage());
+        }
+    }
+
+    // ########## [추가] 투입 인력(Human Resource) 삭제 API ##########
+    @DeleteMapping("/resource/delete/{resourceId}")
+    public ResponseEntity<?> deleteHumanResource(@PathVariable("resourceId") Long resourceId) {
+        try {
+            projectService.deleteHumanResource(resourceId);
+            // 성공 시 메시지와 200 OK 응답 반환
+            return ResponseEntity.ok().body("인력이 삭제되었습니다.");
+
+        } catch (EntityNotFoundException e) {
+            // ProjectHumanResource를 찾지 못한 경우 404 응답
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (AccessDeniedException e) {
+            // PM 권한이 없는 경우 403 응답
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity
+                    .internalServerError()
+                    .body("Error deleting human resource: " + e.getMessage());
         }
     }
 

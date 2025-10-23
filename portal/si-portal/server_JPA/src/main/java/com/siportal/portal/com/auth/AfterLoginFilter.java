@@ -1,5 +1,6 @@
 package com.siportal.portal.com.auth;
 
+import io.minio.credentials.Jwt;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,8 +14,14 @@ import java.io.IOException;
 
 public class AfterLoginFilter extends BasicAuthenticationFilter {
 
-    public AfterLoginFilter(AuthenticationManager authenticationManager) {
+    private final JwtUtils jwtUtils;
+
+    public AfterLoginFilter(
+            AuthenticationManager authenticationManager,
+            JwtUtils jwtUtils
+    ) {
         super(authenticationManager);
+        this.jwtUtils = jwtUtils;
     }
 
     @Override
@@ -31,7 +38,7 @@ public class AfterLoginFilter extends BasicAuthenticationFilter {
 
         System.out.println( "token:" + token);
 
-        String username = JwtUtils.validateTokenAndGetUsername(token);
+        String username = jwtUtils.validateTokenAndGetUsername(token);
 
         System.out.println( "userName:" + username);
 
