@@ -22,7 +22,6 @@ import styles from './AgGridWrapper.module.scss';
 import { useSelector } from 'react-redux';
 import { RootState } from '~store/Store';
 
-//##################### type 지정-start #######################
 // Props 타입 정의
 interface AgGridWrapperProps {
   children?: React.ReactNode;
@@ -51,11 +50,10 @@ interface AgGridWrapperProps {
   onCellValueChanged?: (event: any) => void;
   onCellEditingStarted?: (event: any) => void;
   onCellDoubleClicked?: (event: any) => void;
+  onCellClicked?: (event: any) => void;
   onRowClicked?: (event: any) => void;
   onGridLoaded?: () => void;
 }
-
-//##################### type 지정-end #######################
 
 // 수정된 행에 스타일을 적용하는 규칙
 const rowClassRules = {
@@ -245,6 +243,11 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
         settings.onCellDoubleClicked(event);
       }
     };
+    const handleCellClick = (event: any) => {
+      if (settings.onCellClicked) {
+        settings.onCellClicked(event);
+      }
+    };
 
     const handleRowClick = (event: any) => {
       if (settings.onRowClicked) {
@@ -411,6 +414,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
               onCellEditingStopped={handleCellEditingStopped}
               onCellEditingStarted={handleCellEditingStarted}
               onCellDoubleClicked={handleCellDoubleClick}
+              onCellClicked={handleCellClick}
               onRowClicked={handleRowClick}
               stopEditingWhenCellsLoseFocus={true}  // focus out 됐을때 칼럼 수정한 내용 적용 
               className={cn(

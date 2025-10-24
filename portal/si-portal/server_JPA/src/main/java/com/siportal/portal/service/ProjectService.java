@@ -119,7 +119,7 @@ public class ProjectService {
     }
 
     @Transactional
-    public Project updateProject(ProjectDetailDTO projectDTO, Long projectId) {
+    public ProjectDetailDTO updateProject(ProjectDetailDTO projectDTO, Long projectId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = "SYSTEM"; // 기본값
         if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
@@ -137,7 +137,7 @@ public class ProjectService {
         project.setEndDate(projectDTO.getEndDate());
         project.setUpdateBy(currentUsername);
 
-        return project;
+        return projectDTO;
     }
 
     @Transactional

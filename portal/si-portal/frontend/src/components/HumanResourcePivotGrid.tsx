@@ -219,14 +219,14 @@ const HumanResourcePivotGrid: React.FC<PivotGridProps> = ({
         <tbody>
         {pivotData.map((row) => (
           <tr key={row.id}>
-            <td>{row.name}</td>
+            <td style={{verticalAlign:'middle'}}>{row.name}</td>
             {monthColumns.map((month) => (
-              <td key={month} style={{ textAlign: 'center' }}>
+              <td key={month} style={{ textAlign: 'center', verticalAlign:'middle' }}>
                 {Number(row[month]) > 0 ? row[month] : ''}
               </td>
             ))}
-            <td style={{ textAlign: 'center' }}><strong>{row.sum > 0 ? row.sum : ''}</strong></td>
-            <td style={{ textAlign: 'center' }}>
+            <td style={{ textAlign: 'center' , verticalAlign:'middle'}}><strong>{row.sum > 0 ? row.sum : ''}</strong></td>
+            <td style={{ textAlign: 'center'}}>
               <Button
                 variant="outline-danger"
                 size="sm"
