@@ -62,7 +62,7 @@ public class ProjectController {
     @PutMapping("/update/{project_id}")
     public ResponseEntity<?> updateProject(@RequestBody ProjectDetailDTO projectDTO, @PathVariable("project_id") Long projectId) {
         try {
-            Project updatedProject = projectService.updateProject(projectDTO, projectId);
+            ProjectDetailDTO updatedProject = projectService.updateProject(projectDTO, projectId);
             // 성공 시 업데이트된 객체 정보와 함께 200 OK 응답
             return ResponseEntity.ok().body(updatedProject);
         } catch (EntityNotFoundException e) {
