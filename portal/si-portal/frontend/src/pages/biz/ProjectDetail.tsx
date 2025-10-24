@@ -98,6 +98,9 @@ const initialState: IProjectDetailData = {
     progressDetails: [],
     humanResources: [],
 };
+const roundToOne = (num: number): number => {
+  return Math.round(num * 10) / 10;
+};
 
 const ProjectDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -196,6 +199,57 @@ const ProjectDetail: React.FC = () => {
       [id]: value,
     }));
   }, []);
+
+  // --- (수정) 1. 기간 기반 진행률 계산 ---
+  const timeBasedProgress = useMemo(() => {
+    const { startDate, endDate } = formData;
+    if (!startDate || !endDate) return 0;
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const today = new Date();
+
+    // 시간, 분, 초를 0으로 설정하여 날짜만 비교
+    start.setHours(0, 0, 0, 0);
+    end.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+
+    if (isNaN(start.getTime()) || isNaN(end.getTime()) || start > end) return 0;
+
+    // 프로젝트 시작 전
+    if (today < start) return 0;
+    // 프로젝트 종료 후
+    if (today > end) return 100;
+
+    const totalDuration = end.getTime() - start.getTime();
+    // 기간이 0일 경우 (시작=종료)
+    if (totalDuration === 0) {
+      return (today >= start) ? 100 : 0;
+    }
+
+    const elapsedDuration = today.getTime() - start.getTime();
+
+    const progress = (elapsedDuration / totalDuration) * 100;
+    return Math.round(progress); // 정수로 반올림
+  }, [formData.startDate, formData.endDate]);
+
+  // --- (수정) 2. M/M 합계 계산 ---
+  const mmTotals = useMemo(() => {
+    const totals = formData.humanResources.reduce(
+      (acc, resource) => {
+        // API 응답이 문자열일 수 있으므로 Number로 명시적 변환
+        acc.planned += Number(resource.plannedMm) || 0;
+        acc.actual += Number(resource.actualMm) || 0;
+        return acc;
+      },
+      { planned: 0, actual: 0 }
+    );
+
+    return {
+      planned: roundToOne(totals.planned),
+      actual: roundToOne(totals.actual),
+    };
+  }, [formData.humanResources]);
 
   // 진행 상세 (ProjectProgressDetail) 컬럼
   const progressColumns = useMemo<ColDef[]>(() => [
@@ -491,7 +545,7 @@ const ProjectDetail: React.FC = () => {
       projectDescription: formData.projectDescription, // DTO 필드명(description)에 맞게 매핑
       projectStatus: formData.projectStatus,
       step: formData.step,
-      pmId: formData.pmId,
+      pmId: formData.pmId || null,
       startDate: formData.startDate, // 폼의 'date' input은 이미 YYYY-MM-DD 형식
       endDate: formData.endDate,     // 폼의 'date' input은 이미 YYYY-MM-DD 형식
 
@@ -687,7 +741,7 @@ const ProjectDetail: React.FC = () => {
             프로젝트 삭제
           </Button>
           <Button variant="primary" size="sm" onClick={handleUpdate}>
-            수정
+            저장
           </Button>
         </Col>
       </Row>
@@ -724,24 +778,41 @@ const ProjectDetail: React.FC = () => {
                   </Col>
                 </Form.Group>
               </Col>
-              <Col md={4}>
+              <Col md={2}>
                 <Form.Group as={Row} className="mb-3">
                   <Form.Label column sm={3}>
-                    전체 진행률
+                    진행률
                   </Form.Label>
-                  <Col sm={2}>
+                  <Col sm={4}>
                     <Form.Control
                       id="overallProgress"
-                      value={formData.overallProgress}
+                      value={`${formData.overallProgress} / ${timeBasedProgress}`}
                       readOnly
                       disabled
+                      title={`실제 진행률: ${formData.overallProgress}% / 기간 진행률: ${timeBasedProgress}%`}
                     />
                   </Col>
                 </Form.Group>
               </Col>
-              <Col md={4}>
+              <Col md={2}>
                 <Form.Group as={Row} className="mb-3">
                   <Form.Label column sm={3}>
+                    M/M
+                  </Form.Label>
+                  <Col sm={5}>
+                    <Form.Control
+                      id="mmTotals"
+                      value={`${mmTotals.actual} / ${mmTotals.planned}`}
+                      readOnly
+                      disabled
+                      title={`실제 M/M 합계: ${mmTotals.actual} / 계획 M/M 합계: ${mmTotals.planned}`}
+                    />
+                  </Col>
+                </Form.Group>
+              </Col>
+              <Col md={3}>
+                <Form.Group as={Row} className="mb-3">
+                  <Form.Label column sm={4}>
                     프로젝트 상태
                   </Form.Label>
                   <Col sm={4}>
@@ -785,7 +856,7 @@ const ProjectDetail: React.FC = () => {
               </Col>
               <Col md={4}>
                 <Form.Group as={Row} className="mb-3">
-                  <Form.Label column sm={3}>
+                  <Form.Label column sm={2}>
                     담당 PM
                   </Form.Label>
                   <Col sm={4}>
@@ -794,7 +865,7 @@ const ProjectDetail: React.FC = () => {
                       value={formData.pmId}
                       readOnly
                       onClick={handlePmSelectClick}
-                      style={{ cursor: 'pointer'}}
+                      style={{ cursor: 'pointer' }}
                     />
                   </Col>
                 </Form.Group>
@@ -870,6 +941,7 @@ const ProjectDetail: React.FC = () => {
                     onSave={handleProgressSave}
                     enableCheckbox={true}
                     onCellClicked={handleProgressCellClick}
+                    pagination={false}
                   />
                 </Tab>
                 <Tab eventKey="resource" title="투입 인력 (Human Resources)">
