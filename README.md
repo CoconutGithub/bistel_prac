@@ -43,6 +43,7 @@
   - 연습용으로 구현되어있던 웹포탈 리팩터링
   - NCS 훈련단위 시간 계산 연동되도록 메뉴 추가
   - MyBatis로 연결된 PostgreSQL
+  - Project Information Management System(PIMS) 구현	
 - **Active MQ**
   - Message Queue 사용
   - ActiceMQ 사용하여 타입에 맞는 Task 수행
