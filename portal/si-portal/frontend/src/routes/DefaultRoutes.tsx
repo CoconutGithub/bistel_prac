@@ -20,6 +20,7 @@ const YoonTodo = React.lazy(() => import('~pages/biz/YoonTodo'));
 const TrainAbilityUnitSelection = React.lazy(()=>import('~pages/biz/TrainAbilityUnitSelection'));
 const ProjectList = React.lazy(() => import('~pages/biz/ProjectList'));
 const ProjectDetail = React.lazy(() => import('~pages/biz/ProjectDetail'));
+const YieldAbnormally = React.lazy(() => import('~pages/biz/YieldAbnormalityPage'));
 
 export default function DefaultRoutes(): RouteObject[] {
   return [
@@ -126,6 +127,13 @@ export default function DefaultRoutes(): RouteObject[] {
       ),
       loader: checkBtnAuthLoader,
     },
-    
+    {
+      path: '/main/yield-abnormally',
+      element: (
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <YieldAbnormally />
+        </React.Suspense>
+      )
+    }
   ];
 }
