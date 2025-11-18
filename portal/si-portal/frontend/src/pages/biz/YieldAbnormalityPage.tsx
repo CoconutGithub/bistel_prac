@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import axios from 'axios';
-import { Container, Row, Col, Tabs, Tab } from 'react-bootstrap';
+import { Container, Row, Col, Tabs, Tab, Spinner } from 'react-bootstrap';
 import { ColDef } from '@ag-grid-community/core';
 import { useNavigate } from 'react-router-dom'; // 상세 페이지 이동용 (추후 구현)
 import AgGridWrapper from '../../components/agGridWrapper/AgGridWrapper'; // 경로에 맞게 수정해주세요
@@ -10,6 +10,7 @@ import styles from './YieldAbnormalityPage.module.scss'; // 필요시 스타일 
 const YieldAbnormalityPage: React.FC = () => {
   // 'pipe' | 'bar'
   const [activeTab, setActiveTab] = useState<string>('pipe');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const gridRef = useRef<AgGridWrapperHandle>(null);
   const navigate = useNavigate();
 
@@ -24,20 +25,18 @@ const YieldAbnormalityPage: React.FC = () => {
 
   // 데이터 조회 함수 (수정됨: 토큰 추가)
   const fetchData = useCallback(async () => {
+    // [수정] Ag-Grid 오버레이 대신 React State로 로딩 시작
+    setIsLoading(true);
+
     try {
-      // 1. 세션 스토리지에서 토큰 가져오기 (ProjectList 참고)
       const token = sessionStorage.getItem('authToken');
 
-      // 토큰이 없으면 로그인 페이지로 튕겨내거나 경고를 줄 수 있습니다.
       if (!token) {
         console.warn('인증 토큰이 없습니다.');
-        // 필요 시 로그인 페이지 리다이렉트: navigate('/login');
       }
 
-      // 백엔드 엔드포인트
       const endpoint = activeTab === 'pipe' ? '/api/yield/pipe' : '/api/yield/bar';
 
-      // 2. 헤더에 Authorization 토큰 추가하여 요청
       const response = await axios.get(`http://localhost:8080${endpoint}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -45,28 +44,34 @@ const YieldAbnormalityPage: React.FC = () => {
       });
 
       if (response.data) {
-        // 데이터 가공: gridRowId 설정
         const gridData = response.data.map((item: any) => ({
           ...item,
           gridRowId: item.lotNo,
+          inputQty: Number(item.inputQty),
+          prodQty: Number(item.prodQty),
+          yieldRate: Number(item.yieldRate),
+          yieldDiff: Number(item.yieldDiff),
+          excessStdValue: Number(item.excessStdValue),
+          lcmEffect: Number(item.lcmEffect),
+          lcmImpactTotal: Number(item.lcmImpactTotal),
+          // ... 필요한 데이터 변환
         }));
 
         gridRef.current?.setRowData(gridData);
       }
     } catch (error: any) {
       console.error('데이터 조회 실패:', error);
-
-      // 401 에러 처리 (토큰 만료 등)
       if (error.response && error.response.status === 401) {
         alert('세션이 만료되었습니다. 다시 로그인해주세요.');
-        // navigate('/login'); // 로그인 페이지로 이동 로직 필요 시 주석 해제
       } else {
         alert('데이터를 불러오는 중 오류가 발생했습니다.');
       }
+    } finally {
+      // [수정] 성공이든 실패든 API 호출이 끝나면 로딩 종료
+      setIsLoading(false);
     }
   }, [activeTab, navigate]);
 
-  // 탭 변경 시 데이터 다시 불러오기
   useEffect(() => {
     fetchData();
   }, [fetchData]);
@@ -205,7 +210,31 @@ const YieldAbnormalityPage: React.FC = () => {
         </Row>
 
         <Row className="contents_wrap" style={{ flex: 1 }}>
-          <Col>
+          <Col style={{ position: 'relative', minHeight: '400px' }}>
+            {/* [핵심] 로딩 오버레이 구현 */}
+            {isLoading && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  backgroundColor: 'rgba(255, 255, 255, 0.8)', // 반투명 흰색 배경으로 No Data 이미지 가림
+                  zIndex: 10, // 그리드 위에 표시
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  flexDirection: 'column'
+                }}
+              >
+                <Spinner animation="border" variant="primary" role="status" />
+                <span style={{ marginTop: '10px', fontWeight: 'bold', color: '#555' }}>
+                  데이터 불러오는 중...
+                </span>
+              </div>
+            )}
+
             <AgGridWrapper
               key={activeTab}
               ref={gridRef}
