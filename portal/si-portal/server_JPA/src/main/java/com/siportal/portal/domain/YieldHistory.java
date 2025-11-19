@@ -21,7 +21,7 @@ public class YieldHistory {
     private String heatNo;
 
     @Column(name = "type")
-    private String type; // 강관/강봉 구분
+    private String itemType; // 강관/강봉 구분
 
     @Column(name = "steel_grade_l")
     private String steelGradeL;
@@ -83,7 +83,7 @@ public class YieldHistory {
     @Column(name = "final_yield")
     private BigDecimal finalYield;
 
-    // Item 그룹핑을 위한 추가 필드 (매핑에는 없지만 조회시 사용)
-    @Column(name = "item_type")
-    private String itemType;
+//    // Item 그룹핑을 위한 추가 필드 (매핑에는 없지만 조회시 사용)
+//    @Column(name = "item_type")
+//    private String itemType;
 }
