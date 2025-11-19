@@ -130,12 +130,16 @@ const YieldTrendPage: React.FC = () => {
       const date = item.workDate;
       const yieldVal = Number(item.yieldRate) || 0;
 
+      // [수정] 요구사항: 수율이 0 초과, 100 이하인 데이터만 사용
+      if (yieldVal <= 0 || yieldVal > 100) {
+        return; // 조건에 맞지 않으면 건너뜀
+      }
+
       if (!dailyMap.has(date)) {
         dailyMap.set(date, []);
       }
       dailyMap.get(date)!.push(yieldVal);
     });
-
     const result: DailyChartData[] = Array.from(dailyMap.entries()).map(([date, values]) => {
       values.sort((a, b) => a - b);
       const sum = values.reduce((acc, cur) => acc + cur, 0);
@@ -164,6 +168,34 @@ const YieldTrendPage: React.FC = () => {
     const avgYields = processedChartData.map((item) => item.avgYield);
     const boxPlotValues = processedChartData.map((item) => item.boxPlotData);
 
+    // [수정] 최근 1달 줌 범위를 계산하기 위한 로직
+    let zoomStartValue = undefined;
+    let zoomEndValue = undefined;
+
+    if (dates.length > 0) {
+      // 마지막 날짜 (데이터 기준)
+      const lastDateStr = dates[dates.length - 1];
+      zoomEndValue = lastDateStr;
+
+      // 1달 전 날짜 계산
+      const lastDate = new Date(lastDateStr);
+      const targetDate = new Date(lastDate);
+      targetDate.setMonth(targetDate.getMonth() - 1);
+
+      // 비교를 위해 YYYY-MM-DD 문자열 포맷팅
+      const yyyy = targetDate.getFullYear();
+      const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+      const dd = String(targetDate.getDate()).padStart(2, '0');
+      const targetDateStr = `${yyyy}-${mm}-${dd}`;
+
+      // [핵심] 실제 데이터 리스트(dates) 중에서 '1달 전 날짜'보다 크거나 같은 '첫 번째 날짜'를 찾음
+      // 이렇게 해야 ECharts Category Axis가 해당 값을 인식하여 줌을 적용함
+      const validStartDate = dates.find(date => date >= targetDateStr);
+
+      // 찾은 날짜가 있으면 적용, 없으면(전체 데이터가 1달 미만인 경우) 가장 첫 데이터 사용
+      zoomStartValue = validStartDate || dates[0];
+    }
+
     // [핵심] 동적으로 Series 배열 생성
     const seriesList: any[] = [];
 
@@ -177,8 +209,7 @@ const YieldTrendPage: React.FC = () => {
           color: '#ebf3ff',
           borderColor: '#337ab7',
           borderWidth: 1.5
-        },
-        emphasis: { focus: 'series' }
+        }
       });
     }
 
@@ -271,8 +302,17 @@ const YieldTrendPage: React.FC = () => {
       },
       series: seriesList, // 동적으로 생성된 series 사용
       dataZoom: [
-        { type: 'inside', start: 90, end: 100 },
-        { type: 'slider', start: 0, end: 100 }
+        {
+          type: 'inside',
+          startValue: zoomStartValue, // 계산된 1달 전 날짜
+          endValue: zoomEndValue      // 마지막 날짜
+        },
+        {
+          type: 'slider',
+          startValue: zoomStartValue,
+          endValue: zoomEndValue,
+          maxSpan: 10
+        },
       ]
     };
   }, [processedChartData, showBoxPlot, showLineChart]); // 의존성 배열에 상태 추가
