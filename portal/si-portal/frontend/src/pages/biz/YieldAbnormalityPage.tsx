@@ -1,280 +1,363 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { Container, Row, Col, Spinner, Card } from 'react-bootstrap';
-import ReactECharts from 'echarts-for-react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import axios from 'axios';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Container, Row, Col, Tabs, Tab, Spinner, Form } from 'react-bootstrap';
+import { ColDef } from '@ag-grid-community/core';
+import { useNavigate } from 'react-router-dom';
 
-// 데이터 타입 정의 (필요 시 별도 파일로 분리)
-interface YieldHistoryData {
-  workDate: string;
-  yieldRate: number;
-  [key: string]: any; // 기타 필드
-}
+// [수정] Redux 관련 임포트 추가
+import { useDispatch } from 'react-redux';
+import { addTab, setActiveTab } from '~store/RootTabs';
 
-// 차트용 데이터 타입
-interface DailyChartData {
-  date: string;
-  avgYield: number;
-  count: number;
-}
+import AgGridWrapper from '../../components/agGridWrapper/AgGridWrapper';
+import { AgGridWrapperHandle } from '~types/GlobalTypes';
+import styles from './YieldAbnormalityPage.module.scss';
 
-const YieldTrendPage: React.FC = () => {
-  const location = useLocation();
+const YieldAbnormalityPage: React.FC = () => {
+  const [activeTab, setActiveTabState] = useState<string>('pipe');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  // 컬럼 가시성 상태 관리 (Key: field명, Value: 보임 여부)
+  const [colVisibility, setColVisibility] = useState<{ [key: string]: boolean }>({});
+
+  const gridRef = useRef<AgGridWrapperHandle>(null);
   const navigate = useNavigate();
 
-  // 1. 선택된 아이템 정보 가져오기
-  const selectedItem = useMemo(() => {
-    const stateItem = location.state;
-    if (stateItem) return stateItem;
+  // [수정] dispatch 훅 생성
+  const dispatch = useDispatch();
 
-    const sessionItem = sessionStorage.getItem('selectedTrendItem');
-    return sessionItem ? JSON.parse(sessionItem) : null;
-  }, [location.state]);
+  // 1. 공통 컬럼 정의 (useMemo로 최적화하여 리렌더링 시 재생성 방지)
+  const commonColumns: ColDef[] = useMemo(() => [
+    { headerName: 'LOT No', field: 'lotNo', width: 150, pinned: 'left', sortable: true, filter: true },
+    { headerName: 'HEAT No', field: 'heatNo', width: 120, sortable: true, filter: true },
+    { headerName: '품목종류', field: 'itemType', width: 100 },
+    { headerName: '제품자재코드', field: 'prodMaterialCd', width: 130 },
+    { headerName: '작업일자', field: 'workDate', width: 110, sortable: true },
+    { headerName: '사내강종명', field: 'inhouseSteelName', width: 180 },
+    { headerName: '강종대분류', field: 'steelGradeL', width: 120 },
+    { headerName: '강종중분류', field: 'steelGradeM', width: 120 },
+    { headerName: '강종소분류', field: 'steelGradeS', width: 120 },
+    { headerName: '강종그룹', field: 'steelGradeGroup', width: 100 },
+    { headerName: '소재대분류', field: 'materialL', width: 120 },
+    { headerName: '표면', field: 'surface', width: 100 },
+    { headerName: '형상', field: 'shape', width: 100 },
+    { headerName: '주문열처리', field: 'orderHeatTreat', width: 110 },
+    { headerName: '주문외경', field: 'orderOuterDia', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter',headerClass: 'header-left-align' },
+    { headerName: '투입량', field: 'inputQty', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', valueFormatter: (params) => params.value?.toLocaleString() ,headerClass: 'header-left-align'},
+    { headerName: '생산량', field: 'prodQty', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', valueFormatter: (params) => params.value?.toLocaleString(),headerClass: 'header-left-align' },
+    {
+      headerName: '수율(%)',
+      field: 'yieldRate',
+      width: 100,
+      type: 'numericColumn',
+      filter: 'agNumberColumnFilter',
+      headerClass: 'header-left-align'
+    },
+    // [중요] 이상여부 필터링 대상 컬럼
+    { headerName: '이상여부', field: 'excessYn', width: 120, cellClass: 'text-center' },
+    { headerName: '이상기준값', field: 'excessStdValue', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter' ,headerClass: 'header-left-align'},
+    { headerName: '수율차이', field: 'yieldDiff', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' },
+    { headerName: '기간(연)', field: 'periodYear', width: 90 },
+    { headerName: '기간(월)', field: 'periodMonth', width: 90 },
+    { headerName: '평가단위', field: 'evalUnit', width: 100 },
+    { headerName: '저가법영향', field: 'lcmEffect', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' },
+    { headerName: '저가법영향합계', field: 'lcmImpactTotal', width: 140, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' },
+    { headerName: '입고수량합계', field: 'inboundQtyTotal', width: 140, type: 'numericColumn', filter: 'agNumberColumnFilter', valueFormatter: (params) => params.value?.toLocaleString(), headerClass: 'header-left-align' },
+    { headerName: '입고비율', field: 'inboundRatio', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' },
+    { headerName: '최종저가법영향', field: 'finalLcmImpact', width: 140, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' }
+  ], []);
 
-  const [historyData, setHistoryData] = useState<YieldHistoryData[]>([]);
-  const [loading, setLoading] = useState(false);
+  // 2. 전용 컬럼 정의 (useMemo 적용)
+  const pipeSpecificColumns: ColDef[] = useMemo(() => [
+    { headerName: '주문내경', field: 'orderInnerDia', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' },
+    { headerName: '주문두께', field: 'orderThickness', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' },
+  ], []);
 
-  // 2. 데이터 유효성 검사 및 초기 조회
-  useEffect(() => {
-    if (!selectedItem) {
-      const timer = setTimeout(() => {
-        alert('선택된 데이터가 없습니다. 목록에서 다시 선택해주세요.');
-        navigate(-1);
-      }, 500);
-      return () => clearTimeout(timer);
+  const barSpecificColumns: ColDef[] = useMemo(() => [
+    { headerName: '주문폭', field: 'orderWidth', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' },
+    { headerName: '통합수율', field: 'integratedYield', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' },
+    { headerName: '최종수율', field: 'finalYield', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' },
+  ], []);
+
+  // 3. 현재 탭에 따른 전체 컬럼 리스트 생성
+  const currentColumnDefs = useMemo(() => {
+    const cols = [...commonColumns];
+    if (activeTab === 'pipe') {
+      cols.splice(14, 0, ...pipeSpecificColumns);
+    } else {
+      cols.splice(14, 0, ...barSpecificColumns);
     }
-    fetchHistory();
-  }, [selectedItem, navigate]);
+    return cols;
+  }, [activeTab, commonColumns, pipeSpecificColumns, barSpecificColumns]);
 
-  // 3. 백엔드 데이터 조회
-  const fetchHistory = async () => {
-    if (!selectedItem) return;
-
-    setLoading(true);
-    try {
-      const token = sessionStorage.getItem('authToken');
-
-      // Payload 구성 (백엔드 ItemCriteriaDTO와 매핑)
-      const payload = {
-        itemType: selectedItem.itemType,
-        steelGradeL: selectedItem.steelGradeL,
-        steelGradeGroup: selectedItem.steelGradeGroup,
-        shape: selectedItem.shape,
-        inhouseSteelName: selectedItem.inhouseSteelName,
-        orderHeatTreat: selectedItem.orderHeatTreat,
-        materialL: selectedItem.materialL,
-        surface: selectedItem.surface,
-        orderOuterDia: selectedItem.orderOuterDia,
-      };
-
-      console.log('▶ [요청] 백엔드 Payload:', payload);
-
-      const response = await axios.post('http://localhost:8080/api/yield/history', payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      console.log('◀ [응답] 받은 데이터 개수:', response.data?.length);
-
-      if (response.data && Array.isArray(response.data)) {
-        setHistoryData(response.data);
-      } else {
-        setHistoryData([]);
+  // 4. 탭 변경 혹은 컬럼 정의 변경 시 가시성 상태 초기화
+  useEffect(() => {
+    const initialVisibility: { [key: string]: boolean } = {};
+    currentColumnDefs.forEach(col => {
+      if (col.field) {
+        // 초기 설정에서 hide: true인 것은 false로, 나머지는 true로 설정
+        initialVisibility[col.field] = !col.hide;
       }
-    } catch (error) {
-      console.error('이력 데이터 조회 실패:', error);
-      setHistoryData([]);
-    } finally {
-      setLoading(false);
+    });
+    setColVisibility(initialVisibility);
+  }, [currentColumnDefs]);
+
+
+  const handleTabSelect = (key: string | null) => {
+    if (key) {
+      setActiveTabState(key);
+      gridRef.current?.setRowData([]);
     }
   };
 
-  // 4. [핵심] 날짜별 평균 수율 계산 로직
-  const processedChartData = useMemo(() => {
-    if (!historyData || historyData.length === 0) return [];
+  const fetchData = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const token = sessionStorage.getItem('authToken');
+      if (!token) console.warn('인증 토큰이 없습니다.');
 
-    // (1) 날짜별로 그룹핑하여 합계 계산
-    const dailyMap = new Map<string, { sumYield: number;  count: number }>();
+      const endpoint = activeTab === 'pipe' ? '/api/yield/pipe' : '/api/yield/bar';
+      const response = await axios.get(`http://localhost:8080${endpoint}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-    historyData.forEach((item) => {
-      const date = item.workDate; // 날짜 (yyyy-MM-dd 형태 가정)
-      const yieldVal = Number(item.yieldRate) || 0;
+      if (response.data) {
+        const gridData = response.data.map((item: any) => ({
+          ...item,
+          gridRowId: item.lotNo,
+          inputQty: Number(item.inputQty),
+          prodQty: Number(item.prodQty),
+          yieldRate: Number(item.yieldRate),
+          yieldDiff: Number(item.yieldDiff),
+          excessStdValue: Number(item.excessStdValue),
+          lcmEffect: Number(item.lcmEffect),
+          lcmImpactTotal: Number(item.lcmImpactTotal),
+          // ... 기타 숫자 변환
+        }));
 
-      if (!dailyMap.has(date)) {
-        dailyMap.set(date, { sumYield: 0, count: 0 });
+        gridRef.current?.setRowData(gridData);
+
+        // [요구사항 1 구현] 데이터 로드 직후 '이상여부' 필터링 적용
+        setTimeout(() => {
+          if (gridRef.current?.gridApi) {
+            const api = gridRef.current.gridApi;
+
+            // 'excessYn' 컬럼에 대해 값이 '이상'인 것만 필터링
+            api.setFilterModel({
+              excessYn: {
+                filterType: 'text',
+                type: 'equals',
+                filter: '이상'
+              },
+              workDate: {
+                filterType: 'date',      // 날짜 필터 타입 명시
+                type: 'inRange',         // 범위 조건
+                dateFrom: '2025-09-01',  // 시작일 (포함)
+                dateTo: '2025-09-30'     // 종료일 (포함)
+              }
+            });
+            api.onFilterChanged(); // 필터 적용 트리거
+          }
+        }, 100);
       }
+    } catch (error: any) {
+      console.error('데이터 조회 실패:', error);
+      if (error.response && error.response.status === 401) {
+        alert('세션 만료');
+      } else {
+        alert('오류 발생');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }, [activeTab, navigate]);
 
-      const entry = dailyMap.get(date)!;
-      entry.sumYield += yieldVal;
-      entry.count += 1;
-    });
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
-    // (2) 평균 계산 및 배열 변환
-    const result: DailyChartData[] = Array.from(dailyMap.entries()).map(([date, val]) => ({
-      date: date,
-      avgYield: parseFloat((val.sumYield / val.count).toFixed(2)),       // 소수점 2자리
-      count: val.count
+  // [수정] 행 클릭 시 Redux 탭 시스템을 통해 페이지 이동 처리
+  const handleRowClick = (event: any) => {
+    const rowData = event.data;
+    console.log('상세 이동할 데이터:', rowData);
+
+    sessionStorage.setItem('selectedTrendItem', JSON.stringify(rowData));
+
+    const targetPath = '/main/yield/trend';
+
+    // 탭 정보 구성 (고정 키 사용시 탭 하나만 열림, 유니크 키 사용시 여러개 열림)
+    // 여기서는 '수율 분석' 탭을 하나로 관리하기 위해 고정 키에 LotNo를 라벨로 붙임
+    const tabInfo = {
+      key: 'yield-trend',
+      label: `수율 트렌드 : ${rowData.lotNo}`,
+      path: targetPath
+    };
+
+    // 1. Redux Store에 탭 추가 (이미 존재하면 활성화 준비)
+    dispatch(addTab(tabInfo));
+
+    // 2. 해당 탭을 활성화 상태로 변경 (실제 화면 전환 트리거)
+    dispatch(setActiveTab(tabInfo.key));
+
+    // 3. 라우터 이동 (데이터 전달 포함)
+    navigate(targetPath, { state: rowData });
+  };
+
+  // [수정] 체크박스 토글 최적화 (Native Input + applyColumnState + requestAnimationFrame)
+  const toggleColumnVisibility = (field: string) => {
+    const api = gridRef.current?.gridApi;
+    if (!api) return;
+
+    const nextVisible = !colVisibility[field];
+
+    // 1. React 상태 업데이트 (UI 즉시 반영)
+    setColVisibility(prev => ({
+      ...prev,
+      [field]: nextVisible
     }));
 
-    // (3) 날짜 오름차순 정렬 (백엔드에서 했더라도 안전장치)
-    result.sort((a, b) => a.date.localeCompare(b.date));
+    // 2. 브라우저 렌더링 확보 후 그리드 연산 수행
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        api.applyColumnState({
+          state: [
+            { colId: field, hide: !nextVisible } // hide는 visible의 반대
+          ]
+        });
+      }, 50);
+    });
+  };
 
-    console.log('★ [가공] 차트용 일별 평균 데이터:', result);
-    return result;
-  }, [historyData]);
-
-
-  // 5. 차트 옵션 설정 (가공된 데이터 사용)
-  const chartOption = useMemo(() => {
-    // 데이터가 없으면 빈 옵션 반환 (로딩이나 빈 상태 UI 처리됨)
-    if (processedChartData.length === 0) return {};
-
-    const dates = processedChartData.map((item) => item.date);
-    const avgYields = processedChartData.map((item) => item.avgYield);
-    return {
-      title: {
-        text: '일별 평균 수율 트렌드',
-        left: 'center',
-        textStyle: { fontSize: 16, fontWeight: 'bold' }
-      },
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: { type: 'cross' },
-        formatter: (params: any) => {
-          // 툴팁 커스터마이징
-          if (!params || params.length === 0) return '';
-          const dataIndex = params[0].dataIndex;
-          const dataItem = processedChartData[dataIndex];
-
-          let html = `<strong>${dataItem.date}</strong> (LOT 수: ${dataItem.count}개)<br/>`;
-          params.forEach((p: any) => {
-            const val = p.value !== undefined ? `${p.value}%` : '-';
-            html += `${p.marker} ${p.seriesName}: <strong>${val}</strong><br/>`;
-          });
-          return html;
-        }
-      },
-      legend: {
-        data: ['평균 수율'],
-        bottom: 10
-      },
-      grid: {
-        left: '3%', right: '4%', bottom: '15%', top: '15%', containLabel: true,
-      },
-      toolbox: {
-        feature: {
-          dataZoom: { yAxisIndex: 'none' },
-          saveAsImage: {}
-        }
-      },
-      xAxis: {
-        type: 'category',
-        boundaryGap: false, // 선이 Y축에 붙어서 시작
-        data: dates,
-        // axisLabel: {
-        //   formatter: (val: string) => {
-        //     return val.length > 5 ? val.substring(5) : val;
-        //   }
-        // }
-      },
-      yAxis: {
-        type: 'value',
-        name: '수율(%)',
-        scale: true, // 데이터 범위에 맞춰 Y축 스케일 자동 조정 (0부터 시작 안 함)
-        axisLabel: { formatter: '{value} %' },
-        splitLine: { show: true, lineStyle: { type: 'dashed' } } // 가로 점선
-      },
-      series: [
-        {
-          name: '평균 수율',
-          type: 'line',
-          data: avgYields,
-          // smooth: true, // 부드러운 곡선
-          // symbol: 'circle',
-          symbolSize: 5,
-          emphasis: { scale: 3 },
-          itemStyle: { color: '#0d6efd' },
-          lineStyle: { width: 3 },
-          // markPoint: {
-          //   data: [
-          //     { type: 'max', name: '최고' },
-          //     { type: 'min', name: '최저' }
-          //   ]
-          // },
-          markLine: {
-            data: [{ type: 'average', name: '전체 평균' }],
-            symbol: 'none'
-          }
-        },
-      ],
-      dataZoom: [
-        { type: 'inside', start: 0, end: 100 }, // 마우스 휠 줌
-        { type: 'slider', start: 0, end: 100 }  // 하단 슬라이더
-      ]
-    };
-  }, [processedChartData]);
-
-  if (!selectedItem) return null;
 
   return (
     <Container fluid className="h-100 container_bg">
-      {/* 헤더 영역 */}
       <Row className="container_title">
         <Col>
-          <div>
-            <h2 className="mb-0">수율 상세 트렌드 분석</h2>
-            <span className="text-muted fs-6 align-self-end">
-              {selectedItem.inhouseSteelName} (OD: {selectedItem.orderOuterDia})
-            </span>
-          </div>
+          <h2>수율 이상 LOT 정보</h2>
         </Col>
       </Row>
 
-      <Row className="container_contents" style={{ overflowY: 'auto' }}>
-        <Col>
-          {/* 1. 상단 정보 요약 카드 */}
-          <Card className="mb-3 shadow-sm border-0">
-            <Card.Body className="py-3" style={{ backgroundColor: '#f8f9fa' }}>
-              <Row className="g-2 text-secondary">
-                <Col md={2}><small>품목종류</small><div className="text-dark fw-bold">{selectedItem.itemType}</div></Col>
-                <Col md={2}><small>강종대분류</small><div className="text-dark fw-bold">{selectedItem.steelGradeL}</div></Col>
-                <Col md={2}><small>강종그룹</small><div className="text-dark fw-bold">{selectedItem.steelGradeGroup}</div></Col>
-                <Col md={2}><small>형상</small><div className="text-dark fw-bold">{selectedItem.shape}</div></Col>
-                <Col md={2}><small>사내강종면</small><div className="text-dark fw-bold">{selectedItem.inhouseSteelName}</div></Col>
-                <Col md={2}><small>주문열처리</small><div className="text-dark fw-bold">{selectedItem.orderHeatTreat}</div></Col>
-                <Col md={2}><small>소재대분류</small><div className="text-dark fw-bold">{selectedItem.materialL}</div></Col>
-                <Col md={2}><small>표면</small><div className="text-dark fw-bold">{selectedItem.surface}</div></Col>
-                <Col md={2}><small>주문외경</small><div className="text-dark fw-bold">{selectedItem.orderOuterDia}</div></Col>
-              </Row>
-            </Card.Body>
-          </Card>
+      <Row className="container_contents">
+        <Row className="mb-0" style={{ padding: '0 15px' }}>
+          <Col>
+            <Tabs
+              id="yield-tabs"
+              activeKey={activeTab}
+              onSelect={handleTabSelect}
+              className="mb-0"
+              fill
+            >
+              <Tab eventKey="pipe" title="강관 (Pipe)" />
+              <Tab eventKey="bar" title="강봉 (Bar)" />
+            </Tabs>
+          </Col>
+        </Row>
 
-          {/* 2. 차트 영역 카드 */}
-          <Card className="shadow-sm border-0" style={{ minHeight: '600px' }}>
-            <Card.Body>
-              {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center h-100" style={{ minHeight: '500px' }}>
-                  <Spinner animation="border" variant="primary" />
-                  <span className="mt-3 fw-bold text-secondary">데이터 분석 중입니다...</span>
-                </div>
-              ) : processedChartData.length > 0 ? (
-                <ReactECharts
-                  option={chartOption}
-                  style={{ height: '550px', width: '100%' }}
-                  notMerge={true} // 데이터 변경 시 차트 완전히 새로 그리기
-                />
-              ) : (
-                <div className="d-flex flex-column justify-content-center align-items-center h-100" style={{ minHeight: '500px', color: '#999' }}>
-                  <i className="bi bi-exclamation-circle fs-1 mb-3"></i>
-                  <h5>표시할 과거 이력 데이터가 없습니다.</h5>
-                  <p>해당 아이템 조건과 일치하는 과거 LOT 이력이 존재하지 않습니다.</p>
-                </div>
-              )}
-            </Card.Body>
-          </Card>
-        </Col>
+        <Row className="mb-0" style={{ padding: '0 15px' }}>
+          <Col>
+            <div style={{
+              display: 'flex',
+              overflowX: 'auto',  // 가로 스크롤 활성화
+              gap: '10px',
+              padding: '10px',
+              backgroundColor: '#f8f9fa',
+              border: '1px solid #dee2e6',
+              borderRadius: '4px',
+              alignItems: 'center'
+            }}>
+              <span style={{
+                fontWeight: 'bold',
+                marginRight: '5px',
+                minWidth: '60px',
+                whiteSpace: 'nowrap'
+              }}>
+                컬럼 제어:
+              </span>
+
+              {currentColumnDefs.map((col) => {
+                if (!col.field) return null;
+
+                return (
+                  <div
+                    key={col.field}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap',  // 텍스트 줄바꿈 강제 금지
+                      flexShrink: 0          // 공간이 부족해도 찌그러지지 않음 (스크롤 생성)
+                    }}
+                  >
+                    {/* Native Input 사용으로 렌더링 이슈 해결 */}
+                    <input
+                      type="checkbox"
+                      id={`chk-${col.field}`}
+                      checked={colVisibility[col.field] ?? false}
+                      onChange={() => toggleColumnVisibility(col.field!)}
+                      style={{
+                        cursor: 'pointer',
+                        width: '16px',
+                        height: '16px',
+                        accentColor: '#0d6efd',
+                        margin: 0
+                      }}
+                    />
+                    <label
+                      htmlFor={`chk-${col.field}`}
+                      style={{
+                        marginLeft: '6px',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        fontSize: '14px',
+                        marginBottom: 0
+                      }}
+                    >
+                      {col.headerName}
+                    </label>
+                  </div>
+                );
+              })}
+            </div>
+          </Col>
+        </Row>
+
+        <Row className="contents_wrap" style={{ flex: 1 }}>
+          <Col style={{ position: 'relative', minHeight: '400px' }}>
+            {isLoading && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 0, left: 0, width: '100%', height: '100%',
+                  backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                  zIndex: 10,
+                  display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column'
+                }}
+              >
+                <Spinner animation="border" variant="primary" role="status" />
+                <span style={{ marginTop: '10px', fontWeight: 'bold', color: '#555' }}>
+                  데이터 불러오는 중...
+                </span>
+              </div>
+            )}
+
+            <AgGridWrapper
+              key={activeTab}
+              ref={gridRef}
+              columnDefs={currentColumnDefs}
+              canCreate={false}
+              canUpdate={false}
+              canDelete={false}
+              showButtonArea={true}
+              rowSelection="single"
+              enableCheckbox={false}
+              onRowClicked={handleRowClick}
+              pagination={true}
+              paginationPageSize={20}
+            />
+          </Col>
+        </Row>
       </Row>
     </Container>
   );
 };
 
-export default YieldTrendPage;
+export default YieldAbnormalityPage;
