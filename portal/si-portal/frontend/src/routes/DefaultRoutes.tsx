@@ -18,8 +18,12 @@ const YoonResume = React.lazy(() => import('~pages/biz/YoonResume'));
 const YoonNotice = React.lazy(() => import('~pages/biz/YoonNotice'));
 const YoonTodo = React.lazy(() => import('~pages/biz/YoonTodo'));
 const TrainAbilityUnitSelection = React.lazy(()=>import('~pages/biz/TrainAbilityUnitSelection'));
+const CorporateCardTransaction = React.lazy(()=> import('~pages/biz/CorporateCardTransaction'));
 const ProjectList = React.lazy(() => import('~pages/biz/ProjectList'));
 const ProjectDetail = React.lazy(() => import('~pages/biz/ProjectDetail'));
+const YieldAbnormally = React.lazy(() => import('~pages/biz/YieldAbnormalityPage'));
+const YieldTrend = React.lazy(() => import('~pages/biz/YieldTrendPage'));
+
 
 export default function DefaultRoutes(): RouteObject[] {
   return [
@@ -91,7 +95,7 @@ export default function DefaultRoutes(): RouteObject[] {
       ),
       loader: checkBtnAuthLoader,
     },
-        {
+    {
       path: '/main/yoon-todo',
       element: (
         <React.Suspense fallback={<div>Loading...</div>}>
@@ -126,6 +130,29 @@ export default function DefaultRoutes(): RouteObject[] {
       ),
       loader: checkBtnAuthLoader,
     },
-    
+    {
+      path: '/main/corporate-card-transaction',
+      element: (
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <CorporateCardTransaction />
+        </React.Suspense>
+      )
+    },
+    {
+      path: '/main/yield-abnormally',
+      element: (
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <YieldAbnormally />
+        </React.Suspense>
+      )
+    },
+    {
+      path: '/main/yield/trend',
+      element: (
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <YieldTrend />
+        </React.Suspense>
+      )
+    }
   ];
 }
