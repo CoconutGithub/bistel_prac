@@ -1,14 +1,14 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Container, Row, Col, Spinner, Card } from 'react-bootstrap';
+import { Container, Row, Col, Spinner, Card, Button, ButtonGroup } from 'react-bootstrap';
 import ReactECharts from 'echarts-for-react';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-// 데이터 타입 정의 (필요 시 별도 파일로 분리)
+// 데이터 타입 정의
 interface YieldHistoryData {
   workDate: string;
   yieldRate: number;
-  [key: string]: any; // 기타 필드
+  [key: string]: any;
 }
 
 // 차트용 데이터 타입
@@ -16,11 +16,18 @@ interface DailyChartData {
   date: string;
   avgYield: number;
   count: number;
+  // Box Plot을 위한 5수 요약 (Min, Q1, Median, Q3, Max)
+  boxPlotData: [number, number, number, number, number];
+  rawValues: number[];
 }
 
 const YieldTrendPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+
+  // [추가] 차트 표시 여부 상태 관리 (기본값: 둘 다 켜짐)
+  const [showBoxPlot, setShowBoxPlot] = useState<boolean>(true);
+  const [showLineChart, setShowLineChart] = useState<boolean>(true);
 
   // 1. 선택된 아이템 정보 가져오기
   const selectedItem = useMemo(() => {
@@ -54,7 +61,6 @@ const YieldTrendPage: React.FC = () => {
     try {
       const token = sessionStorage.getItem('authToken');
 
-      // Payload 구성 (백엔드 ItemCriteriaDTO와 매핑)
       const payload = {
         itemType: selectedItem.itemType,
         steelGradeL: selectedItem.steelGradeL,
@@ -88,74 +94,160 @@ const YieldTrendPage: React.FC = () => {
     }
   };
 
-  // 4. [핵심] 날짜별 평균 수율 계산 로직
+  // 분위수 계산 헬퍼 함수
+  const calculateBoxPlotValues = (sortedData: number[]): [number, number, number, number, number] => {
+    const len = sortedData.length;
+    if (len === 0) return [0, 0, 0, 0, 0];
+
+    const min = sortedData[0];
+    const max = sortedData[len - 1];
+
+    const getQuantile = (p: number) => {
+      const pos = (len - 1) * p;
+      const base = Math.floor(pos);
+      const rest = pos - base;
+      if (len - 1 > base) {
+        return sortedData[base] + rest * (sortedData[base + 1] - sortedData[base]);
+      } else {
+        return sortedData[base];
+      }
+    };
+
+    const q1 = parseFloat(getQuantile(0.25).toFixed(2));
+    const median = parseFloat(getQuantile(0.5).toFixed(2));
+    const q3 = parseFloat(getQuantile(0.75).toFixed(2));
+
+    return [min, q1, median, q3, max];
+  };
+
+  // 4. 데이터 가공 로직
   const processedChartData = useMemo(() => {
     if (!historyData || historyData.length === 0) return [];
 
-    // (1) 날짜별로 그룹핑하여 합계 계산
-    const dailyMap = new Map<string, { sumYield: number;  count: number }>();
+    const dailyMap = new Map<string, number[]>();
 
     historyData.forEach((item) => {
-      const date = item.workDate; // 날짜 (yyyy-MM-dd 형태 가정)
+      const date = item.workDate;
       const yieldVal = Number(item.yieldRate) || 0;
 
       if (!dailyMap.has(date)) {
-        dailyMap.set(date, { sumYield: 0, count: 0 });
+        dailyMap.set(date, []);
       }
-
-      const entry = dailyMap.get(date)!;
-      entry.sumYield += yieldVal;
-      entry.count += 1;
+      dailyMap.get(date)!.push(yieldVal);
     });
 
-    // (2) 평균 계산 및 배열 변환
-    const result: DailyChartData[] = Array.from(dailyMap.entries()).map(([date, val]) => ({
-      date: date,
-      avgYield: parseFloat((val.sumYield / val.count).toFixed(2)),       // 소수점 2자리
-      count: val.count
-    }));
+    const result: DailyChartData[] = Array.from(dailyMap.entries()).map(([date, values]) => {
+      values.sort((a, b) => a - b);
+      const sum = values.reduce((acc, cur) => acc + cur, 0);
+      const avg = parseFloat((sum / values.length).toFixed(2));
+      const boxStats = calculateBoxPlotValues(values);
 
-    // (3) 날짜 오름차순 정렬 (백엔드에서 했더라도 안전장치)
+      return {
+        date: date,
+        avgYield: avg,
+        count: values.length,
+        boxPlotData: boxStats,
+        rawValues: values
+      };
+    });
+
     result.sort((a, b) => a.date.localeCompare(b.date));
-
-    console.log('★ [가공] 차트용 일별 평균 데이터:', result);
     return result;
   }, [historyData]);
 
 
-  // 5. 차트 옵션 설정 (가공된 데이터 사용)
+  // 5. [수정] 차트 옵션 설정 (상태값에 따라 Series 동적 구성)
   const chartOption = useMemo(() => {
-    // 데이터가 없으면 빈 옵션 반환 (로딩이나 빈 상태 UI 처리됨)
     if (processedChartData.length === 0) return {};
 
     const dates = processedChartData.map((item) => item.date);
     const avgYields = processedChartData.map((item) => item.avgYield);
+    const boxPlotValues = processedChartData.map((item) => item.boxPlotData);
+
+    // [핵심] 동적으로 Series 배열 생성
+    const seriesList: any[] = [];
+
+    // (1) Box Plot 추가 조건
+    if (showBoxPlot) {
+      seriesList.push({
+        name: '수율 분포 (Box)',
+        type: 'boxplot',
+        data: boxPlotValues,
+        itemStyle: {
+          color: '#ebf3ff',
+          borderColor: '#337ab7',
+          borderWidth: 1.5
+        },
+        emphasis: { focus: 'series' }
+      });
+    }
+
+    // (2) Line Chart 추가 조건
+    if (showLineChart) {
+      seriesList.push({
+        name: '평균 수율 (Line)',
+        type: 'line',
+        data: avgYields,
+        // symbol: 'circle',
+        symbolSize: 4,
+        emphasis: {
+          scale: 3,
+          itemStyle: {
+            borderWidth: 2,
+            shadowBlur: 5,
+            shadowColor: 'rgba(0, 0, 0, 0.3)'
+          }
+        },
+        itemStyle: { color: '#fd7e14' },
+        lineStyle: { width: 3 },
+        markLine: {
+          data: [{ type: 'average', name: '기간 전체 평균' }],
+          symbol: 'none',
+          lineStyle: { color: '#dc3545', type: 'dashed' }
+        },
+        z: 10
+      });
+    }
+
     return {
       title: {
-        text: '일별 평균 수율 트렌드',
+        text: '일별 수율 분포 및 평균 트렌드',
         left: 'center',
         textStyle: { fontSize: 16, fontWeight: 'bold' }
       },
       tooltip: {
         trigger: 'axis',
-        axisPointer: { type: 'cross' },
+        axisPointer: { type: 'shadow' },
         formatter: (params: any) => {
-          // 툴팁 커스터마이징
           if (!params || params.length === 0) return '';
+
           const dataIndex = params[0].dataIndex;
           const dataItem = processedChartData[dataIndex];
 
-          let html = `<strong>${dataItem.date}</strong> (LOT 수: ${dataItem.count}개)<br/>`;
+          let html = `<strong>${dataItem.date}</strong> (Total LOT: ${dataItem.count})<br/>`;
+
           params.forEach((p: any) => {
-            const val = p.value !== undefined ? `${p.value}%` : '-';
-            html += `${p.marker} ${p.seriesName}: <strong>${val}</strong><br/>`;
+            if (p.seriesType === 'boxplot') {
+              const [min, q1, median, q3, max] = dataItem.boxPlotData;
+              html += `${p.marker} <strong>${p.seriesName}</strong><br/>`;
+              html += `&nbsp;&nbsp;Max: ${max}%<br/>`;
+              html += `&nbsp;&nbsp;Q3: ${q3}%<br/>`;
+              html += `&nbsp;&nbsp;Median: ${median}%<br/>`;
+              html += `&nbsp;&nbsp;Q1: ${q1}%<br/>`;
+              html += `&nbsp;&nbsp;Min: ${min}%<br/>`;
+            }
+            else if (p.seriesType === 'line') {
+              html += `${p.marker} <strong>${p.seriesName}</strong>: ${p.value}%<br/>`;
+            }
           });
           return html;
         }
       },
       legend: {
-        data: ['평균 수율'],
-        bottom: 10
+        // [참고] 버튼으로 제어하므로 범례 클릭 제어는 굳이 필요 없으나 표시용으로 남김
+        data: ['수율 분포 (Box)', '평균 수율 (Line)'],
+        bottom: 10,
+        selectedMode: false // 범례 클릭으로 토글하는 기능 비활성화 (버튼과 충돌 방지)
       },
       grid: {
         left: '3%', right: '4%', bottom: '15%', top: '15%', containLabel: true,
@@ -168,50 +260,22 @@ const YieldTrendPage: React.FC = () => {
       },
       xAxis: {
         type: 'category',
-        boundaryGap: false, // 선이 Y축에 붙어서 시작
+        boundaryGap: true,
         data: dates,
-        // axisLabel: {
-        //   formatter: (val: string) => {
-        //     return val.length > 5 ? val.substring(5) : val;
-        //   }
-        // }
       },
       yAxis: {
         type: 'value',
         name: '수율(%)',
-        scale: true, // 데이터 범위에 맞춰 Y축 스케일 자동 조정 (0부터 시작 안 함)
-        axisLabel: { formatter: '{value} %' },
-        splitLine: { show: true, lineStyle: { type: 'dashed' } } // 가로 점선
+        scale: true,
+        splitLine: { show: true, lineStyle: { type: 'dashed' } }
       },
-      series: [
-        {
-          name: '평균 수율',
-          type: 'line',
-          data: avgYields,
-          // smooth: true, // 부드러운 곡선
-          // symbol: 'circle',
-          symbolSize: 5,
-          emphasis: { scale: 3 },
-          itemStyle: { color: '#0d6efd' },
-          lineStyle: { width: 3 },
-          // markPoint: {
-          //   data: [
-          //     { type: 'max', name: '최고' },
-          //     { type: 'min', name: '최저' }
-          //   ]
-          // },
-          markLine: {
-            data: [{ type: 'average', name: '전체 평균' }],
-            symbol: 'none'
-          }
-        },
-      ],
+      series: seriesList, // 동적으로 생성된 series 사용
       dataZoom: [
-        { type: 'inside', start: 0, end: 100 }, // 마우스 휠 줌
-        { type: 'slider', start: 0, end: 100 }  // 하단 슬라이더
+        { type: 'inside', start: 90, end: 100 },
+        { type: 'slider', start: 0, end: 100 }
       ]
     };
-  }, [processedChartData]);
+  }, [processedChartData, showBoxPlot, showLineChart]); // 의존성 배열에 상태 추가
 
   if (!selectedItem) return null;
 
@@ -257,11 +321,34 @@ const YieldTrendPage: React.FC = () => {
                   <span className="mt-3 fw-bold text-secondary">데이터 분석 중입니다...</span>
                 </div>
               ) : processedChartData.length > 0 ? (
-                <ReactECharts
-                  option={chartOption}
-                  style={{ height: '550px', width: '100%' }}
-                  notMerge={true} // 데이터 변경 시 차트 완전히 새로 그리기
-                />
+                <>
+                  {/* [추가] 차트 제어 버튼 그룹 */}
+                  <div className="d-flex justify-content-end mb-2 gap-2">
+                    <ButtonGroup>
+                      <Button
+                        variant={showBoxPlot ? "primary" : "outline-primary"}
+                        size="sm"
+                        onClick={() => setShowBoxPlot(!showBoxPlot)}
+                      >
+                        <i className={`bi ${showBoxPlot ? 'bi-check-square-fill' : 'bi-square'}`}></i> Box Plot (분포)
+                      </Button>
+                      <Button
+                        variant={showLineChart ? "warning" : "outline-warning"}
+                        size="sm"
+                        className={showLineChart ? "text-white" : "text-dark"}
+                        onClick={() => setShowLineChart(!showLineChart)}
+                      >
+                        <i className={`bi ${showLineChart ? 'bi-check-square-fill' : 'bi-square'}`}></i> Line Chart (평균)
+                      </Button>
+                    </ButtonGroup>
+                  </div>
+
+                  <ReactECharts
+                    option={chartOption}
+                    style={{ height: '550px', width: '100%' }}
+                    notMerge={true} // 데이터 변경 시 차트 완전히 새로 그리기
+                  />
+                </>
               ) : (
                 <div className="d-flex flex-column justify-content-center align-items-center h-100" style={{ minHeight: '500px', color: '#999' }}>
                   <i className="bi bi-exclamation-circle fs-1 mb-3"></i>
