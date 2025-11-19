@@ -310,8 +310,7 @@ const YieldTrendPage: React.FC = () => {
         {
           type: 'slider',
           startValue: zoomStartValue,
-          endValue: zoomEndValue,
-          maxSpan: 10
+          endValue: zoomEndValue
         },
       ]
     };
