@@ -14,8 +14,8 @@ import RecipeDetailModal from "~components/cat/RecipeDetailModal";
 import {CorporateCardTransactionData} from "~types/CorporateCardTransactionData";
 
 interface RowState {
-    modified: boolean;
-    data: Record<string ,any>
+  modified: boolean;
+  data: Record<string ,any>
 }
 
 const CorporateCardTransaction: React.FC = () => {
@@ -67,180 +67,180 @@ const CorporateCardTransaction: React.FC = () => {
   // 첨부파일 아이콘 클릭 핸들러
   const handleAttachmentClick = (params: any) => {
     setCurrentRowNode(params.node);
-      setShowAttachmentModal(true);
+    setShowAttachmentModal(true);
   };
 
   const handleCellEdit = (rowId: string, field: string, newValue: any) => {
-      setModifiedRows(prev => ({
-          ...prev,
-          [rowId]: {
-              modified: true,
-              data: { ...prev[rowId]?.data, [field]: newValue }
-          }
-      }));
+    setModifiedRows(prev => ({
+      ...prev,
+      [rowId]: {
+        modified: true,
+        data: { ...prev[rowId]?.data, [field]: newValue }
+      }
+    }));
   }
 
-    // Cell 값 변경 시
-    const handleCellValueChanged = (event: any) => {
-        const { data, colDef } = event;
-        console.log(`${colDef.field} changed to ${data[colDef.field]}`);
+  // Cell 값 변경 시
+  const handleCellValueChanged = (event: any) => {
+    const { data, colDef } = event;
+    console.log(`${colDef.field} changed to ${data[colDef.field]}`);
 
-        // modifiedRows 상태 업데이트
-        handleCellEdit(data.gridRowId, colDef.field, data[colDef.field]);
-    };
+    // modifiedRows 상태 업데이트
+    handleCellEdit(data.gridRowId, colDef.field, data[colDef.field]);
+  };
 
-    // Cell 편집 시작
-    const handleCellEditingStarted = (event: any) => {
-        console.log('편집 시작:', event.colDef.field);
-    };
+  // Cell 편집 시작
+  const handleCellEditingStarted = (event: any) => {
+    console.log('편집 시작:', event.colDef.field);
+  };
 
-    // Cell 편집 종료
-    const handleCellEditingStopped = (event: any) => {
-        console.log('편집 종료:', event.colDef.field);
-    };
+  // Cell 편집 종료
+  const handleCellEditingStopped = (event: any) => {
+    console.log('편집 종료:', event.colDef.field);
+  };
 
   const columnDefs: ColDef[] = [
     { field: 'gridRowId', headerName: 'gridRowId', editable: false, hide: true },
     {
-        headerName: '상태',
-        field: 'status',
-        editable: false,
-        width: 100,
-        cellStyle: {
-            color: 'green',
-            fontWeight: 'bold'
-        }
+      headerName: '상태',
+      field: 'status',
+      editable: false,
+      width: 100,
+      cellStyle: {
+        color: 'green',
+        fontWeight: 'bold'
+      }
     },
     {
-        headerName: '승인일자',
-        field: 'approvalDate',
-        editable: false,
-        width: 120,
-        valueFormatter: (params: any) => {
-            if (!params.value) return '';
-            return params.value.split('T')[0];
-        },
-        onCellClicked: (params: any) => {
-            setCurrentRowNode(params.node);
-            setShowRecipeDetailModal(true);
-            console.log("click approval data cell")
-        },
+      headerName: '승인일자',
+      field: 'approvalDate',
+      editable: false,
+      width: 120,
+      valueFormatter: (params: any) => {
+        if (!params.value) return '';
+        return params.value.split('T')[0];
+      },
+      onCellClicked: (params: any) => {
+        setCurrentRowNode(params.node);
+        setShowRecipeDetailModal(true);
+        console.log("click approval data cell")
+      },
     },
     {
-        headerName: '카드유형',
-        field: 'cardType',
-        editable: false,
-        width: 130,
-        cellStyle: {
-            color: 'black',
-            fontWeight: 'bold'
-        },
-        onCellClicked: (params: any) => {
-            setCurrentRowNode(params.node);
-            setShowRecipeDetailModal(true);
-        },
+      headerName: '카드유형',
+      field: 'cardType',
+      editable: false,
+      width: 130,
+      cellStyle: {
+        color: 'black',
+        fontWeight: 'bold'
+      },
+      onCellClicked: (params: any) => {
+        setCurrentRowNode(params.node);
+        setShowRecipeDetailModal(true);
+      },
     },
     {
-        headerName: '취소여부',
-        field: 'isCancelled',
-        editable: false,
-        width: 100,
-        cellRenderer: (params: any) => params.value ? '취소' : '승인',
-        cellStyle: {
-            color: 'black',
-            fontWeight: 'bold'
-        },
-        onCellClicked: (params: any) => {
-            setCurrentRowNode(params.node);
-            setShowRecipeDetailModal(true);
-        },
+      headerName: '취소여부',
+      field: 'isCancelled',
+      editable: false,
+      width: 100,
+      cellRenderer: (params: any) => params.value ? '취소' : '승인',
+      cellStyle: {
+        color: 'black',
+        fontWeight: 'bold'
+      },
+      onCellClicked: (params: any) => {
+        setCurrentRowNode(params.node);
+        setShowRecipeDetailModal(true);
+      },
     },
     {
-        headerName: '사용처',
-        field: 'merchantName',
-        editable: false,
-        width: 150,
-        cellStyle: {
-            color: "black",
-            fontWeight: "bold"
-        },
-        onCellClicked: (params: any) => {
-            setCurrentRowNode(params.node);
-            setShowRecipeDetailModal(true);
-        },
+      headerName: '사용처',
+      field: 'merchantName',
+      editable: false,
+      width: 150,
+      cellStyle: {
+        color: "black",
+        fontWeight: "bold"
+      },
+      onCellClicked: (params: any) => {
+        setCurrentRowNode(params.node);
+        setShowRecipeDetailModal(true);
+      },
     },
     {
-        headerName: '업종명',
-        field: 'merchantCategory',
-        editable: false,
-        width: 120,
-        cellStyle: {
-            color: "black",
-            fontWeight: "bold"
-        },
-        onCellClicked: (params: any) => {
-            setCurrentRowNode(params.node);
-            setShowRecipeDetailModal(true);
-        },
+      headerName: '업종명',
+      field: 'merchantCategory',
+      editable: false,
+      width: 120,
+      cellStyle: {
+        color: "black",
+        fontWeight: "bold"
+      },
+      onCellClicked: (params: any) => {
+        setCurrentRowNode(params.node);
+        setShowRecipeDetailModal(true);
+      },
     },
     {
-        headerName: '사용액',
-        field: 'transactionAmount',
-        editable: false,
-        width: 120,
-        valueFormatter: (params: any) => {
-            if (params.value === null || params.value === undefined) return '';
-            return params.value.toLocaleString();
-        },
-        cellStyle: {
-            color: 'red',
-            fontWeight: 'bold'
-        },
-        onCellClicked: (params: any) => {
-            setCurrentRowNode(params.node);
-            setShowRecipeDetailModal(true);
-        },
+      headerName: '사용액',
+      field: 'transactionAmount',
+      editable: false,
+      width: 120,
+      valueFormatter: (params: any) => {
+        if (params.value === null || params.value === undefined) return '';
+        return params.value.toLocaleString();
+      },
+      cellStyle: {
+        color: 'red',
+        fontWeight: 'bold'
+      },
+      onCellClicked: (params: any) => {
+        setCurrentRowNode(params.node);
+        setShowRecipeDetailModal(true);
+      },
     },
     {
-        headerName: '분할',
-        field: 'splitCount',
-        editable: false,
-        width: 80,
-        valueFormatter: (params: any) => {
-            if (params.value === null || params.value === 1) return '';
-        },
-        onCellClicked: (params: any) => {
-            setCurrentRowNode(params.node);
-            setShowRecipeDetailModal(true);
-        },
+      headerName: '분할',
+      field: 'splitCount',
+      editable: false,
+      width: 80,
+      valueFormatter: (params: any) => {
+        if (params.value === null || params.value === 1) return '';
+      },
+      onCellClicked: (params: any) => {
+        setCurrentRowNode(params.node);
+        setShowRecipeDetailModal(true);
+      },
     },
     {
-        headerName: '공급가액',
-        field: 'supplyAmount',
-        editable: true,
-        width: 120,
-        valueFormatter: (params: any) => {
-            if (params.value === null || params.value === undefined) return '';
-            return params.value.toLocaleString();
-        },
-        onCellClicked: (params: any) => {
-            setCurrentRowNode(params.node);
-            setShowRecipeDetailModal(true);
-        },
+      headerName: '공급가액',
+      field: 'supplyAmount',
+      editable: true,
+      width: 120,
+      valueFormatter: (params: any) => {
+        if (params.value === null || params.value === undefined) return '';
+        return params.value.toLocaleString();
+      },
+      onCellClicked: (params: any) => {
+        setCurrentRowNode(params.node);
+        setShowRecipeDetailModal(true);
+      },
     },
     {
-        headerName: '부가세',
-        field: 'taxAmount',
-        editable: false,
-        width: 100,
-        valueFormatter: (params: any) => {
-            if (params.value === null || params.value === undefined) return '';
-            return params.value.toLocaleString();
-        },
-        onCellClicked: (params: any) => {
-            setCurrentRowNode(params.node);
-            setShowRecipeDetailModal(true);
-        },
+      headerName: '부가세',
+      field: 'taxAmount',
+      editable: false,
+      width: 100,
+      valueFormatter: (params: any) => {
+        if (params.value === null || params.value === undefined) return '';
+        return params.value.toLocaleString();
+      },
+      onCellClicked: (params: any) => {
+        setCurrentRowNode(params.node);
+        setShowRecipeDetailModal(true);
+      },
     },
     {
       headerName: '계정명',
@@ -253,51 +253,51 @@ const CorporateCardTransaction: React.FC = () => {
       },
     },
     {
-        headerName: '프로젝트코드',
-        field: 'projectCode',
-        editable: true,
-        width: 130,
-        onCellClicked: (params:any)=> {
-            setCurrentRowNode(params.node)
-            setShowProjectSearchModal(true);
-        }
+      headerName: '프로젝트코드',
+      field: 'projectCode',
+      editable: true,
+      width: 130,
+      onCellClicked: (params:any)=> {
+        setCurrentRowNode(params.node)
+        setShowProjectSearchModal(true);
+      }
     },
     {
-        headerName: '프로젝트명',
-        field: 'projectName',
-        editable: true,
-        width: 150,
-        onCellClicked: (params:any)=> {
-            setCurrentRowNode(params.node)
-            setShowProjectSearchModal(true);
-        }
+      headerName: '프로젝트명',
+      field: 'projectName',
+      editable: true,
+      width: 150,
+      onCellClicked: (params:any)=> {
+        setCurrentRowNode(params.node)
+        setShowProjectSearchModal(true);
+      }
     },
     { headerName: '적요', field: 'description', editable: true, width: 200 },
     {
-        headerName: '첨부파일',
-        cellRenderer: (params:any)=> {
-            return (
-                <img
-                    src={attachIcon}
-                    alt="attach"
-                    style={{ width: 16, height: 16, cursor: 'pointer' }}
-                    onClick={() => handleAttachmentClick(params)}
-                />
-            );
-        },
-        cellStyle: { display: 'flex', alignItems: 'center', justifyContent: 'center' },
-        width: 150
+      headerName: '첨부파일',
+      cellRenderer: (params:any)=> {
+        return (
+          <img
+            src={attachIcon}
+            alt="attach"
+            style={{ width: 16, height: 16, cursor: 'pointer' }}
+            onClick={() => handleAttachmentClick(params)}
+          />
+        );
+      },
+      cellStyle: { display: 'flex', alignItems: 'center', justifyContent: 'center' },
+      width: 150
     },
     { headerName: '사전품의서', field: 'preApprovalFileName', editable: false, width: 150 },
     {
-        headerName: '전기일자',
-        field: 'transactionDate',
-        editable: false,
-        width: 120,
-        valueFormatter: (params: any) => {
-            if (!params.value) return '';
-            return params.value.split('T')[0];
-        }
+      headerName: '전기일자',
+      field: 'transactionDate',
+      editable: false,
+      width: 120,
+      valueFormatter: (params: any) => {
+        if (!params.value) return '';
+        return params.value.split('T')[0];
+      }
     },
   ];
 
@@ -359,11 +359,11 @@ const CorporateCardTransaction: React.FC = () => {
     comAPIContext.showProgressBar();
 
     const payload = Object.entries(modifiedRows).map(([id, state])=>({
-        "cctId": Number(id),
-        "accountName": state.data?.accountName,
-        "projectName": state.data?.projectName,
-        "projectCode": state.data?.projectCode,
-        "description": state.data?.description
+      "cctId": Number(id),
+      "accountName": state.data?.accountName,
+      "projectName": state.data?.projectName,
+      "projectCode": state.data?.projectCode,
+      "description": state.data?.description
     }))
 
     axios
@@ -486,10 +486,10 @@ const CorporateCardTransaction: React.FC = () => {
       />
 
       <RecipeDetailModal
-          show={showRecipeDetailModal}
-          onHide={()=>setShowRecipeDetailModal(false)}
-          onSelect={() => {}}
-          currentValue={currentRowNode?.data}
+        show={showRecipeDetailModal}
+        onHide={()=>setShowRecipeDetailModal(false)}
+        onSelect={() => {}}
+        currentValue={currentRowNode?.data}
       />
     </Container>
   );
