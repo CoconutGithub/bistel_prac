@@ -8,10 +8,11 @@ import axios from 'axios';
 import { cachedAuthToken } from '~store/AuthSlice';
 import ProjectSearchModal from "~components/cat/ProjectSearchModal";
 import attachIcon from '~assets/attach.png';
-import { ColDef, CellClassParams } from '@ag-grid-community/core';
+import {ColDef, CellClassParams, RowNode} from '@ag-grid-community/core';
 import AttachmentModal from "~components/cat/AttachmentModal";
 import RecipeDetailModal from "~components/cat/RecipeDetailModal";
 import {CorporateCardTransactionData} from "~types/CorporateCardTransactionData";
+import CctChartModal from "~components/cat/CctChartModal";
 
 interface RowState {
   modified: boolean;
@@ -47,6 +48,9 @@ const CorporateCardTransaction: React.FC = () => {
   const [showProjectSearchModal, setShowProjectSearchModal] = useState(false);
   const [showAttachmentModal, setShowAttachmentModal] = useState(false);
   const [showRecipeDetailModal, setShowRecipeDetailModal] = useState(false);
+
+
+  const [showChartModal, setShowChartModal] = useState(false);
 
   // 계정명 선택 핸들러
   const handleAccountSelect = (accountName: string) => {
@@ -98,6 +102,15 @@ const CorporateCardTransaction: React.FC = () => {
   const handleCellEditingStopped = (event: any) => {
     console.log('편집 종료:', event.colDef.field);
   };
+
+  const getGridData = () => {
+    const rows: CorporateCardTransactionData[] = [];
+    gridRef.current?.gridApi?.forEachNode((node: any) => {
+      if (node.data) rows.push(node.data);
+    });
+    return rows;
+  };
+
 
   const columnDefs: ColDef[] = [
     { field: 'gridRowId', headerName: 'gridRowId', editable: false, hide: true },
@@ -438,6 +451,9 @@ const CorporateCardTransaction: React.FC = () => {
             <Button variant="primary" onClick={handleSearch}>
               조회
             </Button>
+            <Button onClick= {()=>{setShowChartModal(true)}}>
+              차트
+            </Button>
           </Form>
         </Col>
       </Row>
@@ -490,6 +506,15 @@ const CorporateCardTransaction: React.FC = () => {
         onHide={()=>setShowRecipeDetailModal(false)}
         onSelect={() => {}}
         currentValue={currentRowNode?.data}
+      />
+
+      <CctChartModal
+        show={showChartModal}
+        onHide={()=>setShowChartModal(false)}
+        onSelect={() => {}}
+        startDate={startDate}
+        endDate={endDate}
+        data={getGridData()}
       />
     </Container>
   );
