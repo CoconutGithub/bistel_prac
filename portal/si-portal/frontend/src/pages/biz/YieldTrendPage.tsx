@@ -310,8 +310,7 @@ const YieldTrendPage: React.FC = () => {
         {
           type: 'slider',
           startValue: zoomStartValue,
-          endValue: zoomEndValue,
-          maxSpan: 10
+          endValue: zoomEndValue
         },
       ]
     };
@@ -366,19 +365,29 @@ const YieldTrendPage: React.FC = () => {
                   <div className="d-flex justify-content-end mb-2 gap-2">
                     <ButtonGroup>
                       <Button
-                        variant={showBoxPlot ? "primary" : "outline-primary"}
+                        // variant={showBoxPlot ? "primary" : "outline-primary"}
                         size="sm"
                         onClick={() => setShowBoxPlot(!showBoxPlot)}
+                        style={{
+                          backgroundColor: showBoxPlot ? "#337ab7" : "transparent",
+                          color: showBoxPlot ? "white" : "#337ab7",
+                          borderColor: '#337ab7'
+                        }}
                       >
                         <i className={`bi ${showBoxPlot ? 'bi-check-square-fill' : 'bi-square'}`}></i> Box Plot (분포)
                       </Button>
                       <Button
-                        variant={showLineChart ? "warning" : "outline-warning"}
+                        // variant={showLineChart ? "secondary" : "outline-secondary"}
                         size="sm"
-                        className={showLineChart ? "text-white" : "text-dark"}
+                        // className={showLineChart ? "text-white" : "text-dark"}
                         onClick={() => setShowLineChart(!showLineChart)}
+                        style={{
+                          backgroundColor: showLineChart ? "#fd7e14" : "transparent",
+                          color: showLineChart ? "white" : "#fd7e14",
+                          borderColor: "#fd7e14"
+                        }}
                       >
-                        <i className={`bi ${showLineChart ? 'bi-check-square-fill' : 'bi-square'}`}></i> Line Chart (평균)
+                        <i className={`bi ${showLineChart ? 'bi-check-square-fill' : 'bi-square'}`} ></i> Line Chart (평균)
                       </Button>
                     </ButtonGroup>
                   </div>

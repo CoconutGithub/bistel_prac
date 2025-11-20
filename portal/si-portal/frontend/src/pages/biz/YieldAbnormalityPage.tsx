@@ -44,14 +44,7 @@ const YieldAbnormalityPage: React.FC = () => {
     { headerName: '주문외경', field: 'orderOuterDia', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter',headerClass: 'header-left-align' },
     { headerName: '투입량', field: 'inputQty', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', valueFormatter: (params) => params.value?.toLocaleString() ,headerClass: 'header-left-align'},
     { headerName: '생산량', field: 'prodQty', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', valueFormatter: (params) => params.value?.toLocaleString(),headerClass: 'header-left-align' },
-    {
-      headerName: '수율(%)',
-      field: 'yieldRate',
-      width: 100,
-      type: 'numericColumn',
-      filter: 'agNumberColumnFilter',
-      headerClass: 'header-left-align'
-    },
+    { headerName: '수율(%)', field: 'yieldRate', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' },
     // [중요] 이상여부 필터링 대상 컬럼
     { headerName: '이상여부', field: 'excessYn', width: 120, cellClass: 'text-center' },
     { headerName: '이상기준값', field: 'excessStdValue', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter' ,headerClass: 'header-left-align'},
@@ -351,7 +344,6 @@ const YieldAbnormalityPage: React.FC = () => {
               enableCheckbox={false}
               onRowClicked={handleRowClick}
               pagination={true}
-              paginationPageSize={20}
             />
           </Col>
         </Row>

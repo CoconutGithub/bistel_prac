@@ -128,6 +128,8 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
     const gridRef = useRef<AgGridReact>(null); // AgGrid 참조
     const [rowData, setRowData] = useState<any[]>([]);
 
+    const [displayedCount, setDisplayedCount] = useState<number>(0);
+
     const updateList = useRef<Map<string, string>>(new Map());
     const createList = useRef<Map<string, string>>(new Map());
     const deleteList = useRef<Map<string, string>>(new Map());
@@ -185,11 +187,21 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
     const onGridReady = useCallback(() => {
       console.log('✅ AG Grid 렌더링 완료!');
 
+      //초기 로딩 시 전체 개수 설정
+      if (gridRef.current && gridRef.current.api) {
+        setDisplayedCount(gridRef.current.api.getDisplayedRowCount());
+      }
       // 부모 컴포넌트의 메서드 호출 (Grid가 준비된 후)
       if (onGridLoaded) {
         onGridLoaded();
       }
     }, [onGridLoaded]);
+
+    const handleModelUpdated = (event: any) => {
+      if (event.api) {
+        setDisplayedCount(event.api.getDisplayedRowCount());
+      }
+    };
 
     const handleCellValueChange = (event: any) => {
       const { data } = event; // 변경된 행 데이터 가져오기
@@ -333,6 +345,8 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
       setRowData: (newData: any[]) => {
         console.log('newData', newData);
         setRowData(newData); // 데이터 설정
+        // 데이터 변경 시 필터링된 개수도 초기화 (전체 개수로)
+        setDisplayedCount(newData.length);
         gridRef.current?.api.deselectAll();
         updateList.current.clear();
         createList.current.clear();
@@ -350,7 +364,9 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
           <Row className={styles.tableInfo}>
             {!props.hideTitle && (
               <Col className={styles.countColumn}>
-                <p className={styles.count}>({rowData.length})</p>
+                <p className={styles.count}>
+                (Filtered: {displayedCount} / Total: {rowData.length})
+                </p>
               </Col>
             )}
             {showButtonArea && (
@@ -411,6 +427,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
               rowClassRules={rowClassRules} // 행 스타일 규칙 적용
               getRowId={defaultGetRowId}
               onGridReady={onGridReady}
+              onModelUpdated={handleModelUpdated}
               onCellEditingStopped={handleCellEditingStopped}
               onCellEditingStarted={handleCellEditingStarted}
               onCellDoubleClicked={handleCellDoubleClick}

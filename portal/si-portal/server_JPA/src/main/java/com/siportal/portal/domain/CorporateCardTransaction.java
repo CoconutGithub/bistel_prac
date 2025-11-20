@@ -23,10 +23,13 @@ public class CorporateCardTransaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "corporate_card_transaction_seq_generator")
-    private String id;
+    private Integer id;
 
     @Column(name = "status")
     private String status;
+
+    @Column(name = "approval_number", length = 30)
+    private String approvalNumber;
 
     @Column(name = "approval_date", nullable = false)
     private LocalDateTime approvalDate;
@@ -43,6 +46,18 @@ public class CorporateCardTransaction {
     @Column(name = "merchant_category", length = 100)
     private String merchantCategory;
 
+    @Column(name = "merchant_owner_name", length = 50)
+    private String merchantOwnerName;
+
+    @Column(name = "merchant_address", length = 255)
+    private String merchantAddress;
+
+    @Column(name = "card_company", length = 50)
+    private String cardCompany;
+
+    @Column(name = "card_number", length = 30)
+    private String cardNumber;
+
     @Column(name = "transaction_amount")
     private Integer transactionAmount;
 
@@ -54,6 +69,9 @@ public class CorporateCardTransaction {
 
     @Column(name = "tax_amount")
     private Integer taxAmount;
+
+    @Column(name = "business_registration_number", length = 20)
+    private String businessRegistrationNumber;
 
     @Column(name = "account_name", length = 100)
     private String accountName;
