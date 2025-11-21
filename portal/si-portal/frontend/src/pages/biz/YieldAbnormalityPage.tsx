@@ -376,7 +376,7 @@ const YieldAbnormalityPage: React.FC = () => {
               rowSelection="single"
               enableCheckbox={false}
               onRowClicked={handleRowClick}
-              pagination={true}
+              pagination={false}
             />
           </Col>
         </Row>
