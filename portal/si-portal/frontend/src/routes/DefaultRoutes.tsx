@@ -22,6 +22,7 @@ const CorporateCardTransaction = React.lazy(()=> import('~pages/biz/CorporateCar
 const ProjectList = React.lazy(() => import('~pages/biz/ProjectList'));
 const ProjectDetail = React.lazy(() => import('~pages/biz/ProjectDetail'));
 const YieldAbnormally = React.lazy(() => import('~pages/biz/YieldAbnormalityPage'));
+const YieldAbnormallyDate = React.lazy(() => import('~pages/biz/YieldAbnormalityPageDate'));
 const YieldTrend = React.lazy(() => import('~pages/biz/YieldTrendPage'));
 
 
@@ -143,6 +144,14 @@ export default function DefaultRoutes(): RouteObject[] {
       element: (
         <React.Suspense fallback={<div>Loading...</div>}>
           <YieldAbnormally />
+        </React.Suspense>
+      )
+    },
+    {
+      path: '/main/yield-abnormally-date',
+      element: (
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <YieldAbnormallyDate />
         </React.Suspense>
       )
     },

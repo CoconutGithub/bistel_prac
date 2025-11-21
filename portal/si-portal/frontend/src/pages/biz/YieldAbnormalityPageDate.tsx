@@ -1,38 +1,49 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import axios from 'axios';
-import { Container, Row, Col, Tabs, Tab, Spinner, Form, Button, Modal } from 'react-bootstrap';
+import { Container, Row, Col, Tabs, Tab, Spinner, Form, Modal, Button } from 'react-bootstrap';
 import { ColDef } from '@ag-grid-community/core';
 import { useNavigate } from 'react-router-dom';
 
-// [수정] Redux 관련 임포트 추가
 import { useDispatch } from 'react-redux';
 import { addTab, setActiveTab } from '~store/RootTabs';
 
 import AgGridWrapper from '../../components/agGridWrapper/AgGridWrapper';
 import { AgGridWrapperHandle } from '~types/GlobalTypes';
 import styles from './YieldAbnormalityPage.module.scss';
+import { newDate } from 'react-datepicker/dist/date_utils';
 
-const YieldAbnormalityPage: React.FC = () => {
+const YieldAbnormalityPageDate: React.FC = () => {
   const [activeTab, setActiveTabState] = useState<string>('pipe');
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // 컬럼 가시성 상태 관리 (Key: field명, Value: 보임 여부)
+  // 컬럼 가시성 상태 관리
   const [colVisibility, setColVisibility] = useState<{ [key: string]: boolean }>({});
+
+  // 컬럼 설정 모달 상태 관리
   const [showColModal, setShowColModal] = useState<boolean>(false);
+
+  // 날짜 필터링 상태 관리 (YYYY-MM-DD)
+  const [startDate, setStartDate] = useState<string>('2025-09-01');
+  const [endDate, setEndDate] = useState<string>('2025-09-30');
 
   const gridRef = useRef<AgGridWrapperHandle>(null);
   const navigate = useNavigate();
-
-  // [수정] dispatch 훅 생성
   const dispatch = useDispatch();
 
-  // 1. 공통 컬럼 정의 (useMemo로 최적화하여 리렌더링 시 재생성 방지)
+  // 1. 공통 컬럼 정의
   const commonColumns: ColDef[] = useMemo(() => [
     { headerName: 'LOT No', field: 'lotNo', width: 150, pinned: 'left', sortable: true, filter: true },
     { headerName: 'HEAT No', field: 'heatNo', width: 120, sortable: true, filter: true },
     { headerName: '품목종류', field: 'itemType', width: 100 },
     { headerName: '제품자재코드', field: 'prodMaterialCd', width: 130 },
-    { headerName: '작업일자', field: 'workDate', width: 110, sortable: true },
+    // [수정] 서버에서 이미 날짜별로 걸러져 오므로 복잡한 클라이언트 필터 로직 제거
+    {
+      headerName: '작업일자',
+      field: 'workDate',
+      width: 110,
+      sortable: true,
+      filter: 'agDateColumnFilter'
+    },
     { headerName: '사내강종명', field: 'inhouseSteelName', width: 180 },
     { headerName: '강종대분류', field: 'steelGradeL', width: 120 },
     { headerName: '강종중분류', field: 'steelGradeM', width: 120 },
@@ -45,15 +56,7 @@ const YieldAbnormalityPage: React.FC = () => {
     { headerName: '주문외경', field: 'orderOuterDia', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter',headerClass: 'header-left-align' },
     { headerName: '투입량', field: 'inputQty', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', valueFormatter: (params) => params.value?.toLocaleString() ,headerClass: 'header-left-align'},
     { headerName: '생산량', field: 'prodQty', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', valueFormatter: (params) => params.value?.toLocaleString(),headerClass: 'header-left-align' },
-    {
-      headerName: '수율(%)',
-      field: 'yieldRate',
-      width: 100,
-      type: 'numericColumn',
-      filter: 'agNumberColumnFilter',
-      headerClass: 'header-left-align'
-    },
-    // [중요] 이상여부 필터링 대상 컬럼
+    { headerName: '수율(%)', field: 'yieldRate', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' },
     { headerName: '이상여부', field: 'excessYn', width: 120, cellClass: 'text-center' },
     { headerName: '이상기준값', field: 'excessStdValue', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter' ,headerClass: 'header-left-align'},
     { headerName: '수율차이', field: 'yieldDiff', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' },
@@ -67,7 +70,7 @@ const YieldAbnormalityPage: React.FC = () => {
     { headerName: '최종저가법영향', field: 'finalLcmImpact', width: 140, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' }
   ], []);
 
-  // 2. 전용 컬럼 정의 (useMemo 적용)
+  // 2. 전용 컬럼 정의
   const pipeSpecificColumns: ColDef[] = useMemo(() => [
     { headerName: '주문내경', field: 'orderInnerDia', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' },
     { headerName: '주문두께', field: 'orderThickness', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' },
@@ -95,7 +98,6 @@ const YieldAbnormalityPage: React.FC = () => {
     const initialVisibility: { [key: string]: boolean } = {};
     currentColumnDefs.forEach(col => {
       if (col.field) {
-        // 초기 설정에서 hide: true인 것은 false로, 나머지는 true로 설정
         initialVisibility[col.field] = !col.hide;
       }
     });
@@ -110,15 +112,23 @@ const YieldAbnormalityPage: React.FC = () => {
     }
   };
 
+  // [수정] 데이터 조회 함수: 서버로 날짜 파라미터를 전송하도록 변경
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
       const token = sessionStorage.getItem('authToken');
       if (!token) console.warn('인증 토큰이 없습니다.');
 
-      const endpoint = activeTab === 'pipe' ? '/api/yield/pipe' : '/api/yield/bar';
+      const endpoint = activeTab === 'pipe' ? '/api/yield/pipe-date' : '/api/yield/bar-date';
+
+      // [수정] GET 요청 시 params에 startDate, endDate 추가
+      // 백엔드에서 @RequestParam으로 startDate, endDate를 받는다고 가정
       const response = await axios.get(`http://localhost:8080${endpoint}`, {
         headers: { Authorization: `Bearer ${token}` },
+        params: {
+          startDate: startDate,
+          endDate: endDate
+        }
       });
 
       if (response.data) {
@@ -136,26 +146,20 @@ const YieldAbnormalityPage: React.FC = () => {
 
         gridRef.current?.setRowData(gridData);
 
-        // [요구사항 1 구현] 데이터 로드 직후 '이상여부' 필터링 적용
+        // 데이터 로드 직후 '이상여부' 필터링 적용 (날짜 필터 로직은 제거됨)
         setTimeout(() => {
           if (gridRef.current?.gridApi) {
             const api = gridRef.current.gridApi;
 
-            // 'excessYn' 컬럼에 대해 값이 '이상'인 것만 필터링
-            api.setFilterModel({
+            const initialFilter = {
               excessYn: {
                 filterType: 'text',
                 type: 'equals',
                 filter: '이상'
-              },
-              workDate: {
-                filterType: 'date',      // 날짜 필터 타입 명시
-                type: 'inRange',         // 범위 조건
-                dateFrom: '2025-09-01',  // 시작일 (포함)
-                dateTo: '2025-09-30'     // 종료일 (포함)
               }
-            });
-            api.onFilterChanged(); // 필터 적용 트리거
+            };
+            api.setFilterModel(initialFilter);
+            api.onFilterChanged();
           }
         }, 100);
       }
@@ -169,58 +173,54 @@ const YieldAbnormalityPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [activeTab, navigate]);
+  }, [activeTab, startDate, endDate]);
 
+  // [수정] 초기 로딩 및 탭 변경 시에만 조회 수행
+  // 경고: startDate, endDate가 변경될 때마다 자동 조회를 원하지 않으므로
+  // useEffect dependency에서 fetchData를 제거하거나,
+  // useMemo/useCallback 구조를 조정해야 하지만
+  // 여기서는 탭 변경 시 현재 설정된 날짜로 자동 조회를 위해 activeTab만 감시
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
+  // -> 날짜만 바꿨을 땐 조회 안됨(의도된 동작). '조회' 버튼 눌러야 함.
 
-  // [수정] 행 클릭 시 Redux 탭 시스템을 통해 페이지 이동 처리
+
   const handleRowClick = (event: any) => {
     const rowData = event.data;
-    console.log('상세 이동할 데이터:', rowData);
-
     sessionStorage.setItem('selectedTrendItem', JSON.stringify(rowData));
 
     const targetPath = '/main/yield/trend';
 
-    // 탭 정보 구성 (고정 키 사용시 탭 하나만 열림, 유니크 키 사용시 여러개 열림)
-    // 여기서는 '수율 분석' 탭을 하나로 관리하기 위해 고정 키에 LotNo를 라벨로 붙임
     const tabInfo = {
       key: 'yield-trend',
       label: `수율 트렌드 : ${rowData.lotNo}`,
       path: targetPath
     };
 
-    // 1. Redux Store에 탭 추가 (이미 존재하면 활성화 준비)
     dispatch(addTab(tabInfo));
-
-    // 2. 해당 탭을 활성화 상태로 변경 (실제 화면 전환 트리거)
     dispatch(setActiveTab(tabInfo.key));
-
-    // 3. 라우터 이동 (데이터 전달 포함)
     navigate(targetPath, { state: rowData });
   };
 
-  // [수정] 체크박스 토글 최적화 (Native Input + applyColumnState + requestAnimationFrame)
+  // 체크박스 토글 (모달 내부에서 사용)
   const toggleColumnVisibility = (field: string) => {
     const api = gridRef.current?.gridApi;
     if (!api) return;
 
     const nextVisible = !colVisibility[field];
 
-    // 1. React 상태 업데이트 (UI 즉시 반영)
     setColVisibility(prev => ({
       ...prev,
       [field]: nextVisible
     }));
 
-    // 2. 브라우저 렌더링 확보 후 그리드 연산 수행
     requestAnimationFrame(() => {
       setTimeout(() => {
         api.applyColumnState({
           state: [
-            { colId: field, hide: !nextVisible } // hide는 visible의 반대
+            { colId: field, hide: !nextVisible }
           ]
         });
       }, 50);
@@ -237,7 +237,6 @@ const YieldAbnormalityPage: React.FC = () => {
       </Row>
 
       <Row className="container_contents">
-        {/* 상단 탭 + 컬럼 설정 버튼 영역 */}
         <Row className="mb-0" style={{ padding: '0 15px' }}>
           <Col>
             <Tabs
@@ -251,49 +250,68 @@ const YieldAbnormalityPage: React.FC = () => {
               <Tab eventKey="bar" title="강봉 (Bar)" />
             </Tabs>
           </Col>
+        </Row>
+
+        {/* 필터 및 컬럼 설정 영역 */}
+        <Row className="mb-2 mt-2" style={{ padding: '0 15px', alignItems: 'center' }}>
+          {/* 1. 작업일자 필터 및 조회 버튼 영역 */}
+          <Col md={8} className="d-flex align-items-center">
+            <span style={{ fontWeight: 'bold', marginRight: '10px', whiteSpace: 'nowrap' }}>
+              작업일자 :
+            </span>
+            <Form.Control
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              style={{ width: '160px', display: 'inline-block' }}
+            />
+            <span style={{ margin: '0 10px' }}>~</span>
+            <Form.Control
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              style={{ width: '160px', display: 'inline-block', marginRight: '10px' }}
+            />
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={fetchData}
+              disabled={isLoading}
+            >
+              <i className="bi bi-search" style={{marginRight: '5px'}}></i>
+              조회
+            </Button>
+          </Col>
 
           {/* 2. 컬럼 설정 버튼 영역 (우측 정렬) */}
-          <Col md="auto" className="d-flex justify-content-end">
+          <Col md={4} className="d-flex justify-content-end">
             <Button
               variant="outline-secondary"
               size="sm"
               onClick={() => setShowColModal(true)}
             >
-              <i className="bi bi-gear-fill" style={{ marginRight: '5px' }}></i>
+              <i className="bi bi-gear-fill" style={{marginRight: '5px'}}></i>
               컬럼 설정
             </Button>
           </Col>
         </Row>
 
-        {/* 그리드 영역 */}
         <Row className="contents_wrap" style={{ flex: 1 }}>
           <Col style={{ position: 'relative', minHeight: '400px' }}>
             {isLoading && (
               <div
                 style={{
                   position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
+                  top: 0, left: 0, width: '100%', height: '100%',
                   backgroundColor: 'rgba(255, 255, 255, 0.8)',
                   zIndex: 10,
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  flexDirection: 'column'
+                  display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column'
                 }}
               >
                 <Spinner animation="border" variant="primary" role="status" />
-                <span
-                  style={{
-                    marginTop: '10px',
-                    fontWeight: 'bold',
-                    color: '#555'
-                  }}
-                >
-                데이터 불러오는 중...
-              </span>
+                <span style={{ marginTop: '10px', fontWeight: 'bold', color: '#555' }}>
+                  데이터 불러오는 중...
+                </span>
               </div>
             )}
 
@@ -320,20 +338,11 @@ const YieldAbnormalityPage: React.FC = () => {
           <Modal.Title>테이블 컬럼 설정</Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ maxHeight: '400px', overflowY: 'auto' }}>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '10px'
-            }}
-          >
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
             {currentColumnDefs.map((col) => {
               if (!col.field) return null;
               return (
-                <div
-                  key={col.field}
-                  style={{ display: 'flex', alignItems: 'center' }}
-                >
+                <div key={col.field} style={{ display: 'flex', alignItems: 'center' }}>
                   <Form.Check
                     type="checkbox"
                     id={`modal-chk-${col.field}`}
@@ -352,9 +361,9 @@ const YieldAbnormalityPage: React.FC = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+
     </Container>
   );
-
 };
 
-export default YieldAbnormalityPage;
+export default YieldAbnormalityPageDate;
