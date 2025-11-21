@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import axios from 'axios';
-import { Container, Row, Col, Tabs, Tab, Spinner, Form, Modal, Button } from 'react-bootstrap'; // [수정] Modal, Button 추가
+import { Container, Row, Col, Tabs, Tab, Spinner, Form, Modal, Button } from 'react-bootstrap';
 import { ColDef } from '@ag-grid-community/core';
 import { useNavigate } from 'react-router-dom';
 
@@ -10,6 +10,7 @@ import { addTab, setActiveTab } from '~store/RootTabs';
 import AgGridWrapper from '../../components/agGridWrapper/AgGridWrapper';
 import { AgGridWrapperHandle } from '~types/GlobalTypes';
 import styles from './YieldAbnormalityPage.module.scss';
+import { newDate } from 'react-datepicker/dist/date_utils';
 
 const YieldAbnormalityPage: React.FC = () => {
   const [activeTab, setActiveTabState] = useState<string>('pipe');
@@ -18,11 +19,10 @@ const YieldAbnormalityPage: React.FC = () => {
   // 컬럼 가시성 상태 관리
   const [colVisibility, setColVisibility] = useState<{ [key: string]: boolean }>({});
 
-  // [추가] 컬럼 설정 모달 상태 관리
+  // 컬럼 설정 모달 상태 관리
   const [showColModal, setShowColModal] = useState<boolean>(false);
 
-  // [추가] 날짜 필터링 상태 관리 (YYYY-MM-DD)
-  // 초기값을 2025-09-01 ~ 2025-09-30으로 설정 (기존 요구사항 반영)
+  // 날짜 필터링 상태 관리 (YYYY-MM-DD)
   const [startDate, setStartDate] = useState<string>('2025-09-01');
   const [endDate, setEndDate] = useState<string>('2025-09-30');
 
@@ -36,25 +36,13 @@ const YieldAbnormalityPage: React.FC = () => {
     { headerName: 'HEAT No', field: 'heatNo', width: 120, sortable: true, filter: true },
     { headerName: '품목종류', field: 'itemType', width: 100 },
     { headerName: '제품자재코드', field: 'prodMaterialCd', width: 130 },
-    // [수정] 날짜 필터링을 위해 filter 속성을 'agDateColumnFilter'로 명시
+    // [수정] 서버에서 이미 날짜별로 걸러져 오므로 복잡한 클라이언트 필터 로직 제거
     {
       headerName: '작업일자',
       field: 'workDate',
       width: 110,
       sortable: true,
-      filter: 'agDateColumnFilter',
-      filterParams: {
-        comparator: (filterLocalDateAtMidnight: Date, cellValue: string) => {
-          if (cellValue == null) return -1;
-          // 문자열 YYYY-MM-DD를 Date 객체와 비교
-          const dateParts = cellValue.split('-');
-          const cellDate = new Date(Number(dateParts[0]), Number(dateParts[1]) - 1, Number(dateParts[2]));
-
-          if (cellDate < filterLocalDateAtMidnight) return -1;
-          if (cellDate > filterLocalDateAtMidnight) return 1;
-          return 0;
-        }
-      }
+      filter: 'agDateColumnFilter'
     },
     { headerName: '사내강종명', field: 'inhouseSteelName', width: 180 },
     { headerName: '강종대분류', field: 'steelGradeL', width: 120 },
@@ -124,70 +112,23 @@ const YieldAbnormalityPage: React.FC = () => {
     }
   };
 
-  // [추가] 날짜 필터를 Grid에 적용하는 함수
-  const applyDateFilterToGrid = useCallback(() => {
-    const api = gridRef.current?.gridApi;
-    if (!api) return;
-
-    // 현재 적용된 다른 필터 모델을 가져옴 (예: excessYn)
-    const currentFilterModel = api.getFilterModel() || {};
-
-    let workDateFilterModel: any = null;
-
-    if (startDate && endDate) {
-      workDateFilterModel = {
-        filterType: 'date',
-        type: 'inRange',
-        dateFrom: startDate,
-        dateTo: endDate
-      };
-    } else if (startDate) {
-      workDateFilterModel = {
-        filterType: 'date',
-        type: 'greaterThanOrEqual',
-        dateFrom: startDate
-      };
-    } else if (endDate) {
-      workDateFilterModel = {
-        filterType: 'date',
-        type: 'lessThanOrEqual',
-        dateFrom: endDate
-      };
-    }
-
-    // 새로운 필터 모델 적용
-    if (workDateFilterModel) {
-      api.setFilterModel({
-        ...currentFilterModel,
-        workDate: workDateFilterModel
-      });
-    } else {
-      // 날짜 조건이 없으면 workDate 필터 제거
-      const { workDate, ...rest } = currentFilterModel;
-      api.setFilterModel(rest);
-    }
-
-    api.onFilterChanged();
-  }, [startDate, endDate]);
-
-  // [추가] 날짜 입력이 변경될 때마다 Grid 필터 적용
-  useEffect(() => {
-    // Grid가 로드되어 있고 API가 준비된 상태인지 확인 후 적용
-    if (gridRef.current?.gridApi) {
-      applyDateFilterToGrid();
-    }
-  }, [startDate, endDate, applyDateFilterToGrid]);
-
-
+  // [수정] 데이터 조회 함수: 서버로 날짜 파라미터를 전송하도록 변경
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
       const token = sessionStorage.getItem('authToken');
       if (!token) console.warn('인증 토큰이 없습니다.');
 
-      const endpoint = activeTab === 'pipe' ? '/api/yield/pipe' : '/api/yield/bar';
+      const endpoint = activeTab === 'pipe' ? '/api/yield/pipe-date' : '/api/yield/bar-date';
+
+      // [수정] GET 요청 시 params에 startDate, endDate 추가
+      // 백엔드에서 @RequestParam으로 startDate, endDate를 받는다고 가정
       const response = await axios.get(`http://localhost:8080${endpoint}`, {
         headers: { Authorization: `Bearer ${token}` },
+        params: {
+          startDate: startDate,
+          endDate: endDate
+        }
       });
 
       if (response.data) {
@@ -205,17 +146,11 @@ const YieldAbnormalityPage: React.FC = () => {
 
         gridRef.current?.setRowData(gridData);
 
-        // 데이터 로드 직후 필터링 적용
+        // 데이터 로드 직후 '이상여부' 필터링 적용 (날짜 필터 로직은 제거됨)
         setTimeout(() => {
           if (gridRef.current?.gridApi) {
             const api = gridRef.current.gridApi;
 
-            // 'excessYn' 기본 필터 설정
-            // [수정] 날짜 필터는 useEffect에서 startDate, endDate 상태에 따라 자동 적용되므로
-            // 여기서는 초기 필터 모델의 기본값(excessYn)만 설정해주고,
-            // 이후 applyDateFilterToGrid가 실행되도록 유도하거나 함께 설정
-
-            // 우선 excessYn만 먼저 설정
             const initialFilter = {
               excessYn: {
                 filterType: 'text',
@@ -224,9 +159,7 @@ const YieldAbnormalityPage: React.FC = () => {
               }
             };
             api.setFilterModel(initialFilter);
-
-            // 그 다음 날짜 필터 강제 적용 (state 값 기준)
-            applyDateFilterToGrid();
+            api.onFilterChanged();
           }
         }, 100);
       }
@@ -240,11 +173,19 @@ const YieldAbnormalityPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [activeTab, navigate, applyDateFilterToGrid]); // dependency 추가
+  }, [activeTab, startDate, endDate]);
 
+  // [수정] 초기 로딩 및 탭 변경 시에만 조회 수행
+  // 경고: startDate, endDate가 변경될 때마다 자동 조회를 원하지 않으므로
+  // useEffect dependency에서 fetchData를 제거하거나,
+  // useMemo/useCallback 구조를 조정해야 하지만
+  // 여기서는 탭 변경 시 현재 설정된 날짜로 자동 조회를 위해 activeTab만 감시
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
+  // -> 날짜만 바꿨을 땐 조회 안됨(의도된 동작). '조회' 버튼 눌러야 함.
+
 
   const handleRowClick = (event: any) => {
     const rowData = event.data;
@@ -311,9 +252,9 @@ const YieldAbnormalityPage: React.FC = () => {
           </Col>
         </Row>
 
-        {/* [수정] 필터 및 컬럼 설정 영역 재구성 */}
+        {/* 필터 및 컬럼 설정 영역 */}
         <Row className="mb-2 mt-2" style={{ padding: '0 15px', alignItems: 'center' }}>
-          {/* 1. 작업일자 필터 영역 */}
+          {/* 1. 작업일자 필터 및 조회 버튼 영역 */}
           <Col md={8} className="d-flex align-items-center">
             <span style={{ fontWeight: 'bold', marginRight: '10px', whiteSpace: 'nowrap' }}>
               작업일자 :
@@ -329,8 +270,18 @@ const YieldAbnormalityPage: React.FC = () => {
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              style={{ width: '160px', display: 'inline-block' }}
+              style={{ width: '160px', display: 'inline-block', marginRight: '10px' }}
             />
+            {/* [추가] 조회 버튼: 클릭 시 fetchData 호출 */}
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={fetchData}
+              disabled={isLoading}
+            >
+              <i className="bi bi-search" style={{marginRight: '5px'}}></i>
+              조회
+            </Button>
           </Col>
 
           {/* 2. 컬럼 설정 버튼 영역 (우측 정렬) */}
@@ -382,7 +333,7 @@ const YieldAbnormalityPage: React.FC = () => {
         </Row>
       </Row>
 
-      {/* [추가] 컬럼 설정 모달 */}
+      {/* 컬럼 설정 모달 */}
       <Modal show={showColModal} onHide={() => setShowColModal(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>테이블 컬럼 설정</Modal.Title>

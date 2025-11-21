@@ -27,9 +27,19 @@ public class YieldService {
         return pipeRepository.findAll();
     }
 
+    //기간 조회(강관)
+    public List<PipeYieldLot> getPipeYieldLotsByWorkDate(String startDate, String endDate) {
+        return pipeRepository.findAllByWorkDateBetweenOrderByWorkDateDesc(startDate, endDate);
+    }
+
     // 강봉 이상 LOT 조회
     public List<BarYieldLot> getBarYieldLots() {
         return barRepository.findAll();
+    }
+
+    //기간 조회(강봉)
+    public List<BarYieldLot> getBarYieldLotsByWorkDate(String startDate, String endDate) {
+        return barRepository.findAllByWorkDateBetweenOrderByWorkDateDesc(startDate, endDate);
     }
 
     // 9가지 조건에 따른 수율 이력 조회 (트렌드 차트용)

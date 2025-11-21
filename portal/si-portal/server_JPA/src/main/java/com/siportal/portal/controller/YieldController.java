@@ -38,4 +38,16 @@ public class YieldController {
     public ResponseEntity<List<YieldHistory>> getYieldHistory(@RequestBody ItemCriteriaDTO criteria) {
         return ResponseEntity.ok(yieldService.getYieldHistoryByCriteria(criteria));
     }
+
+    @GetMapping("/pipe-date")
+    public ResponseEntity<List<PipeYieldLot>> getPipeYieldLotsDate(@RequestParam(value = "startDate", required = false) String startDate,
+                                                                   @RequestParam(value = "endDate", required = false) String endDate) {
+        return ResponseEntity.ok(yieldService.getPipeYieldLotsByWorkDate(startDate, endDate));
+    }
+
+    @GetMapping("/bar-date")
+    public ResponseEntity<List<BarYieldLot>> getBarYieldLotsDate(@RequestParam(value = "startDate", required = false) String startDate,
+                                                                   @RequestParam(value = "endDate", required = false) String endDate) {
+        return ResponseEntity.ok(yieldService.getBarYieldLotsByWorkDate(startDate,endDate));
+    }
 }
