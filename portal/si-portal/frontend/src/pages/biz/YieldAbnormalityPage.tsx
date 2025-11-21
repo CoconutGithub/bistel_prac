@@ -54,7 +54,7 @@ const YieldAbnormalityPage: React.FC = () => {
       headerClass: 'header-left-align'
     },
     // [중요] 이상여부 필터링 대상 컬럼
-    { headerName: '이상여부', field: 'excessYn', width: 120, cellClass: 'text-center' },
+    { headerName: '이상여부', field: 'excessYn', width: 120, cellClass: 'text-center' , cellStyle: (params) => {return params.value == '이상' ? { color: 'red', fontWeight: 'bold' } : null;}},
     { headerName: '이상기준값', field: 'excessStdValue', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter' ,headerClass: 'header-left-align'},
     { headerName: '수율차이', field: 'yieldDiff', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' },
     { headerName: '기간(연)', field: 'periodYear', width: 90 },
