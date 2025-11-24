@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import { Container, Row, Col, Tabs, Tab, Spinner, Form, Modal, Button } from 'react-bootstrap';
-// [수정 1] ColumnApi 제거 (Ag-Grid v31+ 대응)
 import { ColDef } from '@ag-grid-community/core';
 import { useNavigate } from 'react-router-dom';
 
@@ -44,7 +43,8 @@ const YieldAbnormalityPageDate: React.FC = () => {
     { headerName: '주문외경', field: 'orderOuterDia', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true },
     { headerName: '투입량', field: 'inputQty', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', valueFormatter: (params) => params.value?.toLocaleString(), headerClass: 'header-left-align', lockVisible: true },
     { headerName: '생산량', field: 'prodQty', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', valueFormatter: (params) => params.value?.toLocaleString(), headerClass: 'header-left-align', lockVisible: true },
-    { headerName: '수율(%)', field: 'yieldRate', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true },
+    { headerName: '수율(%)', field: 'yieldRate', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true,
+    },
     { headerName: '이상여부', field: 'excessYn', width: 120, cellClass: 'text-center', lockVisible: true },
     { headerName: '이상기준값', field: 'excessStdValue', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true },
     { headerName: '수율차이', field: 'yieldDiff', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true, cellStyle: (params) => {
@@ -103,7 +103,6 @@ const YieldAbnormalityPageDate: React.FC = () => {
   }, [currentColumnDefs]);
 
   // [중요] 모달이 열릴 때 그리드의 실제 컬럼 상태와 React 상태를 동기화
-  // AgGridWrapper에 이벤트를 걸지 못해도, 이 코드가 있으면 모달 열 때 드래그 된 상태를 반영합니다.
   useEffect(() => {
     if (showColModal && gridRef.current?.gridApi) {
       const api = gridRef.current.gridApi;
@@ -249,6 +248,17 @@ const YieldAbnormalityPageDate: React.FC = () => {
     });
   }, []);
 
+  // [추가 1] 엑셀(CSV) 저장 핸들러
+  const handleExcelExport = useCallback(() => {
+    if (gridRef.current) {
+      // AgGridWrapper에서 노출한 exportToCsv 함수 호출
+      // 파일명 등 파라미터를 넘길 수 있음. 기본값 사용 시 빈 호출
+      gridRef.current.exportToCsv({ fileName: `Yield_Data_${activeTab}_${startDate}_${endDate}.csv` });
+    } else {
+      console.warn('Grid Not Ready');
+    }
+  }, [activeTab, startDate, endDate]);
+
   return (
     <Container fluid className="h-100 container_bg">
       <Row className="container_title">
@@ -342,7 +352,16 @@ const YieldAbnormalityPageDate: React.FC = () => {
             </Button>
           </Col>
 
-          <Col md={4} className="d-flex justify-content-end">
+          <Col md={4} className="d-flex justify-content-end" style={{ gap: '10px' }}>
+            <Button
+              variant="success"
+              size="sm"
+              onClick={handleExcelExport}
+            >
+              <i className="bi bi-file-earmark-excel"></i>
+              엑셀 저장
+            </Button>
+
             <Button
               variant="outline-secondary"
               size="sm"
@@ -373,7 +392,6 @@ const YieldAbnormalityPageDate: React.FC = () => {
               </div>
             )}
 
-            {/* [수정 2] onColumnVisible 속성 제거 */}
             <AgGridWrapper
               key={activeTab}
               ref={gridRef}

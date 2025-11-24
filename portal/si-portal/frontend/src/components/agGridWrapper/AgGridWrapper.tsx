@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import { AgGridReact } from '@ag-grid-community/react';
 import { ClientSideRowModelModule } from '@ag-grid-community/client-side-row-model';
+import { CsvExportModule } from '@ag-grid-community/csv-export';
 import { Container, Row, Col } from 'react-bootstrap';
 import { ColDef, CellClassParams } from '@ag-grid-community/core';
 import 'ag-grid-community/styles/ag-grid.css';
@@ -356,6 +357,9 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
         return rowData; // 현재 데이터 반환
       },
       gridApi: gridRef.current?.api,
+      exportToCsv: (params?: any) => {
+        gridRef.current?.api.exportDataAsCsv(params);
+      }
     }));
 
     return (
@@ -422,7 +426,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
               paginationPageSize={paginationPageSize} // 한 페이지에 표시할 행 개수
               columnDefs={getColumnDefs()}
               defaultColDef={defaultColDef}
-              modules={[ClientSideRowModelModule]}
+              modules={[ClientSideRowModelModule, CsvExportModule]}
               onCellValueChanged={handleCellValueChange}
               rowClassRules={rowClassRules} // 행 스타일 규칙 적용
               getRowId={defaultGetRowId}
