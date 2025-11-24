@@ -27,41 +27,35 @@ const YieldAbnormalityPageDate: React.FC = () => {
 
   // 1. 공통 컬럼 정의
   const commonColumns: ColDef[] = useMemo(() => [
-    { headerName: 'LOT No', field: 'lotNo', width: 150, pinned: 'left', sortable: true, filter: true },
-    { headerName: 'HEAT No', field: 'heatNo', width: 120, sortable: true, filter: true },
-    { headerName: '품목종류', field: 'itemType', width: 100 },
-    { headerName: '제품자재코드', field: 'prodMaterialCd', width: 130 },
-    {
-      headerName: '작업일자',
-      field: 'workDate',
-      width: 110,
-      sortable: true,
-      filter: 'agDateColumnFilter'
-    },
-    { headerName: '사내강종명', field: 'inhouseSteelName', width: 180 },
-    { headerName: '강종대분류', field: 'steelGradeL', width: 120 },
+    { headerName: 'LOT No', field: 'lotNo', width: 150, pinned: 'left', sortable: true, filter: true, lockVisible: true },
+    { headerName: 'HEAT No', field: 'heatNo', width: 120, sortable: true, filter: true, lockVisible: true },
+    { headerName: '품목종류', field: 'itemType', width: 100, lockVisible: true },
+    { headerName: '제품자재코드', field: 'prodMaterialCd', width: 130, lockVisible: true },
+    { headerName: '작업일자', field: 'workDate', width: 110, sortable: true, filter: 'agDateColumnFilter', lockVisible: true },
+    { headerName: '사내강종명', field: 'inhouseSteelName', width: 180, lockVisible: true },
+    { headerName: '강종대분류', field: 'steelGradeL', width: 120, lockVisible: true },
     { headerName: '강종중분류', field: 'steelGradeM', width: 120 },
     { headerName: '강종소분류', field: 'steelGradeS', width: 120 },
-    { headerName: '강종그룹', field: 'steelGradeGroup', width: 100 },
-    { headerName: '소재대분류', field: 'materialL', width: 120 },
-    { headerName: '표면', field: 'surface', width: 100 },
-    { headerName: '형상', field: 'shape', width: 100 },
-    { headerName: '주문열처리', field: 'orderHeatTreat', width: 110 },
-    { headerName: '주문외경', field: 'orderOuterDia', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' },
-    { headerName: '투입량', field: 'inputQty', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', valueFormatter: (params) => params.value?.toLocaleString(), headerClass: 'header-left-align' },
-    { headerName: '생산량', field: 'prodQty', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', valueFormatter: (params) => params.value?.toLocaleString(), headerClass: 'header-left-align' },
-    { headerName: '수율(%)', field: 'yieldRate', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' },
-    { headerName: '이상여부', field: 'excessYn', width: 120, cellClass: 'text-center' },
-    { headerName: '이상기준값', field: 'excessStdValue', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' },
-    { headerName: '수율차이', field: 'yieldDiff', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' },
-    { headerName: '기간(연)', field: 'periodYear', width: 90 },
-    { headerName: '기간(월)', field: 'periodMonth', width: 90 },
-    { headerName: '평가단위', field: 'evalUnit', width: 100 },
+    { headerName: '강종그룹', field: 'steelGradeGroup', width: 100, lockVisible: true },
+    { headerName: '소재대분류', field: 'materialL', width: 120, lockVisible: true },
+    { headerName: '표면', field: 'surface', width: 100, lockVisible: true },
+    { headerName: '형상', field: 'shape', width: 100, lockVisible: true },
+    { headerName: '주문열처리', field: 'orderHeatTreat', width: 110, lockVisible: true },
+    { headerName: '주문외경', field: 'orderOuterDia', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true },
+    { headerName: '투입량', field: 'inputQty', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', valueFormatter: (params) => params.value?.toLocaleString(), headerClass: 'header-left-align', lockVisible: true },
+    { headerName: '생산량', field: 'prodQty', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', valueFormatter: (params) => params.value?.toLocaleString(), headerClass: 'header-left-align', lockVisible: true },
+    { headerName: '수율(%)', field: 'yieldRate', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true },
+    { headerName: '이상여부', field: 'excessYn', width: 120, cellClass: 'text-center', lockVisible: true },
+    { headerName: '이상기준값', field: 'excessStdValue', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true },
+    { headerName: '수율차이', field: 'yieldDiff', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true },
+    { headerName: '기간(연)', field: 'periodYear', width: 90, lockVisible: true },
+    { headerName: '기간(월)', field: 'periodMonth', width: 90, lockVisible: true },
+    { headerName: '평가단위', field: 'evalUnit', width: 100, lockVisible: true },
     { headerName: '저가법영향', field: 'lcmEffect', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' },
     { headerName: '저가법영향합계', field: 'lcmImpactTotal', width: 140, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' },
     { headerName: '입고수량합계', field: 'inboundQtyTotal', width: 140, type: 'numericColumn', filter: 'agNumberColumnFilter', valueFormatter: (params) => params.value?.toLocaleString(), headerClass: 'header-left-align' },
     { headerName: '입고비율', field: 'inboundRatio', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' },
-    { headerName: '최종저가법영향', field: 'finalLcmImpact', width: 140, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' }
+    { headerName: '최종저가법영향', field: 'finalLcmImpact', width: 140, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true }
   ], []);
 
   const pipeSpecificColumns: ColDef[] = useMemo(() => [
@@ -71,8 +65,8 @@ const YieldAbnormalityPageDate: React.FC = () => {
 
   const barSpecificColumns: ColDef[] = useMemo(() => [
     { headerName: '주문폭', field: 'orderWidth', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' },
-    { headerName: '통합수율', field: 'integratedYield', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' },
-    { headerName: '최종수율', field: 'finalYield', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' },
+    { headerName: '통합수율', field: 'integratedYield', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true },
+    { headerName: '최종수율', field: 'finalYield', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true },
   ], []);
 
   const currentColumnDefs = useMemo(() => {
