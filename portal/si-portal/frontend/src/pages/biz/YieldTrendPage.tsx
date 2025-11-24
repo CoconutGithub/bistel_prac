@@ -15,6 +15,7 @@ interface YieldHistoryData {
   heatNo?: string;
   inputQty?: number;
   prodQty?: number;
+  yieldDiff?: number;
   [key: string]: any;
 }
 
@@ -263,7 +264,7 @@ const YieldTrendPage: React.FC = () => {
   const detailColumns: ColDef[] = useMemo(() => [
     { headerName: 'LOT No', field: 'lotNo', width: 140, sortable: true, filter: true },
     { headerName: 'HEAT No', field: 'heatNo', width: 110, sortable: true },
-    { headerName: '수율(%)', field: 'yieldRate', width: 100, sortable: true, cellStyle: { fontWeight: 'bold' } },
+    { headerName: '수율(%)', field: 'yieldRate', width: 100, sortable: true },
     { headerName: '투입량', field: 'inputQty', width: 100, valueFormatter: (p) => p.value?.toLocaleString() },
     { headerName: '생산량', field: 'prodQty', width: 100, valueFormatter: (p) => p.value?.toLocaleString() },
     { headerName: '작업일자', field: 'workDate', width: 110 },
@@ -315,7 +316,22 @@ const YieldTrendPage: React.FC = () => {
 
       <Row className="container_contents" style={{ overflowY: 'auto' }}>
         <Col>
-          {/* ... (상단 카드 생략) ... */}
+          {/* 1. 상단 정보 요약 카드 */}
+          <Card className="mb-3 shadow-sm border-0">
+            <Card.Body className="py-3" style={{ backgroundColor: '#f8f9fa' }}>
+              <Row className="g-2 text-secondary">
+                <Col md={1}><small>품목종류</small><div className="text-dark fw-bold">{selectedItem.itemType}</div></Col>
+                <Col md={1}><small>강종대분류</small><div className="text-dark fw-bold">{selectedItem.steelGradeL}</div></Col>
+                <Col md={1}><small>강종그룹</small><div className="text-dark fw-bold">{selectedItem.steelGradeGroup}</div></Col>
+                <Col md={1}><small>형상</small><div className="text-dark fw-bold">{selectedItem.shape}</div></Col>
+                <Col md={2}><small>사내강종면</small><div className="text-dark fw-bold">{selectedItem.inhouseSteelName}</div></Col>
+                <Col md={1}><small>주문열처리</small><div className="text-dark fw-bold">{selectedItem.orderHeatTreat}</div></Col>
+                <Col md={1}><small>소재대분류</small><div className="text-dark fw-bold">{selectedItem.materialL}</div></Col>
+                <Col md={1}><small>표면</small><div className="text-dark fw-bold">{selectedItem.surface}</div></Col>
+                <Col md={1}><small>주문외경</small><div className="text-dark fw-bold">{selectedItem.orderOuterDia}</div></Col>
+              </Row>
+            </Card.Body>
+          </Card>
           <Card className="shadow-sm border-0" style={{ minHeight: '600px' }}>
             {/* ... (차트 영역 생략, 위 코드와 동일) ... */}
             <Card.Body>
@@ -379,7 +395,7 @@ const YieldTrendPage: React.FC = () => {
       <Modal
         show={showDetailModal}
         onHide={() => setShowDetailModal(false)}
-        size="lg"
+        size="xl"
         centered
         aria-labelledby="detail-modal-title"
       >
@@ -389,7 +405,7 @@ const YieldTrendPage: React.FC = () => {
             {detailDate} 상세 LOT 내역
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body style={{ height: '500px', padding: 0 }}>
+        <Modal.Body style={{ height: '500px', paddingLeft: '100px', paddingRight: '100px' }}>
           <div className="h-100 w-100">
             <AgGridWrapper
               ref={detailGridRef}
@@ -399,8 +415,7 @@ const YieldTrendPage: React.FC = () => {
               canUpdate={false}
               canDelete={false}
               rowSelection="single"
-              pagination={true}
-              paginationPageSize={20}
+              pagination={false}
               useNoColumn={true}
               enableCheckbox={false}
               tableHeight="100%"
