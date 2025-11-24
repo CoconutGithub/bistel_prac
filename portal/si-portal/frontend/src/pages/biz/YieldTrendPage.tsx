@@ -337,16 +337,16 @@ const YieldTrendPage: React.FC = () => {
           {/* 1. 상단 정보 요약 카드 */}
           <Card className="mb-3 shadow-sm border-0">
             <Card.Body className="py-3" style={{ backgroundColor: '#f8f9fa' }}>
-              <Row className="g-2 text-secondary">
-                <Col md={2}><small>품목종류</small><div className="text-dark fw-bold">{selectedItem.itemType}</div></Col>
-                <Col md={2}><small>강종대분류</small><div className="text-dark fw-bold">{selectedItem.steelGradeL}</div></Col>
-                <Col md={2}><small>강종그룹</small><div className="text-dark fw-bold">{selectedItem.steelGradeGroup}</div></Col>
-                <Col md={2}><small>형상</small><div className="text-dark fw-bold">{selectedItem.shape}</div></Col>
+              <Row className="g-1 text-secondary">
+                <Col md={1}><small>품목종류</small><div className="text-dark fw-bold">{selectedItem.itemType}</div></Col>
+                <Col md={1}><small>강종대분류</small><div className="text-dark fw-bold">{selectedItem.steelGradeL}</div></Col>
+                <Col md={1}><small>강종그룹</small><div className="text-dark fw-bold">{selectedItem.steelGradeGroup}</div></Col>
+                <Col md={1}><small>형상</small><div className="text-dark fw-bold">{selectedItem.shape}</div></Col>
                 <Col md={2}><small>사내강종면</small><div className="text-dark fw-bold">{selectedItem.inhouseSteelName}</div></Col>
-                <Col md={2}><small>주문열처리</small><div className="text-dark fw-bold">{selectedItem.orderHeatTreat}</div></Col>
-                <Col md={2}><small>소재대분류</small><div className="text-dark fw-bold">{selectedItem.materialL}</div></Col>
-                <Col md={2}><small>표면</small><div className="text-dark fw-bold">{selectedItem.surface}</div></Col>
-                <Col md={2}><small>주문외경</small><div className="text-dark fw-bold">{selectedItem.orderOuterDia}</div></Col>
+                <Col md={1}><small>주문열처리</small><div className="text-dark fw-bold">{selectedItem.orderHeatTreat}</div></Col>
+                <Col md={1}><small>소재대분류</small><div className="text-dark fw-bold">{selectedItem.materialL}</div></Col>
+                <Col md={1}><small>표면</small><div className="text-dark fw-bold">{selectedItem.surface}</div></Col>
+                <Col md={1}><small>주문외경</small><div className="text-dark fw-bold">{selectedItem.orderOuterDia}</div></Col>
               </Row>
             </Card.Body>
           </Card>
