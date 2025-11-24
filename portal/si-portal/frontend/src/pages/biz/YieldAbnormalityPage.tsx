@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import axios from 'axios';
-import { Container, Row, Col, Tabs, Tab, Spinner, Form } from 'react-bootstrap';
+import { Container, Row, Col, Tabs, Tab, Spinner, Form, Button, Modal } from 'react-bootstrap';
 import { ColDef } from '@ag-grid-community/core';
 import { useNavigate } from 'react-router-dom';
 
@@ -18,6 +18,7 @@ const YieldAbnormalityPage: React.FC = () => {
 
   // 컬럼 가시성 상태 관리 (Key: field명, Value: 보임 여부)
   const [colVisibility, setColVisibility] = useState<{ [key: string]: boolean }>({});
+  const [showColModal, setShowColModal] = useState<boolean>(false);
 
   const gridRef = useRef<AgGridWrapperHandle>(null);
   const navigate = useNavigate();
@@ -44,9 +45,16 @@ const YieldAbnormalityPage: React.FC = () => {
     { headerName: '주문외경', field: 'orderOuterDia', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter',headerClass: 'header-left-align' },
     { headerName: '투입량', field: 'inputQty', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', valueFormatter: (params) => params.value?.toLocaleString() ,headerClass: 'header-left-align'},
     { headerName: '생산량', field: 'prodQty', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', valueFormatter: (params) => params.value?.toLocaleString(),headerClass: 'header-left-align' },
-    { headerName: '수율(%)', field: 'yieldRate', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' },
+    {
+      headerName: '수율(%)',
+      field: 'yieldRate',
+      width: 100,
+      type: 'numericColumn',
+      filter: 'agNumberColumnFilter',
+      headerClass: 'header-left-align'
+    },
     // [중요] 이상여부 필터링 대상 컬럼
-    { headerName: '이상여부', field: 'excessYn', width: 120, cellClass: 'text-center' },
+    { headerName: '이상여부', field: 'excessYn', width: 120, cellClass: 'text-center' , cellStyle: (params) => {return params.value == '이상' ? { color: 'red', fontWeight: 'bold' } : null;}},
     { headerName: '이상기준값', field: 'excessStdValue', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter' ,headerClass: 'header-left-align'},
     { headerName: '수율차이', field: 'yieldDiff', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' },
     { headerName: '기간(연)', field: 'periodYear', width: 90 },
@@ -124,7 +132,6 @@ const YieldAbnormalityPage: React.FC = () => {
           excessStdValue: Number(item.excessStdValue),
           lcmEffect: Number(item.lcmEffect),
           lcmImpactTotal: Number(item.lcmImpactTotal),
-          // ... 기타 숫자 변환
         }));
 
         gridRef.current?.setRowData(gridData);
@@ -230,6 +237,7 @@ const YieldAbnormalityPage: React.FC = () => {
       </Row>
 
       <Row className="container_contents">
+        {/* 상단 탭 + 컬럼 설정 버튼 영역 */}
         <Row className="mb-0" style={{ padding: '0 15px' }}>
           <Col>
             <Tabs
@@ -243,92 +251,49 @@ const YieldAbnormalityPage: React.FC = () => {
               <Tab eventKey="bar" title="강봉 (Bar)" />
             </Tabs>
           </Col>
-        </Row>
 
-        <Row className="mb-0" style={{ padding: '0 15px' }}>
-          <Col>
-            <div style={{
-              display: 'flex',
-              overflowX: 'auto',  // 가로 스크롤 활성화
-              gap: '10px',
-              padding: '10px',
-              backgroundColor: '#f8f9fa',
-              border: '1px solid #dee2e6',
-              borderRadius: '4px',
-              alignItems: 'center'
-            }}>
-              <span style={{
-                fontWeight: 'bold',
-                marginRight: '5px',
-                minWidth: '60px',
-                whiteSpace: 'nowrap'
-              }}>
-                컬럼 제어:
-              </span>
-
-              {currentColumnDefs.map((col) => {
-                if (!col.field) return null;
-
-                return (
-                  <div
-                    key={col.field}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      cursor: 'pointer',
-                      whiteSpace: 'nowrap',  // 텍스트 줄바꿈 강제 금지
-                      flexShrink: 0          // 공간이 부족해도 찌그러지지 않음 (스크롤 생성)
-                    }}
-                  >
-                    {/* Native Input 사용으로 렌더링 이슈 해결 */}
-                    <input
-                      type="checkbox"
-                      id={`chk-${col.field}`}
-                      checked={colVisibility[col.field] ?? false}
-                      onChange={() => toggleColumnVisibility(col.field!)}
-                      style={{
-                        cursor: 'pointer',
-                        width: '16px',
-                        height: '16px',
-                        accentColor: '#0d6efd',
-                        margin: 0
-                      }}
-                    />
-                    <label
-                      htmlFor={`chk-${col.field}`}
-                      style={{
-                        marginLeft: '6px',
-                        cursor: 'pointer',
-                        userSelect: 'none',
-                        fontSize: '14px',
-                        marginBottom: 0
-                      }}
-                    >
-                      {col.headerName}
-                    </label>
-                  </div>
-                );
-              })}
-            </div>
+          {/* 2. 컬럼 설정 버튼 영역 (우측 정렬) */}
+          <Col md="auto" className="d-flex justify-content-end">
+            <Button
+              variant="outline-secondary"
+              size="sm"
+              onClick={() => setShowColModal(true)}
+            >
+              <i className="bi bi-gear-fill" style={{ marginRight: '5px' }}></i>
+              컬럼 설정
+            </Button>
           </Col>
         </Row>
 
+        {/* 그리드 영역 */}
         <Row className="contents_wrap" style={{ flex: 1 }}>
           <Col style={{ position: 'relative', minHeight: '400px' }}>
             {isLoading && (
               <div
                 style={{
                   position: 'absolute',
-                  top: 0, left: 0, width: '100%', height: '100%',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
                   backgroundColor: 'rgba(255, 255, 255, 0.8)',
                   zIndex: 10,
-                  display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column'
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  flexDirection: 'column'
                 }}
               >
                 <Spinner animation="border" variant="primary" role="status" />
-                <span style={{ marginTop: '10px', fontWeight: 'bold', color: '#555' }}>
-                  데이터 불러오는 중...
-                </span>
+                <span
+                  style={{
+                    marginTop: '10px',
+                    fontWeight: 'bold',
+                    color: '#555'
+                  }}
+                >
+                데이터 불러오는 중...
+              </span>
               </div>
             )}
 
@@ -343,13 +308,53 @@ const YieldAbnormalityPage: React.FC = () => {
               rowSelection="single"
               enableCheckbox={false}
               onRowClicked={handleRowClick}
-              pagination={true}
+              pagination={false}
             />
           </Col>
         </Row>
       </Row>
+
+      {/* 컬럼 설정 모달 */}
+      <Modal show={showColModal} onHide={() => setShowColModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>테이블 컬럼 설정</Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ maxHeight: '400px', overflowY: 'auto' }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '10px'
+            }}
+          >
+            {currentColumnDefs.map((col) => {
+              if (!col.field) return null;
+              return (
+                <div
+                  key={col.field}
+                  style={{ display: 'flex', alignItems: 'center' }}
+                >
+                  <Form.Check
+                    type="checkbox"
+                    id={`modal-chk-${col.field}`}
+                    label={col.headerName}
+                    checked={colVisibility[col.field] ?? false}
+                    onChange={() => toggleColumnVisibility(col.field!)}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowColModal(false)}>
+            닫기
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
+
 };
 
 export default YieldAbnormalityPage;

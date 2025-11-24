@@ -190,12 +190,12 @@ const MainLayout = () => {
           )}
 
 
-          <button
-            className={styles.chat_button}
-            onClick={() => setChatVisible(true)}
-          >
-            <FontAwesomeIcon icon={faComments} />
-          </button>
+          {/*<button*/}
+          {/*  className={styles.chat_button}*/}
+          {/*  onClick={() => setChatVisible(true)}*/}
+          {/*>*/}
+          {/*  <FontAwesomeIcon icon={faComments} />*/}
+          {/*</button>*/}
         </main>
         <ChatBot visible={chatVisible} onClose={() => setChatVisible(false)} />
       </div>
