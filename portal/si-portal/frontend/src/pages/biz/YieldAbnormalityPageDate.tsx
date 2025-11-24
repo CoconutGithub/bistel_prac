@@ -47,7 +47,19 @@ const YieldAbnormalityPageDate: React.FC = () => {
     { headerName: '수율(%)', field: 'yieldRate', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true },
     { headerName: '이상여부', field: 'excessYn', width: 120, cellClass: 'text-center', lockVisible: true },
     { headerName: '이상기준값', field: 'excessStdValue', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true },
-    { headerName: '수율차이', field: 'yieldDiff', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true },
+    { headerName: '수율차이', field: 'yieldDiff', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true, cellStyle: (params) => {
+        const val = Number(params.value);
+        if (isNaN(val)) return null;
+        if (val <= 0) return { backgroundColor: '#ffffff', fontWeight: 'bold' }; // 빨강
+        else if (val <= 10 && val > 0 ) return { backgroundColor: '#ffdfd4', fontWeight: 'bold' };
+        else if (val <= 15 && val > 10 ) return { backgroundColor: '#ffbfaa', fontWeight: 'bold' };
+        else if (val <= 20 && val > 15 ) return { backgroundColor: '#ff9e81', fontWeight: 'bold' };
+        else if (val <= 25 && val > 20 ) return { backgroundColor: '#ff7b5a', fontWeight: 'bold' };
+        else if (val <= 30 && val > 25 ) return { backgroundColor: '#ff5232', fontWeight: 'bold' };
+        else return { backgroundColor: '#ff0000', fontWeight: 'bold' };
+
+        return null;
+      } },
     { headerName: '기간(연)', field: 'periodYear', width: 90, lockVisible: true },
     { headerName: '기간(월)', field: 'periodMonth', width: 90, lockVisible: true },
     { headerName: '평가단위', field: 'evalUnit', width: 100, lockVisible: true },
