@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import { Container, Row, Col, Tabs, Tab, Spinner, Form, Modal, Button } from 'react-bootstrap';
+// [수정 1] ColumnApi 제거 (Ag-Grid v31+ 대응)
 import { ColDef } from '@ag-grid-community/core';
 import { useNavigate } from 'react-router-dom';
 
@@ -9,25 +10,14 @@ import { addTab, setActiveTab } from '~store/RootTabs';
 
 import AgGridWrapper from '../../components/agGridWrapper/AgGridWrapper';
 import { AgGridWrapperHandle } from '~types/GlobalTypes';
-import styles from './YieldAbnormalityPage.module.scss';
 
 const YieldAbnormalityPageDate: React.FC = () => {
   const [activeTab, setActiveTabState] = useState<string>('pipe');
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  // 컬럼 가시성 상태 관리
   const [colVisibility, setColVisibility] = useState<{ [key: string]: boolean }>({});
-
-  // 컬럼 설정 모달 상태 관리
   const [showColModal, setShowColModal] = useState<boolean>(false);
-
-  // 조회 모드 상태 ('day' | 'month')
   const [dateMode, setDateMode] = useState<'day' | 'month'>('day');
-
-  // 월별 선택 시 표시할 상태 (YYYY-MM)
   const [selectedMonth, setSelectedMonth] = useState<string>('2025-09');
-
-  // 날짜 필터링 상태 관리 (YYYY-MM-DD)
   const [startDate, setStartDate] = useState<string>('2025-09-01');
   const [endDate, setEndDate] = useState<string>('2025-09-30');
 
@@ -95,6 +85,7 @@ const YieldAbnormalityPageDate: React.FC = () => {
     return cols;
   }, [activeTab, commonColumns, pipeSpecificColumns, barSpecificColumns]);
 
+  // 초기 렌더링 시 컬럼 가시성 설정
   useEffect(() => {
     const initialVisibility: { [key: string]: boolean } = {};
     currentColumnDefs.forEach(col => {
@@ -105,7 +96,31 @@ const YieldAbnormalityPageDate: React.FC = () => {
     setColVisibility(initialVisibility);
   }, [currentColumnDefs]);
 
-  // [메모이제이션] 탭 변경 핸들러
+  // [중요] 모달이 열릴 때 그리드의 실제 컬럼 상태와 React 상태를 동기화
+  // AgGridWrapper에 이벤트를 걸지 못해도, 이 코드가 있으면 모달 열 때 드래그 된 상태를 반영합니다.
+  useEffect(() => {
+    if (showColModal && gridRef.current?.gridApi) {
+      const api = gridRef.current.gridApi;
+
+      // Ag-Grid v31+에서는 gridApi.getColumnState() 사용
+      const columnState = api.getColumnState();
+
+      const newVisibility: { [key: string]: boolean } = {};
+
+      columnState.forEach((colState: any) => {
+        if (colState.colId) {
+          // hide가 true이면 보이지 않는 것이므로 반대로 설정
+          newVisibility[colState.colId] = !colState.hide;
+        }
+      });
+
+      setColVisibility(prev => ({
+        ...prev,
+        ...newVisibility
+      }));
+    }
+  }, [showColModal]);
+
   const handleTabSelect = useCallback((key: string | null) => {
     if (key) {
       setActiveTabState(key);
@@ -113,9 +128,8 @@ const YieldAbnormalityPageDate: React.FC = () => {
     }
   }, []);
 
-  // [메모이제이션] 월 변경 핸들러
   const handleMonthChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value; // "YYYY-MM"
+    const val = e.target.value;
     setSelectedMonth(val);
 
     if (val) {
@@ -129,7 +143,6 @@ const YieldAbnormalityPageDate: React.FC = () => {
     }
   }, []);
 
-  // [메모이제이션] 라디오 버튼 핸들러 (명시적 선언)
   const setModeDay = useCallback(() => setDateMode('day'), []);
   const setModeMonth = useCallback(() => setDateMode('month'), []);
 
@@ -196,7 +209,6 @@ const YieldAbnormalityPageDate: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
-  // [메모이제이션] 행 클릭 핸들러
   const handleRowClick = useCallback((event: any) => {
     const rowData = event.data;
     sessionStorage.setItem('selectedTrendItem', JSON.stringify(rowData));
@@ -214,7 +226,6 @@ const YieldAbnormalityPageDate: React.FC = () => {
     navigate(targetPath, { state: rowData });
   }, [dispatch, navigate]);
 
-  // [메모이제이션] 컬럼 토글 핸들러
   const toggleColumnVisibility = useCallback((field: string) => {
     const api = gridRef.current?.gridApi;
     if (!api) return;
@@ -231,7 +242,6 @@ const YieldAbnormalityPageDate: React.FC = () => {
       return { ...prev, [field]: nextVisible };
     });
   }, []);
-
 
   return (
     <Container fluid className="h-100 container_bg">
@@ -257,14 +267,12 @@ const YieldAbnormalityPageDate: React.FC = () => {
           </Col>
         </Row>
 
-        {/* 필터 및 컬럼 설정 영역 */}
         <Row className="mb-2 mt-2" style={{ padding: '0 15px', alignItems: 'center' }}>
           <Col md={8} className="d-flex align-items-center">
             <span style={{ fontWeight: 'bold', marginRight: '10px', whiteSpace: 'nowrap' }}>
               작업일자 :
             </span>
 
-            {/* [수정] 순수 HTML 라디오 버튼 사용 (부트스트랩 클래스 제거) */}
             <div style={{ marginRight: '15px', display: 'flex', alignItems: 'center', gap: '15px' }}>
               <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', userSelect: 'none' }}>
                 <input
@@ -290,7 +298,6 @@ const YieldAbnormalityPageDate: React.FC = () => {
               </label>
             </div>
 
-            {/* 모드에 따른 입력창 렌더링 */}
             {dateMode === 'day' ? (
               <>
                 <Form.Control
@@ -329,7 +336,6 @@ const YieldAbnormalityPageDate: React.FC = () => {
             </Button>
           </Col>
 
-          {/* 컬럼 설정 버튼 영역 (우측 정렬) */}
           <Col md={4} className="d-flex justify-content-end">
             <Button
               variant="outline-secondary"
@@ -361,6 +367,7 @@ const YieldAbnormalityPageDate: React.FC = () => {
               </div>
             )}
 
+            {/* [수정 2] onColumnVisible 속성 제거 */}
             <AgGridWrapper
               key={activeTab}
               ref={gridRef}
@@ -393,7 +400,7 @@ const YieldAbnormalityPageDate: React.FC = () => {
                     type="checkbox"
                     id={`modal-chk-${col.field}`}
                     label={col.headerName}
-                    checked={colVisibility[col.field] ?? false}
+                    checked={!!colVisibility[col.field]}
                     onChange={() => toggleColumnVisibility(col.field!)}
                   />
                 </div>
