@@ -247,15 +247,19 @@ const YieldTrendPage: React.FC = () => {
           return html;
         }
       },
-      grid: { left: '3%', right: '4%', bottom: '15%', top: '15%', containLabel: true },
+      grid: { left: '3%', right: '5%', bottom: '5%', top: '15%', containLabel: true },
       toolbox: { feature: { dataZoom: { yAxisIndex: 'none' }, saveAsImage: {} } },
-      xAxis: { type: 'category', boundaryGap: true, data: dates, name: '기간(월)' }, // x축 이름 추가
+      xAxis: { type: 'category', boundaryGap: true, data: dates, name: '기간(월)',
+        axisLabel:
+          {
+          rotate: 45},
+      },
       yAxis: { type: 'value', name: '수율(%)', scale: true, splitLine: { show: true, lineStyle: { type: 'dashed' } } },
       series: seriesList,
-      dataZoom: [
-        { type: 'inside', startValue: 0, endValue: 100 },
-        { type: 'slider', startValue: 0, endValue: 100 },
-      ]
+      // dataZoom: [
+      //   { type: 'inside', startValue: 0, endValue: 100 },
+      //   { type: 'slider', startValue: 0, endValue: 100 },
+      // ]
     };
   }, [processedChartData, showBoxPlot, showLineChart]);
 
