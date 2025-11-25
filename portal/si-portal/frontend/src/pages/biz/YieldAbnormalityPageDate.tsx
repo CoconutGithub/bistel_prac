@@ -24,6 +24,21 @@ const YieldAbnormalityPageDate: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const formatCommaKeepDecimals = (params: any) => {
+    if (params.value === null || params.value === undefined || params.value === '') return '';
+    const strVal = String(params.value);
+    const parts = strVal.split('.');
+    // 정수 부분에만 콤마 적용
+    parts[0] = Number(parts[0]).toLocaleString();
+    // 다시 합침 (소수점이 있으면 .12345... 그대로 붙음)
+
+    // 소수점 삭제
+    return parts[0];
+
+    // 소수점 뒷자리 그대로 합치기
+    // return parts.join('.');
+  };
+
   // 1. 공통 컬럼 정의
   const commonColumns: ColDef[] = useMemo(() => [
     { headerName: 'LOT No', field: 'lotNo', width: 150, pinned: 'left', sortable: true, filter: true, lockVisible: true },
@@ -49,8 +64,8 @@ const YieldAbnormalityPageDate: React.FC = () => {
         return params.value == '이상' ? { color: 'red' } : null;
       }
     },
-    { headerName: '이상기준값', field: 'excessStdValue', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true },
-    { headerName: '수율차이', field: 'yieldDiff', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true, cellStyle: (params) => {
+    { headerName: '이상기준값', field: 'excessStdValue', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true, valueFormatter:(params)=>params.value ? Number(params.value).toFixed(3) : '', },
+    { headerName: '수율차이', field: 'yieldDiff', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true, valueFormatter:(params)=>params.value ? Number(params.value).toFixed(3) : '', cellStyle: (params) => {
         const val = Number(params.value);
         if (isNaN(val)) return null;
         if (val <= 0) return { backgroundColor: '#ffffff', fontWeight: 'bold' }; // 빨강
@@ -66,11 +81,11 @@ const YieldAbnormalityPageDate: React.FC = () => {
     { headerName: '기간(연)', field: 'periodYear', width: 90, lockVisible: true },
     { headerName: '기간(월)', field: 'periodMonth', width: 90, lockVisible: true },
     { headerName: '평가단위', field: 'evalUnit', width: 100, lockVisible: true },
-    { headerName: '저가법영향', field: 'lcmEffect', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' },
-    { headerName: '저가법영향합계', field: 'lcmImpactTotal', width: 140, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' },
+    { headerName: '저가법영향', field: 'lcmEffect', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', valueFormatter: formatCommaKeepDecimals },
+    { headerName: '저가법영향합계', field: 'lcmImpactTotal', width: 140, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', valueFormatter: formatCommaKeepDecimals },
     { headerName: '입고수량합계', field: 'inboundQtyTotal', width: 140, type: 'numericColumn', filter: 'agNumberColumnFilter', valueFormatter: (params) => params.value?.toLocaleString(), headerClass: 'header-left-align' },
-    { headerName: '입고비율', field: 'inboundRatio', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' },
-    { headerName: '최종저가법영향', field: 'finalLcmImpact', width: 140, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true }
+    { headerName: '입고비율', field: 'inboundRatio', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', valueFormatter:(params)=>params.value ? Number(params.value).toFixed(6) : '', },
+    { headerName: '최종저가법영향', field: 'finalLcmImpact', width: 140, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true, valueFormatter: formatCommaKeepDecimals }
   ], []);
 
   const pipeSpecificColumns: ColDef[] = useMemo(() => [
@@ -350,7 +365,7 @@ const YieldAbnormalityPageDate: React.FC = () => {
               onClick={fetchData}
               disabled={isLoading}
             >
-              <i className="bi bi-search" style={{ marginRight: '5px' }}></i>
+              <i className="bi bi-search" ></i>
               조회
             </Button>
           </Col>

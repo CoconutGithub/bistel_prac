@@ -21,7 +21,7 @@ interface YieldHistoryData {
 
 // 차트용 데이터 타입
 interface DailyChartData {
-  date: string;
+  date: string; // 여기서는 'YYYY-MM' 형식으로 저장됨
   avgYield: number;
   count: number;
   boxPlotData: [number, number, number, number, number];
@@ -122,28 +122,33 @@ const YieldTrendPage: React.FC = () => {
     return [min, q1, median, q3, max];
   };
 
-  // 4. 데이터 가공
+  // 4. [수정됨] 데이터 가공 (일별 -> 월별 집계)
   const processedChartData = useMemo(() => {
     if (!historyData || historyData.length === 0) return [];
-    const dailyMap = new Map<string, YieldHistoryData[]>();
+
+    // 월별로 데이터를 모으기 위한 Map
+    const monthlyMap = new Map<string, YieldHistoryData[]>();
 
     historyData.forEach((item) => {
-      const date = item.workDate;
+      // item.workDate가 "YYYY-MM-DD" 형식이면 앞에서 7자리만 잘라서 "YYYY-MM"으로 만듦
+      const dateStr = item.workDate;
+      const monthKey = dateStr.length >= 7 ? dateStr.substring(0, 7) : dateStr;
+
       const yieldVal = Number(item.yieldRate) || 0;
       if (yieldVal <= 0 || yieldVal > 100) return;
 
-      if (!dailyMap.has(date)) dailyMap.set(date, []);
-      dailyMap.get(date)!.push(item);
+      if (!monthlyMap.has(monthKey)) monthlyMap.set(monthKey, []);
+      monthlyMap.get(monthKey)!.push(item);
     });
 
-    const result: DailyChartData[] = Array.from(dailyMap.entries()).map(([date, items]) => {
+    const result: DailyChartData[] = Array.from(monthlyMap.entries()).map(([month, items]) => {
       const values = items.map(i => Number(i.yieldRate)).sort((a, b) => a - b);
       const sum = values.reduce((acc, cur) => acc + cur, 0);
       const avg = parseFloat((sum / values.length).toFixed(2));
       const boxStats = calculateBoxPlotValues(values);
 
       return {
-        date: date,
+        date: month, // 이제 날짜 필드에 '2025-09' 같은 월 정보가 들어갑니다.
         avgYield: avg,
         count: items.length,
         boxPlotData: boxStats,
@@ -152,31 +157,30 @@ const YieldTrendPage: React.FC = () => {
       };
     });
 
+    // 날짜 오름차순 정렬
     result.sort((a, b) => a.date.localeCompare(b.date));
     return result;
   }, [historyData]);
 
-  // 5. 차트 옵션
+  // 5. [수정됨] 차트 옵션
   const chartOption = useMemo(() => {
     if (processedChartData.length === 0) return {};
     const dates = processedChartData.map((item) => item.date);
     const avgYields = processedChartData.map((item) => item.avgYield);
     const boxPlotValues = processedChartData.map((item) => item.boxPlotData);
 
+    // [수정] 줌 기본 설정을 "최근 12개월"로 변경
     let zoomStartValue = undefined;
     let zoomEndValue = undefined;
     if (dates.length > 0) {
-      const lastDateStr = dates[dates.length - 1];
-      zoomEndValue = lastDateStr;
-      const lastDate = new Date(lastDateStr);
-      const targetDate = new Date(lastDate);
-      targetDate.setMonth(targetDate.getMonth() - 1);
-      const yyyy = targetDate.getFullYear();
-      const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
-      const dd = String(targetDate.getDate()).padStart(2, '0');
-      const targetDateStr = `${yyyy}-${mm}-${dd}`;
-      const validStartDate = dates.find(date => date >= targetDateStr);
-      zoomStartValue = validStartDate || dates[0];
+      zoomEndValue = dates[dates.length - 1]; // 가장 최근 달
+
+      // 데이터가 12개 이상이면 뒤에서 12번째 데이터를 시작점으로 잡음
+      if (dates.length > 12) {
+        zoomStartValue = dates[dates.length - 12];
+      } else {
+        zoomStartValue = dates[0];
+      }
     }
 
     const seriesList: any[] = [];
@@ -190,24 +194,24 @@ const YieldTrendPage: React.FC = () => {
     }
     if (showLineChart) {
       seriesList.push({
-        name: '평균 수율 (Line)',
+        name: '월평균 수율 (Line)', // 이름 변경
         type: 'line',
         data: avgYields,
-        symbolSize: 4,
+        symbolSize: 6, // 월별이므로 점 크기를 조금 키움
         itemStyle: { color: '#fd7e14' },
         lineStyle: { width: 3 },
-        markLine: {
-          data: [{ type: 'average', name: '기간 전체 평균' }],
-          symbol: 'none',
-          lineStyle: { color: '#dc3545', type: 'dashed' }
-        },
+        // markLine: {
+        //   data: [{ type: 'average', name: '전체 평균' }],
+        //   symbol: 'none',
+        //   lineStyle: { color: '#dc3545', type: 'dashed' }
+        // },
         z: 10
       });
     }
 
     return {
       title: {
-        text: '일별 수율 분포 및 평균 트렌드',
+        text: '월별 수율 분포 및 평균 트렌드', // 제목 변경
         left: 'center',
         textStyle: { fontSize: 16, fontWeight: 'bold' }
       },
@@ -218,40 +222,50 @@ const YieldTrendPage: React.FC = () => {
           if (!params || params.length === 0) return '';
           const dataIndex = params[0].dataIndex;
           const dataItem = processedChartData[dataIndex];
+          // [수정] 툴팁 문구 변경
           let html = `<strong>${dataItem.date}</strong> (LOT수: ${dataItem.count})<br/>`;
-          html += `<span style="font-size:11px; color:#888;">클릭하여 상세 정보 보기</span><br/>`;
-          params.forEach((p: any) => {
-            if (p.seriesType === 'boxplot') {
-              const [min, q1, median, q3, max] = dataItem.boxPlotData;
-              html += `${p.marker} <strong>${p.seriesName}</strong><br/>`;
-              html += `&nbsp;&nbsp;Max: ${max}%<br/>`;
-              html += `&nbsp;&nbsp;Median: ${median}%<br/>`;
-              html += `&nbsp;&nbsp;Min: ${min}%<br/>`;
-            } else if (p.seriesType === 'line') {
-              html += `${p.marker} <strong>${p.seriesName}</strong>: ${p.value}%<br/>`;
-            }
-          });
+          html += `<span style="font-size:11px; color:#888;">클릭하여 해당 월 상세 내역 보기</span><br/>`;
+
+          // 1. Line Chart (월평균 수율) 먼저 표시
+          const lineParam = params.find((p: any) => p.seriesType === 'line');
+          if (lineParam) {
+            html += `${lineParam.marker} <strong>${lineParam.seriesName}</strong>: ${lineParam.value}%<br/>`;
+          }
+
+          // 2. Box Plot (수율 분포) 나중에 표시
+          const boxParam = params.find((p: any) => p.seriesType === 'boxplot');
+          if (boxParam) {
+            const [min, q1, median, q3, max] = dataItem.boxPlotData;
+            html += `${boxParam.marker} <strong>${boxParam.seriesName}</strong><br/>`;
+            html += `&nbsp;&nbsp;최대값: ${max}%<br/>`;
+            html += `&nbsp;&nbsp;3사분위수: ${q3}%<br/>`;
+            html += `&nbsp;&nbsp;중앙값: ${median}%<br/>`;
+            html += `&nbsp;&nbsp;1사분위수: ${q1}%<br/>`;
+            html += `&nbsp;&nbsp;최소값: ${min}%<br/>`;
+          }
+
           return html;
         }
       },
       grid: { left: '3%', right: '4%', bottom: '15%', top: '15%', containLabel: true },
       toolbox: { feature: { dataZoom: { yAxisIndex: 'none' }, saveAsImage: {} } },
-      xAxis: { type: 'category', boundaryGap: true, data: dates },
+      xAxis: { type: 'category', boundaryGap: true, data: dates, name: '기간(월)' }, // x축 이름 추가
       yAxis: { type: 'value', name: '수율(%)', scale: true, splitLine: { show: true, lineStyle: { type: 'dashed' } } },
       series: seriesList,
       dataZoom: [
-        { type: 'inside', startValue: zoomStartValue, endValue: zoomEndValue },
-        { type: 'slider', startValue: zoomStartValue, endValue: zoomEndValue },
+        { type: 'inside', startValue: 0, endValue: 100 },
+        { type: 'slider', startValue: 0, endValue: 100 },
       ]
     };
   }, [processedChartData, showBoxPlot, showLineChart]);
 
+  // 차트 클릭 핸들러 (월별 데이터 모달)
   const onChartClick = useCallback((params: any) => {
     const index = params.dataIndex;
     const targetData = processedChartData[index];
 
     if (targetData && targetData.lotList) {
-      setDetailDate(targetData.date);
+      setDetailDate(targetData.date); // '2025-09' 형태
       setDetailGridData(targetData.lotList);
       setShowDetailModal(true);
     }
@@ -270,29 +284,18 @@ const YieldTrendPage: React.FC = () => {
     { headerName: '작업일자', field: 'workDate', width: 110 },
   ], []);
 
-  // [중요] 모달 내 그리드 로딩 완료 시 실행될 콜백 함수
-  // 과거 ProjectList에서 해결했던 방식과 동일하게 redrawRows를 호출합니다.
   const handleModalGridReady = useCallback(() => {
-    // 모달 애니메이션 시간을 고려하여 약간의 딜레이를 줍니다.
     setTimeout(() => {
       if (detailGridRef.current && detailGridRef.current.gridApi) {
         const api = detailGridRef.current.gridApi;
-
-        // 1. 컬럼 크기 자동 조정 (선택 사항)
         api.sizeColumnsToFit();
-
-        // 2. [핵심] 뷰포트 강제 갱신 (스크롤 효과)
         api.redrawRows();
-
-        console.log('✅ Modal Grid: redrawRows() executed to fix layout.');
       }
-    }, 200); // 모달 transition이 끝난 후 실행되도록 200ms 설정
+    }, 200);
   }, []);
 
-  // 데이터가 변경될 때마다 그리드에 주입 (redrawRows는 onGridLoaded에서 처리하므로 여기선 데이터만)
   useEffect(() => {
     if (showDetailModal && detailGridRef.current && detailGridData.length > 0) {
-      // 데이터 주입은 즉시 혹은 약간의 텀을 두고 실행
       setTimeout(() => {
         detailGridRef.current?.setRowData(detailGridData);
       }, 50);
@@ -306,7 +309,7 @@ const YieldTrendPage: React.FC = () => {
       <Row className="container_title">
         <Col>
           <div>
-            <h2 className="mb-0">수율 상세 트렌드 분석</h2>
+            <h2 className="mb-0">수율 상세 트렌드 분석 (월별)</h2>
             <span className="text-muted fs-6 align-self-end">
               {selectedItem.inhouseSteelName} (OD: {selectedItem.orderOuterDia})
             </span>
@@ -316,7 +319,7 @@ const YieldTrendPage: React.FC = () => {
 
       <Row className="container_contents" style={{ overflowY: 'auto' }}>
         <Col>
-          {/* 1. 상단 정보 요약 카드 */}
+          {/* 상단 정보 요약 카드 */}
           <Card className="mb-3 shadow-sm border-0">
             <Card.Body className="py-3" style={{ backgroundColor: '#f8f9fa' }}>
               <Row className="g-2 text-secondary">
@@ -324,7 +327,7 @@ const YieldTrendPage: React.FC = () => {
                 <Col md={1}><small>강종대분류</small><div className="text-dark fw-bold">{selectedItem.steelGradeL}</div></Col>
                 <Col md={1}><small>강종그룹</small><div className="text-dark fw-bold">{selectedItem.steelGradeGroup}</div></Col>
                 <Col md={1}><small>형상</small><div className="text-dark fw-bold">{selectedItem.shape}</div></Col>
-                <Col md={2}><small>사내강종면</small><div className="text-dark fw-bold">{selectedItem.inhouseSteelName}</div></Col>
+                <Col md={2}><small>사내강종명</small><div className="text-dark fw-bold">{selectedItem.inhouseSteelName}</div></Col>
                 <Col md={1}><small>주문열처리</small><div className="text-dark fw-bold">{selectedItem.orderHeatTreat}</div></Col>
                 <Col md={1}><small>소재대분류</small><div className="text-dark fw-bold">{selectedItem.materialL}</div></Col>
                 <Col md={1}><small>표면</small><div className="text-dark fw-bold">{selectedItem.surface}</div></Col>
@@ -333,7 +336,6 @@ const YieldTrendPage: React.FC = () => {
             </Card.Body>
           </Card>
           <Card className="shadow-sm border-0" style={{ minHeight: '600px' }}>
-            {/* ... (차트 영역 생략, 위 코드와 동일) ... */}
             <Card.Body>
               {loading ? (
                 <div className="d-flex flex-column justify-content-center align-items-center h-100" style={{ minHeight: '500px' }}>
@@ -353,7 +355,7 @@ const YieldTrendPage: React.FC = () => {
                           borderColor: '#337ab7'
                         }}
                       >
-                        <i className={`bi ${showBoxPlot ? 'bi-check-square-fill' : 'bi-square'}`}></i> Box Plot
+                        <i className={`bi ${showBoxPlot ? 'bi-check-square-fill' : 'bi-square'}`}></i> 수율 분포
                       </Button>
                       <Button
                         size="sm"
@@ -364,7 +366,7 @@ const YieldTrendPage: React.FC = () => {
                           borderColor: "#fd7e14"
                         }}
                       >
-                        <i className={`bi ${showLineChart ? 'bi-check-square-fill' : 'bi-square'}`} ></i> Line Chart
+                        <i className={`bi ${showLineChart ? 'bi-check-square-fill' : 'bi-square'}`} ></i> 월 평균 수율
                       </Button>
                     </ButtonGroup>
                   </div>
@@ -377,7 +379,7 @@ const YieldTrendPage: React.FC = () => {
                   />
                   <div className="text-center text-muted mt-2 small">
                     <i className="bi bi-info-circle me-1"></i>
-                    차트의 점이나 박스를 클릭하면 해당 일자의 상세 LOT 목록을 확인할 수 있습니다.
+                    차트를 클릭하면 해당 월의 상세 LOT 목록을 확인할 수 있습니다.
                   </div>
                 </>
               ) : (
@@ -402,7 +404,7 @@ const YieldTrendPage: React.FC = () => {
         <Modal.Header closeButton>
           <Modal.Title id="detail-modal-title" className="fs-5 fw-bold">
             <i className="bi bi-calendar-check text-primary me-2"></i>
-            {detailDate} 상세 LOT 내역
+            {detailDate} 월별 상세 LOT 내역
           </Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ height: '500px', paddingLeft: '100px', paddingRight: '100px' }}>
@@ -419,9 +421,6 @@ const YieldTrendPage: React.FC = () => {
               useNoColumn={true}
               enableCheckbox={false}
               tableHeight="100%"
-
-              // [중요] 이전 프로젝트에서 해결했던 방법 적용
-              // 그리드가 로드된 후 강제로 뷰포트를 다시 그립니다.
               onGridLoaded={handleModalGridReady}
             />
           </div>
