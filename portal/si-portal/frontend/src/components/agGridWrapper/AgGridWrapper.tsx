@@ -369,7 +369,7 @@ const AgGridWrapper = forwardRef<AgGridWrapperHandle, AgGridWrapperProps>(
             {!props.hideTitle && (
               <Col className={styles.countColumn}>
                 <p className={styles.count}>
-                (Filtered: {displayedCount} / Total: {rowData.length})
+                (Filtered: {displayedCount.toLocaleString()} / Total: {rowData.length.toLocaleString()})
                 </p>
               </Col>
             )}
