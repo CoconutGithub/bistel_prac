@@ -11,6 +11,7 @@ import { AgGridWrapperHandle } from '~types/GlobalTypes';
 interface YieldHistoryData {
   workDate: string;
   yieldRate: number;
+  finalYield?: number;
   lotNo: string;
   heatNo?: string;
   inputQty?: number;
@@ -21,7 +22,7 @@ interface YieldHistoryData {
 
 // 차트용 데이터 타입
 interface DailyChartData {
-  date: string; // 여기서는 'YYYY-MM' 형식으로 저장됨
+  date: string; // 'YYYY-MM'
   avgYield: number;
   count: number;
   boxPlotData: [number, number, number, number, number];
@@ -122,34 +123,78 @@ const YieldTrendPage: React.FC = () => {
     return [min, q1, median, q3, max];
   };
 
-  // 4. [수정됨] 데이터 가공 (일별 -> 월별 집계)
   const processedChartData = useMemo(() => {
-    if (!historyData || historyData.length === 0) return [];
+    if (!historyData || historyData.length === 0 || !selectedItem) return [];
 
-    // 월별로 데이터를 모으기 위한 Map
     const monthlyMap = new Map<string, YieldHistoryData[]>();
 
+    // 현재 아이템이 강봉인지 확인
+    const itemType = selectedItem.itemType || '';
+    const isBar = ['B', 'F', 'W', 'S', 'N', 'Z'].includes(itemType);
+
     historyData.forEach((item) => {
-      // item.workDate가 "YYYY-MM-DD" 형식이면 앞에서 7자리만 잘라서 "YYYY-MM"으로 만듦
       const dateStr = item.workDate;
       const monthKey = dateStr.length >= 7 ? dateStr.substring(0, 7) : dateStr;
 
-      const yieldVal = Number(item.yieldRate) || 0;
-      if (yieldVal <= 0 || yieldVal > 100) return;
+      // [핵심 변경] 강봉이면 finalYield, 아니면 yieldRate를 사용
+      // DB 컬럼이 final_yield로 오면 camelCase인 finalYield로 매핑되었는지 확인 필요 (여기선 finalYield 가정)
+      const targetVal = isBar ? Number(item.finalYield) : Number(item.yieldRate);
+
+      // 값이 없거나 이상하면 제외
+      if (!targetVal || targetVal <= 0 || targetVal > 100) return;
 
       if (!monthlyMap.has(monthKey)) monthlyMap.set(monthKey, []);
       monthlyMap.get(monthKey)!.push(item);
     });
 
     const result: DailyChartData[] = Array.from(monthlyMap.entries()).map(([month, items]) => {
-      const values = items.map(i => Number(i.yieldRate)).sort((a, b) => a - b);
-      const sum = values.reduce((acc, cur) => acc + cur, 0);
-      const avg = parseFloat((sum / values.length).toFixed(2));
+
+      // [박스플롯용 데이터]
+      // 강봉이면 finalYield, 아니면 yieldRate를 수집
+      const values = items.map(i => {
+        return isBar ? Number(i.finalYield) : Number(i.yieldRate);
+      }).sort((a, b) => a - b);
+
       const boxStats = calculateBoxPlotValues(values);
 
+      // [가중평균 계산]
+      let weightedAvg = 0;
+
+      // 1. 강관 (Pipe)
+      if (['P', 'H'].includes(itemType)) {
+        // 공식: sum(생산량) / sum(투입량) * 100
+        const totalProdQty = items.reduce((acc, cur) => acc + (Number(cur.prodQty) || 0), 0);
+        const totalInputQty = items.reduce((acc, cur) => acc + (Number(cur.inputQty) || 0), 0);
+
+        if (totalInputQty > 0) {
+          weightedAvg = (totalProdQty / totalInputQty) * 100;
+        }
+      }
+      // 2. 강봉 (Bar)
+      else if (isBar) {
+        // [핵심 변경] 공식: sum(최종수율 * 생산량) / sum(생산량)
+        const totalYieldXProd = items.reduce((acc, cur) => {
+          // 강봉이므로 finalYield 사용
+          const yieldVal = Number(cur.finalYield) || 0;
+          const prodVal = Number(cur.prodQty) || 0;
+          return acc + (yieldVal * prodVal);
+        }, 0);
+
+        const totalProdQty = items.reduce((acc, cur) => acc + (Number(cur.prodQty) || 0), 0);
+
+        if (totalProdQty > 0) {
+          weightedAvg = totalYieldXProd / totalProdQty;
+        }
+      }
+      // 3. 그 외
+      else {
+        const sum = values.reduce((acc, cur) => acc + cur, 0);
+        weightedAvg = values.length > 0 ? sum / values.length : 0;
+      }
+
       return {
-        date: month, // 이제 날짜 필드에 '2025-09' 같은 월 정보가 들어갑니다.
-        avgYield: avg,
+        date: month,
+        avgYield: parseFloat(weightedAvg.toFixed(2)),
         count: items.length,
         boxPlotData: boxStats,
         rawValues: values,
@@ -157,25 +202,21 @@ const YieldTrendPage: React.FC = () => {
       };
     });
 
-    // 날짜 오름차순 정렬
     result.sort((a, b) => a.date.localeCompare(b.date));
     return result;
-  }, [historyData]);
+  }, [historyData, selectedItem]);
 
-  // 5. [수정됨] 차트 옵션
+  // 5. 차트 옵션
   const chartOption = useMemo(() => {
     if (processedChartData.length === 0) return {};
     const dates = processedChartData.map((item) => item.date);
     const avgYields = processedChartData.map((item) => item.avgYield);
     const boxPlotValues = processedChartData.map((item) => item.boxPlotData);
 
-    // [수정] 줌 기본 설정을 "최근 12개월"로 변경
     let zoomStartValue = undefined;
     let zoomEndValue = undefined;
     if (dates.length > 0) {
-      zoomEndValue = dates[dates.length - 1]; // 가장 최근 달
-
-      // 데이터가 12개 이상이면 뒤에서 12번째 데이터를 시작점으로 잡음
+      zoomEndValue = dates[dates.length - 1];
       if (dates.length > 12) {
         zoomStartValue = dates[dates.length - 12];
       } else {
@@ -194,24 +235,19 @@ const YieldTrendPage: React.FC = () => {
     }
     if (showLineChart) {
       seriesList.push({
-        name: '월평균 수율 (Line)', // 이름 변경
+        name: '월평균 수율 (Line)',
         type: 'line',
         data: avgYields,
-        symbolSize: 6, // 월별이므로 점 크기를 조금 키움
+        symbolSize: 6,
         itemStyle: { color: '#fd7e14' },
         lineStyle: { width: 3 },
-        // markLine: {
-        //   data: [{ type: 'average', name: '전체 평균' }],
-        //   symbol: 'none',
-        //   lineStyle: { color: '#dc3545', type: 'dashed' }
-        // },
         z: 10
       });
     }
 
     return {
       title: {
-        text: '월별 수율 분포 및 평균 트렌드', // 제목 변경
+        text: '월별 수율 분포 및 평균 트렌드',
         left: 'center',
         textStyle: { fontSize: 16, fontWeight: 'bold' }
       },
@@ -222,17 +258,14 @@ const YieldTrendPage: React.FC = () => {
           if (!params || params.length === 0) return '';
           const dataIndex = params[0].dataIndex;
           const dataItem = processedChartData[dataIndex];
-          // [수정] 툴팁 문구 변경
           let html = `<strong>${dataItem.date}</strong> (LOT수: ${dataItem.count})<br/>`;
           html += `<span style="font-size:11px; color:#888;">클릭하여 해당 월 상세 내역 보기</span><br/>`;
 
-          // 1. Line Chart (월평균 수율) 먼저 표시
           const lineParam = params.find((p: any) => p.seriesType === 'line');
           if (lineParam) {
             html += `${lineParam.marker} <strong>${lineParam.seriesName}</strong>: ${lineParam.value}%<br/>`;
           }
 
-          // 2. Box Plot (수율 분포) 나중에 표시
           const boxParam = params.find((p: any) => p.seriesType === 'boxplot');
           if (boxParam) {
             const [min, q1, median, q3, max] = dataItem.boxPlotData;
@@ -250,26 +283,19 @@ const YieldTrendPage: React.FC = () => {
       grid: { left: '3%', right: '5%', bottom: '5%', top: '15%', containLabel: true },
       toolbox: { feature: { dataZoom: { yAxisIndex: 'none' }, saveAsImage: {} } },
       xAxis: { type: 'category', boundaryGap: true, data: dates, name: '기간(월)',
-        axisLabel:
-          {
-          rotate: 45},
+        axisLabel: { rotate: 45 },
       },
       yAxis: { type: 'value', name: '수율(%)', scale: true, splitLine: { show: true, lineStyle: { type: 'dashed' } } },
       series: seriesList,
-      // dataZoom: [
-      //   { type: 'inside', startValue: 0, endValue: 100 },
-      //   { type: 'slider', startValue: 0, endValue: 100 },
-      // ]
     };
   }, [processedChartData, showBoxPlot, showLineChart]);
 
-  // 차트 클릭 핸들러 (월별 데이터 모달)
   const onChartClick = useCallback((params: any) => {
     const index = params.dataIndex;
     const targetData = processedChartData[index];
 
     if (targetData && targetData.lotList) {
-      setDetailDate(targetData.date); // '2025-09' 형태
+      setDetailDate(targetData.date);
       setDetailGridData(targetData.lotList);
       setShowDetailModal(true);
     }
@@ -323,7 +349,6 @@ const YieldTrendPage: React.FC = () => {
 
       <Row className="container_contents" style={{ overflowY: 'auto' }}>
         <Col>
-          {/* 상단 정보 요약 카드 */}
           <Card className="mb-3 shadow-sm border-0">
             <Card.Body className="py-3" style={{ backgroundColor: '#f8f9fa' }}>
               <Row className="g-2 text-secondary">
