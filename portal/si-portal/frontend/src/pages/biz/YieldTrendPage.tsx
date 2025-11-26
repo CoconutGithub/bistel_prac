@@ -123,6 +123,7 @@ const YieldTrendPage: React.FC = () => {
     return [min, q1, median, q3, max];
   };
 
+  // 차트 데이터 계산
   const processedChartData = useMemo(() => {
     if (!historyData || historyData.length === 0 || !selectedItem) return [];
 
@@ -181,9 +182,11 @@ const YieldTrendPage: React.FC = () => {
         }, 0);
 
         const totalProdQty = items.reduce((acc, cur) => acc + (Number(cur.prodQty) || 0), 0);
+        //        const totalInputQty = items.reduce((acc, cur) => acc + (Number(cur.inputQty) || 0), 0);// 총 투입량으로 나누기
 
         if (totalProdQty > 0) {
           weightedAvg = totalYieldXProd / totalProdQty;
+          //weightedAvg = totalYieldXProd / totalInputQty; // 총 투입량으로 나누기
         }
       }
       // 3. 그 외

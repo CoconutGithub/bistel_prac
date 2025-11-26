@@ -70,13 +70,13 @@ const YieldAbnormalityPageDate: React.FC = () => {
     { headerName: '수율차이', field: 'yieldDiff', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true, valueFormatter:(params)=>params.value ? Number(params.value).toFixed(3) : '', cellStyle: (params) => {
         const val = Number(params.value);
         if (isNaN(val)) return null;
-        if (val <= 0) return { backgroundColor: '#ffffff', fontWeight: 'bold' }; // 빨강
+        if (val <= 0) return { backgroundColor: '#ffffff', fontWeight: 'bold' }; 
         else if (val <= 10 && val > 0 ) return { backgroundColor: '#ffdfd4', fontWeight: 'bold' };
         else if (val <= 15 && val > 10 ) return { backgroundColor: '#ffbfaa', fontWeight: 'bold' };
         else if (val <= 20 && val > 15 ) return { backgroundColor: '#ff9e81', fontWeight: 'bold' };
         else if (val <= 25 && val > 20 ) return { backgroundColor: '#ff7b5a', fontWeight: 'bold' };
         else if (val <= 30 && val > 25 ) return { backgroundColor: '#ff5232', fontWeight: 'bold' };
-        else return { backgroundColor: '#ff0000', fontWeight: 'bold' };
+        else return { backgroundColor: '#ff0000', fontWeight: 'bold' };// 빨강 그라데이션
 
         return null;
       } },
@@ -459,7 +459,7 @@ const YieldAbnormalityPageDate: React.FC = () => {
                 size="sm"
                 onClick={() => setShowColModal(true)}
               >
-                <i className="bi bi-gear-fill" style={{ marginRight: '5px' }}></i>
+                <i className="bi bi-gear-fill"></i>
                 컬럼 설정
               </Button>
             </div>
