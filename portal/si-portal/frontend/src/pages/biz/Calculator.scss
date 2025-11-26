@@ -1,0 +1,157 @@
+///* src/Calculator.scss */
+//
+//// 변수 정의 (색상 및 설정)
+//$bg-primary: #2c3e50;       // 계산기 본체 배경
+//$bg-display: #ecf0f1;       // 디스플레이 배경
+//$bg-btn-sci: #34495e;       // 공학용 버튼 배경
+//$bg-btn-sci-hover: #4b6584; // 공학용 버튼 호버
+//$bg-btn-num: #ffffff;       // 숫자 버튼 배경
+//$bg-btn-hover: #bdc3c7;     // 숫자 버튼 호버
+//$bg-btn-func: #95a5a6;      // 기능 버튼(C, 백스페이스 등)
+//$bg-btn-clear: #e74c3c;     // C 버튼 강조
+//$bg-btn-calc: #3498db;      // = 버튼
+//$text-color: #2c3e50;
+//$text-light: #ecf0f1;
+//$error-color: #c0392b;
+//
+//// 믹스인 (버튼 기본 스타일 재사용)
+//@mixin btn-base {
+//  padding: 15px;
+//  font-size: 1.2rem;
+//  border: none;
+//  border-radius: 6px;
+//  cursor: pointer;
+//  transition: all 0.1s;
+//
+//  &:active {
+//    transform: scale(0.98);
+//  }
+//}
+//
+//.calculator-container {
+//  background-color: $bg-primary;
+//  padding: 25px;
+//  border-radius: 15px;
+//  width: 400px;
+//  margin: 30px auto;
+//  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+//  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+//
+//  .display-window {
+//    background-color: $bg-display;
+//    padding: 15px;
+//    border-radius: 8px;
+//    margin-bottom: 20px;
+//    text-align: right;
+//    display: flex;
+//    flex-direction: column;
+//    justify-content: center;
+//    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+//
+//    .expression-input {
+//      width: 100%;
+//      border: none;
+//      background: transparent;
+//      font-size: 1.3rem;
+//      text-align: right;
+//      outline: none;
+//      margin-bottom: 5px;
+//      font-family: monospace;
+//      color: $text-color;
+//    }
+//
+//    .result-display {
+//      font-size: 1.6rem;
+//      font-weight: bold;
+//      color: darken($bg-btn-calc, 10%); // 색상 함수 사용
+//      min-height: 35px;
+//      overflow-x: auto;
+//
+//      .error-text {
+//        color: $error-color;
+//        font-size: 1rem;
+//      }
+//    }
+//  }
+//
+//  .keypad {
+//    display: flex;
+//    flex-direction: column;
+//    gap: 15px;
+//
+//    // 공통 버튼 스타일 적용
+//    button {
+//      @include btn-base;
+//    }
+//
+//    .scientific-grid {
+//      display: grid;
+//      grid-template-columns: repeat(5, 1fr);
+//      gap: 8px;
+//
+//      .sci-btn {
+//        background-color: $bg-btn-sci;
+//        color: $text-light;
+//        font-size: 0.9rem;
+//        padding: 10px 5px;
+//
+//        &:hover {
+//          background-color: $bg-btn-sci-hover;
+//        }
+//      }
+//    }
+//
+//    .divider {
+//      border: 0;
+//      height: 1px;
+//      background: #7f8c8d;
+//      margin: 5px 0;
+//    }
+//
+//    .numeric-grid {
+//      display: grid;
+//      grid-template-columns: repeat(4, 1fr);
+//      gap: 10px;
+//
+//      button {
+//        background-color: $bg-btn-num;
+//        color: $text-color;
+//
+//        &:hover {
+//          background-color: $bg-btn-hover;
+//        }
+//
+//        &.func-btn {
+//          background-color: $bg-btn-func;
+//          color: white;
+//
+//          &.clear-btn {
+//            background-color: $bg-btn-clear;
+//
+//            &:hover {
+//              background-color: darken($bg-btn-clear, 10%);
+//            }
+//          }
+//        }
+//
+//        &.calc-btn {
+//          background-color: $bg-btn-calc;
+//          color: white;
+//          font-weight: bold;
+//          background: linear-gradient(135deg, $bg-btn-calc, darken($bg-btn-calc, 10%));
+//
+//          &:hover {
+//            background-color: darken($bg-btn-calc, 10%);
+//          }
+//        }
+//      }
+//    }
+//  }
+//
+//  .note {
+//    margin-top: 15px;
+//    color: #95a5a6;
+//    font-size: 0.8rem;
+//    text-align: center;
+//  }
+//}

@@ -77,6 +77,9 @@ dependencies {
 	// webClient 의존성 추가
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	implementation 'org.apache.httpcomponents.client5:httpclient5:5.3'
+
+	//exp4j 라이브러리 추가
+	implementation 'net.objecthunter:exp4j:0.4.8'
 }
 
 tasks.named('test') {
