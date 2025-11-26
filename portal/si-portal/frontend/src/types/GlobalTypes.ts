@@ -9,4 +9,5 @@ export interface AgGridWrapperHandle {
   setRowData: (data: any[]) => void;
   getRowData: () => any[];
   gridApi: any;
+  exportToCsv: (params?: any) => void;
 }

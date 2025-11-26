@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import { Container, Row, Col, Tabs, Tab, Spinner, Form, Modal, Button } from 'react-bootstrap';
-// [수정 1] ColumnApi 제거 (Ag-Grid v31+ 대응)
 import { ColDef } from '@ag-grid-community/core';
 import { useNavigate } from 'react-router-dom';
 
@@ -16,14 +15,31 @@ const YieldAbnormalityPageDate: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [colVisibility, setColVisibility] = useState<{ [key: string]: boolean }>({});
   const [showColModal, setShowColModal] = useState<boolean>(false);
-  const [dateMode, setDateMode] = useState<'day' | 'month'>('day');
+  const [dateMode, setDateMode] = useState<'day' | 'month'>('month');
   const [selectedMonth, setSelectedMonth] = useState<string>('2025-09');
   const [startDate, setStartDate] = useState<string>('2025-09-01');
   const [endDate, setEndDate] = useState<string>('2025-09-30');
+  // [추가] 이상여부 필터 상태 ('all' | 'abnormal' | 'normal')
+  const [excessFilterMode, setExcessFilterMode] = useState<string>('abnormal');
 
   const gridRef = useRef<AgGridWrapperHandle>(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const formatCommaKeepDecimals = (params: any) => {
+    if (params.value === null || params.value === undefined || params.value === '') return '';
+    const strVal = String(params.value);
+    const parts = strVal.split('.');
+    // 정수 부분에만 콤마 적용
+    parts[0] = Number(parts[0]).toLocaleString();
+    // 다시 합침 (소수점이 있으면 .12345... 그대로 붙음)
+
+    // 소수점 삭제
+    return parts[0];
+
+    // 소수점 뒷자리 그대로 합치기
+    // return parts.join('.');
+  };
 
   // 1. 공통 컬럼 정의
   const commonColumns: ColDef[] = useMemo(() => [
@@ -44,30 +60,34 @@ const YieldAbnormalityPageDate: React.FC = () => {
     { headerName: '주문외경', field: 'orderOuterDia', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true },
     { headerName: '투입량', field: 'inputQty', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', valueFormatter: (params) => params.value?.toLocaleString(), headerClass: 'header-left-align', lockVisible: true },
     { headerName: '생산량', field: 'prodQty', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', valueFormatter: (params) => params.value?.toLocaleString(), headerClass: 'header-left-align', lockVisible: true },
-    { headerName: '수율(%)', field: 'yieldRate', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true },
-    { headerName: '이상여부', field: 'excessYn', width: 120, cellClass: 'text-center', lockVisible: true },
-    { headerName: '이상기준값', field: 'excessStdValue', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true },
-    { headerName: '수율차이', field: 'yieldDiff', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true, cellStyle: (params) => {
+    { headerName: '수율(%)', field: 'yieldRate', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true, },
+    { headerName: '이상여부', field: 'excessYn', width: 120, cellClass: 'text-center', lockVisible: true,
+      cellStyle:(params)=>{
+        return params.value == '이상' ? { color: 'red' } : null;
+      }
+    },
+    { headerName: '이상기준값', field: 'excessStdValue', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true, valueFormatter:(params)=>params.value ? Number(params.value).toFixed(3) : '', },
+    { headerName: '수율차이', field: 'yieldDiff', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true, valueFormatter:(params)=>params.value ? Number(params.value).toFixed(3) : '', cellStyle: (params) => {
         const val = Number(params.value);
         if (isNaN(val)) return null;
-        if (val <= 0) return { backgroundColor: '#ffffff', fontWeight: 'bold' }; // 빨강
+        if (val <= 0) return { backgroundColor: '#ffffff', fontWeight: 'bold' }; 
         else if (val <= 10 && val > 0 ) return { backgroundColor: '#ffdfd4', fontWeight: 'bold' };
         else if (val <= 15 && val > 10 ) return { backgroundColor: '#ffbfaa', fontWeight: 'bold' };
         else if (val <= 20 && val > 15 ) return { backgroundColor: '#ff9e81', fontWeight: 'bold' };
         else if (val <= 25 && val > 20 ) return { backgroundColor: '#ff7b5a', fontWeight: 'bold' };
         else if (val <= 30 && val > 25 ) return { backgroundColor: '#ff5232', fontWeight: 'bold' };
-        else return { backgroundColor: '#ff0000', fontWeight: 'bold' };
+        else return { backgroundColor: '#ff0000', fontWeight: 'bold' };// 빨강 그라데이션
 
         return null;
       } },
     { headerName: '기간(연)', field: 'periodYear', width: 90, lockVisible: true },
     { headerName: '기간(월)', field: 'periodMonth', width: 90, lockVisible: true },
     { headerName: '평가단위', field: 'evalUnit', width: 100, lockVisible: true },
-    { headerName: '저가법영향', field: 'lcmEffect', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' },
-    { headerName: '저가법영향합계', field: 'lcmImpactTotal', width: 140, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' },
+    { headerName: '저가법영향', field: 'lcmEffect', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', valueFormatter: formatCommaKeepDecimals },
+    { headerName: '저가법영향합계', field: 'lcmImpactTotal', width: 140, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', valueFormatter: formatCommaKeepDecimals },
     { headerName: '입고수량합계', field: 'inboundQtyTotal', width: 140, type: 'numericColumn', filter: 'agNumberColumnFilter', valueFormatter: (params) => params.value?.toLocaleString(), headerClass: 'header-left-align' },
-    { headerName: '입고비율', field: 'inboundRatio', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align' },
-    { headerName: '최종저가법영향', field: 'finalLcmImpact', width: 140, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true }
+    { headerName: '입고비율', field: 'inboundRatio', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', valueFormatter:(params)=>params.value ? Number(params.value).toFixed(6) : '', },
+    { headerName: '최종저가법영향', field: 'finalLcmImpact', width: 140, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true, valueFormatter: formatCommaKeepDecimals }
   ], []);
 
   const pipeSpecificColumns: ColDef[] = useMemo(() => [
@@ -103,7 +123,6 @@ const YieldAbnormalityPageDate: React.FC = () => {
   }, [currentColumnDefs]);
 
   // [중요] 모달이 열릴 때 그리드의 실제 컬럼 상태와 React 상태를 동기화
-  // AgGridWrapper에 이벤트를 걸지 못해도, 이 코드가 있으면 모달 열 때 드래그 된 상태를 반영합니다.
   useEffect(() => {
     if (showColModal && gridRef.current?.gridApi) {
       const api = gridRef.current.gridApi;
@@ -152,6 +171,35 @@ const YieldAbnormalityPageDate: React.FC = () => {
   const setModeDay = useCallback(() => setDateMode('day'), []);
   const setModeMonth = useCallback(() => setDateMode('month'), []);
 
+  // [추가] 필터 적용 로직 (Client-side)
+  const applyExcessFilter = useCallback((mode: string) => {
+    const api = gridRef.current?.gridApi;
+    if (!api) return;
+
+    if (mode === 'all') {
+      // 필터 해제
+      api.destroyFilter('excessYn');
+    } else if (mode === 'abnormal') {
+      // '이상' 필터 적용
+      api.setFilterModel({
+        excessYn: { filterType: 'text', type: 'equals', filter: '이상' }
+      });
+    } else if (mode === 'normal') {
+      // '이상'이 아닌 것 (정상)
+      api.setFilterModel({
+        excessYn: { filterType: 'text', type: 'notEqual', filter: '이상' }
+      });
+    }
+    api.onFilterChanged();
+  }, []);
+
+  // [추가] 라디오 버튼 변경 핸들러
+  const handleExcessFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newMode = e.target.value;
+    setExcessFilterMode(newMode);
+    // applyExcessFilter(newMode);
+  };
+
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -183,18 +231,10 @@ const YieldAbnormalityPageDate: React.FC = () => {
 
         gridRef.current?.setRowData(gridData);
 
+        // 데이터 로드 후, 현재 State(excessFilterMode)에 따라 필터 적용
         setTimeout(() => {
           if (gridRef.current?.gridApi) {
-            const api = gridRef.current.gridApi;
-            const initialFilter = {
-              excessYn: {
-                filterType: 'text',
-                type: 'equals',
-                filter: '이상'
-              }
-            };
-            api.setFilterModel(initialFilter);
-            api.onFilterChanged();
+            applyExcessFilter(excessFilterMode);
           }
         }, 100);
       }
@@ -208,7 +248,7 @@ const YieldAbnormalityPageDate: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [activeTab, startDate, endDate]);
+  }, [activeTab, startDate, endDate, excessFilterMode, applyExcessFilter]);
 
   useEffect(() => {
     fetchData();
@@ -249,6 +289,17 @@ const YieldAbnormalityPageDate: React.FC = () => {
     });
   }, []);
 
+  // [추가 1] 엑셀(CSV) 저장 핸들러
+  const handleExcelExport = useCallback(() => {
+    if (gridRef.current) {
+      // AgGridWrapper에서 노출한 exportToCsv 함수 호출
+      // 파일명 등 파라미터를 넘길 수 있음. 기본값 사용 시 빈 호출
+      gridRef.current.exportToCsv({ fileName: `Yield_Data_${activeTab}_${startDate}_${endDate}.csv` });
+    } else {
+      console.warn('Grid Not Ready');
+    }
+  }, [activeTab, startDate, endDate]);
+
   return (
     <Container fluid className="h-100 container_bg">
       <Row className="container_title">
@@ -274,83 +325,144 @@ const YieldAbnormalityPageDate: React.FC = () => {
         </Row>
 
         <Row className="mb-2 mt-2" style={{ padding: '0 15px', alignItems: 'center' }}>
-          <Col md={8} className="d-flex align-items-center">
-            <span style={{ fontWeight: 'bold', marginRight: '10px', whiteSpace: 'nowrap' }}>
-              작업일자 :
-            </span>
+          {/* [수정 3] justify-content-between으로 좌측(검색조건)과 우측(버튼)을 양 끝으로 배치 */}
+          <Col className="d-flex justify-content-between align-items-end">
 
-            <div style={{ marginRight: '15px', display: 'flex', alignItems: 'center', gap: '15px' }}>
-              <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', userSelect: 'none' }}>
-                <input
-                  type="radio"
-                  name="dateMode"
-                  value="day"
-                  checked={dateMode === 'day'}
-                  onChange={setModeDay}
-                  style={{ cursor: 'pointer', margin: 0 }}
-                />
-                <span>일별</span>
-              </label>
-              <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', userSelect: 'none' }}>
-                <input
-                  type="radio"
-                  name="dateMode"
-                  value="month"
-                  checked={dateMode === 'month'}
-                  onChange={setModeMonth}
-                  style={{ cursor: 'pointer', margin: 0 }}
-                />
-                <span>월별</span>
-              </label>
+            {/* 좌측: 검색 조건 (두 줄로 분리) */}
+            <div className="d-flex flex-column gap-2">
+
+              {/* 1번째 줄: 작업일자 */}
+              <div className="d-flex align-items-center">
+                    <span style={{ fontWeight: 'bold', marginRight: '10px', whiteSpace: 'nowrap', width:'80px' }}>
+                      작업일자 :
+                    </span>
+
+                <div style={{ marginRight: '15px', display: 'flex', alignItems: 'center', gap: '15px' }}>
+                  <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', userSelect: 'none' }}>
+                    <input
+                      type="radio"
+                      name="dateMode"
+                      value="day"
+                      checked={dateMode === 'day'}
+                      onChange={setModeDay}
+                      style={{ cursor: 'pointer', margin: 0 }}
+                    />
+                    <span>일별</span>
+                  </label>
+                  <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', userSelect: 'none' }}>
+                    <input
+                      type="radio"
+                      name="dateMode"
+                      value="month"
+                      checked={dateMode === 'month'}
+                      onChange={setModeMonth}
+                      style={{ cursor: 'pointer', margin: 0 }}
+                    />
+                    <span>월별</span>
+                  </label>
+                </div>
+
+                {dateMode === 'day' ? (
+                  <>
+                    <Form.Control
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      style={{ width: '140px', display: 'inline-block' }}
+                    />
+                    <span style={{ margin: '0 8px' }}>~</span>
+                    <Form.Control
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      style={{ width: '140px', display: 'inline-block', marginRight: '10px' }}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <Form.Control
+                      type="month"
+                      value={selectedMonth}
+                      onChange={handleMonthChange}
+                      style={{ width: '180px', display: 'inline-block', marginRight: '10px' }}
+                    />
+                  </>
+                )}
+              </div>
+
+              {/* 2번째 줄: 이상여부 + 조회 버튼 */}
+              <div className="d-flex align-items-center">
+                    <span style={{ fontWeight: 'bold', marginRight: '10px', whiteSpace: 'nowrap', width:'80px' }}>
+                      이상여부 :
+                    </span>
+                <div style={{ marginRight: '15px', display: 'flex', alignItems: 'center', gap: '15px' }}>
+                  <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', userSelect: 'none' }}>
+                    <input
+                      type="radio"
+                      name="excessFilter"
+                      value="all"
+                      checked={excessFilterMode === 'all'}
+                      onChange={handleExcessFilterChange}
+                      style={{ cursor: 'pointer', margin: 0 }}
+                    />
+                    <span>전체</span>
+                  </label>
+                  <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', userSelect: 'none' }}>
+                    <input
+                      type="radio"
+                      name="excessFilter"
+                      value="abnormal"
+                      checked={excessFilterMode === 'abnormal'}
+                      onChange={handleExcessFilterChange}
+                      style={{ cursor: 'pointer', margin: 0 }}
+                    />
+                    <span>이상</span>
+                  </label>
+                  <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', userSelect: 'none' }}>
+                    <input
+                      type="radio"
+                      name="excessFilter"
+                      value="normal"
+                      checked={excessFilterMode === 'normal'}
+                      onChange={handleExcessFilterChange}
+                      style={{ cursor: 'pointer', margin: 0 }}
+                    />
+                    <span>정상</span>
+                  </label>
+                </div>
+
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={fetchData}
+                  disabled={isLoading}
+                >
+                  <i className="bi bi-search" ></i>
+                  조회
+                </Button>
+              </div>
             </div>
 
-            {dateMode === 'day' ? (
-              <>
-                <Form.Control
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  style={{ width: '140px', display: 'inline-block' }}
-                />
-                <span style={{ margin: '0 8px' }}>~</span>
-                <Form.Control
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  style={{ width: '140px', display: 'inline-block', marginRight: '10px' }}
-                />
-              </>
-            ) : (
-              <>
-                <Form.Control
-                  type="month"
-                  value={selectedMonth}
-                  onChange={handleMonthChange}
-                  style={{ width: '180px', display: 'inline-block', marginRight: '10px' }}
-                />
-              </>
-            )}
+            {/* 우측: 버튼 그룹 (오른쪽 끝 정렬) */}
+            <div className="d-flex" style={{ gap: '10px', paddingBottom: '2px' }}>
+              <Button
+                variant="success"
+                size="sm"
+                onClick={handleExcelExport}
+              >
+                <i className="bi bi-file-earmark-excel"></i>
+                엑셀 저장
+              </Button>
 
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={fetchData}
-              disabled={isLoading}
-            >
-              <i className="bi bi-search" style={{ marginRight: '5px' }}></i>
-              조회
-            </Button>
-          </Col>
-
-          <Col md={4} className="d-flex justify-content-end">
-            <Button
-              variant="outline-secondary"
-              size="sm"
-              onClick={() => setShowColModal(true)}
-            >
-              <i className="bi bi-gear-fill" style={{ marginRight: '5px' }}></i>
-              컬럼 설정
-            </Button>
+              <Button
+                variant="outline-secondary"
+                size="sm"
+                onClick={() => setShowColModal(true)}
+              >
+                <i className="bi bi-gear-fill"></i>
+                컬럼 설정
+              </Button>
+            </div>
           </Col>
         </Row>
 
@@ -373,7 +485,6 @@ const YieldAbnormalityPageDate: React.FC = () => {
               </div>
             )}
 
-            {/* [수정 2] onColumnVisible 속성 제거 */}
             <AgGridWrapper
               key={activeTab}
               ref={gridRef}
