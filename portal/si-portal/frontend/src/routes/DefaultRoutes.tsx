@@ -24,6 +24,7 @@ const ProjectDetail = React.lazy(() => import('~pages/biz/ProjectDetail'));
 const YieldAbnormally = React.lazy(() => import('~pages/biz/YieldAbnormalityPage'));
 const YieldAbnormallyDate = React.lazy(() => import('~pages/biz/YieldAbnormalityPageDate'));
 const YieldTrend = React.lazy(() => import('~pages/biz/YieldTrendPage'));
+const Calculator = React.lazy(() => import('~pages/biz/Calculator'));
 
 
 export default function DefaultRoutes(): RouteObject[] {
@@ -160,6 +161,14 @@ export default function DefaultRoutes(): RouteObject[] {
       element: (
         <React.Suspense fallback={<div>Loading...</div>}>
           <YieldTrend />
+        </React.Suspense>
+      )
+    },
+    {
+      path: '/main/calculator',
+      element: (
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <Calculator />
         </React.Suspense>
       )
     }
