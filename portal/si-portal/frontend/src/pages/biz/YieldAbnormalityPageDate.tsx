@@ -19,26 +19,50 @@ const YieldAbnormalityPageDate: React.FC = () => {
   const [selectedMonth, setSelectedMonth] = useState<string>('2025-09');
   const [startDate, setStartDate] = useState<string>('2025-09-01');
   const [endDate, setEndDate] = useState<string>('2025-09-30');
-  // [추가] 이상여부 필터 상태 ('all' | 'abnormal' | 'normal')
   const [excessFilterMode, setExcessFilterMode] = useState<string>('abnormal');
 
   const gridRef = useRef<AgGridWrapperHandle>(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  // [수정] 0은 표시하고, null/undefined/빈값만 공백 처리하는 포매터
   const formatCommaKeepDecimals = (params: any) => {
+    // 0은 유효한 값이므로 null/undefined/빈문자열만 체크
     if (params.value === null || params.value === undefined || params.value === '') return '';
+
     const strVal = String(params.value);
     const parts = strVal.split('.');
-    // 정수 부분에만 콤마 적용
     parts[0] = Number(parts[0]).toLocaleString();
-    // 다시 합침 (소수점이 있으면 .12345... 그대로 붙음)
-
-    // 소수점 삭제
     return parts[0];
+  };
 
-    // 소수점 뒷자리 그대로 합치기
-    // return parts.join('.');
+  // [추가] Null 값을 정렬 시 항상 바닥으로 보내는 커스텀 Comparator
+  // 숫자 필터링은 정상 작동하며, 정렬 시에만 Null을 가장 큰 값(혹은 별도 처리)으로 간주하여 아래로 보냄
+  const nullsLastComparator = (valueA: any, valueB: any, nodeA: any, nodeB: any, isInverted: boolean) => {
+    const isANull = valueA === null || valueA === undefined || valueA === '';
+    const isBNull = valueB === null || valueB === undefined || valueB === '';
+
+    if (isANull && isBNull) return 0;
+
+    if (isANull) {
+      // 오름차순(isInverted=false)일 땐 A(Null)를 1(큰값)로 취급해 맨 뒤로 보냄
+      // 내림차순(isInverted=true)일 땐 A(Null)를 -1(작은값)로 취급해야
+      // Grid가 '큰 값부터 정렬'할 때 작은 값인 Null을 맨 뒤로 보냄
+      return isInverted ? -1 : 1;
+    }
+
+    if (isBNull) {
+      // A와 반대 논리
+      return isInverted ? 1 : -1;
+    }
+
+    // 둘 다 숫자일 경우 정상 비교
+    return Number(valueA) - Number(valueB);
+  };
+  // [추가] 안전한 숫자 포매터 (0은 '0.000'으로, null은 ''로)
+  const formatNumberOrBlank = (params: any) => {
+    if (params.value === null || params.value === undefined || params.value === '') return '';
+    return Number(params.value).toFixed(3);
   };
 
   // 1. 공통 컬럼 정의
@@ -66,28 +90,86 @@ const YieldAbnormalityPageDate: React.FC = () => {
         return params.value == '이상' ? { color: 'red' } : null;
       }
     },
-    { headerName: '이상기준값', field: 'excessStdValue', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true, valueFormatter:(params)=>params.value ? Number(params.value).toFixed(3) : '', },
-    { headerName: '수율차이', field: 'yieldDiff', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true, valueFormatter:(params)=>params.value ? Number(params.value).toFixed(3) : '', cellStyle: (params) => {
+    {
+      headerName: '이상기준값',
+      field: 'excessStdValue',
+      width: 120,
+      type: 'numericColumn',
+      filter: 'agNumberColumnFilter',
+      headerClass: 'header-left-align',
+      lockVisible: true,
+      valueFormatter: formatNumberOrBlank // [수정] 0 표시 보장 포매터 사용
+    },
+    {
+      headerName: '수율차이',
+      field: 'yieldDiff',
+      width: 120,
+      type: 'numericColumn',
+      filter: 'agNumberColumnFilter',
+      headerClass: 'header-left-align',
+      lockVisible: true,
+      valueFormatter: formatNumberOrBlank, // [수정] 0 표시 보장 포매터 사용
+      comparator: nullsLastComparator, // [추가] 정렬 시 Null 하단 배치
+      cellStyle: (params) => {
         const val = Number(params.value);
+        // [수정] params.value가 null이면 스타일 미적용 (하얀색)
+        if (params.value === null || params.value === undefined || params.value === '') return null;
+
         if (isNaN(val)) return null;
-        if (val <= 0) return { backgroundColor: '#ffffff', fontWeight: 'bold' }; 
+        if (val <= 0) return { backgroundColor: '#ffffff', fontWeight: 'bold' };
         else if (val <= 10 && val > 0 ) return { backgroundColor: '#ffdfd4', fontWeight: 'bold' };
         else if (val <= 15 && val > 10 ) return { backgroundColor: '#ffbfaa', fontWeight: 'bold' };
         else if (val <= 20 && val > 15 ) return { backgroundColor: '#ff9e81', fontWeight: 'bold' };
         else if (val <= 25 && val > 20 ) return { backgroundColor: '#ff7b5a', fontWeight: 'bold' };
         else if (val <= 30 && val > 25 ) return { backgroundColor: '#ff5232', fontWeight: 'bold' };
-        else return { backgroundColor: '#ff0000', fontWeight: 'bold' };// 빨강 그라데이션
-
+        else return { backgroundColor: '#ff0000', fontWeight: 'bold' };
         return null;
-      } },
+      }
+    },
     { headerName: '기간(연)', field: 'periodYear', width: 90, lockVisible: true },
     { headerName: '기간(월)', field: 'periodMonth', width: 90, lockVisible: true },
     { headerName: '평가단위', field: 'evalUnit', width: 100, lockVisible: true },
-    { headerName: '저가법영향', field: 'lcmEffect', width: 120, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', valueFormatter: formatCommaKeepDecimals },
-    { headerName: '저가법영향합계', field: 'lcmImpactTotal', width: 140, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', valueFormatter: formatCommaKeepDecimals },
+    {
+      headerName: '저가법영향',
+      field: 'lcmEffect',
+      width: 120,
+      type: 'numericColumn',
+      filter: 'agNumberColumnFilter',
+      headerClass: 'header-left-align',
+      valueFormatter: formatCommaKeepDecimals,
+      comparator: nullsLastComparator // [추가] 정렬 시 Null 하단 배치
+    },
+    {
+      headerName: '저가법영향합계',
+      field: 'lcmImpactTotal',
+      width: 140,
+      type: 'numericColumn',
+      filter: 'agNumberColumnFilter',
+      headerClass: 'header-left-align',
+      valueFormatter: formatCommaKeepDecimals,
+      comparator: nullsLastComparator // [추가] 정렬 시 Null 하단 배치
+    },
     { headerName: '입고수량합계', field: 'inboundQtyTotal', width: 140, type: 'numericColumn', filter: 'agNumberColumnFilter', valueFormatter: (params) => params.value?.toLocaleString(), headerClass: 'header-left-align' },
-    { headerName: '입고비율', field: 'inboundRatio', width: 100, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', valueFormatter:(params)=>params.value ? Number(params.value).toFixed(6) : '', },
-    { headerName: '최종저가법영향', field: 'finalLcmImpact', width: 140, type: 'numericColumn', filter: 'agNumberColumnFilter', headerClass: 'header-left-align', lockVisible: true, valueFormatter: formatCommaKeepDecimals }
+    {
+      headerName: '입고비율',
+      field: 'inboundRatio',
+      width: 100,
+      type: 'numericColumn',
+      filter: 'agNumberColumnFilter',
+      headerClass: 'header-left-align',
+      valueFormatter:(params) => (params.value !== null && params.value !== '') ? Number(params.value).toFixed(6) : '', // [수정] 0 표시 로직 개선
+    },
+    {
+      headerName: '최종저가법영향',
+      field: 'finalLcmImpact',
+      width: 140,
+      type: 'numericColumn',
+      filter: 'agNumberColumnFilter',
+      headerClass: 'header-left-align',
+      lockVisible: true,
+      valueFormatter: formatCommaKeepDecimals,
+      comparator: nullsLastComparator // [추가] 정렬 시 Null 하단 배치
+    }
   ], []);
 
   const pipeSpecificColumns: ColDef[] = useMemo(() => [
@@ -111,7 +193,6 @@ const YieldAbnormalityPageDate: React.FC = () => {
     return cols;
   }, [activeTab, commonColumns, pipeSpecificColumns, barSpecificColumns]);
 
-  // 초기 렌더링 시 컬럼 가시성 설정
   useEffect(() => {
     const initialVisibility: { [key: string]: boolean } = {};
     currentColumnDefs.forEach(col => {
@@ -122,19 +203,14 @@ const YieldAbnormalityPageDate: React.FC = () => {
     setColVisibility(initialVisibility);
   }, [currentColumnDefs]);
 
-  // [중요] 모달이 열릴 때 그리드의 실제 컬럼 상태와 React 상태를 동기화
   useEffect(() => {
     if (showColModal && gridRef.current?.gridApi) {
       const api = gridRef.current.gridApi;
-
-      // Ag-Grid v31+에서는 gridApi.getColumnState() 사용
       const columnState = api.getColumnState();
-
       const newVisibility: { [key: string]: boolean } = {};
 
       columnState.forEach((colState: any) => {
         if (colState.colId) {
-          // hide가 true이면 보이지 않는 것이므로 반대로 설정
           newVisibility[colState.colId] = !colState.hide;
         }
       });
@@ -171,21 +247,17 @@ const YieldAbnormalityPageDate: React.FC = () => {
   const setModeDay = useCallback(() => setDateMode('day'), []);
   const setModeMonth = useCallback(() => setDateMode('month'), []);
 
-  // [추가] 필터 적용 로직 (Client-side)
   const applyExcessFilter = useCallback((mode: string) => {
     const api = gridRef.current?.gridApi;
     if (!api) return;
 
     if (mode === 'all') {
-      // 필터 해제
       api.destroyFilter('excessYn');
     } else if (mode === 'abnormal') {
-      // '이상' 필터 적용
       api.setFilterModel({
         excessYn: { filterType: 'text', type: 'equals', filter: '이상' }
       });
     } else if (mode === 'normal') {
-      // '이상'이 아닌 것 (정상)
       api.setFilterModel({
         excessYn: { filterType: 'text', type: 'notEqual', filter: '이상' }
       });
@@ -193,11 +265,15 @@ const YieldAbnormalityPageDate: React.FC = () => {
     api.onFilterChanged();
   }, []);
 
-  // [추가] 라디오 버튼 변경 핸들러
   const handleExcessFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newMode = e.target.value;
     setExcessFilterMode(newMode);
-    // applyExcessFilter(newMode);
+  };
+
+  // [추가] 데이터 안전 변환 헬퍼 (null/empty는 null로, 나머지는 숫자로)
+  const safeNumber = (val: any) => {
+    if (val === null || val === undefined || val === '') return null;
+    return Number(val);
   };
 
   const fetchData = useCallback(async () => {
@@ -223,15 +299,18 @@ const YieldAbnormalityPageDate: React.FC = () => {
           inputQty: Number(item.inputQty),
           prodQty: Number(item.prodQty),
           yieldRate: Number(item.yieldRate),
-          yieldDiff: Number(item.yieldDiff),
           excessStdValue: Number(item.excessStdValue),
-          lcmEffect: Number(item.lcmEffect),
-          lcmImpactTotal: Number(item.lcmImpactTotal),
+
+          // [수정] 아래 필드들에 대해 safeNumber 적용하여 null 유지
+          // 기존 Number()는 null을 0으로 바꿔버리므로 이 로직이 필수입니다.
+          yieldDiff: safeNumber(item.yieldDiff),
+          lcmEffect: safeNumber(item.lcmEffect),
+          lcmImpactTotal: safeNumber(item.lcmImpactTotal),
+          finalLcmImpact: safeNumber(item.finalLcmImpact),
         }));
 
         gridRef.current?.setRowData(gridData);
 
-        // 데이터 로드 후, 현재 State(excessFilterMode)에 따라 필터 적용
         setTimeout(() => {
           if (gridRef.current?.gridApi) {
             applyExcessFilter(excessFilterMode);
@@ -252,7 +331,6 @@ const YieldAbnormalityPageDate: React.FC = () => {
 
   useEffect(() => {
     fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
   const handleRowClick = useCallback((event: any) => {
@@ -289,11 +367,8 @@ const YieldAbnormalityPageDate: React.FC = () => {
     });
   }, []);
 
-  // [추가 1] 엑셀(CSV) 저장 핸들러
   const handleExcelExport = useCallback(() => {
     if (gridRef.current) {
-      // AgGridWrapper에서 노출한 exportToCsv 함수 호출
-      // 파일명 등 파라미터를 넘길 수 있음. 기본값 사용 시 빈 호출
       gridRef.current.exportToCsv({ fileName: `Yield_Data_${activeTab}_${startDate}_${endDate}.csv` });
     } else {
       console.warn('Grid Not Ready');
@@ -325,13 +400,9 @@ const YieldAbnormalityPageDate: React.FC = () => {
         </Row>
 
         <Row className="mb-2 mt-2" style={{ padding: '0 15px', alignItems: 'center' }}>
-          {/* [수정 3] justify-content-between으로 좌측(검색조건)과 우측(버튼)을 양 끝으로 배치 */}
           <Col className="d-flex justify-content-between align-items-end">
 
-            {/* 좌측: 검색 조건 (두 줄로 분리) */}
             <div className="d-flex flex-column gap-2">
-
-              {/* 1번째 줄: 작업일자 */}
               <div className="d-flex align-items-center">
                     <span style={{ fontWeight: 'bold', marginRight: '10px', whiteSpace: 'nowrap', width:'80px' }}>
                       작업일자 :
@@ -390,7 +461,6 @@ const YieldAbnormalityPageDate: React.FC = () => {
                 )}
               </div>
 
-              {/* 2번째 줄: 이상여부 + 조회 버튼 */}
               <div className="d-flex align-items-center">
                     <span style={{ fontWeight: 'bold', marginRight: '10px', whiteSpace: 'nowrap', width:'80px' }}>
                       이상여부 :
@@ -443,7 +513,6 @@ const YieldAbnormalityPageDate: React.FC = () => {
               </div>
             </div>
 
-            {/* 우측: 버튼 그룹 (오른쪽 끝 정렬) */}
             <div className="d-flex" style={{ gap: '10px', paddingBottom: '2px' }}>
               <Button
                 variant="success"
