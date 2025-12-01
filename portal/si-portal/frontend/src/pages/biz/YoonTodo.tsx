@@ -190,7 +190,7 @@ const YoonTodo=()=>{
             };
 
             axios
-                .put(
+                .post(
                     `${process.env.REACT_APP_BACKEND_IP}/api/todo`,
                     payload,   // updateList
                     {

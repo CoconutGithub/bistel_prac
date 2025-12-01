@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useRef } from 'react';
 import { Navbar, Nav, Container, NavDropdown } from 'react-bootstrap';
 import NavMenuItem from '~pages/portal/layouts/NavMenuItem';
 import { MenuItem } from '~types/LayoutTypes';
@@ -22,6 +22,7 @@ const Header: React.FC<HeaderProps> = React.memo(({ onSelectTab }) => {
   const [showPopup, setShowPopup] = useState(false);
   const [langMap, setLangMap] = useState<Record<string, string>>({});
   const [isNew, setIsNew] = useState(true);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const isMighty = useSelector((state: RootState) => state.auth.user.isMighty);
   const roleId = useSelector((state: RootState) => state.auth.user.roleId);
@@ -51,6 +52,28 @@ const Header: React.FC<HeaderProps> = React.memo(({ onSelectTab }) => {
 
   const [isAdminHovered, setIsAdminHovered] = useState(false);
 
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el) {
+      const onWheel = (e: WheelEvent) => {
+        if (e.deltaY === 0) return;
+        // 기본 수직 스크롤 동작 방지
+        e.preventDefault();
+        // 수직 스크롤 양(e.deltaY)만큼 가로(scrollLeft)로 이동
+        el.scrollTo({
+          left: el.scrollLeft + e.deltaY,
+          behavior: 'auto' // 'smooth'로 하면 휠 반응이 느릴 수 있어 'auto' 권장
+        });
+      };
+
+      // wheel 이벤트 리스너 등록 (passive: false여야 preventDefault가 작동함)
+      el.addEventListener('wheel', onWheel, { passive: false });
+
+      return () => {
+        el.removeEventListener('wheel', onWheel);
+      };
+    }
+  }, []);
 
   useEffect(() => {
     // [로그 추가] 1. useEffect가 실행되는 시점과 userId 값을 확인합니다.
@@ -200,7 +223,16 @@ const Header: React.FC<HeaderProps> = React.memo(({ onSelectTab }) => {
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto">
+          <Nav className="me-auto" ref={scrollRef} // 여기에 ref 연결
+               style={{
+                 display: 'flex',
+                 flexWrap: 'nowrap',
+                 overflowX: 'auto',
+                 overflowY: 'hidden',
+                 whiteSpace: 'nowrap',
+                 scrollbarWidth: 'none',
+                 msOverflowStyle: 'none',
+               }}>
             {menuItems.map((item) => (
               <NavMenuItem
                 key={item.title}
