@@ -1,7 +1,6 @@
 .page {
-  margin-top: 5vh;
   display: flex;
-  height: calc(95vh - 120px);
+  height: 90vh;
   margin-left: 2vw;
   width: 80vw;
   background: #f4f6fb;
@@ -85,6 +84,7 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  position: relative;
 
   &:hover {
     background: #eef3fb;
@@ -108,6 +108,23 @@
 .historyMeta {
   font-size: 0.82rem;
   color: #6b7280;
+}
+
+.deleteBtn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  font-weight: 700;
+  line-height: 1;
+  padding: 2px 6px;
+
+  &:hover {
+    color: #b91c1c;
+  }
 }
 
 .main {

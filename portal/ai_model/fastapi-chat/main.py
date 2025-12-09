@@ -286,6 +286,18 @@ def get_session(session_id: str, user_id: str = Depends(get_user_id)):
   return {"id": session_id, "messages": msgs}
 
 
+@app.delete("/api/chat/sessions/{session_id}")
+def delete_session(session_id: str, user_id: str = Depends(get_user_id)):
+  require_db()
+  verify_session_owner(session_id, user_id)
+  with engine.begin() as conn:
+    conn.execute(
+      text("DELETE FROM dev.chat_sessions WHERE id = :id"),
+      {"id": session_id},
+    )
+  return {"id": session_id, "deleted": True}
+
+
 @app.post("/api/chat/completions")
 async def chat(req: ChatRequest, user_id: str = Depends(get_user_id)):
   require_openai()

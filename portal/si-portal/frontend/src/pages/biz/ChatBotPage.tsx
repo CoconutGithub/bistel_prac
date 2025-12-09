@@ -32,7 +32,7 @@ const initialAssistantMessage: ChatMessage = {
   id: 'assistant-welcome',
   role: 'assistant',
   content:
-    '안녕하세요, AI 어시스턴트입니다. 제품, 코드, 아이디어 무엇이든 질문하세요. 로그나 텍스트도 붙여 주시면 검토해 드립니다.',
+    '안녕하세요, AI 어시스턴트입니다. 제품, 코드, 아이디어 무엇이든 질문하세요. ( model : gpt-5-mini )',
 };
 
 const getId = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`);
@@ -245,6 +245,47 @@ const ChatBotPage: React.FC = () => {
     [headers]
   );
 
+  const handleDeleteSession = useCallback(
+    async (sessionId: string) => {
+      try {
+        const res = await fetch(`${CHAT_API_URL}/sessions/${sessionId}`, {
+          method: 'DELETE',
+          headers,
+        });
+        if (!res.ok) throw new Error(`세션 삭제 실패 (${res.status})`);
+        setSessions((prev) => prev.filter((s) => s.id !== sessionId));
+        if (currentSessionId === sessionId) {
+          const next = sessions.find((s) => s.id !== sessionId);
+          if (next) {
+            setCurrentSessionId(next.id);
+            const detailRes = await fetch(`${CHAT_API_URL}/sessions/${next.id}`, { headers });
+            const detail = await detailRes.json();
+            const msgs: ChatMessage[] = (detail.messages as ChatMessage[]) || [];
+            setMessages(msgs.length ? msgs : [initialAssistantMessage]);
+          } else {
+            // no remaining sessions; create one
+            const resNew = await fetch(`${CHAT_API_URL}/sessions`, {
+              method: 'POST',
+              headers,
+            });
+            if (resNew.ok) {
+              const created = await resNew.json();
+              setSessions([{ id: created.id, title: created.title, updated_at: created.updated_at }]);
+              setCurrentSessionId(created.id);
+              setMessages([initialAssistantMessage]);
+            } else {
+              setCurrentSessionId(null);
+              setMessages([initialAssistantMessage]);
+            }
+          }
+        }
+      } catch (e) {
+        console.error('세션 삭제 실패', e);
+      }
+    },
+    [currentSessionId, headers, sessions]
+  );
+
   useEffect(() => {
     (async () => {
       try {
@@ -323,6 +364,16 @@ const ChatBotPage: React.FC = () => {
                       })
                     : '-'}
                 </span>
+                <button
+                  className={styles.deleteBtn}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteSession(session.id);
+                  }}
+                  aria-label="대화 세션 삭제"
+                >
+                  ×
+                </button>
               </button>
             ))}
           </div>
@@ -333,10 +384,9 @@ const ChatBotPage: React.FC = () => {
         <header className={styles.header}>
           <div>
             <p className={styles.kicker}>BISTelligence AI</p>
-            <h1 className={styles.title}>ChatGPT 스타일 어시스턴트</h1>
+            <h1 className={styles.title}>ChatGPT 어시스턴트</h1>
             <p className={styles.subtitle}>
-              FastAPI 브릿지에 바로 연결되는 챗봇입니다. 질문을 입력하고 대화 기록을 선택해 이어서
-              이야기하세요.
+              질문을 입력하고 대화 기록을 선택해 이어서 이야기하세요.
             </p>
           </div>
         </header>
