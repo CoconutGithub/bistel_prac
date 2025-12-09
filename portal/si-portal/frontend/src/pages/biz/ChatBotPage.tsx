@@ -1,7 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { useSelector } from 'react-redux';
-import { RootState } from '~store/Store';
 import styles from './ChatBotPage.module.scss';
 
 type ChatRole = 'user' | 'assistant';
@@ -32,20 +30,18 @@ const initialAssistantMessage: ChatMessage = {
   id: 'assistant-welcome',
   role: 'assistant',
   content:
-    '안녕하세요, AI 어시스턴트입니다. 제품, 코드, 아이디어 무엇이든 질문하세요. ( model : gpt-5-mini )',
+    '안녕하세요, AI 어시스턴트입니다. 제품, 코드, 아이디어 무엇이든 질문하세요. (model: gpt-5-mini)',
 };
 
 const getId = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`);
 
 const ChatBotPage: React.FC = () => {
-  const userId = useSelector((state: RootState) => state.auth.user.userId) || 'anonymous';
-  const headers = useMemo(
-    () => ({
-      'Content-Type': 'application/json',
-      'X-User-Id': userId,
-    }),
-    [userId]
-  );
+  const getHeaders = useCallback(() => {
+    const token = sessionStorage.getItem('authToken') || '';
+    const h: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) h.Authorization = `Bearer ${token}`;
+    return h;
+  }, []);
 
   const [sessions, setSessions] = useState<ChatSessionSummary[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
@@ -124,13 +120,14 @@ const ChatBotPage: React.FC = () => {
   const sendMessage = useCallback(
     async (text: string) => {
       if (!text.trim() || isSending) return;
-      // 세션이 없으면 우선 생성 시도
+
+      // 세션이 없으면 우선 생성
       let sessionId = currentSessionId;
       if (!sessionId) {
         try {
           const res = await fetch(`${CHAT_API_URL}/sessions`, {
             method: 'POST',
-            headers,
+            headers: getHeaders(),
           });
           if (!res.ok) throw new Error(`세션 생성 실패 (${res.status})`);
           const data = await res.json();
@@ -164,7 +161,7 @@ const ChatBotPage: React.FC = () => {
       try {
         const response = await fetch(`${CHAT_API_URL}/completions`, {
           method: 'POST',
-          headers,
+          headers: getHeaders(),
           body: JSON.stringify({
             messages: [...conversationPayload, userMessage],
             stream: true,
@@ -201,7 +198,7 @@ const ChatBotPage: React.FC = () => {
         setIsSending(false);
       }
     },
-    [conversationPayload, currentSessionId, headers, isSending, readStream, upsertAssistantMessage]
+    [conversationPayload, currentSessionId, getHeaders, isSending, readStream, upsertAssistantMessage]
   );
 
   const handleSubmit = useCallback(() => {
@@ -214,7 +211,7 @@ const ChatBotPage: React.FC = () => {
       try {
         const res = await fetch(`${CHAT_API_URL}/sessions`, {
           method: 'POST',
-          headers,
+          headers: getHeaders(),
         });
         if (!res.ok) throw new Error(`새 대화 생성 실패 (${res.status})`);
         const data = await res.json();
@@ -226,14 +223,14 @@ const ChatBotPage: React.FC = () => {
         console.error('새 대화 생성 실패', e);
       }
     })();
-  }, [headers]);
+  }, [getHeaders]);
 
   const handleSelectSession = useCallback(
     async (session: ChatSessionSummary) => {
       setCurrentSessionId(session.id);
       try {
         const res = await fetch(`${CHAT_API_URL}/sessions/${session.id}`, {
-          headers,
+          headers: getHeaders(),
         });
         const data = await res.json();
         const msgs: ChatMessage[] = (data.messages as ChatMessage[]) || [];
@@ -242,7 +239,7 @@ const ChatBotPage: React.FC = () => {
         console.error('대화 불러오기 실패', e);
       }
     },
-    [headers]
+    [getHeaders]
   );
 
   const handleDeleteSession = useCallback(
@@ -250,7 +247,7 @@ const ChatBotPage: React.FC = () => {
       try {
         const res = await fetch(`${CHAT_API_URL}/sessions/${sessionId}`, {
           method: 'DELETE',
-          headers,
+          headers: getHeaders(),
         });
         if (!res.ok) throw new Error(`세션 삭제 실패 (${res.status})`);
         setSessions((prev) => prev.filter((s) => s.id !== sessionId));
@@ -258,7 +255,7 @@ const ChatBotPage: React.FC = () => {
           const next = sessions.find((s) => s.id !== sessionId);
           if (next) {
             setCurrentSessionId(next.id);
-            const detailRes = await fetch(`${CHAT_API_URL}/sessions/${next.id}`, { headers });
+            const detailRes = await fetch(`${CHAT_API_URL}/sessions/${next.id}`, { headers: getHeaders() });
             const detail = await detailRes.json();
             const msgs: ChatMessage[] = (detail.messages as ChatMessage[]) || [];
             setMessages(msgs.length ? msgs : [initialAssistantMessage]);
@@ -266,7 +263,7 @@ const ChatBotPage: React.FC = () => {
             // no remaining sessions; create one
             const resNew = await fetch(`${CHAT_API_URL}/sessions`, {
               method: 'POST',
-              headers,
+              headers: getHeaders(),
             });
             if (resNew.ok) {
               const created = await resNew.json();
@@ -283,28 +280,27 @@ const ChatBotPage: React.FC = () => {
         console.error('세션 삭제 실패', e);
       }
     },
-    [currentSessionId, headers, sessions]
+    [currentSessionId, getHeaders, sessions]
   );
 
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch(`${CHAT_API_URL}/sessions`, { headers });
+        const res = await fetch(`${CHAT_API_URL}/sessions`, { headers: getHeaders() });
         if (!res.ok) throw new Error(`세션 조회 실패 (${res.status})`);
         const data = await res.json();
         setSessions(data);
         if (data.length > 0) {
           const first = data[0];
           setCurrentSessionId(first.id);
-          const detailRes = await fetch(`${CHAT_API_URL}/sessions/${first.id}`, { headers });
+          const detailRes = await fetch(`${CHAT_API_URL}/sessions/${first.id}`, { headers: getHeaders() });
           const detail = await detailRes.json();
           const msgs: ChatMessage[] = (detail.messages as ChatMessage[]) || [];
           setMessages(msgs.length ? msgs : [initialAssistantMessage]);
         } else {
-          // 서버에는 세션이 없으므로 하나 만든다
           const resNew = await fetch(`${CHAT_API_URL}/sessions`, {
             method: 'POST',
-            headers,
+            headers: getHeaders(),
           });
           if (!resNew.ok) throw new Error(`세션 생성 실패 (${resNew.status})`);
           const created = await resNew.json();
@@ -314,24 +310,9 @@ const ChatBotPage: React.FC = () => {
         }
       } catch (e) {
         console.error('세션 목록 불러오기 실패', e);
-        // 실패 시에도 최소한 빈 세션을 하나 만든다
-        try {
-          const resNew = await fetch(`${CHAT_API_URL}/sessions`, {
-            method: 'POST',
-            headers,
-          });
-          if (resNew.ok) {
-            const created = await resNew.json();
-            setSessions([{ id: created.id, title: created.title, updated_at: created.updated_at }]);
-            setCurrentSessionId(created.id);
-            setMessages([initialAssistantMessage]);
-          }
-        } catch (err) {
-          console.error('세션 생성도 실패', err);
-        }
       }
     })();
-  }, [headers]);
+  }, [getHeaders]);
 
   return (
     <div className={styles.page}>
@@ -384,7 +365,7 @@ const ChatBotPage: React.FC = () => {
         <header className={styles.header}>
           <div>
             <p className={styles.kicker}>BISTelligence AI</p>
-            <h1 className={styles.title}>ChatGPT 어시스턴트</h1>
+            <h1 className={styles.title}>ChatGPT 스타일 어시스턴트</h1>
             <p className={styles.subtitle}>
               질문을 입력하고 대화 기록을 선택해 이어서 이야기하세요.
             </p>

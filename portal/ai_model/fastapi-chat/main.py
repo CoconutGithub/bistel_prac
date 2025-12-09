@@ -15,6 +15,7 @@ from openai import OpenAI, OpenAIError
 from pydantic import BaseModel, Field
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
+import jwt
 
 # ---------- Models ----------
 
@@ -39,6 +40,9 @@ load_dotenv(dotenv_path=os.getenv("ENV_FILE", ".env"))
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 DATABASE_URL = os.getenv("DATABASE_URL")
+JWT_SECRET = os.getenv("JWT_SECRET")
+JWT_ALG = os.getenv("JWT_ALG", "HS256")
+JWT_IS_BASE64 = os.getenv("JWT_IS_BASE64", "true").lower() in ("1", "true", "yes")
 
 
 def sanitize_db_url(url: str, default_schema: str = "dev"):
@@ -102,11 +106,37 @@ def require_db():
     raise HTTPException(status_code=500, detail="DATABASE_URL is not configured on the server.")
 
 
-def get_user_id(x_user_id: Optional[str] = Header(None)):
-  # 실제 서비스에서는 JWT 디코딩 등으로 교체
-  if not x_user_id:
-    raise HTTPException(status_code=401, detail="X-User-Id header is required")
-  return x_user_id
+def get_user_id(authorization: Optional[str] = Header(None)):
+  # JWT HS/RS256 검증: Authorization: Bearer <token>
+  if not authorization or not authorization.startswith("Bearer "):
+    logger.warning("Authorization header missing or malformed")
+    raise HTTPException(status_code=401, detail="Authorization header is missing")
+  if not JWT_SECRET:
+    logger.error("JWT_SECRET not configured")
+    raise HTTPException(status_code=500, detail="JWT_SECRET is not configured")
+  token = authorization.split(" ", 1)[1]
+  try:
+    key: str | bytes
+    if JWT_IS_BASE64:
+      import base64
+      key = base64.urlsafe_b64decode(JWT_SECRET + "==")
+    else:
+      key = JWT_SECRET
+    payload = jwt.decode(
+      token,
+      key,
+      algorithms=[JWT_ALG],
+      options={"verify_aud": False},
+    )
+  except jwt.PyJWTError as e:
+    logger.warning("JWT decode failed: %s", e)
+    raise HTTPException(status_code=401, detail=f"Invalid token: {e}") from e
+
+  user_id = payload.get("userId") or payload.get("sub")
+  if not user_id:
+    logger.warning("JWT missing userId/sub claim")
+    raise HTTPException(status_code=401, detail="userId/sub claim is missing")
+  return user_id
 
 
 def derive_title_from_messages(msgs: List[Message]) -> str:
