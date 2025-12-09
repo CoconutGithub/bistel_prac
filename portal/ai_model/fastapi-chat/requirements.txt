@@ -7,3 +7,4 @@ httpx<0.28
 sqlalchemy==2.0.36
 # Use psycopg3 binary wheels (no VC++ build needed on Windows)
 psycopg[binary]==3.2.3
+PyJWT==2.9.0
