@@ -1,0 +1,9 @@
+fastapi==0.115.4
+uvicorn[standard]==0.30.6
+openai==1.52.0
+python-dotenv==1.0.1
+# httpx 0.28 removed 'proxies' arg; pin to avoid breaking OpenAI client
+httpx<0.28
+sqlalchemy==2.0.36
+# Use psycopg3 binary wheels (no VC++ build needed on Windows)
+psycopg[binary]==3.2.3

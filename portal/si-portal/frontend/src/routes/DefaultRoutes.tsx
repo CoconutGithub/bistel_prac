@@ -19,11 +19,15 @@ const YoonNotice = React.lazy(() => import('~pages/biz/YoonNotice'));
 const YoonTodo = React.lazy(() => import('~pages/biz/YoonTodo'));
 const TrainAbilityUnitSelection = React.lazy(()=>import('~pages/biz/TrainAbilityUnitSelection'));
 const CorporateCardTransaction = React.lazy(()=> import('~pages/biz/CorporateCardTransaction'));
+const ExpenseManagement = React.lazy(
+  () => import('~pages/portal/layouts/expenseManagement/ExpenseManagement')
+);
 const ProjectList = React.lazy(() => import('~pages/biz/ProjectList'));
 const ProjectDetail = React.lazy(() => import('~pages/biz/ProjectDetail'));
 const YieldAbnormally = React.lazy(() => import('~pages/biz/YieldAbnormalityPage'));
 const YieldTrend = React.lazy(() => import('~pages/biz/YieldTrendPage'));
 const Calculator = React.lazy(() => import('~pages/biz/Calculator'));
+const ChatBotPage = React.lazy(() => import('~pages/biz/ChatBotPage'));
 
 
 export default function DefaultRoutes(): RouteObject[] {
@@ -132,6 +136,14 @@ export default function DefaultRoutes(): RouteObject[] {
       loader: checkBtnAuthLoader,
     },
     {
+      path: '/main/expense-management',
+      element: (
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <ExpenseManagement />
+        </React.Suspense>
+      ),
+    },
+    {
       path: '/main/corporate-card-transaction',
       element: (
         <React.Suspense fallback={<div>Loading...</div>}>
@@ -162,6 +174,15 @@ export default function DefaultRoutes(): RouteObject[] {
           <Calculator />
         </React.Suspense>
       )
+    },
+    {
+      path: '/main/ai-chat',
+      element: (
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <ChatBotPage />
+        </React.Suspense>
+      ),
+      loader: checkBtnAuthLoader,
     }
   ];
 }
