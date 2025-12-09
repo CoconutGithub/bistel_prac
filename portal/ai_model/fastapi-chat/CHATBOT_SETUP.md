@@ -14,6 +14,8 @@ requirements.txt설치
 
 ## 3) 가상환경에서 FastAPI실행
 
+```.\.venv\Scripts\activate ```
+
 ```uvicorn main:app --reload --port 8000 --env-file .env```
 
 ## 4) 의존성 변경 시
