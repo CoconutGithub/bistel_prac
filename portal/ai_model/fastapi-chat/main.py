@@ -5,9 +5,10 @@ from datetime import datetime
 from typing import List, Literal, Optional
 from uuid import uuid4
 from urllib.parse import urlparse, parse_qsl, urlencode, urlunparse
+from io import BytesIO
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Header, Depends
+from fastapi import FastAPI, HTTPException, Header, Depends, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from fastapi import Response, Request
@@ -16,6 +17,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
 import jwt
+from PyPDF2 import PdfReader
 
 # ---------- Models ----------
 
@@ -43,6 +45,8 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 JWT_SECRET = os.getenv("JWT_SECRET")
 JWT_ALG = os.getenv("JWT_ALG", "HS256")
 JWT_IS_BASE64 = os.getenv("JWT_IS_BASE64", "true").lower() in ("1", "true", "yes")
+MAX_UPLOAD_MB = float(os.getenv("MAX_UPLOAD_MB", "10"))
+MAX_UPLOAD_MB = float(os.getenv("MAX_UPLOAD_MB", "10"))
 
 
 def sanitize_db_url(url: str, default_schema: str = "dev"):
@@ -276,6 +280,18 @@ def touch_session(session_id: str, title: Optional[str] = None):
       )
 
 
+def extract_pdf_text(file_bytes: bytes) -> str:
+  reader = PdfReader(BytesIO(file_bytes))
+  texts = []
+  for page in reader.pages:
+    try:
+      page_text = page.extract_text() or ""
+      texts.append(page_text)
+    except Exception:
+      continue
+  return "\n".join(texts).strip()
+
+
 # ---------- Routes ----------
 
 
@@ -326,6 +342,30 @@ def delete_session(session_id: str, user_id: str = Depends(get_user_id)):
       {"id": session_id},
     )
   return {"id": session_id, "deleted": True}
+
+
+@app.post("/api/chat/upload-pdf")
+async def upload_pdf(file: UploadFile = File(...), user_id: str = Depends(get_user_id)):
+  if file.content_type not in ("application/pdf", "application/octet-stream") and not file.filename.lower().endswith(".pdf"):
+    raise HTTPException(status_code=400, detail="PDF 파일만 업로드 가능합니다.")
+
+  content = await file.read()
+  if len(content) > MAX_UPLOAD_MB * 1024 * 1024:
+    raise HTTPException(status_code=400, detail=f"파일 크기가 {MAX_UPLOAD_MB}MB를 초과했습니다.")
+
+  try:
+    text = extract_pdf_text(content)
+  except Exception as e:
+    logger.exception("PDF 텍스트 추출 실패")
+    raise HTTPException(status_code=500, detail=f"PDF 텍스트 추출 실패: {e}") from e
+
+  doc_id = str(uuid4())
+  return {
+    "document_id": doc_id,
+    "filename": file.filename,
+    "text_length": len(text),
+    "text": text,
+  }
 
 
 @app.post("/api/chat/completions")

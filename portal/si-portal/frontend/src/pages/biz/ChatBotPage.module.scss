@@ -234,7 +234,7 @@
   border-top: 1px solid #e5e8ef;
   background: #ffffff;
 
-  input {
+  textarea {
     width: 100%;
     padding: 12px 14px;
     border-radius: 12px;
@@ -242,6 +242,11 @@
     background: #ffffff;
     color: #1f2937;
     outline: none;
+    resize: none;
+    min-height: 44px;
+    max-height: 120px; /* 약 3줄 정도 */
+    line-height: 1.5;
+    overflow-y: hidden;
   }
 
   button {

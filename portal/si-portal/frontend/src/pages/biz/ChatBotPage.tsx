@@ -49,6 +49,8 @@ const ChatBotPage: React.FC = () => {
   const [input, setInput] = useState('');
   const [isSending, setIsSending] = useState(false);
   const scrollAnchorRef = useRef<HTMLDivElement | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const conversationPayload = useMemo(
     () => [
@@ -61,6 +63,17 @@ const ChatBotPage: React.FC = () => {
   useEffect(() => {
     scrollAnchorRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  const adjustTextareaHeight = useCallback(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    const minHeight = 44;
+    const maxHeight = 120; // 약 3줄 정도까지 확장
+    el.style.height = 'auto';
+    const next = Math.min(Math.max(el.scrollHeight, minHeight), maxHeight);
+    el.style.height = `${next}px`;
+    el.style.overflowY = el.scrollHeight > maxHeight ? 'auto' : 'hidden';
+  }, []);
 
   const upsertAssistantMessage = useCallback(
     (id: string, updater: (prev: string) => string) => {
@@ -121,7 +134,7 @@ const ChatBotPage: React.FC = () => {
     async (text: string) => {
       if (!text.trim() || isSending) return;
 
-      // 세션이 없으면 우선 생성
+      // 세션이 없으면 생성
       let sessionId = currentSessionId;
       if (!sessionId) {
         try {
@@ -158,10 +171,15 @@ const ChatBotPage: React.FC = () => {
       setInput('');
       setIsSending(true);
 
+      // 이전 요청 중단
+      abortControllerRef.current?.abort();
+      abortControllerRef.current = new AbortController();
+
       try {
         const response = await fetch(`${CHAT_API_URL}/completions`, {
           method: 'POST',
           headers: getHeaders(),
+          signal: abortControllerRef.current.signal,
           body: JSON.stringify({
             messages: [...conversationPayload, userMessage],
             stream: true,
@@ -189,6 +207,10 @@ const ChatBotPage: React.FC = () => {
           upsertAssistantMessage(assistantId, () => answer);
         }
       } catch (error: any) {
+        if (error?.name === 'AbortError') {
+          upsertAssistantMessage(assistantId, () => '응답이 중단되었습니다.');
+          return;
+        }
         upsertAssistantMessage(
           assistantId,
           () => error?.message || '챗봇 서비스에 연결할 수 없습니다.'
@@ -196,6 +218,7 @@ const ChatBotPage: React.FC = () => {
         console.error('메시지 전송 실패', error);
       } finally {
         setIsSending(false);
+        abortControllerRef.current = null;
       }
     },
     [conversationPayload, currentSessionId, getHeaders, isSending, readStream, upsertAssistantMessage]
@@ -205,6 +228,17 @@ const ChatBotPage: React.FC = () => {
     if (!input.trim()) return;
     void sendMessage(input);
   }, [input, sendMessage]);
+
+  useEffect(() => {
+    adjustTextareaHeight();
+  }, [input, adjustTextareaHeight]);
+
+  const handleStop = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    setIsSending(false);
+  }, []);
 
   const handleNewChat = useCallback(() => {
     (async () => {
@@ -392,24 +426,26 @@ const ChatBotPage: React.FC = () => {
         </div>
 
         <footer className={styles.inputBar}>
-          <input
-            type="text"
+          <textarea
+            ref={textareaRef}
             value={input}
             placeholder="메시지를 입력하세요..."
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+              if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
+                e.preventDefault();
                 handleSubmit();
               }
             }}
             disabled={isSending}
+            rows={1}
           />
           <button
             type="button"
-            onClick={handleSubmit}
-            disabled={!input.trim() || isSending}
+            onClick={isSending ? handleStop : handleSubmit}
+            disabled={!input.trim() && !isSending}
           >
-            {isSending ? '보내는 중...' : '보내기'}
+            {isSending ? '응답 중지' : '보내기'}
           </button>
         </footer>
       </section>
