@@ -17,6 +17,12 @@ type ChatSessionSummary = {
   updated_at?: string;
 };
 
+type UploadedDoc = {
+  id: string;
+  name: string;
+  textLength: number;
+};
+
 const CHAT_API_URL =
   process.env.REACT_APP_CHAT_API_URL || 'http://localhost:8000/api/chat';
 
@@ -48,7 +54,15 @@ const ChatBotPage: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([initialAssistantMessage]);
   const [input, setInput] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [docs, setDocs] = useState<UploadedDoc[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [showActions, setShowActions] = useState(false);
+  const [showDocChips, setShowDocChips] = useState(true);
   const scrollAnchorRef = useRef<HTMLDivElement | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const conversationPayload = useMemo(
     () => [
@@ -61,6 +75,17 @@ const ChatBotPage: React.FC = () => {
   useEffect(() => {
     scrollAnchorRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  const adjustTextareaHeight = useCallback(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    const minHeight = 44;
+    const maxHeight = 120; // 약 3줄 정도까지 확장
+    el.style.height = 'auto';
+    const next = Math.min(Math.max(el.scrollHeight, minHeight), maxHeight);
+    el.style.height = `${next}px`;
+    el.style.overflowY = el.scrollHeight > maxHeight ? 'auto' : 'hidden';
+  }, []);
 
   const upsertAssistantMessage = useCallback(
     (id: string, updater: (prev: string) => string) => {
@@ -121,7 +146,7 @@ const ChatBotPage: React.FC = () => {
     async (text: string) => {
       if (!text.trim() || isSending) return;
 
-      // 세션이 없으면 우선 생성
+      // 세션이 없으면 생성
       let sessionId = currentSessionId;
       if (!sessionId) {
         try {
@@ -157,15 +182,24 @@ const ChatBotPage: React.FC = () => {
       ]);
       setInput('');
       setIsSending(true);
+      if (docs.length > 0) {
+        setShowDocChips(false); // 전송 시작과 동시에 칩을 숨김(데이터는 유지)
+      }
+
+      // 이전 요청 중단
+      abortControllerRef.current?.abort();
+      abortControllerRef.current = new AbortController();
 
       try {
         const response = await fetch(`${CHAT_API_URL}/completions`, {
           method: 'POST',
           headers: getHeaders(),
+          signal: abortControllerRef.current.signal,
           body: JSON.stringify({
             messages: [...conversationPayload, userMessage],
             stream: true,
             session_id: sessionId,
+            document_ids: docs.map((d) => d.id),
           }),
         });
 
@@ -189,6 +223,10 @@ const ChatBotPage: React.FC = () => {
           upsertAssistantMessage(assistantId, () => answer);
         }
       } catch (error: any) {
+        if (error?.name === 'AbortError') {
+          upsertAssistantMessage(assistantId, () => '응답이 중단되었습니다.');
+          return;
+        }
         upsertAssistantMessage(
           assistantId,
           () => error?.message || '챗봇 서비스에 연결할 수 없습니다.'
@@ -196,15 +234,27 @@ const ChatBotPage: React.FC = () => {
         console.error('메시지 전송 실패', error);
       } finally {
         setIsSending(false);
+        abortControllerRef.current = null;
       }
     },
-    [conversationPayload, currentSessionId, getHeaders, isSending, readStream, upsertAssistantMessage]
+    [conversationPayload, currentSessionId, docs, getHeaders, isSending, readStream, upsertAssistantMessage]
   );
 
   const handleSubmit = useCallback(() => {
     if (!input.trim()) return;
     void sendMessage(input);
   }, [input, sendMessage]);
+
+  useEffect(() => {
+    adjustTextareaHeight();
+  }, [input, adjustTextareaHeight]);
+
+  const handleStop = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    setIsSending(false);
+  }, []);
 
   const handleNewChat = useCallback(() => {
     (async () => {
@@ -219,6 +269,7 @@ const ChatBotPage: React.FC = () => {
         setSessions((prev) => [{ id: newId, title: data.title, updated_at: data.updated_at }, ...prev]);
         setCurrentSessionId(newId);
         setMessages([initialAssistantMessage]);
+        setDocs([]);
       } catch (e) {
         console.error('새 대화 생성 실패', e);
       }
@@ -228,6 +279,7 @@ const ChatBotPage: React.FC = () => {
   const handleSelectSession = useCallback(
     async (session: ChatSessionSummary) => {
       setCurrentSessionId(session.id);
+      setDocs([]);
       try {
         const res = await fetch(`${CHAT_API_URL}/sessions/${session.id}`, {
           headers: getHeaders(),
@@ -392,24 +444,123 @@ const ChatBotPage: React.FC = () => {
         </div>
 
         <footer className={styles.inputBar}>
-          <input
-            type="text"
-            value={input}
-            placeholder="메시지를 입력하세요..."
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
-                handleSubmit();
-              }
-            }}
-            disabled={isSending}
-          />
+          <div className={styles.inputLeft}>
+            <div className={styles.inputRow}>
+              <div className={styles.plusWrap}>
+                <button
+                  className={styles.plusBtn}
+                  type="button"
+                  onClick={() => setShowActions((v) => !v)}
+                  disabled={uploading || isSending}
+                  aria-label="액션 열기"
+                >
+                  +
+                </button>
+                {showActions && (
+                  <div className={styles.actionMenu}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowActions(false);
+                        fileInputRef.current?.click();
+                      }}
+                      disabled={uploading || isSending}
+                    >
+                      PDF 업로드
+                    </button>
+                    {/* 추후 다른 액션 추가 */}
+                  </div>
+                )}
+              </div>
+              <textarea
+                ref={textareaRef}
+                value={input}
+                placeholder="메시지를 입력하세요..."
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
+                    e.preventDefault();
+                    handleSubmit();
+                  }
+                }}
+                disabled={isSending}
+                rows={1}
+              />
+            </div>
+
+            {docs.length > 0 && (
+              showDocChips && (
+              <div className={styles.docChips}>
+                {docs.map((doc) => (
+                  <span key={doc.id} className={styles.docChip}>
+                    <span className={styles.docName}>{doc.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => setDocs((prev) => prev.filter((d) => d.id !== doc.id))}
+                      aria-label="문서 제거"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+              )
+            )}
+            {uploadError && <span className={styles.uploadError}>{uploadError}</span>}
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf,application/pdf"
+              style={{ display: 'none' }}
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                if (!currentSessionId) {
+                  setUploadError('대화 세션이 없습니다. 새 대화를 생성한 뒤 업로드해주세요.');
+                  return;
+                }
+                setUploadError(null);
+                setUploading(true);
+                try {
+                  const form = new FormData();
+                  form.append('file', file);
+                  form.append('session_id', currentSessionId);
+                  const res = await fetch(`${CHAT_API_URL}/upload-pdf`, {
+                    method: 'POST',
+                    headers: { Authorization: getHeaders().Authorization || '' },
+                    body: form,
+                  });
+                  if (!res.ok) {
+                    const t = await res.text().catch(() => '');
+                    throw new Error(`업로드 실패 (${res.status}): ${t}`);
+                  }
+                  const data = await res.json();
+                  setDocs((prev) => [
+                    ...prev,
+                    {
+                      id: data.document_id,
+                      name: data.filename,
+                    textLength: data.text_length,
+                  },
+                ]);
+                  setShowDocChips(true); // 새 업로드 시 다시 표시
+                } catch (err: any) {
+                  setUploadError(err?.message || '업로드 실패');
+                } finally {
+                  setUploading(false);
+                  if (fileInputRef.current) fileInputRef.current.value = '';
+                }
+                }}
+              />
+
+          </div>
           <button
             type="button"
-            onClick={handleSubmit}
-            disabled={!input.trim() || isSending}
+            onClick={isSending ? handleStop : handleSubmit}
+            disabled={!input.trim() && !isSending}
           >
-            {isSending ? '보내는 중...' : '보내기'}
+            {isSending ? '응답 중지' : '보내기'}
           </button>
         </footer>
       </section>

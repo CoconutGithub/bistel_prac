@@ -8,3 +8,6 @@ sqlalchemy==2.0.36
 # Use psycopg3 binary wheels (no VC++ build needed on Windows)
 psycopg[binary]==3.2.3
 PyJWT==2.9.0
+PyPDF2==3.0.1
+pgvector==0.2.5
+python-multipart==0.0.9
