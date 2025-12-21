@@ -12,26 +12,28 @@ import java.util.List;
 import java.util.Map;
 
 public interface MsgMainRepository extends JpaRepository<MsgMain, Integer> {
-    @Query(value = "SELECT *\n" +
-        "           FROM CROSSTAB(\n" +
-            "           'SELECT A.MSG_ID, C.MSG_TYPE, C.MSG_NAME, C.MSG_DEFAULT, C.STATUS, A.LANG_CODE, LANG_TEXT\n" +
-            "           FROM DEV.P_MSG_DETAIL A\n" +
-            "           JOIN DEV.P_LANGUAGE B\n" +
-            "           ON A.LANG_CODE = B.LANG_CODE\n" +
-            "           JOIN DEV.P_MSG_MAIN C\n" +
-            "           ON A.MSG_ID = C.MSG_ID\n" +
-            "           ORDER BY 1',\n" +
-            "           'VALUES (''KO''), (''EN''), (''CN'')' \n" +
-            "           ) AS CT(MSG_ID INT, MSG_TYPE TEXT, MSG_NAME TEXT, MSG_DEFAULT TEXT, STATUS TEXT, KO_LANG_TEXT TEXT, EN_LANG_TEXT TEXT, CN_LANG_TEXT TEXT)\n" +
-            "        WHERE\n" +
-            "            1 = 1\n" +
-            "            AND (:#{#params['msgType']} IS NULL OR :#{#params['msgType']} = '' OR MSG_TYPE LIKE '%' || :#{#params['msgType']} || '%')\n" +
-            "            AND (:#{#params['msgName']} IS NULL OR :#{#params['msgName']} = '' OR MSG_NAME LIKE '%' || :#{#params['msgName']} || '%')\n" +
-            "            AND (:#{#params['msgDefault']} IS NULL OR :#{#params['msgDefault']} = '' OR MSG_DEFAULT LIKE '%' || :#{#params['msgDefault']} || '%')\n" +
-            "            AND (:#{#params['status']} IS NULL OR :#{#params['status']} = '' OR STATUS = :#{#params['status']})\n" +
-            "            AND (:#{#params['koLangText']} IS NULL OR :#{#params['koLangText']} = '' OR KO_LANG_TEXT LIKE '%' || :#{#params['koLangText']} || '%')\n" +
-            "            AND (:#{#params['enLangText']} IS NULL OR :#{#params['enLangText']} = '' OR EN_LANG_TEXT LIKE '%' || :#{#params['enLangText']} || '%')\n" +
-            "            AND (:#{#params['cnLangText']} IS NULL OR :#{#params['cnLangText']} = '' OR CN_LANG_TEXT LIKE '%' || :#{#params['cnLangText']} || '%')\n" , nativeQuery = true)
+    @Query(value = "SELECT C.MSG_ID, C.MSG_TYPE, C.MSG_NAME, C.MSG_DEFAULT, C.STATUS, \n" +
+            "              CT.KO_LANG_TEXT, CT.EN_LANG_TEXT, CT.CN_LANG_TEXT\n" +
+            "       FROM DEV.P_MSG_MAIN C\n" +
+            "       LEFT JOIN (\n" +
+            "           SELECT *\n" +
+            "           FROM CROSSTAB(\n" +
+            "               'SELECT A.MSG_ID, A.LANG_CODE, A.LANG_TEXT\n" +
+            "                FROM DEV.P_MSG_DETAIL A\n" +
+            "                JOIN DEV.P_LANGUAGE B ON A.LANG_CODE = B.LANG_CODE\n" +
+            "                ORDER BY 1, 2',\n" +
+            "               'VALUES (''KO''), (''EN''), (''CN'')'\n" +
+            "           ) AS CT(MSG_ID INT, KO_LANG_TEXT TEXT, EN_LANG_TEXT TEXT, CN_LANG_TEXT TEXT)\n" +
+            "       ) CT ON C.MSG_ID = CT.MSG_ID\n" +
+            "       WHERE\n" +
+            "           1 = 1\n" +
+            "           AND (:#{#params['msgType']} IS NULL OR :#{#params['msgType']} = '' OR C.MSG_TYPE LIKE '%' || :#{#params['msgType']} || '%')\n" +
+            "           AND (:#{#params['msgName']} IS NULL OR :#{#params['msgName']} = '' OR C.MSG_NAME LIKE '%' || :#{#params['msgName']} || '%')\n" +
+            "           AND (:#{#params['msgDefault']} IS NULL OR :#{#params['msgDefault']} = '' OR C.MSG_DEFAULT LIKE '%' || :#{#params['msgDefault']} || '%')\n" +
+            "           AND (:#{#params['status']} IS NULL OR :#{#params['status']} = '' OR C.STATUS = :#{#params['status']})\n" +
+            "           AND (:#{#params['koLangText']} IS NULL OR :#{#params['koLangText']} = '' OR CT.KO_LANG_TEXT LIKE '%' || :#{#params['koLangText']} || '%')\n" +
+            "           AND (:#{#params['enLangText']} IS NULL OR :#{#params['enLangText']} = '' OR CT.EN_LANG_TEXT LIKE '%' || :#{#params['enLangText']} || '%')\n" +
+            "           AND (:#{#params['cnLangText']} IS NULL OR :#{#params['cnLangText']} = '' OR CT.CN_LANG_TEXT LIKE '%' || :#{#params['cnLangText']} || '%')", nativeQuery = true)
     List<ComResultMap> getMsgList(@Param("params") Map<String, String> params);
 
     @Query(value = "SELECT DISTINCT MSG_TYPE FROM DEV.P_MSG_MAIN ORDER BY MSG_TYPE", nativeQuery = true)

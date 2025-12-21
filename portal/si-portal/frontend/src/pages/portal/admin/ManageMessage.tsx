@@ -6,7 +6,7 @@ import React, {
   useEffect,
   useMemo,
 } from 'react';
-import { Button, Col, Container, Form, Row, Modal } from 'react-bootstrap';
+import { Button, Col, Container, Form, Row, Modal, Spinner, InputGroup } from 'react-bootstrap';
 import { ComAPIContext } from '~components/ComAPIContext';
 import AgGridWrapper from '~components/agGridWrapper/AgGridWrapper';
 import axios from 'axios';
@@ -164,6 +164,128 @@ const ManageMessage: React.FC<ManageMessageModalProps> = ({
   const [selectedType, setSelectedType] = useState<string>('');
   const [selectedStatus, setSelectedStatus] = useState<string>('');
 
+  // AI 번역 관련 State
+  const [showAiModal, setShowAiModal] = useState(false);
+  const [aiTranslating, setAiTranslating] = useState(false);
+  const [aiSaving, setAiSaving] = useState(false);
+  const [aiForm, setAiForm] = useState({
+    msgType: '',
+    msgName: '',
+    msgDefault: '',
+    koLangText: '',
+    enLangText: '',
+    cnLangText: '',
+  });
+
+  // AI 모달 열기/닫기
+  const openAiModal = () => {
+    setAiForm({
+      msgType: '',
+      msgName: '',
+      msgDefault: '',
+      koLangText: '',
+      enLangText: '',
+      cnLangText: '',
+    });
+    setShowAiModal(true);
+  };
+
+  const closeAiModal = () => {
+    setShowAiModal(false);
+  };
+
+  // AI 폼 입력 핸들러
+  const handleAiInputChange = (field: string, value: string) => {
+    setAiForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  // AI 번역 실행
+  const handleAiTranslate = async () => {
+    if (!aiForm.koLangText.trim()) {
+      comAPIContext.showToast('한국어 문구를 입력해주세요.', 'warning');
+      return;
+    }
+
+    setAiTranslating(true);
+    try {
+      const { data } = await axios.post(
+        `${process.env.REACT_APP_BACKEND_IP}/api/dictionary/translate`,
+        { ko: aiForm.koLangText },
+        { headers: { Authorization: `Bearer ${cachedAuthToken}` } }
+      );
+
+      setAiForm((prev) => ({
+        ...prev,
+        enLangText: data.en || '',
+        cnLangText: data.zh || '',
+      }));
+      comAPIContext.showToast('AI 번역이 완료되었습니다.', 'success');
+    } catch (err: any) {
+      console.error(err);
+      comAPIContext.showToast('AI 번역 중 오류가 발생했습니다.', 'danger');
+    } finally {
+      setAiTranslating(false);
+    }
+  };
+
+  // AI 번역된 결과 저장 (신규 생성)
+  const handleAiSave = async () => {
+    // 유효성 검사
+    if (!aiForm.msgType) {
+      comAPIContext.showToast('메세지 타입을 선택해주세요.', 'warning');
+      return;
+    }
+    if (!aiForm.msgName.trim()) {
+      comAPIContext.showToast('메세지명을 입력해주세요.', 'warning');
+      return;
+    }
+    if (!aiForm.msgDefault.trim()) {
+      comAPIContext.showToast('기본값을 입력해주세요.', 'warning');
+      return;
+    }
+
+    setAiSaving(true);
+    try {
+      const newMsg = {
+        ...aiForm,
+        status: 'ACTIVE',
+        msgDefault: aiForm.msgDefault.trim(), // 공백 제거
+        msgName: aiForm.msgName.trim(),
+      };
+
+      const payload = {
+        updateList: [],
+        deleteList: [],
+        createList: [newMsg],
+        userId: state.user?.userId,
+      };
+
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_IP}/admin/api/update-msg-list`,
+        payload,
+        {
+          headers: { Authorization: `Bearer ${cachedAuthToken}` },
+        }
+      );
+
+      if (response.data.messageCode === 'success') {
+        comAPIContext.showToast('성공적으로 저장되었습니다.', 'success');
+        closeAiModal();
+        handleSearch(); // 목록 갱신
+      } else {
+        comAPIContext.showToast(
+          response.data.message + ' (' + response.data.errorList.join() + ')',
+          'danger'
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      comAPIContext.showToast('저장 중 오류가 발생했습니다.', 'danger');
+    } finally {
+      setAiSaving(false);
+    }
+  };
+
   useEffect(() => {
     comAPIContext.showProgressBar();
     axios
@@ -217,11 +339,11 @@ const ManageMessage: React.FC<ManageMessageModalProps> = ({
           gridRef.current.setRowData(res.data); // 데이터를 AgGridWrapper에 설정;
         }
         comAPIContext.hideProgressBar();
-        comAPIContext.showToast('조회가 완료됐습니다.', 'success');
+        comAPIContext.showToast(comAPIContext.$msg('message', 'msg_search_complete', '조회가 완료됐습니다.'), 'success');
       })
       .catch((err) => {
         console.error('Error fetching data:', err);
-        comAPIContext.showToast('Error Job Search: ' + err, 'danger');
+        comAPIContext.showToast(comAPIContext.$msg('message', 'msg_search_error', '조회 중 오류가 발생했습니다.') + ': ' + err, 'danger');
       })
       .finally(() => {
         comAPIContext.hideProgressBar();
@@ -527,7 +649,14 @@ const ManageMessage: React.FC<ManageMessageModalProps> = ({
                       </Col>
                     </Form.Group>
                   </Col>
-                  <Col className="search_btn">
+                  <Col className="search_btn d-flex gap-2 justify-content-end">
+                    <ComButton
+                      size="sm"
+                      variant="success"
+                      onClick={openAiModal}
+                    >
+                      AI 번역 추가
+                    </ComButton>
                     <ComButton
                       size="sm"
                       variant="primary"
@@ -709,7 +838,10 @@ const ManageMessage: React.FC<ManageMessageModalProps> = ({
                   </Col>
                 </Form.Group>
               </Col>
-              <Col className="search_btn">
+              <Col className="search_btn d-flex gap-2 justify-content-end">
+                <ComButton size="sm" variant="success" onClick={openAiModal}>
+                  AI 번역 추가
+                </ComButton>
                 <ComButton size="sm" variant="primary" onClick={handleSearch}>
                   {comAPIContext.$msg('label', 'search', '검색')}
                 </ComButton>
@@ -732,6 +864,115 @@ const ManageMessage: React.FC<ManageMessageModalProps> = ({
           </Row>
         </>
       )}
+      {/* AI 번역 모달 */}
+      <Modal show={showAiModal} onHide={closeAiModal} centered size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>AI 번역 및 메세지 생성</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Row className="mb-3">
+              <Col md={4}>
+                <Form.Group>
+                  <Form.Label>메세지 타입 <span className="text-danger">*</span></Form.Label>
+                  <Form.Select
+                    value={aiForm.msgType}
+                    onChange={(e) => handleAiInputChange('msgType', e.target.value)}
+                  >
+                    <option value="">선택</option>
+                    {typeList.map((type, idx) => (
+                      <option key={idx} value={type}>{type}</option>
+                    ))}
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col md={8}>
+                <Form.Group>
+                  <Form.Label>메세지명 <span className="text-danger">*</span></Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={aiForm.msgName}
+                    onChange={(e) => handleAiInputChange('msgName', e.target.value)}
+                    placeholder="예: MSG_TEST_001"
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Form.Group className="mb-3">
+              <Form.Label>기본값 (Default) <span className="text-danger">*</span></Form.Label>
+              <Form.Control
+                type="text"
+                value={aiForm.msgDefault}
+                onChange={(e) => handleAiInputChange('msgDefault', e.target.value)}
+                placeholder="기본 표시 텍스트"
+              />
+            </Form.Group>
+
+            <hr />
+            <h6 className="mb-3 text-primary">AI 다국어 번역</h6>
+
+            <Form.Group className="mb-3">
+              <Form.Label>한국어 (KO) - 원문</Form.Label>
+              <InputGroup>
+                <Form.Control
+                  as="textarea"
+                  rows={2}
+                  value={aiForm.koLangText}
+                  onChange={(e) => handleAiInputChange('koLangText', e.target.value)}
+                  placeholder="번역할 한국어 내용을 입력하세요."
+                />
+                <Button
+                  variant="outline-primary"
+                  onClick={handleAiTranslate}
+                  disabled={aiTranslating}
+                >
+                  {aiTranslating ? <Spinner size="sm" animation="border" /> : 'AI 번역 실행'}
+                </Button>
+              </InputGroup>
+            </Form.Group>
+
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label>영어 (EN)</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={2}
+                    value={aiForm.enLangText}
+                    onChange={(e) => handleAiInputChange('enLangText', e.target.value)}
+                    placeholder="AI 번역 결과"
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label>중국어 (CN)</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={2}
+                    value={aiForm.cnLangText}
+                    onChange={(e) => handleAiInputChange('cnLangText', e.target.value)}
+                    placeholder="AI 번역 결과"
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={closeAiModal}>
+            취소
+          </Button>
+          <Button
+            variant="primary"
+            onClick={handleAiSave}
+            disabled={aiSaving || aiTranslating}
+          >
+            {aiSaving ? <Spinner size="sm" animation="border" /> : '저장'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };
