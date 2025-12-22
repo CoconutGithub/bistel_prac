@@ -28,6 +28,7 @@ const YieldAbnormally = React.lazy(() => import('~pages/biz/YieldAbnormalityPage
 const YieldTrend = React.lazy(() => import('~pages/biz/YieldTrendPage'));
 const Calculator = React.lazy(() => import('~pages/biz/Calculator'));
 const ChatBotPage = React.lazy(() => import('~pages/biz/ChatBotPage'));
+const AiDictionaryPage = React.lazy(() => import('~pages/biz/AiDictionaryPage'));
 
 
 export default function DefaultRoutes(): RouteObject[] {
@@ -180,6 +181,15 @@ export default function DefaultRoutes(): RouteObject[] {
       element: (
         <React.Suspense fallback={<div>Loading...</div>}>
           <ChatBotPage />
+        </React.Suspense>
+      ),
+      loader: checkBtnAuthLoader,
+    },
+    {
+      path: '/main/ai-dictionary',
+      element: (
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <AiDictionaryPage />
         </React.Suspense>
       ),
       loader: checkBtnAuthLoader,

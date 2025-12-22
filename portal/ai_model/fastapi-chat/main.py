@@ -51,6 +51,11 @@ class ChatRequest(BaseModel):
   session_id: Optional[str] = Field(default=None, description="Existing session id. If absent, a new session will be created.")
   document_ids: Optional[List[str]] = Field(default=None, description="Uploaded document ids to use for context (must belong to this session)")
 
+class TranslateRequest(BaseModel):
+  messages: List[Message] = Field(..., description="Translation messages compatible with OpenAI Chat API")
+  model: str = Field(default="gpt-5-mini", description="OpenAI model name")
+  temperature: Optional[float] = Field(default=None, ge=0, le=2, description="Omit to use model default")
+
 
 # ---------- DB / OpenAI init ----------
 
@@ -587,6 +592,32 @@ async def chat(req: ChatRequest, user_id: str = Depends(get_user_id)):
     raise HTTPException(status_code=502, detail=f"OpenAI error: {e}") from e
   except Exception as e:
     logger.exception("Unexpected error")
+    raise HTTPException(status_code=500, detail=f"Unexpected error: {e}") from e
+
+
+@app.post("/api/chat/translate")
+async def translate(req: TranslateRequest, user_id: str = Depends(get_user_id)):
+  """
+  Lightweight translation endpoint: no session creation, no history persistence.
+  """
+  require_openai()
+  kwargs = {
+    "model": req.model,
+    "messages": [m.model_dump() for m in req.messages],
+    "stream": False,
+  }
+  if req.temperature is not None:
+    kwargs["temperature"] = req.temperature
+
+  try:
+    completion = client.chat.completions.create(**kwargs)
+    content = completion.choices[0].message.content or ""
+    return {"choices": [{"message": {"content": content}}]}
+  except OpenAIError as e:
+    logger.error("OpenAI translate error: %s", e)
+    raise HTTPException(status_code=502, detail=f"OpenAI error: {e}") from e
+  except Exception as e:
+    logger.exception("Unexpected translate error")
     raise HTTPException(status_code=500, detail=f"Unexpected error: {e}") from e
 
 
