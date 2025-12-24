@@ -136,7 +136,7 @@ const TextToSqlPage: React.FC = () => {
                                         onChange={(e) => setQuestion(e.target.value)}
                                         onKeyDown={handleKeyDown}
                                     />
-                                    <Button variant="primary" onClick={handleQuery} disabled={isLoading} style={{ whiteSpace: 'nowrap' }}>
+                                    <Button variant="primary" onClick={handleQuery} disabled={isLoading} style={{ whiteSpace: 'nowrap', height: '38px' }}>
                                         {isLoading ? <Spinner as="span" animation="border" size="sm" /> : '조회'}
                                     </Button>
                                 </div>
