@@ -17,8 +17,8 @@ const YwkResume = React.lazy(() => import('~pages/biz/YwkResume'));
 const YoonResume = React.lazy(() => import('~pages/biz/YoonResume'));
 const YoonNotice = React.lazy(() => import('~pages/biz/YoonNotice'));
 const YoonTodo = React.lazy(() => import('~pages/biz/YoonTodo'));
-const TrainAbilityUnitSelection = React.lazy(()=>import('~pages/biz/TrainAbilityUnitSelection'));
-const CorporateCardTransaction = React.lazy(()=> import('~pages/biz/CorporateCardTransaction'));
+const TrainAbilityUnitSelection = React.lazy(() => import('~pages/biz/TrainAbilityUnitSelection'));
+const CorporateCardTransaction = React.lazy(() => import('~pages/biz/CorporateCardTransaction'));
 const ExpenseManagement = React.lazy(
   () => import('~pages/portal/layouts/expenseManagement/ExpenseManagement')
 );
@@ -29,6 +29,7 @@ const YieldTrend = React.lazy(() => import('~pages/biz/YieldTrendPage'));
 const Calculator = React.lazy(() => import('~pages/biz/Calculator'));
 const ChatBotPage = React.lazy(() => import('~pages/biz/ChatBotPage'));
 const AiDictionaryPage = React.lazy(() => import('~pages/biz/AiDictionaryPage'));
+const TextToSqlPage = React.lazy(() => import('~pages/biz/TextToSqlPage'));
 
 
 export default function DefaultRoutes(): RouteObject[] {
@@ -193,6 +194,15 @@ export default function DefaultRoutes(): RouteObject[] {
         </React.Suspense>
       ),
       loader: checkBtnAuthLoader,
+    },
+    {
+      path: '/main/ai-query',
+      element: (
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <TextToSqlPage />
+        </React.Suspense>
+      ),
+      loader: checkBtnAuthLoader, // 필요시 권한 체크
     }
   ];
 }

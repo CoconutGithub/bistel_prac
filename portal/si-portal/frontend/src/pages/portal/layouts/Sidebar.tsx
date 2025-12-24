@@ -28,6 +28,9 @@ const Sidebar = () => {
       <Nav.Link as={Link} to="/main/dashboard">
         Dashboard
       </Nav.Link>
+      <Nav.Link as={Link} to="/main/ai-query">
+        AI Query
+      </Nav.Link>
       <Nav.Link as={Link} to="/main/profile">
         Profile
       </Nav.Link>
