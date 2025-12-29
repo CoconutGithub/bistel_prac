@@ -28,25 +28,26 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class DictionaryService {
-
-
+    
     private final DictionaryRepository dictionaryRepository;
     private final WebClient webClient;
     private final ObjectMapper objectMapper;
 
+    // application.properties: AI 번역 API URL
     @Value("${chat.api.translate-url:http://localhost:8000/api/chat/translate}")
     private String chatTranslateUrl;
 
     @Value("${chat.api.model:gpt-5-mini}")
     private String chatModel;
 
-    private static final String PERSONA_PROMPT = """
-            You are a display manufacturing equipment quality manager. Translate with precise industrial terminology for display production lines (inspection, metrology, AOI, SPC, MES, equipment recipes, defect classification). Preserve model names, part numbers, and units exactly as written.
-            """;
+    // AI 페르소나 설정: 디스플레이 제조 설비 품질 관리자 역할 부여
+    private static final String PERSONA_PROMPT = """You are a display manufacturing equipment quality manager. Translate with precise industrial terminology for display production lines (inspection, metrology, AOI, SPC, MES, equipment recipes, defect classification). Preserve model names, part numbers, and units exactly as written.""";
+
 
     public List<Dictionary> findAll() {
         return dictionaryRepository.findAllByOrderByCreatedAtDesc();
     }
+
 
     @Transactional
     public Dictionary create(Dictionary payload) {
@@ -55,6 +56,7 @@ public class DictionaryService {
         }
         return dictionaryRepository.save(payload);
     }
+
 
     @Transactional
     public Dictionary update(Long id, Dictionary payload) {
@@ -74,6 +76,15 @@ public class DictionaryService {
         return dictionaryRepository.save(existing);
     }
 
+    /**
+     * AI 번역 서비스
+     * 외부 LLM API(Python FastAPI)를 호출하여 한국어를 영/중/베트남어로 번역합니다.
+     * WebClient를 사용하여 비동기 호출 후 블로킹(block)으로 응답을 대기합니다.
+     *
+     * @param koText 한국어 원문
+     * @param authorizationHeader API 인증 토큰
+     * @return 번역된 결과 맵 (en, zh, vi)
+     */
     public Map<String, String> translateFromKo(String koText, String authorizationHeader) {
         if (koText == null || koText.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "한국어 문구가 비어 있습니다.");
@@ -92,6 +103,7 @@ public class DictionaryService {
 
         String rawResponse;
         try {
+            // WebClient 호출
             rawResponse = webClient.post()
                     .uri(chatTranslateUrl)
                     .header(HttpHeaders.AUTHORIZATION, authorizationHeader)
@@ -100,7 +112,7 @@ public class DictionaryService {
                     .bodyValue(request)
                     .retrieve()
                     .bodyToMono(String.class)
-                    .block(Duration.ofSeconds(60));
+                    .block(Duration.ofSeconds(60)); // 타임아웃 60초
         } catch (WebClientResponseException e) {
             log.error("AI 번역 API 호출 실패: status={}, body={}", e.getStatusCode(), e.getResponseBodyAsString());
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "AI 번역 호출에 실패했습니다: " + e.getMessage(), e);
@@ -113,6 +125,7 @@ public class DictionaryService {
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "AI 번역 응답이 비어 있습니다.");
         }
 
+        // 응답 파싱 및 정제
         String content = extractContent(rawResponse);
         String cleaned = stripCodeFence(content);
         try {

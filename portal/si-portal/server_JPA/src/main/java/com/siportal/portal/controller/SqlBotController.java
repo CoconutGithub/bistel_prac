@@ -1,4 +1,4 @@
-package com.siportal.portal.controller.biz;
+package com.siportal.portal.controller;
 
 import com.siportal.portal.service.SqlBotService;
 import org.springframework.beans.factory.annotation.Autowired;

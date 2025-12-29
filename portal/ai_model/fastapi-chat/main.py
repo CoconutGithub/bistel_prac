@@ -7,31 +7,46 @@ from typing import List, Literal, Optional
 from uuid import uuid4, UUID
 from urllib.parse import urlparse, parse_qsl, urlencode, urlunparse
 
+# 외부 라이브러리 임포트
+# jwt: JSON Web Token 처리를 위한 라이브러리 (사용자 인증)
 import jwt
+# dotenv: .env 파일에서 환경변수를 로드하기 위한 라이브러리
 from dotenv import load_dotenv
+# fastapi: 웹 프레임워크 및 관련 유틸리티 (요청, 응답, 예외 처리 등)
 from fastapi import Depends, FastAPI, File, Header, HTTPException, Request, Response, UploadFile, Form
+# CORSMiddleware: Cross-Origin Resource Sharing (CORS) 설정을 위한 미들웨어
 from fastapi.middleware.cors import CORSMiddleware
+# StreamingResponse: 스트리밍 응답(SSE 등)을 처리하기 위한 클래스
 from fastapi.responses import StreamingResponse
+# openai: OpenAI API와 상호작용하기 위한 공식 클라이언트
 from openai import OpenAI, OpenAIError
+# pydantic: 데이터 유효성 검사 및 설정 관리를 위한 라이브러리 (DTO 역할)
 from pydantic import BaseModel, Field
+# sqlalchemy: SQL 데이터베이스 상호작용을 위한 ORM/Toolkit
 from sqlalchemy import create_engine, text as sa_text
 from sqlalchemy.engine import Engine
+# PyPDF2: PDF 파일에서 텍스트를 추출하기 위한 라이브러리
 from PyPDF2 import PdfReader
 
 # ---------- Config / Env ----------
+# 환경 설정 및 환경 변수 로드 섹션
 
+# .env 파일 로드 (환경변수 설정)
 load_dotenv(dotenv_path=os.getenv("ENV_FILE", ".env"))
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-DATABASE_URL = os.getenv("DATABASE_URL")
-DB_SCHEMA = os.getenv("DB_SCHEMA", "dev")
-JWT_SECRET = os.getenv("JWT_SECRET")
-JWT_ALG = os.getenv("JWT_ALG", "HS256")
+# 주요 설정값 로드
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY") # OpenAI API 키
+DATABASE_URL = os.getenv("DATABASE_URL")     # 데이터베이스 연결 URL
+DB_SCHEMA = os.getenv("DB_SCHEMA", "dev")    # 사용할 DB 스키마 (기본값: dev)
+JWT_SECRET = os.getenv("JWT_SECRET")         # JWT 토큰 서명/검증을 위한 비밀키
+JWT_ALG = os.getenv("JWT_ALG", "HS256")      # JWT 알고리즘
+# JWT Secret이 Base64로 인코딩되어 있는지 여부 확인
 JWT_IS_BASE64 = os.getenv("JWT_IS_BASE64", "true").lower() in ("1", "true", "yes")
-ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:9090")
-MAX_UPLOAD_MB = float(os.getenv("MAX_UPLOAD_MB", "10"))
-EMBED_MODEL = os.getenv("EMBED_MODEL", "text-embedding-3-small")
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:9090") # CORS 허용 출처
+MAX_UPLOAD_MB = float(os.getenv("MAX_UPLOAD_MB", "10"))           # 파일 업로드 최대 크기 (MB)
+EMBED_MODEL = os.getenv("EMBED_MODEL", "text-embedding-3-small")  # 텍스트 임베딩에 사용할 모델명
 
+# 로거 설정: 애플리케이션 로그 기록용
 logger = logging.getLogger("fastapi-chat")
 logging.basicConfig(level=logging.INFO)
 
@@ -39,28 +54,41 @@ logging.basicConfig(level=logging.INFO)
 
 
 class Message(BaseModel):
-  role: Literal["system", "user", "assistant"]
-  content: str
+  """
+  채팅 메시지 구조를 정의하는 Pydantic 모델
+  OpenAI API의 메시지 포맷과 호환됩니다.
+  """
+  role: Literal["system", "user", "assistant"] # 메시지 발신자 역할 (시스템, 사용자, AI)
+  content: str                                 # 메시지 내용
 
 
 class ChatRequest(BaseModel):
-  messages: List[Message] = Field(..., description="Chat history compatible with OpenAI Chat API")
-  model: str = Field(default="gpt-5-mini", description="OpenAI model name")
-  stream: bool = Field(default=True, description="Whether to stream the response via SSE")
-  temperature: Optional[float] = Field(default=None, ge=0, le=2, description="Omit to use model default")
-  session_id: Optional[str] = Field(default=None, description="Existing session id. If absent, a new session will be created.")
-  document_ids: Optional[List[str]] = Field(default=None, description="Uploaded document ids to use for context (must belong to this session)")
+  """
+  채팅 완료(Chat Completion) 요청을 위한 DTO (Data Transfer Object)
+  클라이언트로부터 받는 요청 데이터의 구조를 정의하고 검증합니다.
+  """
+  messages: List[Message] = Field(..., description="OpenAI Chat API와 호환되는 채팅 기록 리스트")
+  model: str = Field(default="gpt-5-mini", description="사용할 OpenAI 모델 이름")
+  stream: bool = Field(default=True, description="SSE(Server-Sent Events)를 통한 스트리밍 응답 여부")
+  temperature: Optional[float] = Field(default=None, ge=0, le=2, description="모델의 창의성 조절 (생략 시 기본값 사용)")
+  session_id: Optional[str] = Field(default=None, description="기존 세션 ID. 없을 경우 새로운 세션 생성.")
+  document_ids: Optional[List[str]] = Field(default=None, description="컨텍스트로 사용할 업로드된 문서 ID 목록 (해당 세션에 속해야 함)")
 
 class TranslateRequest(BaseModel):
-  messages: List[Message] = Field(..., description="Translation messages compatible with OpenAI Chat API")
-  model: str = Field(default="gpt-5-mini", description="OpenAI model name")
-  temperature: Optional[float] = Field(default=None, ge=0, le=2, description="Omit to use model default")
+  """
+  번역 요청을 위한 DTO
+  단발성 번역 기능을 위해 세션 관리 없이 메시지와 모델 정보만 받습니다.
+  """
+  messages: List[Message] = Field(..., description="번역할 내용을 담은 메시지 리스트 (OpenAI API 호환)")
+  model: str = Field(default="gpt-5-mini", description="사용할 OpenAI 모델 이름")
+  temperature: Optional[float] = Field(default=None, ge=0, le=2, description="모델의 창의성 조절")
 
 
 # ---------- DB / OpenAI init ----------
 
 
 def sanitize_db_url(url: str, default_schema: str = "dev"):
+#스키마 확인하고 DDL추출
   parsed = urlparse(url)
   search_path = default_schema
   filtered_qs = []
@@ -80,7 +108,12 @@ if DATABASE_URL:
   SANITIZED_DB_URL, search_path_from_url = sanitize_db_url(DATABASE_URL, DB_SEARCH_PATH)
   DB_SEARCH_PATH = search_path_from_url or DB_SEARCH_PATH
 
+# OpenAI 클라이언트 초기화 (API 키가 있을 경우)
 client: Optional[OpenAI] = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
+
+# SQLAlchemy 엔진 초기화 (DB URL이 있을 경우)
+# future=True: SQLAlchemy 2.0 스타일 사용
+# connect_args: PostgreSQL 스키마(search_path) 설정 주입
 engine: Optional[Engine] = (
   create_engine(
     SANITIZED_DB_URL,
@@ -106,16 +139,25 @@ app.add_middleware(
 
 
 def require_openai():
+  """
+  OpenAI 클라이언트 사용 가능 여부를 확인하는 헬퍼 함수.
+  설정되지 않았을 경우 500 에러를 반환합니다.
+  """
   if client is None:
     raise HTTPException(status_code=500, detail="OPENAI_API_KEY is not configured on the server.")
 
 
 def require_db():
+  """
+  데이터베이스 연결 사용 가능 여부를 확인하는 헬퍼 함수.
+  설정되지 않았을 경우 500 에러를 반환합니다.
+  """
   if engine is None:
     raise HTTPException(status_code=500, detail="DATABASE_URL is not configured on the server.")
 
 
 def get_user_id(authorization: Optional[str] = Header(None)):
+#토큰 확인하고 디코딩해서 사용자 확인
   if not authorization or not authorization.startswith("Bearer "):
     logger.warning("Authorization header missing or malformed")
     raise HTTPException(status_code=401, detail="Authorization header is missing")
@@ -125,11 +167,13 @@ def get_user_id(authorization: Optional[str] = Header(None)):
   token = authorization.split(" ", 1)[1]
   try:
     key: str | bytes
+    # JWT 시크릿이 Base64 인코딩된 경우 디코딩 처리
     if JWT_IS_BASE64:
       import base64
       key = base64.urlsafe_b64decode(JWT_SECRET + "==")
     else:
       key = JWT_SECRET
+    # JWT 디코딩 및 검증
     payload = jwt.decode(
       token,
       key,
@@ -147,13 +191,15 @@ def get_user_id(authorization: Optional[str] = Header(None)):
 
 
 def derive_title_from_messages(msgs: List[Message]) -> str:
+#채팅 제목 설정하기(자동으로 앞에 10글자 가져와서 정함)
   for m in msgs:
     if m.role == "user":
-      return m.content[:50] or "새 대화"
+      return m.content[:10] or "새 대화"
   return "새 대화"
 
 
 def list_sessions_db(user_id: str):
+#DB에서 사용자별로 채팅 목록 가져오기
   require_db()
   with engine.connect() as conn:
     result = conn.execute(
@@ -174,6 +220,7 @@ def list_sessions_db(user_id: str):
 
 
 def create_session_db(user_id: str, title: str = "새 대화") -> str:
+#새로운 채팅 세션
   require_db()
   session_id = str(uuid4())
   now = datetime.utcnow()
@@ -197,6 +244,7 @@ def create_session_db(user_id: str, title: str = "새 대화") -> str:
 
 
 def verify_session_owner(session_id: str, user_id: str):
+#채팅 세션에서 사용자 검증
   require_db()
   with engine.connect() as conn:
     row = conn.execute(
@@ -210,6 +258,7 @@ def verify_session_owner(session_id: str, user_id: str):
 
 
 def get_session_messages(session_id: str, user_id: str):
+  #세션에 있는 채팅 다 가져오기
   require_db()
   verify_session_owner(session_id, user_id)
   with engine.connect() as conn:
@@ -256,6 +305,7 @@ def add_message(session_id: str, role: str, content: str):
 
 
 def touch_session(session_id: str, title: Optional[str] = None):
+#채팅 제목 수정이나 업데이트 시간 변경
   require_db()
   with engine.begin() as conn:
     if title:
@@ -284,6 +334,7 @@ def touch_session(session_id: str, title: Optional[str] = None):
 
 
 def extract_pdf_text(file_bytes: bytes) -> str:
+#PDF파일에서 텍스트 추출
   reader = PdfReader(BytesIO(file_bytes))
   texts = []
   for page in reader.pages:
@@ -296,6 +347,7 @@ def extract_pdf_text(file_bytes: bytes) -> str:
 
 
 def split_text(text: str, chunk_chars: int = 1200, overlap: int = 200) -> List[str]:
+#텍스트 처크 단위로 분할
   clean = text.replace("\r", "\n")
   parts = []
   start = 0
@@ -308,6 +360,7 @@ def split_text(text: str, chunk_chars: int = 1200, overlap: int = 200) -> List[s
 
 
 def embed_texts(texts: List[str]) -> List[List[float]]:
+#벡터db에 저장하기 위해서 변환
   require_openai()
   if not texts:
     return []
@@ -361,7 +414,6 @@ def store_document(user_id: str, session_id: str, filename: str, doc_text: str) 
 
 
 def filter_doc_ids_for_session(document_ids: List[str], session_id: str, user_id: str) -> List[str]:
-  """Ensure doc_ids belong to this session & user."""
   if not document_ids:
     return []
   require_db()
@@ -383,6 +435,10 @@ def filter_doc_ids_for_session(document_ids: List[str], session_id: str, user_id
 
 
 def search_similar_chunks(document_ids: List[str], query: str, top_k: int = 5):
+  """
+  pgvector를 사용하여 질문(query)과 가장 유사한 문서 청크를 벡터 유사도(cosine distance 등)로 검색합니다.
+  operator <=> : vector similarity search via pgvector
+  """
   require_db()
   if not document_ids:
     return []
@@ -423,9 +479,9 @@ async def preflight(full_path: str, request: Request):
   return Response(status_code=200)
 
 
-@app.get("/healthz")
-async def healthz():
-  return {"status": "ok"}
+# @app.get("/healthz")
+# async def healthz():
+#   return {"status": "ok"}
 
 
 @app.get("/api/chat/sessions")
@@ -481,7 +537,7 @@ def delete_session(session_id: str, user_id: str = Depends(get_user_id)):
   return {"id": session_id, "deleted": True}
 
 
-@app.post("/api/chat/upload-pdf")
+@app.post("/api/chat/upload-pdf")#pdf파일 업로드하고 저장
 async def upload_pdf(
   file: UploadFile = File(...),
   session_id: str = Form(...),
@@ -516,19 +572,36 @@ async def upload_pdf(
 
 @app.post("/api/chat/completions")
 async def chat(req: ChatRequest, user_id: str = Depends(get_user_id)):
+  """
+  메인 채팅 엔드포인트 (통합 진입점)
+  
+  이 엔드포인트는 다음의 3가지 기능을 모두 처리하는 "통합 게이트웨이" 역할을 합니다:
+  1. **일반 챗봇 (UI)**: 스트리밍 응답 (SSE), 세션 유지, RAG(문서 검색) 기능 사용.
+  2. **Text-to-SQL (Java Service 호출)**: 스트리밍 미사용 (JSON 반환), 1회성 질문.
+  3. **다국어 번역 (Java Service 호출)**: 스트리밍 미사용 (JSON 반환), 단순 번역.
+
+  **왜 분리되지 않았나요?**
+  - OpenAI API 클라이언트 설정, 인증(JWT), 기본 파라미터 처리 등의 공통 로직을 재사용하기 위함입니다.
+  - 다만, SQL 변환이나 번역 요청 시에도 불필요한 '세션 생성' 및 'DB 저장'이 발생하는 구조적 특징이 있습니다.
+  """
   require_openai()
 
   session_id = req.session_id
   if session_id:
+    # [CHATBOT] 기존 세션이 있는 경우 (대화 이어가기)
     verify_session_owner(session_id, user_id)
   else:
+    # [SQL/TRANSLATE/NEW CHAT] 세션 ID가 없는 경우 새로 생성
+    # 주의: SQL 변환이나 번역 요청은 단발성이지만, 현재 구조상 매번 새로운 DB 세션을 생성하는 오버헤드가 있음.
     session_id = create_session_db(user_id, derive_title_from_messages(req.messages))
 
-  # RAG context
+  # [CHATBOT ONLY] RAG context (업로드된 문서가 있을 경우 검색 수행)
+  # SQL이나 번역 요청은 document_ids를 보내지 않으므로 이 로직을 건너뜁니다.
   context_snippets: List[str] = []
   if req.document_ids:
     try:
       allowed_doc_ids = filter_doc_ids_for_session(req.document_ids, session_id, user_id)
+      # 마지막 사용자 메시지를 쿼리로 사용하여 유사 문서 검색
       chunks = search_similar_chunks(allowed_doc_ids, req.messages[-1].content if req.messages else "")
       context_snippets = [c["content"] for c in chunks]
     except Exception as e:
@@ -542,6 +615,7 @@ async def chat(req: ChatRequest, user_id: str = Depends(get_user_id)):
   if req.temperature is not None:
     kwargs["temperature"] = req.temperature
 
+  # 검색된 컨텍스트가 있으면 시스템 메시지에 추가
   if context_snippets:
     context_text = "\n\n".join([f"- {c}" for c in context_snippets])
     # 컨텍스트를 확실히 적용하기 위해 직전 사용자 메시지만 남기고 시스템에 문서 요약을 주입
@@ -552,54 +626,57 @@ async def chat(req: ChatRequest, user_id: str = Depends(get_user_id)):
         "content": "업로드된 문서에서 추출한 내용입니다. 아래 문맥만을 근거로, 한국어로 간결하게 요약/분석하세요.\n"
         + context_text,
       },
-      {"role": "user", **last_user},
+      last_user,
     ]
 
-  if req.messages:
+  # [USER QUESTION] 사용자 질문을 DB에 저장
+  # SQL 변환 요청의 경우에도 DB에 질문이 저장됨 (로그 관리 차원에서는 유용할 수 있음)
+  if req.messages and req.messages[-1].role == "user":
     add_message(session_id, "user", req.messages[-1].content)
 
+  # [CHATBOT] 스트리밍 응답 처리 (SSE) -> Frontend UI에서 실시간 출력
   if req.stream:
-    def event_stream():
-      assistant_text = ""
+    async def stream_generator():
+      full_resp = []
       try:
-        response = client.chat.completions.create(**kwargs)
-        for chunk in response:
-          delta = chunk.choices[0].delta.content or ""
-          assistant_text += delta
-          yield f"data: {json.dumps({'choices': [{'delta': {'content': delta}}]})}\n\n"
-        add_message(session_id, "assistant", assistant_text or "")
-        touch_session(session_id, derive_title_from_messages(req.messages))
-        yield "data: [DONE]\n\n"
-      except OpenAIError as e:
-        logger.error("OpenAI streaming error: %s", e)
-        yield f"data: {json.dumps({'error': str(e)})}\n\n"
+        stream = await client.chat.completions.create(**kwargs)
+        async for chunk in stream:
+          content = chunk.choices[0].delta.content
+          if content:
+            # Frontend(ChatBotPage.tsx)는 OpenAI 표준 JSON 포맷을 파싱하므로 형식을 맞춰줍니다.
+            yield f"data: {json.dumps({'choices': [{'delta': {'content': content}}]})}\n\n"
+            full_resp.append(content)
         yield "data: [DONE]\n\n"
       except Exception as e:
-        logger.exception("Unexpected streaming error")
         yield f"data: {json.dumps({'error': str(e)})}\n\n"
-        yield "data: [DONE]\n\n"
+      
+      # 스트리밍이 끝나면 모아서 DB에 저장
+      ai_msg = "".join(full_resp)
+      if ai_msg:
+        add_message(session_id, "assistant", ai_msg)
+        touch_session(session_id)
 
-    return StreamingResponse(event_stream(), media_type="text/event-stream")
+    return StreamingResponse(stream_generator(), media_type="text/event-stream")
 
-  try:
-    completion = client.chat.completions.create(**kwargs)
-    content = completion.choices[0].message.content or ""
-    add_message(session_id, "assistant", content)
-    touch_session(session_id, derive_title_from_messages(req.messages))
-    return {"session_id": session_id, "choices": [{"message": {"content": content}}]}
-  except OpenAIError as e:
-    logger.error("OpenAI error: %s", e)
-    raise HTTPException(status_code=502, detail=f"OpenAI error: {e}") from e
-  except Exception as e:
-    logger.exception("Unexpected error")
-    raise HTTPException(status_code=500, detail=f"Unexpected error: {e}") from e
+  # [SQL/TRANSLITER/API] 일반 응답 처리 (Non-streaming) -> Java Server 등이 JSON으로 받음
+  else:
+    try:
+      resp = await client.chat.completions.create(**kwargs)
+      ai_msg = resp.choices[0].message.content
+      
+      # 응답을 DB에 저장
+      add_message(session_id, "assistant", ai_msg)
+      touch_session(session_id)
+      
+      # OpenAI 원본 응답 구조 그대로 반환 (Java 측에서 파싱)
+      return resp
+    except Exception as e:
+      logger.exception("Chat completion failed")
+      raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/api/chat/translate")
 async def translate(req: TranslateRequest, user_id: str = Depends(get_user_id)):
-  """
-  Lightweight translation endpoint: no session creation, no history persistence.
-  """
   require_openai()
   kwargs = {
     "model": req.model,

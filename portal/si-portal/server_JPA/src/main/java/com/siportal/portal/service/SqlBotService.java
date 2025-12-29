@@ -42,23 +42,24 @@ public class SqlBotService {
     public Map<String, Object> generateAndExecuteSql(String userQuestion, String authHeader) {
         Map<String, Object> result = new HashMap<>();
 
-        // 1. 프롬프트 구성
+        // 1. 프롬프트 구성: 시스템 프롬프트 + 사용자 질문
         String prompt = createSystemPrompt() + "\n\nUser Question: " + userQuestion + "\nSQL:";
 
-        // 2. LLM 호출하여 SQL 생성
+        // 2. LLM 호출하여 SQL 생성 (외부 FastAPI 서버 호출)
         String rawSql = callLlmApi(prompt, authHeader);
         String cleanedSql = cleanSql(rawSql);
         
         result.put("generatedSql", cleanedSql);
 
-        // 3. SQL 검증 및 실행
+        // 3. SQL 검증 및 실행 (SELECT 문만 허용)
         if (isValidSql(cleanedSql)) {
             try {
                 log.info("Executing SQL: {}", cleanedSql);
+                // JDBC를 사용하여 동적 SQL 실행
                 List<Map<String, Object>> dataList = jdbcTemplate.queryForList(cleanedSql);
                 result.put("data", dataList);
                 
-                // 컬럼 정보 추출 (첫 번째 행 기준 또는 메타데이터)
+                // 컬럼 정보 추출 (Grid 헤더 생성용)
                 if (!dataList.isEmpty()) {
                     result.put("columns", dataList.get(0).keySet());
                 } else {
@@ -128,6 +129,7 @@ Rules:
 
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
+            // RestTemplate을 사용하여 동기식 HTTP POST 요청
             ResponseEntity<JsonNode> response = restTemplate.postForEntity(chatApiUrl, entity, JsonNode.class);
 
             if (response.getBody() != null) {

@@ -6,15 +6,18 @@ import AgGridWrapper from '../../components/agGridWrapper/AgGridWrapper';
 import { AgGridWrapperHandle } from '~types/GlobalTypes';
 
 const TextToSqlPage: React.FC = () => {
-    const [question, setQuestion] = useState<string>('');
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [generatedSql, setGeneratedSql] = useState<string>('');
-    const [errorMsg, setErrorMsg] = useState<string>('');
-    const [columnDefs, setColumnDefs] = useState<ColDef[]>([]);
+    // State 관리
+    const [question, setQuestion] = useState<string>('');       // 사용자 자연어 질문
+    const [isLoading, setIsLoading] = useState<boolean>(false); // 로딩 상태
+    const [generatedSql, setGeneratedSql] = useState<string>(''); // 생성된 SQL 쿼리 표시용
+    const [errorMsg, setErrorMsg] = useState<string>('');       // 에러 메시지
+    const [columnDefs, setColumnDefs] = useState<ColDef[]>([]); // 동적 컬럼 정의
 
-    const gridRef = useRef<AgGridWrapperHandle>(null);
+    const gridRef = useRef<AgGridWrapperHandle>(null); // AgGrid 제어 레퍼런스
 
     // 한글 컬럼명 매핑 (선택 사항)
+    // DB 컬럼명과 화면 표시용 한글 헤더 매핑
+    // Text-to-SQL 결과로 반환된 영문 컬럼을 사용자 친화적인 한글명으로 변환
     const columnHeaderMap: { [key: string]: string } = {
         lot_no: 'LOT 번호',
         heat_no: 'HEAT 번호',
@@ -51,15 +54,17 @@ const TextToSqlPage: React.FC = () => {
         final_lcm_impact: '최종 저가법 영향'
     };
 
+    // 쿼리 실행 핸들러
     const handleQuery = useCallback(async () => {
         if (!question.trim()) return;
 
         setIsLoading(true);
         setGeneratedSql('');
         setErrorMsg('');
-        gridRef.current?.setRowData([]); // 초기화
+        gridRef.current?.setRowData([]); // 기존 데이터 초기화
 
         try {
+            // POST /biz/sqlbot/query: 자연어 질문을 백엔드로 전송
             const token = sessionStorage.getItem('authToken');
             const response = await axios.post(
                 'http://localhost:8080/biz/sqlbot/query',
@@ -67,6 +72,7 @@ const TextToSqlPage: React.FC = () => {
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
+            // data: 조회 결과 리스트, sql: 생성된 SQL문, columns: 조회된 컬럼 목록, error: 에러 메시지
             const { data, sql, columns, error } = response.data;
 
             if (error) {
@@ -76,10 +82,11 @@ const TextToSqlPage: React.FC = () => {
 
             setGeneratedSql(sql || '');
 
+            // 동적 컬럼 정의 생성
             if (columns && Array.isArray(columns)) {
                 const newColDefs = columns.map((col: string) => ({
                     field: col,
-                    headerName: columnHeaderMap[col] || col, // 매핑 없으면 원래 이름 사용
+                    headerName: columnHeaderMap[col] || col, // 매핑된 한글명 우선 사용
                     sortable: true,
                     filter: true,
                     flex: 1,
@@ -88,10 +95,11 @@ const TextToSqlPage: React.FC = () => {
                 setColumnDefs(newColDefs);
             }
 
+            // Grid 데이터 바인딩
             if (data && Array.isArray(data)) {
                 gridRef.current?.setRowData(data);
 
-                // Grid 렌더링 타이밍 이슈 해결을 위한 강제 리프레시
+                // Grid 렌더링 문제 방지를 위한 리사이징 (약간의 지연 후 실행)
                 setTimeout(() => {
                     if (gridRef.current?.gridApi) {
                         gridRef.current.gridApi.sizeColumnsToFit();
