@@ -527,6 +527,7 @@ const ManageMessage: React.FC<ManageMessageModalProps> = ({
                         </Form.Label>
                         <Col sm={2}>
                           <Form.Select
+                            style={{ maxWidth: '150px' }}
                             value={selectedType}
                             onChange={handleTypeChange}
                           >
@@ -551,6 +552,7 @@ const ManageMessage: React.FC<ManageMessageModalProps> = ({
                         </Form.Label>
                         <Col sm={2}>
                           <Form.Control
+                            style={{ maxWidth: '150px' }}
                             ref={msgNameRef}
                             type="text"
                             placeholder={comAPIContext.$msg(
@@ -567,6 +569,7 @@ const ManageMessage: React.FC<ManageMessageModalProps> = ({
                         </Form.Label>
                         <Col sm={2}>
                           <Form.Control
+                            style={{ maxWidth: '150px' }}
                             ref={msgDefaulteRef}
                             type="text"
                             placeholder={comAPIContext.$msg(
@@ -583,6 +586,7 @@ const ManageMessage: React.FC<ManageMessageModalProps> = ({
                         </Form.Label>
                         <Col sm={2}>
                           <Form.Select
+                            style={{ maxWidth: '150px' }}
                             value={selectedStatus}
                             onChange={handleStatusChange}
                           >
@@ -605,6 +609,7 @@ const ManageMessage: React.FC<ManageMessageModalProps> = ({
                         </Form.Label>
                         <Col sm={2}>
                           <Form.Control
+                            style={{ maxWidth: '150px' }}
                             ref={koLangTextRef}
                             type="text"
                             placeholder={comAPIContext.$msg(
@@ -621,6 +626,7 @@ const ManageMessage: React.FC<ManageMessageModalProps> = ({
                         </Form.Label>
                         <Col sm={2}>
                           <Form.Control
+                            style={{ maxWidth: '150px' }}
                             ref={enLangTextRef}
                             type="text"
                             placeholder={comAPIContext.$msg(
@@ -637,6 +643,7 @@ const ManageMessage: React.FC<ManageMessageModalProps> = ({
                         </Form.Label>
                         <Col sm={2}>
                           <Form.Control
+                            style={{ maxWidth: '150px' }}
                             ref={cnLangTextRef}
                             type="text"
                             placeholder={comAPIContext.$msg(
@@ -720,6 +727,7 @@ const ManageMessage: React.FC<ManageMessageModalProps> = ({
                     </Form.Label>
                     <Col sm={2}>
                       <Form.Select
+                        style={{ maxWidth: '150px' }}
                         value={selectedType}
                         onChange={handleTypeChange}
                       >
@@ -744,6 +752,7 @@ const ManageMessage: React.FC<ManageMessageModalProps> = ({
                     </Form.Label>
                     <Col sm={2}>
                       <Form.Control
+                        style={{ maxWidth: '150px' }}
                         ref={msgNameRef}
                         type="text"
                         placeholder={comAPIContext.$msg(
@@ -760,6 +769,7 @@ const ManageMessage: React.FC<ManageMessageModalProps> = ({
                     </Form.Label>
                     <Col sm={2}>
                       <Form.Control
+                        style={{ maxWidth: '150px' }}
                         ref={msgDefaulteRef}
                         type="text"
                         placeholder={comAPIContext.$msg(
@@ -776,6 +786,7 @@ const ManageMessage: React.FC<ManageMessageModalProps> = ({
                     </Form.Label>
                     <Col sm={2}>
                       <Form.Select
+                        style={{ maxWidth: '150px' }}
                         value={selectedStatus}
                         onChange={handleStatusChange}
                       >
@@ -798,6 +809,7 @@ const ManageMessage: React.FC<ManageMessageModalProps> = ({
                     </Form.Label>
                     <Col sm={2}>
                       <Form.Control
+                        style={{ maxWidth: '150px' }}
                         ref={koLangTextRef}
                         type="text"
                         placeholder={comAPIContext.$msg(
@@ -814,6 +826,7 @@ const ManageMessage: React.FC<ManageMessageModalProps> = ({
                     </Form.Label>
                     <Col sm={2}>
                       <Form.Control
+                        style={{ maxWidth: '150px' }}
                         ref={enLangTextRef}
                         type="text"
                         placeholder={comAPIContext.$msg('label', 'EN', '영어')}
@@ -826,6 +839,7 @@ const ManageMessage: React.FC<ManageMessageModalProps> = ({
                     </Form.Label>
                     <Col sm={2}>
                       <Form.Control
+                        style={{ maxWidth: '150px' }}
                         ref={cnLangTextRef}
                         type="text"
                         placeholder={comAPIContext.$msg(
@@ -836,15 +850,20 @@ const ManageMessage: React.FC<ManageMessageModalProps> = ({
                       />
                     </Col>
                   </Col>
+                  {/* Buttons moved here */}
+                  <Col className="d-flex align-items-center gap-2">
+                    <ComButton size="sm" variant="success" onClick={openAiModal}>
+                      AI 번역 추가
+                    </ComButton>
+                    <ComButton
+                      size="sm"
+                      variant="primary"
+                      onClick={handleSearch}
+                    >
+                      {comAPIContext.$msg('label', 'search', '검색')}
+                    </ComButton>
+                  </Col>
                 </Form.Group>
-              </Col>
-              <Col className="search_btn d-flex gap-2 justify-content-end">
-                <ComButton size="sm" variant="success" onClick={openAiModal}>
-                  AI 번역 추가
-                </ComButton>
-                <ComButton size="sm" variant="primary" onClick={handleSearch}>
-                  {comAPIContext.$msg('label', 'search', '검색')}
-                </ComButton>
               </Col>
             </Row>
             <Row className="contents_wrap">

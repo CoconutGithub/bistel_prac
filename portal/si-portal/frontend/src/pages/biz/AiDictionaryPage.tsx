@@ -1,21 +1,22 @@
 import React, { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { Modal, Button, Container, Row, Col, Form, Alert, Spinner } from 'react-bootstrap';
-import AgGridWrapper from '~components/agGridWrapper/AgGridWrapper';
+import AgGridWrapper from '~components/agGridWrapper/AgGridWrapper'; // AgGrid 래퍼 컴포넌트
 import { AgGridWrapperHandle } from '~types/GlobalTypes';
-import { ColDef } from '@ag-grid-community/core';
+import { ColDef } from '@ag-grid-community/core'; // AgGrid 컬럼 정의 타입
 import { cachedAuthToken } from '~store/AuthSlice';
 
 type DictionaryRow = {
-  id?: number;
-  dictKey: string;
-  ko: string;
-  en: string;
-  zh: string;
-  vi: string;
+  id?: number;// DB Primary Key (신규 생성 시 undefined)
+  dictKey: string;// 사전 키 (예: display.inspection.summary)
+  ko: string;          // 한국어
+  en: string;          // 영어
+  zh: string;          // 중국어
+  vi: string;          // 베트남어
   createdAt?: string;
   updatedAt?: string;
 };
+
 
 const initialForm: DictionaryRow = {
   id: undefined,
@@ -27,25 +28,34 @@ const initialForm: DictionaryRow = {
 };
 
 const AiDictionaryPage: React.FC = () => {
+  // AgGrid 제어를 위한 Ref
   const gridRef = useRef<AgGridWrapperHandle>(null);
-  const [form, setForm] = useState<DictionaryRow>(initialForm);
-  const [loading, setLoading] = useState(false);
-  const [translating, setTranslating] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [showModal, setShowModal] = useState(false);
 
+  // State 관리
+  const [form, setForm] = useState<DictionaryRow>(initialForm); // 입력 폼 데이터
+  const [loading, setLoading] = useState(false);     // 목록 조회 로딩 상태
+  const [translating, setTranslating] = useState(false); // 번역 API 호출 중 상태
+  const [message, setMessage] = useState<string | null>(null); // 성공 메시지
+  const [error, setError] = useState<string | null>(null);     // 에러 메시지
+  const [showModal, setShowModal] = useState(false); // 모달 표시 여부
+
+  // 환경변수에서 백엔드 주소 로드
   const backendBase = process.env.REACT_APP_BACKEND_IP || '';
+
+  // 인증 헤더 생성 (SessionStorage 또는 메모리 캐시에서 토큰 획득)
+  // useMemo를 사용하여 불필요한 재연산 방지
   const authHeaders = useMemo(() => {
     const token = cachedAuthToken || sessionStorage.getItem('authToken') || '';
     return token ? { Authorization: `Bearer ${token}` } : {};
   }, []);
 
+  // 날짜 포맷팅 헬퍼 함수
   const formatDate = (value?: string) => {
     if (!value) return '-';
     return new Date(value).toLocaleString();
   };
 
+  // AgGrid 컬럼 정의
   const columnDefs: ColDef[] = useMemo(
     () => [
       { headerName: 'dict_key', field: 'dictKey', flex: 1.2 },
@@ -63,13 +73,17 @@ const AiDictionaryPage: React.FC = () => {
     setError(null);
   };
 
+  // 목록 조회 API 호출
+  // useCallback으로 함수 재생성 억제 (useEffect 의존성)
   const fetchRows = useCallback(async () => {
     setLoading(true);
     resetAlerts();
     try {
+      // GET /api/dictionary: DB에서 전체 다국어 목록 조회
       const { data } = await axios.get<DictionaryRow[]>(`${backendBase}/api/dictionary`, {
         headers: authHeaders,
       });
+      // AgGrid에 데이터 설정
       gridRef.current?.setRowData(data || []);
     } catch (err: any) {
       setError(err?.response?.data?.message || '다국어 목록을 불러오지 못했습니다.');
@@ -78,6 +92,7 @@ const AiDictionaryPage: React.FC = () => {
     }
   }, [authHeaders, backendBase]);
 
+  // 컴포넌트 마운트 시 초기 데이터 로드
   useEffect(() => {
     fetchRows();
   }, [fetchRows]);
@@ -86,6 +101,7 @@ const AiDictionaryPage: React.FC = () => {
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
   };
 
+  // AI 번역 핸들러
   const handleTranslate = async () => {
     if (!form.ko.trim()) {
       setError('한국어 문구를 먼저 입력해주세요.');
@@ -94,11 +110,13 @@ const AiDictionaryPage: React.FC = () => {
     resetAlerts();
     setTranslating(true);
     try {
+      // POST /api/dictionary/translate: 한국어를 영어, 중국어, 베트남어로 자동 번역
       const { data } = await axios.post<Pick<DictionaryRow, 'en' | 'zh' | 'vi'>>(
         `${backendBase}/api/dictionary/translate`,
         { ko: form.ko },
         { headers: authHeaders }
       );
+      // 번역된 결과를 폼 상태에 반영
       setForm((prev) => ({ ...prev, ...data }));
       setMessage('AI 번역이 완료되었습니다.');
     } catch (err: any) {
@@ -108,9 +126,11 @@ const AiDictionaryPage: React.FC = () => {
     }
   };
 
+  // 저장/수정 핸들러
   const handleSave = async () => {
     resetAlerts();
     const missing: string[] = [];
+    // 필수 필드 검증
     if (!form.dictKey.trim()) missing.push('dict_key');
     if (!form.ko.trim()) missing.push('한국어');
     if (!form.en.trim()) missing.push('영어');
@@ -129,6 +149,7 @@ const AiDictionaryPage: React.FC = () => {
       vi: form.vi.trim(),
     };
     try {
+      // ID가 존재하면 수정(PUT), 없으면 생성(POST)
       if (form.id) {
         await axios.put(`${backendBase}/api/dictionary/${form.id}`, payload, { headers: authHeaders });
         setMessage('다국어가 수정되었습니다.');
@@ -136,6 +157,7 @@ const AiDictionaryPage: React.FC = () => {
         await axios.post(`${backendBase}/api/dictionary`, payload, { headers: authHeaders });
         setMessage('다국어가 저장되었습니다.');
       }
+      // 저장 후 목록 갱신 및 모달 닫기
       await fetchRows();
       setForm(initialForm);
       setShowModal(false);
@@ -242,7 +264,7 @@ const AiDictionaryPage: React.FC = () => {
                   />
                 </Form.Group>
               </Col>
-              <Col md={4} className="flex-shrink-0" style={{ minWidth: '200px', maxWidth: '240px'  }}>
+              <Col md={4} className="flex-shrink-0" style={{ minWidth: '200px', maxWidth: '240px' }}>
                 <Form.Group>
                   <Form.Label>중국어 간체 (zh)</Form.Label>
                   <Form.Control
@@ -253,7 +275,7 @@ const AiDictionaryPage: React.FC = () => {
                   />
                 </Form.Group>
               </Col>
-              <Col md={4} className="flex-shrink-0" style={{ minWidth: '200px', maxWidth: '240px'  }}>
+              <Col md={4} className="flex-shrink-0" style={{ minWidth: '200px', maxWidth: '240px' }}>
                 <Form.Group>
                   <Form.Label>베트남어 (vi)</Form.Label>
                   <Form.Control
