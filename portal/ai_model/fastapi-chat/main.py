@@ -285,6 +285,53 @@ def get_session_messages(session_id: str, user_id: str):
     ]
 
 
+def get_session_documents(session_id: str, user_id: str):
+  require_db()
+  # verify_session_owner(session_id, user_id) # Caller should verify or we verify here
+  with engine.connect() as conn:
+    # session_documents와 documents 테이블 조인
+    result = conn.execute(
+      sa_text(
+        """
+        SELECT d.id, d.filename, LENGTH(dc.content) as text_len
+          FROM dev.session_documents sd
+          JOIN dev.documents d ON sd.doc_id = d.id
+          LEFT JOIN dev.document_chunks dc ON dc.doc_id = d.id
+         WHERE sd.session_id = :session_id
+           AND sd.user_id = :user_id
+        """
+      ),
+      {"session_id": session_id, "user_id": user_id},
+    )
+    # text_len은 청크 단위로 나뉘어 있어서 정확한 전체 길이 추정은 어렵지만,
+    # 여기서는 documents 테이블에 text_length 컬럼이 없으므로
+    # 예시로 청크들의 합을 구하거나 단순화해서 처리.
+    # 하지만 기존 store_document 로직을 보면 documents 테이블에 text_len이 없음.
+    # upload_pdf 에서는 바로 리턴했음.
+    # 간단히 파일명과 ID만 리턴하거나, distinct로 가져오자.
+    
+    # 수정: 문서 목록만 가져오기 (중복 제거)
+    rows = conn.execute(
+      sa_text(
+        """
+        SELECT d.id, d.filename
+          FROM dev.session_documents sd
+          JOIN dev.documents d ON sd.doc_id = d.id
+         WHERE sd.session_id = :session_id
+        """
+      ),
+      {"session_id": session_id},
+    )
+    
+    docs = []
+    seen = set()
+    for row in rows:
+      if row.id not in seen:
+        docs.append({"id": str(row.id), "name": row.filename, "textLength": 0}) # textLength는 DB에 없으므로 0 처리
+        seen.add(row.id)
+    return docs
+
+
 def add_message(session_id: str, role: str, content: str):
   require_db()
   with engine.begin() as conn:
@@ -499,7 +546,8 @@ def create_session(user_id: str = Depends(get_user_id)):
 @app.get("/api/chat/sessions/{session_id}")
 def get_session(session_id: str, user_id: str = Depends(get_user_id)):
   msgs = get_session_messages(session_id, user_id)
-  return {"id": session_id, "messages": msgs}
+  docs = get_session_documents(session_id, user_id)
+  return {"id": session_id, "messages": msgs, "documents": docs}
 
 
 @app.delete("/api/chat/sessions/{session_id}")
@@ -639,8 +687,8 @@ async def chat(req: ChatRequest, user_id: str = Depends(get_user_id)):
     async def stream_generator():
       full_resp = []
       try:
-        stream = await client.chat.completions.create(**kwargs)
-        async for chunk in stream:
+        stream = client.chat.completions.create(**kwargs)
+        for chunk in stream:
           content = chunk.choices[0].delta.content
           if content:
             # Frontend(ChatBotPage.tsx)는 OpenAI 표준 JSON 포맷을 파싱하므로 형식을 맞춰줍니다.

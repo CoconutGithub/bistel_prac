@@ -114,10 +114,13 @@ const Login = () => {
           }
         }
       } else {
+        // 토큰은 있지만 탭 정보가 없는 경우 (초기 로그인 등) -> 홈으로 이동
+        console.log('Login.tsx: Tab data missing, resetting tabs and going home.');
         dispatch(resetTab());
         navigate('/main/home', { replace: true });
       }
     } else {
+      // 토큰이 아예 없는 경우에만 초기화
       dispatch(resetTab());
       dispatch(removeLoginToken());
     }

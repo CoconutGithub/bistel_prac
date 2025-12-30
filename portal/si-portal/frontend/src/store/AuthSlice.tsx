@@ -177,7 +177,7 @@ export const chkLoginToken = createAsyncThunk<
     const now = new Date();
     const expiration = new Date(decoded.exp * 1000);
 
-    console.log('2.token-expiration-date:', expiration);
+    console.log(`2.token-expiration-check: Now=${now.toISOString()}, Exp=${expiration.toISOString()}`);
 
     if (now >= expiration) {
       console.log('3-1. over expiration date/ token delete');

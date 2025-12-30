@@ -2,7 +2,7 @@ import { redirect } from 'react-router-dom';
 import { store } from '~store/Store';
 import { chkButtonAuth } from '~store/AuthSlice';
 
-export const checkBtnAuthLoader = async () => {
+export const checkBtnAuthLoader = async ({ request }: any) => {
   const isAuthenticated = store.getState().auth.isAuthenticated; // Redux 상태 가져오기
 
   if (!isAuthenticated) {
@@ -13,7 +13,8 @@ export const checkBtnAuthLoader = async () => {
 
   try {
     // 현재 경로를 가져와 chkButtonAuth 호출
-    const pathName = window.location.pathname;
+    const url = new URL(request.url);
+    const pathName = url.pathname;
     console.log('Loader수행함---->', pathName);
     await store.dispatch(chkButtonAuth(pathName));
   } catch (error) {

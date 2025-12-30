@@ -309,7 +309,9 @@ const ChatBotPage: React.FC = () => {
         });
         const data = await res.json();
         const msgs: ChatMessage[] = (data.messages as ChatMessage[]) || [];
+        const loadedDocs: UploadedDoc[] = (data.documents as UploadedDoc[]) || [];
         setMessages(msgs.length ? msgs : [initialAssistantMessage]);
+        setDocs(loadedDocs);
       } catch (e) {
         console.error('대화 불러오기 실패', e);
       }
@@ -371,7 +373,9 @@ const ChatBotPage: React.FC = () => {
           const detailRes = await fetch(`${CHAT_API_URL}/sessions/${first.id}`, { headers: getHeaders() });
           const detail = await detailRes.json();
           const msgs: ChatMessage[] = (detail.messages as ChatMessage[]) || [];
+          const loadedDocs: UploadedDoc[] = (detail.documents as UploadedDoc[]) || [];
           setMessages(msgs.length ? msgs : [initialAssistantMessage]);
+          setDocs(loadedDocs);
         } else {
           const resNew = await fetch(`${CHAT_API_URL}/sessions`, {
             method: 'POST',
@@ -439,7 +443,31 @@ const ChatBotPage: React.FC = () => {
         <header className={styles.header}>
           <div>
             <p className={styles.kicker}>BISTelligence AI</p>
-            <h1 className={styles.title}>ChatGPT 스타일 어시스턴트</h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+              <h1 className={styles.title}>ChatGPT 스타일 어시스턴트</h1>
+              {docs.length > 0 && (
+                <div style={{ display: 'flex', gap: '5px' }}>
+                  {docs.map((d) => (
+                    <span
+                      key={d.id}
+                      style={{
+                        fontSize: '0.75rem',
+                        backgroundColor: '#e9ecef',
+                        padding: '2px 8px',
+                        borderRadius: '12px',
+                        color: '#495057',
+                        border: '1px solid #ced4da',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                    >
+                      📄 {d.name}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
             <p className={styles.subtitle}>
               질문을 입력하고 대화 기록을 선택해 이어서 이야기하세요.
             </p>
@@ -463,6 +491,24 @@ const ChatBotPage: React.FC = () => {
           ))}
           <div ref={scrollAnchorRef} />
         </div>
+        {docs.length > 0 && (
+          showDocChips && (
+            <div className={styles.docChips}>
+              {docs.map((doc) => (
+                <span key={doc.id} className={styles.docChip}>
+                  <span className={styles.docName}>{doc.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => setDocs((prev) => prev.filter((d) => d.id !== doc.id))}
+                    aria-label="문서 제거"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          )
+        )}
 
         <footer className={styles.inputBar}>
           <div className={styles.inputLeft}>
@@ -508,25 +554,6 @@ const ChatBotPage: React.FC = () => {
                 rows={1}
               />
             </div>
-
-            {docs.length > 0 && (
-              showDocChips && (
-                <div className={styles.docChips}>
-                  {docs.map((doc) => (
-                    <span key={doc.id} className={styles.docChip}>
-                      <span className={styles.docName}>{doc.name}</span>
-                      <button
-                        type="button"
-                        onClick={() => setDocs((prev) => prev.filter((d) => d.id !== doc.id))}
-                        aria-label="문서 제거"
-                      >
-                        ×
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              )
-            )}
             {uploadError && <span className={styles.uploadError}>{uploadError}</span>}
 
             {/* 숨겨진 파일 입력 필드: PDF 업로드 처리 */}
