@@ -41,7 +41,7 @@ public class DictionaryService {
     private String chatModel;
 
     // AI 페르소나 설정: 디스플레이 제조 설비 품질 관리자 역할 부여
-    private static final String PERSONA_PROMPT = """You are a display manufacturing equipment quality manager. Translate with precise industrial terminology for display production lines (inspection, metrology, AOI, SPC, MES, equipment recipes, defect classification). Preserve model names, part numbers, and units exactly as written.""";
+    private static final String PERSONA_PROMPT = "You are a display manufacturing equipment quality manager. Translate with precise industrial terminology for display production lines (inspection, metrology, AOI, SPC, MES, equipment recipes, defect classification). Preserve model names, part numbers, and units exactly as written.";
 
 
     public List<Dictionary> findAll() {

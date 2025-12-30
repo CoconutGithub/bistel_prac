@@ -73,6 +73,7 @@ class ChatRequest(BaseModel):
   temperature: Optional[float] = Field(default=None, ge=0, le=2, description="모델의 창의성 조절 (생략 시 기본값 사용)")
   session_id: Optional[str] = Field(default=None, description="기존 세션 ID. 없을 경우 새로운 세션 생성.")
   document_ids: Optional[List[str]] = Field(default=None, description="컨텍스트로 사용할 업로드된 문서 ID 목록 (해당 세션에 속해야 함)")
+  save_history: bool = Field(default=True, description="대화 내용을 DB에 저장할지 여부 (False일 경우 세션 생성 및 메시지 저장 안 함)")
 
 class TranslateRequest(BaseModel):
   """
@@ -590,15 +591,15 @@ async def chat(req: ChatRequest, user_id: str = Depends(get_user_id)):
   if session_id:
     # [CHATBOT] 기존 세션이 있는 경우 (대화 이어가기)
     verify_session_owner(session_id, user_id)
-  else:
-    # [SQL/TRANSLATE/NEW CHAT] 세션 ID가 없는 경우 새로 생성
-    # 주의: SQL 변환이나 번역 요청은 단발성이지만, 현재 구조상 매번 새로운 DB 세션을 생성하는 오버헤드가 있음.
+  elif req.save_history:
+    # [NEW CHAT] 세션 ID가 없고 기록 저장이 활성화된 경우에만 새로 생성
     session_id = create_session_db(user_id, derive_title_from_messages(req.messages))
 
   # [CHATBOT ONLY] RAG context (업로드된 문서가 있을 경우 검색 수행)
   # SQL이나 번역 요청은 document_ids를 보내지 않으므로 이 로직을 건너뜁니다.
+  # session_id가 있어야 문서 필터링 가능 (문서는 세션에 귀속됨)
   context_snippets: List[str] = []
-  if req.document_ids:
+  if req.document_ids and session_id:
     try:
       allowed_doc_ids = filter_doc_ids_for_session(req.document_ids, session_id, user_id)
       # 마지막 사용자 메시지를 쿼리로 사용하여 유사 문서 검색
@@ -629,9 +630,8 @@ async def chat(req: ChatRequest, user_id: str = Depends(get_user_id)):
       last_user,
     ]
 
-  # [USER QUESTION] 사용자 질문을 DB에 저장
-  # SQL 변환 요청의 경우에도 DB에 질문이 저장됨 (로그 관리 차원에서는 유용할 수 있음)
-  if req.messages and req.messages[-1].role == "user":
+  # [USER QUESTION] 사용자 질문을 DB에 저장 (저장 옵션 켜진 경우만)
+  if req.save_history and session_id and req.messages and req.messages[-1].role == "user":
     add_message(session_id, "user", req.messages[-1].content)
 
   # [CHATBOT] 스트리밍 응답 처리 (SSE) -> Frontend UI에서 실시간 출력
@@ -652,7 +652,7 @@ async def chat(req: ChatRequest, user_id: str = Depends(get_user_id)):
       
       # 스트리밍이 끝나면 모아서 DB에 저장
       ai_msg = "".join(full_resp)
-      if ai_msg:
+      if req.save_history and session_id and ai_msg:
         add_message(session_id, "assistant", ai_msg)
         touch_session(session_id)
 
@@ -661,12 +661,13 @@ async def chat(req: ChatRequest, user_id: str = Depends(get_user_id)):
   # [SQL/TRANSLITER/API] 일반 응답 처리 (Non-streaming) -> Java Server 등이 JSON으로 받음
   else:
     try:
-      resp = await client.chat.completions.create(**kwargs)
+      resp = client.chat.completions.create(**kwargs)
       ai_msg = resp.choices[0].message.content
       
-      # 응답을 DB에 저장
-      add_message(session_id, "assistant", ai_msg)
-      touch_session(session_id)
+      # 응답을 DB에 저장 (저장 옵션 켜진 경우만)
+      if req.save_history and session_id:
+        add_message(session_id, "assistant", ai_msg)
+        touch_session(session_id)
       
       # OpenAI 원본 응답 구조 그대로 반환 (Java 측에서 파싱)
       return resp

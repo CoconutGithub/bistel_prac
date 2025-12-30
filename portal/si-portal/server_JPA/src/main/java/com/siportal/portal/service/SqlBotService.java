@@ -119,6 +119,7 @@ Rules:
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("model", chatModel);
             requestBody.put("stream", false); // 스트림 비활성화 (JSON 응답 요청)
+            requestBody.put("save_history", false); // SQL 봇 대화 기록 저장 안 함
             requestBody.put("messages", List.of(
                     Map.of("role", "system", "content", "You are a helpful data assistant."),
                     Map.of("role", "user", "content", prompt)
