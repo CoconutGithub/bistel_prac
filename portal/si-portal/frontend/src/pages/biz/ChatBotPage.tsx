@@ -88,65 +88,7 @@ const convertJsonToMarkdownTable = (data: any[], errorMsg?: string, generatedSql
 
 
 
-// --- Chart Helper Functions (Simplified from YieldTrendPage) ---
-const transformToChartOption = (data: any[]) => {
-  if (!data || data.length === 0) return null;
 
-  // 데이터에 날짜(workDate/work_date)와 수율(yieldRate/yield_rate/finalYield/final_yield)이 있는지 확인
-  const hasDate = data.some(d => d.workDate || d.work_date);
-  const hasYield = data.some(d =>
-    d.yieldRate !== undefined || d.yield_rate !== undefined ||
-    d.finalYield !== undefined || d.final_yield !== undefined
-  );
-
-  if (!hasDate || !hasYield) {
-    return null; // 차트 그리기 부적합 데이터
-  }
-
-  // 월별 집계
-  const monthlyMap = new Map<string, { sum: number; count: number }>();
-
-  data.forEach(item => {
-    const dateStr = String(item.workDate || item.work_date || '');
-    const monthKey = dateStr.length >= 7 ? dateStr.substring(0, 7) : dateStr;
-
-    // finalYield/final_yield 우선, 없으면 yieldRate/yield_rate
-    const val = Number(
-      item.finalYield ?? item.final_yield ??
-      item.yieldRate ?? item.yield_rate
-    );
-
-    if (!isNaN(val) && val > 0 && val <= 100) {
-      if (!monthlyMap.has(monthKey)) monthlyMap.set(monthKey, { sum: 0, count: 0 });
-      const curr = monthlyMap.get(monthKey)!;
-      curr.sum += val;
-      curr.count += 1;
-    }
-  });
-
-  const dates = Array.from(monthlyMap.keys()).sort();
-  const averages = dates.map(d => {
-    const item = monthlyMap.get(d)!;
-    return parseFloat((item.sum / item.count).toFixed(2));
-  });
-
-  return {
-    title: { text: '월별 평균 수율 트렌드', left: 'center' },
-    tooltip: { trigger: 'axis' },
-    xAxis: { type: 'category', data: dates, name: '기간' },
-    yAxis: { type: 'value', name: '수율(%)', min: 'dataMin' },
-    series: [{
-      name: '평균 수율',
-      type: 'line',
-      data: averages,
-      smooth: true,
-      itemStyle: { color: '#fd7e14' },
-      lineStyle: { width: 3 },
-      symbolSize: 8,
-      label: { show: true, position: 'top' }
-    }]
-  };
-};
 
 const ChatBotPage: React.FC = () => {
   // 인증 헤더 생성 함수 (useCallback으로 최적화)
@@ -338,7 +280,10 @@ const ChatBotPage: React.FC = () => {
           const response = await fetch(JAVA_API_URL, {
             method: 'POST',
             headers: getHeaders(),
-            body: JSON.stringify({ question: text }),
+            body: JSON.stringify({
+              question: text,
+              chart_mode: isChartMode
+            }),
             signal: abortControllerRef.current.signal,
           });
 
@@ -348,7 +293,7 @@ const ChatBotPage: React.FC = () => {
           }
 
           const result = await response.json();
-          // result structure: { data: [], columns: [], sql: string, error?: string } Note: Key is 'sql' not 'generatedSql'
+          // result structure: { data: [], columns: [], sql: string, error?: string, chartOption?: any }
 
           let finalAnswer = '';
 
@@ -360,17 +305,11 @@ const ChatBotPage: React.FC = () => {
             // [NEW] 데이터 존재 여부 확인
             if (!result.data || result.data.length === 0) {
               finalAnswer = `조회된 결과가 없습니다. (조건을 변경하여 다시 질문해보세요)`;
-            } else if (isChartMode) {
-              const chartOption = transformToChartOption(result.data);
-              if (chartOption) {
-                // 차트 데이터 JSON을 코드 블록으로 감싸서 저장
-                finalAnswer = `데이터를 기반으로 차트를 생성했습니다.\n\n\`\`\`chart-json\n${JSON.stringify(chartOption, null, 2)}\n\`\`\``;
-              } else {
-                finalAnswer = `데이터는 조회되었으나, 차트를 그리기에 적합한 형식(날짜, 수율 등)이 아닙니다.\n\n${convertJsonToMarkdownTable(result.data.slice(0, 5))}`;
-              }
+            } else if (isChartMode && result.chartOption) {
+              // [NEW] 백엔드가 생성해준 차트 옵션 사용
+              finalAnswer = `AI가 데이터를 분석하여 차트를 생성했습니다.\n\n\`\`\`chart-json\n${JSON.stringify(result.chartOption, null, 2)}\n\`\`\``;
             } else {
-              // 기존 테이블 렌더링
-              // 50건 이상이면 자르기 (채팅방 렌더링 성능 보호)
+              // 테이블 렌더링
               const MAX_ROWS = 20;
               let displayData = result.data;
               let truncationNote = '';

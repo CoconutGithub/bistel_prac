@@ -69,7 +69,7 @@ public class SqlBotService {
                             // 데이터 샘플링 (토큰 제한 고려, 상위 20건 정도만 보냄)
                             List<Map<String, Object>> sampleData = dataList.size() > 20 ? dataList.subList(0, 20) : dataList;
                             String chartJson = generateChartConfig(userQuestion, sampleData, authHeader);
-                            if (chartJson != null && !chartJson.isBlank()) {
+                            if (chartJson != null && !chartJson.isBlank() && !chartJson.startsWith("Error") && !chartJson.startsWith("No response")) {
                                 // JSON 파싱확인 또는 그대로 전달
                                 result.put("chartOption", objectMapper.readTree(chartJson));
                             }
