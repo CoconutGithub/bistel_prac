@@ -33,7 +33,7 @@ public class SqlBotService {
     private ObjectMapper objectMapper;
 
     // application.properties의 키와 매칭. 기본값은 localhost:8000
-    @Value("${chat.api.completions-url:http://localhost:8000/api/chat/completions}")
+    @Value("${chat.api.completions-url:http://localhost:8000/api/chat/sql}")
     private String chatApiUrl;
 
     @Value("${chat.api.model:gpt-3.5-turbo}")

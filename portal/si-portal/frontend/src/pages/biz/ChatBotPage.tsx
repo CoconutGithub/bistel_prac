@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown'; // 마크다운 렌더링을 위한 라이브러리
+import remarkGfm from 'remark-gfm'; // GFM(Tables, Strikethrough 등) 지원
 import styles from './ChatBotPage.module.scss'; // SCSS 모듈
-
 
 type ChatRole = 'user' | 'assistant';
 
@@ -45,9 +45,47 @@ const initialAssistantMessage: ChatMessage = {
   content:
     '안녕하세요, AI 어시스턴트입니다. 제품, 코드, 아이디어 무엇이든 질문하세요. (model: gpt-5-mini)',
 };
-
 // UUID 생성 헬퍼 (crypto API 또는 타임스탬프 폴백)
 const getId = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`);
+
+// --- Helper for creating Markdown Table from JSON ---
+const convertJsonToMarkdownTable = (data: any[], errorMsg?: string, generatedSql?: string) => {
+  let md = '';
+
+  if (errorMsg) {
+    md += `> **Error**: ${errorMsg}\n\n`;
+  }
+
+  if (generatedSql) {
+    md += `\`\`\`sql\n${generatedSql}\n\`\`\`\n\n`;
+  }
+
+  if (!data || data.length === 0) {
+    md += '조회된 결과가 없습니다.';
+    return md;
+  }
+
+  // extract columns
+  const columns = Object.keys(data[0]);
+  if (columns.length === 0) return md;
+
+  // Header row
+  md += `| ${columns.join(' | ')} |\n`;
+  // Separator row
+  md += `| ${columns.map(() => '---').join(' | ')} |\n`;
+  // Data rows
+  data.forEach((row) => {
+    const rowStr = columns.map((col) => String(row[col] ?? '')).join(' | ');
+    md += `| ${rowStr} |\n`;
+  });
+
+  return md;
+};
+// ...
+// ...
+// ...
+
+
 
 const ChatBotPage: React.FC = () => {
   // 인증 헤더 생성 함수 (useCallback으로 최적화)
@@ -58,7 +96,7 @@ const ChatBotPage: React.FC = () => {
     return h;
   }, []);
 
-  // --- State 관리 ---
+  // ... (State management remains same) ...
   const [sessions, setSessions] = useState<ChatSessionSummary[]>([]);          // 대화 세션 목록
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null); // 현재 활성화된 세션 ID
   const [messages, setMessages] = useState<ChatMessage[]>([initialAssistantMessage]); // 현재 대화의 메시지 목록
@@ -113,7 +151,7 @@ const ChatBotPage: React.FC = () => {
   );
 
   // SSE(Server-Sent Events) 스트림 처리 함수
-  // ReadableStream을 읽어서 텍스트 디코딩 후 메시지를 점진적으로 업데이트
+  // ... (readStream implementation remains same) ...
   const readStream = useCallback(
     async (body: ReadableStream<Uint8Array>, assistantId: string) => {
       const reader = body.getReader();
@@ -211,6 +249,92 @@ const ChatBotPage: React.FC = () => {
       abortControllerRef.current?.abort();
       abortControllerRef.current = new AbortController();
 
+
+      // --- KEYWORD CHECK FOR TEXT-TO-SQL ---
+      const hasSqlKeyword = /강봉|강관/i.test(text);
+
+      if (hasSqlKeyword) {
+        // [HISTORY] 1. 사용자 질문 저장
+        try {
+          await fetch(`${CHAT_API_URL}/sessions/${sessionId}/messages`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify({ role: 'user', content: text }),
+          });
+        } catch (e) {
+          console.error('사용자 메시지 저장 실패', e);
+        }
+
+        // CALL JAVA BACKEND DIRECTLY
+        try {
+          // POST /biz/sqlbot/query
+          // Note: using direct URL or env var. Assuming localhost:8080 based on context.
+          const JAVA_API_URL = 'http://localhost:8080/biz/sqlbot/query';
+
+          const response = await fetch(JAVA_API_URL, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify({ question: text }),
+            signal: abortControllerRef.current.signal,
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`SQL Service Error: ${errorText}`);
+          }
+
+          const result = await response.json();
+          // result structure: { data: [], columns: [], sql: string, error?: string } Note: Key is 'sql' not 'generatedSql'
+
+          let finalAnswer = '';
+
+          if (result.error) {
+            finalAnswer = `데이터 조회 중 오류가 발생했습니다.\n> ${result.error}`;
+            upsertAssistantMessage(assistantId, () => finalAnswer);
+          } else {
+            // 50건 이상이면 자르기 (채팅방 렌더링 성능 보호)
+            const MAX_ROWS = 20;
+            let displayData = result.data;
+            let truncationNote = '';
+
+            if (displayData && Array.isArray(displayData) && displayData.length > MAX_ROWS) {
+              displayData = displayData.slice(0, MAX_ROWS);
+              truncationNote = `\n\n*(데이터가 너무 많아 상위 ${MAX_ROWS}건만 표시됩니다. 상세 내용은 전용 조회 페이지를 이용하세요)*`;
+            }
+
+            const markdownTable = convertJsonToMarkdownTable(displayData, undefined, result.sql);
+            finalAnswer = `데이터 조회 결과입니다.\n\n${markdownTable}${truncationNote}`;
+            upsertAssistantMessage(assistantId, () => finalAnswer);
+          }
+
+          // [HISTORY] 2. 봇 응답 저장
+          try {
+            await fetch(`${CHAT_API_URL}/sessions/${sessionId}/messages`, {
+              method: 'POST',
+              headers: getHeaders(),
+              body: JSON.stringify({ role: 'assistant', content: finalAnswer }),
+            });
+          } catch (e) {
+            console.error('봇 응답 저장 실패', e);
+          }
+
+        } catch (error: any) {
+          if (error.name === 'AbortError') {
+            upsertAssistantMessage(assistantId, () => '요청이 중단되었습니다.');
+            return;
+          }
+          console.error('SQL query failed', error);
+          upsertAssistantMessage(assistantId, () => `데이터 조회 서비스 연결 실패: ${error.message}`);
+        } finally {
+          setIsSending(false);
+          abortControllerRef.current = null;
+        }
+        return;
+        // EXIT function, do not proceed to Python Chat API
+      }
+
+
+      // --- STANDARD CHAT API CALL (PYTHON) ---
       try {
         // POST /completions: 채팅 응답 요청
         const response = await fetch(`${CHAT_API_URL}/completions`, {
@@ -485,7 +609,8 @@ const ChatBotPage: React.FC = () => {
                 {message.role === 'user' ? 'You' : 'AI'}
               </div>
               <div className={styles.bubble}>
-                <ReactMarkdown>{message.content}</ReactMarkdown>
+                {/* remarkGfm 플러그인 적용: 테이블 등 GFM 지원 */}
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
               </div>
             </div>
           ))}
