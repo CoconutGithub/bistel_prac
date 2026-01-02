@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import ReactMarkdown from 'react-markdown'; // 마크다운 렌더링을 위한 라이브러리
+import ReactMarkdown, { Components } from 'react-markdown'; // 마크다운 렌더링을 위한 라이브러리
 import remarkGfm from 'remark-gfm'; // GFM(Tables, Strikethrough 등) 지원
+import ReactECharts from 'echarts-for-react'; // 차트 라이브러리
 import styles from './ChatBotPage.module.scss'; // SCSS 모듈
 
 type ChatRole = 'user' | 'assistant';
@@ -87,6 +88,66 @@ const convertJsonToMarkdownTable = (data: any[], errorMsg?: string, generatedSql
 
 
 
+// --- Chart Helper Functions (Simplified from YieldTrendPage) ---
+const transformToChartOption = (data: any[]) => {
+  if (!data || data.length === 0) return null;
+
+  // 데이터에 날짜(workDate/work_date)와 수율(yieldRate/yield_rate/finalYield/final_yield)이 있는지 확인
+  const hasDate = data.some(d => d.workDate || d.work_date);
+  const hasYield = data.some(d =>
+    d.yieldRate !== undefined || d.yield_rate !== undefined ||
+    d.finalYield !== undefined || d.final_yield !== undefined
+  );
+
+  if (!hasDate || !hasYield) {
+    return null; // 차트 그리기 부적합 데이터
+  }
+
+  // 월별 집계
+  const monthlyMap = new Map<string, { sum: number; count: number }>();
+
+  data.forEach(item => {
+    const dateStr = String(item.workDate || item.work_date || '');
+    const monthKey = dateStr.length >= 7 ? dateStr.substring(0, 7) : dateStr;
+
+    // finalYield/final_yield 우선, 없으면 yieldRate/yield_rate
+    const val = Number(
+      item.finalYield ?? item.final_yield ??
+      item.yieldRate ?? item.yield_rate
+    );
+
+    if (!isNaN(val) && val > 0 && val <= 100) {
+      if (!monthlyMap.has(monthKey)) monthlyMap.set(monthKey, { sum: 0, count: 0 });
+      const curr = monthlyMap.get(monthKey)!;
+      curr.sum += val;
+      curr.count += 1;
+    }
+  });
+
+  const dates = Array.from(monthlyMap.keys()).sort();
+  const averages = dates.map(d => {
+    const item = monthlyMap.get(d)!;
+    return parseFloat((item.sum / item.count).toFixed(2));
+  });
+
+  return {
+    title: { text: '월별 평균 수율 트렌드', left: 'center' },
+    tooltip: { trigger: 'axis' },
+    xAxis: { type: 'category', data: dates, name: '기간' },
+    yAxis: { type: 'value', name: '수율(%)', min: 'dataMin' },
+    series: [{
+      name: '평균 수율',
+      type: 'line',
+      data: averages,
+      smooth: true,
+      itemStyle: { color: '#fd7e14' },
+      lineStyle: { width: 3 },
+      symbolSize: 8,
+      label: { show: true, position: 'top' }
+    }]
+  };
+};
+
 const ChatBotPage: React.FC = () => {
   // 인증 헤더 생성 함수 (useCallback으로 최적화)
   const getHeaders = useCallback(() => {
@@ -107,6 +168,9 @@ const ChatBotPage: React.FC = () => {
   const [uploadError, setUploadError] = useState<string | null>(null); // 업로드 에러 메시지
   const [showActions, setShowActions] = useState(false);  // + 버튼 액션 메뉴 표시 여부
   const [showDocChips, setShowDocChips] = useState(true); // 문서 칩(Chip) 표시 여부
+
+  // [NEW] 차트 그리기 모드 상태
+  const [isChartMode, setIsChartMode] = useState(false);
 
   // --- Refs ---
   const scrollAnchorRef = useRef<HTMLDivElement | null>(null); // 자동 스크롤을 위한 앵커
@@ -292,18 +356,34 @@ const ChatBotPage: React.FC = () => {
             finalAnswer = `데이터 조회 중 오류가 발생했습니다.\n> ${result.error}`;
             upsertAssistantMessage(assistantId, () => finalAnswer);
           } else {
-            // 50건 이상이면 자르기 (채팅방 렌더링 성능 보호)
-            const MAX_ROWS = 20;
-            let displayData = result.data;
-            let truncationNote = '';
 
-            if (displayData && Array.isArray(displayData) && displayData.length > MAX_ROWS) {
-              displayData = displayData.slice(0, MAX_ROWS);
-              truncationNote = `\n\n*(데이터가 너무 많아 상위 ${MAX_ROWS}건만 표시됩니다. 상세 내용은 전용 조회 페이지를 이용하세요)*`;
+            // [NEW] 데이터 존재 여부 확인
+            if (!result.data || result.data.length === 0) {
+              finalAnswer = `조회된 결과가 없습니다. (조건을 변경하여 다시 질문해보세요)`;
+            } else if (isChartMode) {
+              const chartOption = transformToChartOption(result.data);
+              if (chartOption) {
+                // 차트 데이터 JSON을 코드 블록으로 감싸서 저장
+                finalAnswer = `데이터를 기반으로 차트를 생성했습니다.\n\n\`\`\`chart-json\n${JSON.stringify(chartOption, null, 2)}\n\`\`\``;
+              } else {
+                finalAnswer = `데이터는 조회되었으나, 차트를 그리기에 적합한 형식(날짜, 수율 등)이 아닙니다.\n\n${convertJsonToMarkdownTable(result.data.slice(0, 5))}`;
+              }
+            } else {
+              // 기존 테이블 렌더링
+              // 50건 이상이면 자르기 (채팅방 렌더링 성능 보호)
+              const MAX_ROWS = 20;
+              let displayData = result.data;
+              let truncationNote = '';
+
+              if (displayData && Array.isArray(displayData) && displayData.length > MAX_ROWS) {
+                displayData = displayData.slice(0, MAX_ROWS);
+                truncationNote = `\n\n*(데이터가 너무 많아 상위 ${MAX_ROWS}건만 표시됩니다. 상세 내용은 전용 조회 페이지를 이용하세요)*`;
+              }
+
+              const markdownTable = convertJsonToMarkdownTable(displayData, undefined, result.sql);
+              finalAnswer = `데이터 조회 결과입니다.\n\n${markdownTable}${truncationNote}`;
             }
 
-            const markdownTable = convertJsonToMarkdownTable(displayData, undefined, result.sql);
-            finalAnswer = `데이터 조회 결과입니다.\n\n${markdownTable}${truncationNote}`;
             upsertAssistantMessage(assistantId, () => finalAnswer);
           }
 
@@ -384,8 +464,45 @@ const ChatBotPage: React.FC = () => {
         abortControllerRef.current = null;
       }
     },
-    [conversationPayload, currentSessionId, docs, getHeaders, isSending, readStream, upsertAssistantMessage]
+    [
+      isSending,
+      currentSessionId,
+      messages,
+      docs,
+      conversationPayload,
+      readStream,
+      getHeaders,
+      upsertAssistantMessage,
+      isChartMode // [NEW] dependency
+    ]
   );
+
+  // Custom Markdown Components for Chart
+  const markdownComponents: Components = useMemo(() => ({
+    code(props) {
+      const { className, children } = props;
+      const match = /language-([\w-]+)/.exec(className || '');
+      const isChartJson = match && match[1] === 'chart-json';
+
+      if (isChartJson) {
+        try {
+          const chartOption = JSON.parse(String(children).replace(/\n$/, ''));
+          return (
+            <div style={{ width: '100%', height: '400px', marginTop: '10px' }}>
+              <ReactECharts
+                option={chartOption}
+                style={{ width: '100%', height: '100%' }}
+                notMerge={true}
+              />
+            </div>
+          );
+        } catch (e) {
+          return <code {...props} />;
+        }
+      }
+      return <code {...props} />;
+    }
+  }), []);
 
   const handleSubmit = useCallback(() => {
     if (!input.trim()) return;
@@ -610,7 +727,9 @@ const ChatBotPage: React.FC = () => {
               </div>
               <div className={styles.bubble}>
                 {/* remarkGfm 플러그인 적용: 테이블 등 GFM 지원 */}
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
+                <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                  {message.content}
+                </ReactMarkdown>
               </div>
             </div>
           ))}
@@ -652,15 +771,34 @@ const ChatBotPage: React.FC = () => {
                   <div className={styles.actionMenu}>
                     <button
                       type="button"
+                      className={styles.actionItem}
                       onClick={() => {
                         setShowActions(false);
                         fileInputRef.current?.click();
                       }}
                       disabled={uploading || isSending}
                     >
-                      PDF 업로드
+                      <span className={styles.icon}>📄</span>
+                      <span>PDF 업로드</span>
                     </button>
-                    {/* 추후 다른 액션 추가 */}
+
+                    {/* [NEW] Chart Mode Toggle */}
+                    <button
+                      type="button"
+                      className={`${styles.actionItem} ${isChartMode ? styles.active : ''}`}
+                      onClick={() => {
+                        setIsChartMode(!isChartMode);
+                        setShowActions(false);
+                      }}
+                      style={{
+                        backgroundColor: isChartMode ? '#e7f5ff' : 'transparent',
+                        color: isChartMode ? '#fffff' : 'inherit',
+                        marginTop: '5px'
+                      }}
+                    >
+                      <span className={styles.icon}>📊</span>
+                      <span>차트 그리기 {isChartMode ? '(ON)' : '(OFF)'}</span>
+                    </button>
                   </div>
                 )}
               </div>

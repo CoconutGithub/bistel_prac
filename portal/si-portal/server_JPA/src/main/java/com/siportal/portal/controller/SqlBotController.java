@@ -15,15 +15,17 @@ public class SqlBotController {
     private SqlBotService sqlBotService;
 
     @PostMapping("/query")
-    public ResponseEntity<Map<String, Object>> query(@RequestBody Map<String, String> request,
+    public ResponseEntity<Map<String, Object>> query(@RequestBody Map<String, Object> request,
                                                      @RequestHeader(value = "Authorization", required = false) String authHeader) {
         System.out.println("DEBUG: SqlBotController received AuthHeader: " + (authHeader != null ? authHeader.substring(0, Math.min(10, authHeader.length())) + "..." : "null"));
-        String question = request.get("question");
+        String question = (String) request.get("question");
+        boolean chartMode = Boolean.TRUE.equals(request.get("chart_mode"));
+
         if (question == null || question.trim().isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Question is required"));
         }
 
-        Map<String, Object> result = sqlBotService.generateAndExecuteSql(question, authHeader);
+        Map<String, Object> result = sqlBotService.generateAndExecuteSql(question, chartMode, authHeader);
         return ResponseEntity.ok(result);
     }
 }
