@@ -586,6 +586,17 @@ def delete_session(session_id: str, user_id: str = Depends(get_user_id)):
   return {"id": session_id, "deleted": True}
 
 
+@app.post("/api/chat/sessions/{session_id}/messages")
+def append_message(session_id: str, msg: Message, user_id: str = Depends(get_user_id)):
+  """
+  수동으로 메시지를 대화 기록에 추가합니다 (예: SQL 봇 응답 저장용).
+  """
+  verify_session_owner(session_id, user_id)
+  add_message(session_id, msg.role, msg.content)
+  touch_session(session_id)
+  return {"status": "ok"}
+
+
 @app.post("/api/chat/upload-pdf")#pdf파일 업로드하고 저장
 async def upload_pdf(
   file: UploadFile = File(...),
@@ -744,6 +755,29 @@ async def translate(req: TranslateRequest, user_id: str = Depends(get_user_id)):
     raise HTTPException(status_code=502, detail=f"OpenAI error: {e}") from e
   except Exception as e:
     logger.exception("Unexpected translate error")
+    raise HTTPException(status_code=500, detail=f"Unexpected error: {e}") from e
+
+
+@app.post("/api/chat/sql")
+async def generate_sql(req: ChatRequest, user_id: str = Depends(get_user_id)):
+  require_openai()
+  kwargs = {
+    "model": req.model,
+    "messages": [m.model_dump() for m in req.messages],
+    "stream": False,
+  }
+  if req.temperature is not None:
+    kwargs["temperature"] = req.temperature
+
+  try:
+    completion = client.chat.completions.create(**kwargs)
+    content = completion.choices[0].message.content or ""
+    return {"choices": [{"message": {"content": content}}]}
+  except OpenAIError as e:
+    logger.error("OpenAI sql-gen error: %s", e)
+    raise HTTPException(status_code=502, detail=f"OpenAI error: {e}") from e
+  except Exception as e:
+    logger.exception("Unexpected sql-gen error")
     raise HTTPException(status_code=500, detail=f"Unexpected error: {e}") from e
 
 

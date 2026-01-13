@@ -37,9 +37,9 @@ interface ComAPIContextType {
 
 // 초기 컨텍스트 값 정의
 const defaultContextValue: ComAPIContextType = {
-  showToast: () => {},
-  showProgressBar: () => {},
-  hideProgressBar: () => {},
+  showToast: () => { },
+  showProgressBar: () => { },
+  hideProgressBar: () => { },
   $msg: () => {
     return '';
   },
@@ -82,7 +82,7 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
       () => {
         dispatch(chkLoginToken());
       },
-      10 * 60 * 1000
+      30 * 60 * 1000
     ); // 10분마다 실행
 
     return () => clearInterval(interval);
@@ -101,7 +101,7 @@ export const ComAPIProvider: React.FC<ComAPIProviderProps> = ({ children }) => {
       .catch((err) => {
         // console.log("err", err);
       })
-      .finally(() => {});
+      .finally(() => { });
   };
   useEffect(() => {
     getMessages();

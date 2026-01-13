@@ -33,13 +33,13 @@ public class SqlBotService {
     private ObjectMapper objectMapper;
 
     // application.properties의 키와 매칭. 기본값은 localhost:8000
-    @Value("${chat.api.completions-url:http://localhost:8000/api/chat/completions}")
+    @Value("${chat.api.completions-url:http://localhost:8000/api/chat/sql}")
     private String chatApiUrl;
 
     @Value("${chat.api.model:gpt-3.5-turbo}")
     private String chatModel;
 
-    public Map<String, Object> generateAndExecuteSql(String userQuestion, String authHeader) {
+    public Map<String, Object> generateAndExecuteSql(String userQuestion, boolean chartMode, String authHeader) {
         Map<String, Object> result = new HashMap<>();
 
         // 1. 프롬프트 구성: 시스템 프롬프트 + 사용자 질문
@@ -62,6 +62,23 @@ public class SqlBotService {
                 // 컬럼 정보 추출 (Grid 헤더 생성용)
                 if (!dataList.isEmpty()) {
                     result.put("columns", dataList.get(0).keySet());
+
+                    // [NEW] 4. 차트 생성 모드이고 데이터가 있으면, 차트 JSON 생성 요청
+                    if (chartMode) {
+                        try {
+                            // 데이터 샘플링 (토큰 제한 고려, 상위 20건 정도만 보냄)
+                            List<Map<String, Object>> sampleData = dataList.size() > 20 ? dataList.subList(0, 20) : dataList;
+                            String chartJson = generateChartConfig(userQuestion, sampleData, authHeader);
+                            if (chartJson != null && !chartJson.isBlank() && !chartJson.startsWith("Error") && !chartJson.startsWith("No response")) {
+                                // JSON 파싱확인 또는 그대로 전달
+                                result.put("chartOption", objectMapper.readTree(chartJson));
+                            }
+                        } catch (Exception e) {
+                            log.error("차트 생성 중 오류 발생: {}", e.getMessage());
+                            // 차트 생성 실패해도 데이터는 나감
+                        }
+                    }
+
                 } else {
                     result.put("columns", Collections.emptyList());
                 }
@@ -75,6 +92,31 @@ public class SqlBotService {
         }
 
         return result;
+    }
+
+    // [NEW] 차트 생성용 LLM 호출
+    private String generateChartConfig(String userQuestion, List<Map<String, Object>> data, String authHeader) {
+        try {
+            String dataStr = objectMapper.writeValueAsString(data);
+            String chartPrompt = """
+User asked: "%s"
+Data (top 20 rows):
+%s
+
+Task: Generate a valid ECharts option JSON object to visualize this data.
+Requirements:
+1. Use a suitable chart type (Line, Bar, Pie, etc.) based on the data and question.
+2. Return ONLY the JSON object. No explanation, no markdown blocks.
+3. The JSON must be valid and ready to pass to `setOption` in ECharts.
+4. Use 'fd7e14' or similar orange colors for series.
+5. Title should be descriptive.
+""".formatted(userQuestion, dataStr);
+
+            return callLlmApi(chartPrompt, authHeader);
+        } catch (Exception e) {
+            log.error("Chart Prompt generation failed", e);
+            return null;
+        }
     }
 
     private String createSystemPrompt() {
@@ -93,7 +135,8 @@ Rules:
 3. Use 'pipe_yield_lot' for pipes, 'bar_yield_lot' for bars.
 4. If ambiguous, choose the most likely table or union if appropriate (but simpler is better).
 5. Do NOT use markdown formatting like ```sql.
-6. Handle date comparisons carefully (strings like 'YYYY-MM-DD').
+6. 'work_date' column is VARCHAR. You MUST cast it to date (e.g., work_date::date) when using DATE functions (date_trunc, to_char) or comparing with dates.
+7. For chart data, always include 'work_date' and 'yield_rate' (or 'final_yield') in the SELECT list.
 """;
     }
 

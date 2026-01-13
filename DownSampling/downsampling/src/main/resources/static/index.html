@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>High Volume Time Series</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        body {
+            margin: 20px;
+            font-family: sans-serif;
+        }
+
+        #main {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #ccc;
+            margin-top: 20px;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        #status {
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+
+<body>
+<div class="controls">
+    <button onclick="generateData()">1. Generate Data (8.6M)</button>
+    <select id="algoSelect" style="padding: 10px; margin-right: 10px;">
+        <option value="LTTB">LTTB (Shape Preserving)</option>
+        <option value="SYSTEMATIC">Systematic (Every Nth)</option>
+        <option value="AVERAGE">Average (Smooth)</option>
+    </select>
+    <button onclick="loadChart()">2. Load Chart</button>
+    <span id="status">Ready</span>
+</div>
+<div id="main"></div>
+
+<script>
+    var myChart = echarts.init(document.getElementById('main'));
+    var option = {
+        title: { text: 'Time Series Data (24h @ 100Hz)' },
+        tooltip: { trigger: 'axis' },
+        xAxis: { type: 'time' },
+        yAxis: { type: 'value', min: 50, max: 150 },
+        dataZoom: [
+            { type: 'slider', start: 0, end: 100 },
+            { type: 'inside', start: 0, end: 100 }
+        ],
+        series: [{
+            name: 'Temp',
+            type: 'scatter',
+            symbolSize: 3,
+            data: []
+        }]
+    };
+    myChart.setOption(option);
+
+    function updateStatus(msg) {
+        document.getElementById('status').innerText = msg;
+    }
+
+    function generateData() {
+        updateStatus('Requesting data generation...');
+        fetch('/api/init-data')
+            .then(response => response.text())
+            .then(msg => updateStatus(msg))
+            .catch(err => updateStatus('Error: ' + err));
+    }
+
+    function loadChart() {
+        var method = document.getElementById('algoSelect').value;
+        updateStatus('Loading chart data (' + method + ' downsampling)...');
+        myChart.showLoading();
+
+        fetch('/api/chart-data?threshold=2000&method=' + method)
+            .then(response => response.json())
+            .then(data => {
+                updateStatus('Data loaded: ' + data.length + ' points. Rendering...');
+
+                // Convert to ECharts format [timestamp, value]
+                const formattedData = data.map(item => [item.timestamp, item.value]);
+
+                myChart.setOption({
+                    series: [{
+                        data: formattedData
+                    }]
+                });
+                myChart.hideLoading();
+                updateStatus('Render complete. Displaying ' + data.length + ' downsampled points from 8.6M raw data.');
+            })
+            .catch(err => {
+                console.error(err);
+                updateStatus('Error loading chart: ' + err);
+                myChart.hideLoading();
+            });
+    }
+</script>
+</body>
+
+</html>
