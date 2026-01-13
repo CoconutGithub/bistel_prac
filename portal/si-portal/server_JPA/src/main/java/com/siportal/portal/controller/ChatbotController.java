@@ -1,11 +1,9 @@
-package com.siportal.portal.controller.biz;
+package com.siportal.portal.controller;
 import com.siportal.portal.dto.ChatbotRequestDTO;
-import com.siportal.portal.service.RagChatbotService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.util.FileCopyUtils;
-import org.springframework.core.io.FileSystemResource;
 import com.siportal.portal.service.WebClientService;
 
 import org.springframework.web.bind.annotation.*;
@@ -16,8 +14,6 @@ import reactor.core.publisher.Flux;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/biz/chatbot")
