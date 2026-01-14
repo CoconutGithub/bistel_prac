@@ -197,9 +197,25 @@
   color: #1f2937;
   line-height: 1.5;
   box-shadow: 0 6px 14px rgba(17, 24, 39, 0.08);
+  overflow-x: auto;
+  /* [FIX] 가로 스크롤 적용 */
 
   :global(p) {
     margin: 0 0 8px;
+  }
+
+  :global(table) {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    border-collapse: collapse;
+    margin: 10px 0;
+  }
+
+  :global(th),
+  :global(td) {
+    border: 1px solid #e5e8ef;
+    padding: 8px 12px;
   }
 
   :global(p:last-child) {

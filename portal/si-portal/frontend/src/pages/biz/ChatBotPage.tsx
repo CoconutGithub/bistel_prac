@@ -113,6 +113,8 @@ const ChatBotPage: React.FC = () => {
 
   // [NEW] 차트 그리기 모드 상태
   const [isChartMode, setIsChartMode] = useState(false);
+  // [NEW] AI 쿼리 모드 상태
+  const [isQueryMode, setIsQueryMode] = useState(false);
 
   // --- Refs ---
   const scrollAnchorRef = useRef<HTMLDivElement | null>(null); // 자동 스크롤을 위한 앵커
@@ -256,101 +258,172 @@ const ChatBotPage: React.FC = () => {
       abortControllerRef.current = new AbortController();
 
 
-      // --- KEYWORD CHECK FOR TEXT-TO-SQL ---
-      const hasSqlKeyword = /강봉|강관/i.test(text);
+      // --- AI QUERY MODE EXECUTION ---
+      if (isQueryMode) {
+        // [FIX] 사용자 질문 DB 저장 (Query Mode에서도 질문 이력 남기기 위함)
+        await fetch(`${CHAT_API_URL}/sessions/${sessionId}/messages`, {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify({ role: 'user', content: text }),
+        });
 
-      if (hasSqlKeyword) {
-        // [HISTORY] 1. 사용자 질문 저장
+        upsertAssistantMessage(assistantId, () => '질문을 분석하여 적절한 데이터 조회 API를 찾고 있습니다...');
+
         try {
-          await fetch(`${CHAT_API_URL}/sessions/${sessionId}/messages`, {
-            method: 'POST',
-            headers: getHeaders(),
-            body: JSON.stringify({ role: 'user', content: text }),
-          });
-        } catch (e) {
-          console.error('사용자 메시지 저장 실패', e);
-        }
+          // 1. Define Available APIs (Specialized)
+          const AVAILABLE_APIS = [
+            {
+              id: "search_bar_high_yield",
+              description: "강봉(Bar) 중 수율이 '일정 수준 이상'(>= min_yield)인 데이터 조회",
+              url: "http://localhost:8080/biz/query/bar/high-yield",
+              params: ["min_yield"]
+            },
+            {
+              id: "search_bar_low_yield",
+              description: "강봉(Bar) 중 수율이 '일정 수준 이하'(<= max_yield)인 데이터 조회",
+              url: "http://localhost:8080/biz/query/bar/low-yield",
+              params: ["max_yield"]
+            },
+            {
+              id: "search_pipe_low_yield",
+              description: "강관(Pipe) 중 수율이 '일정 수준 이하'(<= max_yield)인 데이터 조회 (기간 지정 가능)",
+              url: "http://localhost:8080/biz/query/pipe/low-yield",
+              params: ["start_date", "end_date", "max_yield"]
+            },
+            {
+              id: "search_pipe_high_yield",
+              description: "강관(Pipe) 중 수율이 '일정 수준 이상'(>= min_yield)인 데이터 조회 (기간 지정 가능)",
+              url: "http://localhost:8080/biz/query/pipe/high-yield",
+              params: ["start_date", "end_date", "min_yield"]
+            },
+            {
+              id: "search_excess_production",
+              description: "계획보다 과잉 생산된(Excess Y) 로트 목록 조회",
+              url: "http://localhost:8080/biz/query/excess",
+              params: ["product_type"]
+            }
+          ];
 
-        // CALL JAVA BACKEND DIRECTLY
-        try {
-          // POST /biz/sqlbot/query
-          // Note: using direct URL or env var. Assuming localhost:8080 based on context.
-          const JAVA_API_URL = 'http://localhost:8080/biz/sqlbot/query';
+          // 2. Construct Prompt for API Selection & Variable Extraction
+          const apiDescriptions = AVAILABLE_APIS.map(api => `- ID: ${api.id}, 설명: ${api.description}`).join('\n');
+          const selectionPrompt = `
+            사용자의 질문을 분석하여 가장 적절한 API를 선택하고, 필요한 변수를 추출하여 JSON으로 반환하세요.
+            
+            [사용 가능한 API 목록]
+            ${apiDescriptions}
+            
+            [규칙]
+            1. 사용자가 "X 이상", "X 보다 큰", "높은" 등을 언급하면 'high_yield' API를 선택하고 'min_yield' 변수를 추출하세요.
+            2. 사용자가 "X 이하", "X 보다 작은", "낮은", "불량" 등을 언급하면 'low_yield' API를 선택하고 'max_yield' 변수를 추출하세요.
+            3. 강관(Pipe) 조회 시 날짜가 명시되지 않았다면, 전체 기간(예: 2020-01-01 ~ 2099-12-31)을 기본값으로 사용하세요.
+            
+            [추출할 변수 가이드]
+            - product_type: 'bar'(강봉) 또는 'pipe'(강관)
+            - min_yield: 최소 수율 (예: 30, 80) -> '이상' 조건일 때 사용
+            - max_yield: 최대 수율 (예: 30, 80) -> '이하' 조건일 때 사용
+            - start_date, end_date: 조회 기간 (YYYY-MM-DD)
+            
+            [사용자 질문]
+            ${text}
+            
+            [응답 형식]
+            오직 JSON 문자열만 반환하세요.
+            예시: {"apiId": "search_bar_high_yield", "variables": {"min_yield": 80}}
+            만약 적절한 API가 없다면 "apiId"를 null로 반환하세요.
+          `;
 
-          const response = await fetch(JAVA_API_URL, {
+          // 3. Call AI for Analysis
+          const analysisRes = await fetch(`${CHAT_API_URL}/completions`, {
             method: 'POST',
             headers: getHeaders(),
             body: JSON.stringify({
-              question: text,
-              chart_mode: isChartMode
+              messages: [{ role: 'system', content: 'You are an intelligent API selector.' }, { role: 'user', content: selectionPrompt }],
+              stream: false,
+              model: 'gpt-4o-mini',
+              session_id: sessionId, // [FIX] 새 세션 생성 방지
+              save_history: false    // [FIX] 히스토리 저장 방지 (백엔드 지원 시)
             }),
+          });
+
+          if (!analysisRes.ok) throw new Error('AI 분석 요청 실패');
+
+          const analysisData = await analysisRes.json();
+          let content = analysisData.choices?.[0]?.message?.content || '{}';
+          content = content.replace(/```json/g, '').replace(/```/g, '').trim();
+          const analysisResult = JSON.parse(content);
+
+          if (!analysisResult.apiId) {
+            upsertAssistantMessage(assistantId, () => '질문에 적합한 조회 기능을 찾을 수 없습니다. 일반 대화로 넘어갑니다.');
+            // Fallback to standard chat? Or just stop? Let's stop for now as per "Query Mode".
+            setIsSending(false);
+            return;
+          }
+
+          const selectedApi = AVAILABLE_APIS.find(api => api.id === analysisResult.apiId);
+          if (!selectedApi) throw new Error('선택된 API ID가 유효하지 않습니다.');
+
+          // 4. Call the Selected API
+          upsertAssistantMessage(assistantId, () => `선택된 기능: ${selectedApi.id}\n변수: ${JSON.stringify(analysisResult.variables)}\n\n데이터를 조회중입니다...`);
+
+          const apiRes = await fetch(selectedApi.url, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify(analysisResult.variables), // Send extracted variables directly
             signal: abortControllerRef.current.signal,
           });
 
-          if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`SQL Service Error: ${errorText}`);
+          if (!apiRes.ok) {
+            const errorText = await apiRes.text();
+            throw new Error(`API 호출 실패: ${errorText}`);
           }
 
-          const result = await response.json();
-          // result structure: { data: [], columns: [], sql: string, error?: string, chartOption?: any }
+          const apiResult = await apiRes.json();
 
+          // 5. Render Result
+          // Assuming apiResult structure is similar to previous { data: [], columns: [], sql: ... }
+          // If backend isn't ready, this might fail, but this is the impl.
           let finalAnswer = '';
-
-          if (result.error) {
-            finalAnswer = `데이터 조회 중 오류가 발생했습니다.\n> ${result.error}`;
-            upsertAssistantMessage(assistantId, () => finalAnswer);
+          if (apiResult.error) {
+            finalAnswer = `오류가 발생했습니다: ${apiResult.error}`;
+          } else if (!apiResult.data || apiResult.data.length === 0) {
+            finalAnswer = '조회된 결과가 없습니다.';
           } else {
+            // [FIX] 데이터 과다로 인한 렌더링 이슈 방지 (상위 20건 제한)
+            const MAX_ROWS = 20;
+            let displayData = apiResult.data;
+            let truncationNote = '';
 
-            // [NEW] 데이터 존재 여부 확인
-            if (!result.data || result.data.length === 0) {
-              finalAnswer = `조회된 결과가 없습니다. (조건을 변경하여 다시 질문해보세요)`;
-            } else if (isChartMode && result.chartOption) {
-              // [NEW] 백엔드가 생성해준 차트 옵션 사용
-              finalAnswer = `AI가 데이터를 분석하여 차트를 생성했습니다.\n\n\`\`\`chart-json\n${JSON.stringify(result.chartOption, null, 2)}\n\`\`\``;
-            } else {
-              // 테이블 렌더링
-              const MAX_ROWS = 20;
-              let displayData = result.data;
-              let truncationNote = '';
-
-              if (displayData && Array.isArray(displayData) && displayData.length > MAX_ROWS) {
-                displayData = displayData.slice(0, MAX_ROWS);
-                truncationNote = `\n\n*(데이터가 너무 많아 상위 ${MAX_ROWS}건만 표시됩니다. 상세 내용은 전용 조회 페이지를 이용하세요)*`;
-              }
-
-              const markdownTable = convertJsonToMarkdownTable(displayData, undefined, result.sql);
-              finalAnswer = `데이터 조회 결과입니다.\n\n${markdownTable}${truncationNote}`;
+            if (displayData.length > MAX_ROWS) {
+              displayData = displayData.slice(0, MAX_ROWS);
+              truncationNote = `\n\n*(데이터가 너무 많아 상위 ${MAX_ROWS}건만 표시됩니다. 전체 데이터는 별도 조회를 이용하세요)*`;
             }
 
-            upsertAssistantMessage(assistantId, () => finalAnswer);
+            const mkTable = convertJsonToMarkdownTable(displayData, undefined, apiResult.sql);
+            finalAnswer = `### 조회 결과\n${mkTable}${truncationNote}`;
           }
 
-          // [HISTORY] 2. 봇 응답 저장
-          try {
-            await fetch(`${CHAT_API_URL}/sessions/${sessionId}/messages`, {
-              method: 'POST',
-              headers: getHeaders(),
-              body: JSON.stringify({ role: 'assistant', content: finalAnswer }),
-            });
-          } catch (e) {
-            console.error('봇 응답 저장 실패', e);
-          }
+          upsertAssistantMessage(assistantId, () => finalAnswer);
+
+          // Save bot message history
+          await fetch(`${CHAT_API_URL}/sessions/${sessionId}/messages`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify({ role: 'assistant', content: finalAnswer }),
+          });
 
         } catch (error: any) {
-          if (error.name === 'AbortError') {
-            upsertAssistantMessage(assistantId, () => '요청이 중단되었습니다.');
-            return;
-          }
-          console.error('SQL query failed', error);
-          upsertAssistantMessage(assistantId, () => `데이터 조회 서비스 연결 실패: ${error.message}`);
+          console.error('Query Mode Error', error);
+          upsertAssistantMessage(assistantId, () => `쿼리 실행 중 오류가 발생했습니다: ${error.message}`);
         } finally {
           setIsSending(false);
           abortControllerRef.current = null;
         }
-        return;
-        // EXIT function, do not proceed to Python Chat API
+        return; // Exit sendMessage
       }
+
+      // --- OLD KEYWORD CHECK (Disabled for Query Mode) ---
+      // const hasSqlKeyword = /강봉|강관/i.test(text);
+      // if (hasSqlKeyword) { ... }
 
 
       // --- STANDARD CHAT API CALL (PYTHON) ---
@@ -412,7 +485,8 @@ const ChatBotPage: React.FC = () => {
       readStream,
       getHeaders,
       upsertAssistantMessage,
-      isChartMode // [NEW] dependency
+      isChartMode, // [NEW] dependency
+      isQueryMode
     ]
   );
 
@@ -586,11 +660,12 @@ const ChatBotPage: React.FC = () => {
           <p className={styles.sectionTitle}>대화 기록</p>
           <div className={styles.historyList}>
             {sessions.map((session) => (
-              <button
+              <div
                 key={session.id}
                 className={`${styles.historyItem} ${session.id === currentSessionId ? styles.activeHistory : ''
                   }`}
                 onClick={() => handleSelectSession(session)}
+                style={{ cursor: 'pointer' }} // div로 변경됨에 따라 포인터 추가
               >
                 <span className={styles.historyTitle}>{session.title}</span>
                 <span className={styles.historyMeta}>
@@ -613,7 +688,7 @@ const ChatBotPage: React.FC = () => {
                 >
                   ×
                 </button>
-              </button>
+              </div>
             ))}
           </div>
         </div>
@@ -737,6 +812,24 @@ const ChatBotPage: React.FC = () => {
                     >
                       <span className={styles.icon}>📊</span>
                       <span>차트 그리기 {isChartMode ? '(ON)' : '(OFF)'}</span>
+                    </button>
+
+                    {/* [NEW] Query Mode Toggle */}
+                    <button
+                      type="button"
+                      className={`${styles.actionItem} ${isQueryMode ? styles.active : ''}`}
+                      onClick={() => {
+                        setIsQueryMode(!isQueryMode);
+                        setShowActions(false);
+                      }}
+                      style={{
+                        backgroundColor: isQueryMode ? '#e7f5ff' : 'transparent',
+                        color: isQueryMode ? '#fffff' : 'inherit',
+                        marginTop: '5px'
+                      }}
+                    >
+                      <span className={styles.icon}>🔍</span>
+                      <span>AI 쿼리 실행 {isQueryMode ? '(ON)' : '(OFF)'}</span>
                     </button>
                   </div>
                 )}

@@ -56,4 +56,53 @@ public class YieldService {
                 criteria.getOrderOuterDia()
         );
     }
+
+    // [NEW] 동적 쿼리 검색 (챗봇 연동용) -> 유지 (구버전 호환)
+    public List<?> searchYield(com.siportal.portal.dto.YieldQueryDTO request) {
+        if ("bar".equalsIgnoreCase(request.getProduct_type())) {
+            return barRepository.findByDynamicCondition(
+                    request.getStart_date(), request.getEnd_date(),
+                    request.getMin_yield(), request.getMax_yield()
+            );
+        } else if ("pipe".equalsIgnoreCase(request.getProduct_type())) {
+            return pipeRepository.findByDynamicCondition(
+                    request.getStart_date(), request.getEnd_date(),
+                    request.getMin_yield(), request.getMax_yield()
+            );
+        } else {
+            throw new IllegalArgumentException("Unknown product_type: " + request.getProduct_type());
+        }
+    }
+
+    // [SPECIALIZED 1] 강봉 고수율 검색
+    public List<BarYieldLot> findHighYieldBars(Double minYield) {
+        return barRepository.findHighYield(minYield != null ? minYield : 70.0);
+    }
+
+    // [SPECIALIZED 1-2] 강봉 저수율 검색
+    public List<BarYieldLot> findLowYieldBars(Double maxYield) {
+        return barRepository.findLowYield(maxYield != null ? maxYield : 70.0);
+    }
+
+    // [SPECIALIZED 2] 강관 저수율 검색
+    public List<PipeYieldLot> findLowYieldPipes(String startDate, String endDate, Double maxYield) {
+        // 날짜 기본값 처리 등은 Controller나 여기서 수행
+        return pipeRepository.findLowYield(startDate, endDate, maxYield != null ? maxYield : 70.0);
+    }
+
+    // [SPECIALIZED 2-2] 강관 고수율 검색
+    public List<PipeYieldLot> findHighYieldPipes(String startDate, String endDate, Double minYield) {
+        return pipeRepository.findHighYield(startDate, endDate, minYield != null ? minYield : 70.0);
+    }
+
+    // [SPECIALIZED 3] 과잉 생산 검색
+    public List<?> findExcessProduction(String productType) {
+        if ("bar".equalsIgnoreCase(productType)) {
+            return barRepository.findExcess();
+        } else if ("pipe".equalsIgnoreCase(productType)) {
+            return pipeRepository.findExcess();
+        } else {
+            throw new IllegalArgumentException("Unknown product_type for excess query: " + productType);
+        }
+    }
 }
