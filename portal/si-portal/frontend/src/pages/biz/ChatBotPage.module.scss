@@ -1,13 +1,10 @@
 .page {
   display: flex;
-  height: 90vh;
-  margin-left: 2vw;
-  width: 80vw;
+  height: 100%;
+  width: 100%;
   background: #f4f6fb;
   color: #1f2937;
-  border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(17, 24, 39, 0.1);
 }
 
 .sidebar {
@@ -62,6 +59,8 @@
   flex-direction: column;
   gap: 10px;
   flex: 1;
+  min-height: 0;
+  /* Important for nested flex scrolling */
 }
 
 .historyList {
@@ -69,6 +68,10 @@
   flex-direction: column;
   gap: 8px;
   overflow-y: auto;
+  flex: 1;
+  /* Take remaining space */
+  min-height: 0;
+  /* Allow shrinking */
 }
 
 .historyItem {
@@ -169,6 +172,8 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  min-height: 0;
+  /* Prevent flex item from overflowing parent */
 }
 
 .messageRow {

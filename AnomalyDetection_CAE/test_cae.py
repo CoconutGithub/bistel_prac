@@ -13,7 +13,8 @@ import cv2
 IMG_SIZE = (128, 128)
 CHANNELS = 3
 MODEL_PATH = 'cae_model.h5'
-TEST_ROOT_PATH = 'pill/test' # 테스트 데이터 루트 경로
+TEST_ROOT_PATH = 'bottle/test' # 테스트 데이터 루트 경로
+#'bottle/test'
 
 # ==========================================
 # 1. 모델 로드 설정
@@ -110,133 +111,58 @@ if __name__ == "__main__":
             recon = autoencoder.predict(img_batch, verbose=0)
 
             # ==========================================================
-            # [최종 솔루션] HSV Saturation Masking
+            # [Bottle 맞춤 수정] 단순 차이 계산 (Masking 제거)
             # ----------------------------------------------------------
-            # 문제: 모델이 "붉은 점"을 노이즈로 보고 지워버려서 오차가 발생함.
-            # 해결: "원본에 색깔(Saturation)이 있는 부분은 오차 아님"으로 정의.
-            #       -> Crack은 무채색(검정)이므로 Saturation이 낮음 -> 마스킹 안 됨 (검출됨)
-            #       -> Red Dot은 유채색(빨강)이므로 Saturation이 높음 -> 마스킹 됨 (무시됨)
+            # Bottle 데이터는 투명하거나 다양한 광학적 특성이 있으므로
+            # 특정 색상(HSV)을 마스킹하는 로직은 오히려 방해가 됨.
+            # 순수한 Reconstruction Error를 기반으로 판단.
             # ==========================================================
             
-            # 1. 원본을 HSV로 변환 (RGB -> HSV)
-            # img_batch[0]는 0~1 float32 RGB
-            img_hsv = cv2.cvtColor(img_batch[0], cv2.COLOR_RGB2HSV)
-            saturation = img_hsv[:, :, 1] # 채도 채널 추출
-            
-            # 2. 마스크 생성: 채도가 0.10 이상이면 "붉은 점" -> 무시(0)
-            # (Crack은 회색/검정이라 채도가 낮음. 0.10까지 낮춰서 미세한 붉은기도 제거)
-            mask = np.ones_like(saturation)
-            mask[saturation > 0.10] = 0.0 
-            
-            # [추가] 마스크 확장 (Dilation)
-            # 붉은 점의 경계(Halo) 부분에서 오차가 발생하는 것을 막기 위해 마스크를 살짝 키움.
-            kernel = np.ones((3, 3), np.uint8)
-            # mask는 0(무시)과 1(유효)로 되어 있음. 
-            # Dilation을 하면 1이 확장되므로, 여기서는 '무시 영역(0)'을 확장해야 함.
-            # 따라서 Erode를 쓰거나 로직 반전 필요. 
-            # 1. 반전 (0->1, 1->0) : 1이 무시 영역
-            inv_mask = 1.0 - mask
-            # 2. Dilate (무시 영역 확장) - Iterations 1로 복구 (크랙 보호)
-            inv_mask = cv2.dilate(inv_mask, kernel, iterations=1)
-            # 3. 다시 반전 (1->0: 무시)
-            mask = 1.0 - inv_mask 
-            
-            # 3. 차이 계산 및 마스킹 (Abs Diff 복귀)
-            # Dark Defect는 미세 크랙의 신호를 너무 약화시킴. Abs Diff가 가장 확실함.
+            # 차이 계산
             diff = np.abs(img_batch[0] - recon[0])
             diff_mean = np.mean(diff, axis=-1) # RGB 평균 차이
             
-            # 4. 붉은 점 제외
-            masked_diff = diff_mean * mask
-            
+            # MSE 계산
             mse = np.mean(np.square(img_batch[0] - recon[0]))
             
-            # ==========================================================
-            # [기본 점수 계산] Max Diff (Peak Defect)
-            # ----------------------------------------------------------
-            # 마스킹이 완벽하다면(테두리/붉은점 제거), 남은 오차의 최대값이 가장 강력한 불량 신호임.
-            # 평균(Top-K Mean)은 미세 불량을 희석시키므로 제거.
-            if masked_diff.size > 0:
-                max_diff_val = np.max(masked_diff)
-            else:
-                max_diff_val = 0.0
+            # Max Diff (가장 큰 오차값)
+            max_diff_val = np.max(diff_mean)
 
             # ==========================================================
-            # [최종 솔루션 2] 형상 분석 (Morphology Analysis)
+            # [판정 로직]
             # ----------------------------------------------------------
-            # 점수(Score)만으로는 미세 크랙(0.16)과 노이즈(0.15) 구분이 불가능함.
-            # 크랙의 결정적 특징인 "길쭉한 모양(Line)"을 찾아내서 가중치를 부여함.
+            # Bottle 데이터셋에 맞는 임계값 설정 필요.
+            # 일단 분포를 보기 위해 로깅을 강화하고, 임계값은 임시로 설정함.
             # ==========================================================
             
-            # 1. 오차 맵을 이진화 (Threshold 0.05)
-            # 0.05: Recall 최우선 (미세 크랙 연결)
-            diff_bin = (masked_diff > 0.05).astype(np.uint8)
+            # 임시 임계값 (분포 확인 후 조정 필요)
+            threshold = 0.1  
             
-            # [추가] Morphology Closing (끊어진 크랙 연결)
-            # 미세 크랙이 점점이 끊겨서 AR이 낮게 나오는 문제를 해결
-            kernel_morph = np.ones((3, 3), np.uint8)
-            diff_bin = cv2.morphologyEx(diff_bin, cv2.MORPH_CLOSE, kernel_morph)
-
-            # 2. 연결된 영역(Contour) 찾기
-            contours, _ = cv2.findContours(diff_bin, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            
-            max_aspect_ratio = 0.0
-            is_crack_shape = False
-            
-            for cnt in contours:
-                # 너무 작은 노이즈(점)는 무시 (면적 < 5)
-                area = cv2.contourArea(cnt)
-                if area < 5: continue
-                
-                # 외접 사각형 구하기
-                x, y, w, h = cv2.boundingRect(cnt)
-                
-                # 종횡비 계산 (긴 변 / 짧은 변) -> 길쭉할수록 큼
-                aspect_ratio = float(max(w, h)) / min(w, h)
-                
-                if aspect_ratio > max_aspect_ratio:
-                    max_aspect_ratio = aspect_ratio
-                
-                # 길쭉함(AR > 1.3) AND 일정 크기 이상(Area >= 8) -> 크랙으로 간주
-                # [복구] Area 12 -> 8 (미세 크랙 보호), AR 1.3 유지
-                if aspect_ratio >= 1.3 and area >= 8:
-                    is_crack_shape = True
-            
-            # 판정 로직:
-            # 판정 로직:
-            # Abs Diff 기준 + Shape Assistance
-            # 1. 0.155 이상이면 무조건 불량 (Blob 형태의 큰 결함 - 0.16대 포획)
-            # 판정 로직:
-            # Abs Diff 기준 + Shape Assistance
-            # 1. 0.155 이상이면 무조건 불량 (Blob 형태의 큰 결함)
-            # 2. 0.095 이상이고 형상(Shape)이 맞으면 불량 (미세 크랙)
-            # --> Area 12 이상이므로 노이즈(보통 5~8)는 걸러짐.
-            if max_diff_val > 0.155 or (max_diff_val > 0.095 and is_crack_shape):
+            if max_diff_val > threshold:
                 status = "Defect"
             else:
                 status = "Good"
             
             # 파일명만 추출
             filename = os.path.basename(file_path)
-            # 로그 출력 (MSE 제거, AR 추가)
-            print(f"{category:<15} | {filename:<25} | {max_diff_val:.6f}   | {max_aspect_ratio:.2f}       | {status}")
+            # 로그 출력
+            print(f"{category:<15} | {filename:<25} | {max_diff_val:.6f}   | {'-':<10} | {status}")
             
             # 결과 저장 (불량이거나 카테고리별 첫 3장)
             save_name = f"result_{category}_{idx}_{filename}"
             if not save_name.endswith('.png'): save_name += '.png'
             
             if idx < 3 or status == "Defect":
-                # 시각화: 마스크가 적용된 오차맵을 보여줌
-                masked_diff_vis = cv2.cvtColor((masked_diff * 255).astype(np.uint8), cv2.COLOR_GRAY2RGB)
-                # plot_heatmap 함수 대신 직접 그림 (마스킹 효과 확인 위해)
+                # 시각화
                 plt.figure(figsize=(12, 4))
-                plt.subplot(1, 4, 1); plt.title("Original"); plt.imshow(img_batch[0]); plt.axis('off')
-                plt.subplot(1, 4, 2); plt.title("Recon"); plt.imshow(recon[0]); plt.axis('off')
-                plt.subplot(1, 4, 3); plt.title("Mask (Black=Ignore)"); plt.imshow(mask, cmap='gray'); plt.axis('off')
-                plt.subplot(1, 4, 4); plt.title("Masked Diff"); plt.imshow(masked_diff, cmap='jet'); plt.axis('off')
+                plt.subplot(1, 3, 1); plt.title("Original"); plt.imshow(img_batch[0]); plt.axis('off')
+                plt.subplot(1, 3, 2); plt.title("Recon"); plt.imshow(recon[0]); plt.axis('off')
+                plt.subplot(1, 3, 3); plt.title("Diff Heatmap"); plt.imshow(diff_mean, cmap='jet'); plt.axis('off')
                 plt.tight_layout()
                 plt.savefig(save_name)
                 plt.close()
+            
+
 
     print("-" * 90)
     print("[Info] 카테고리별 결과 이미지가 저장되었습니다.")

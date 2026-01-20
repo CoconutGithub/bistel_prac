@@ -3,7 +3,7 @@ import glob
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers, models, Input
-from tensorflow.keras.preprocessing.image import load_img, img_to_array
+from tensorflow.keras.preprocessing.image import load_img, img_to_array, ImageDataGenerator
 
 # ==========================================
 # 환경 설정 및 하이퍼파라미터
@@ -11,8 +11,9 @@ from tensorflow.keras.preprocessing.image import load_img, img_to_array
 IMG_SIZE = (128, 128)
 CHANNELS = 3
 BATCH_SIZE = 16
-EPOCHS = 50  # 학습량 증가
-DATA_PATH = 'pill/train/good'  # 학습 데이터 경로
+EPOCHS = 300  # 학습량 대폭 증가 (Underfitting 해결)
+DATA_PATH = 'bottle/train/good'  # 학습 데이터 경로
+#'bottle/train/good'
 MODEL_SAVE_PATH = 'cae_model.h5'
 
 # ==========================================
@@ -57,9 +58,8 @@ def build_cae_model(input_shape):
     x = layers.Conv2D(64, (3, 3), activation='relu', padding='same')(x)
     x = layers.MaxPooling2D((2, 2), padding='same')(x) # 32x32
     
-    # [수정] Spatial Dimension은 32x32로 유지하되, Channel을 8로 확 줄임
-    # 구조적 정보(모양, 글자)는 살리고, 세밀한 텍스처(크랙)는 압축 손실 유도
-    encoded = layers.Conv2D(8, (3, 3), activation='relu', padding='same')(x) # 32x32x8
+    # [수정] Bottle 데이터의 복잡성을 고려하여 Bottleneck 채널 확장 (8 -> 32)
+    encoded = layers.Conv2D(32, (3, 3), activation='relu', padding='same')(x) # 32x32x32
 
     # Decoder
     x = layers.Conv2DTranspose(64, (3, 3), activation='relu', padding='same')(encoded)
@@ -98,12 +98,29 @@ if __name__ == "__main__":
 
     # 3. 학습 진행
     print(f"\n[Train] 학습 시작 (Epochs: {EPOCHS})...")
+    
+    # [수정] Data Augmentation 적용
+    # Bottle 데이터가 적으므로(약 200장), 증강을 통해 모델이 다양한 변형을 학습하게 함.
+    datagen = ImageDataGenerator(
+        rotation_range=20,      # 회전
+        horizontal_flip=True,   # 좌우 반전
+        fill_mode='nearest'
+    )
+    
+    # Validation data 분리
+    val_split = int(len(train_data) * 0.1)
+    if val_split > 0:
+        x_train = train_data[:-val_split]
+        x_val = train_data[-val_split:]
+    else:
+        x_train = train_data
+        x_val = train_data # 데이터가 너무 적으면 그냥 다 씀
+        
     history = autoencoder.fit(
-        train_data, train_data,
+        datagen.flow(x_train, x_train, batch_size=BATCH_SIZE),
         epochs=EPOCHS,
-        batch_size=BATCH_SIZE,
-        shuffle=True,
-        validation_split=0.1,
+        steps_per_epoch=len(x_train) // BATCH_SIZE,
+        validation_data=(x_val, x_val),
         verbose=1
     )
 
