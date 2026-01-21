@@ -506,6 +506,7 @@ const ChatBotPage: React.FC = () => {
                 option={chartOption}
                 style={{ width: '100%', height: '100%' }}
                 notMerge={true}
+                opts={{ renderer: 'svg' }}
               />
             </div>
           );
