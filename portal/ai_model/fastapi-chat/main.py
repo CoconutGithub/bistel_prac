@@ -781,6 +781,75 @@ async def generate_sql(req: ChatRequest, user_id: str = Depends(get_user_id)):
     raise HTTPException(status_code=500, detail=f"Unexpected error: {e}") from e
 
 
+
+class CodeExecutionRequest(BaseModel):
+  """
+  Python 코드 실행 요청을 위한 DTO
+  """
+  code: str = Field(..., description="실행할 파이썬 코드")
+  language: str = Field(default="python", description="코드 언어 (현재는 python만 지원)")
+
+
+@app.post("/api/chat/execute")
+async def execute_code(req: CodeExecutionRequest, user_id: str = Depends(get_user_id)):
+  """
+  전달받은 Python 코드를 서버에서 실행하고 결과를 반환합니다.
+  주의: 보안을 위해 타임아웃을 설정하고, 실행 환경을 제한해야 합니다.
+  """
+  import subprocess
+  import tempfile
+
+  if req.language.lower() != "python":
+    raise HTTPException(status_code=400, detail="Only Python is supported currently.")
+
+  # 1. 코드를 임시 파일로 저장
+  try:
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False, encoding='utf-8') as tmp:
+      tmp.write(req.code)
+      tmp_path = tmp.name
+  except Exception as e:
+    logger.error("Failed to write temp file: %s", e)
+    raise HTTPException(status_code=500, detail="Failed to prepare code execution.")
+
+  # 2. subprocess로 실행 (timeout 30s)
+  try:
+    # 윈도우 환경을 고려하여 python 명령어를 사용 (python3가 아닐 수 있음)
+    # capture_output=True는 stdout/stderr를 바이트로 캡처
+    result = subprocess.run(
+      ["python", tmp_path],
+      capture_output=True,
+      text=True,
+      timeout=30
+    )
+    
+    return {
+      "stdout": result.stdout,
+      "stderr": result.stderr,
+      "returncode": result.returncode
+    }
+  except subprocess.TimeoutExpired:
+    return {
+      "stdout": "",
+      "stderr": "Execution timed out (30s limit).",
+      "returncode": -1
+    }
+  except Exception as e:
+    logger.error("Code execution failed: %s", e)
+    return {
+      "stdout": "",
+      "stderr": f"Execution failed: {str(e)}",
+      "returncode": -1
+    }
+  finally:
+    # 3. 임시 파일 삭제
+    if os.path.exists(tmp_path):
+      try:
+        os.remove(tmp_path)
+      except:
+        pass
+
+
 @app.get("/")
 async def root():
+
   return {"message": "AI Chat FastAPI Bridge. POST /api/chat/completions"}
