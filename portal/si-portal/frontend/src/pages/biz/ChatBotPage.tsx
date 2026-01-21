@@ -36,7 +36,9 @@ const CHAT_API_URL =
 const systemMessage: { role: CompletionRole; content: string } = {
   role: 'system',
   content:
-    '모든 응답은 한국어로, 간결하고 단계별로 설명해주세요. 사용자의 톤을 존중하고 불필요한 사족은 피하세요.',
+    '모든 응답은 한국어로, 간결하고 단계별로 설명해주세요. 사용자의 톤을 존중하고 불필요한 사족은 피하세요. \n' +
+    '중요: 코드를 작성할 때는 반드시 언어를 명시한 마크다운 코드 블록(예: ```python)으로 감싸야 합니다.\n' +
+    '주의: 코드는 서버에서 입력 없이 실행되므로, `input()` 함수를 절대 사용하지 마세요. 대신 변수에 예시 값을 직접 할당하여 시연하도록 작성하세요.',
 };
 
 // 초기 환영 메시지
@@ -115,6 +117,13 @@ const ChatBotPage: React.FC = () => {
   const [isChartMode, setIsChartMode] = useState(false);
   // [NEW] AI 쿼리 모드 상태
   const [isQueryMode, setIsQueryMode] = useState(false);
+
+  // [NEW] 자가 디버깅(Auto-Debugging) 상태
+  const [autoDebugConfig, setAutoDebugConfig] = useState<{
+    isActive: boolean;
+    retryCount: number;
+    lastError: string | null;
+  }>({ isActive: false, retryCount: 0, lastError: null });
 
   // --- Refs ---
   const scrollAnchorRef = useRef<HTMLDivElement | null>(null); // 자동 스크롤을 위한 앵커
@@ -490,12 +499,127 @@ const ChatBotPage: React.FC = () => {
     ]
   );
 
-  // Custom Markdown Components for Chart
-  const markdownComponents: Components = useMemo(() => ({
+  // --- Code Execution & Auto-Debugging Logic ---
+  const handleExecuteCode = useCallback(async (code: string, messageId: string, currentRetryCount = 0) => {
+    // 1. Update UI to show running state (Optimistic)
+    // We append a status indicator to the code block
+    upsertAssistantMessage(messageId, (prev) => {
+      // Avoid duplicate status lines
+      const clean = prev.replace(/\n\n> \*\*Execution Status\*\*:.*\n/g, '');
+      return `${clean}\n\n> **Execution Status**: Running... ⏳`;
+    });
+
+    try {
+      // 2. Call Backend API
+      const res = await fetch(`${CHAT_API_URL}/execute`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({ code, language: 'python' }),
+      });
+
+      if (!res.ok) throw new Error(`Execution failed: ${res.status}`);
+      const result = await res.json();
+      const { stdout, stderr, returncode } = result;
+
+      // 3. Process Result
+      let outputMd = '';
+      if (returncode === 0) {
+        // Success
+        outputMd = `\n\n> **Execution Result** ✅\n\`\`\`\n${stdout || '(No Output)'}\n\`\`\``;
+
+        // Clear Auto-Debug State if success
+        if (autoDebugConfig.isActive) {
+          setAutoDebugConfig({ isActive: false, retryCount: 0, lastError: null });
+        }
+      } else {
+        // Failure
+        outputMd = `\n\n> **Execution Error** ❌\n\`\`\`\n${stderr}\n\`\`\``;
+
+        // --- Auto-Debugging Loop ---
+        if (currentRetryCount < 3) {
+          // Trigger Auto-Fix
+          outputMd += `\n\n> *⚠️ 에러 감지됨. 자가 디버깅을 시작합니다 (시도 ${currentRetryCount + 1}/3)...*`;
+
+          // Activate Auto-Debug Logic
+          // Next steps will be handled by sending a new message to AI
+          // We need to wait a bit or trigger it immediately
+
+          setAutoDebugConfig({
+            isActive: true,
+            retryCount: currentRetryCount + 1,
+            lastError: stderr
+          });
+
+          // Send Error to AI as specific instruction
+          setTimeout(() => {
+            void sendMessage(`방금 실행한 코드에서 다음 에러가 발생했어. 원인을 분석하고 코드를 수정해줘:\n\n${stderr}`);
+          }, 500);
+        } else {
+          outputMd += `\n\n> *❌ 최대 재시도 횟수(3회)를 초과하여 중단합니다.*`;
+          setAutoDebugConfig({ isActive: false, retryCount: 0, lastError: null });
+        }
+      }
+
+      // 4. Update Message with Result
+      upsertAssistantMessage(messageId, (prev) => {
+        const clean = prev.replace(/\n\n> \*\*Execution Status\*\*:.*\n/g, '').replace(/\n\n> \*\*Execution (Result|Error)\*\*[\s\S]*$/, '');
+        return `${clean}${outputMd}`;
+      });
+
+    } catch (e: any) {
+      console.error('Execution Failed', e);
+      upsertAssistantMessage(messageId, (prev) => {
+        const clean = prev.replace(/\n\n> \*\*Execution Status\*\*:.*\n/g, '');
+        return `${clean}\n\n> **System Error**: ${e.message}`;
+      });
+      setAutoDebugConfig({ isActive: false, retryCount: 0, lastError: null });
+    }
+  }, [getHeaders, upsertAssistantMessage, sendMessage, autoDebugConfig.isActive]);
+
+
+  // [NEW] Effect to handle Auto-Run of NEW code when in Debug Mode
+  // When a new message arrives and we are in debug mode, try to execute it automatically?
+  // This is tricky because streaming updates the message constantly.
+  // We should probably wait until streaming is DONE (`isSending` -> false).
+
+  // Let's use a Ref to track if we need to run code after sending
+  const shouldAutoRunRef = useRef(false);
+
+  useEffect(() => {
+    if (autoDebugConfig.isActive && isSending) {
+      shouldAutoRunRef.current = true;
+    }
+
+    if (!isSending && shouldAutoRunRef.current && autoDebugConfig.isActive) {
+      shouldAutoRunRef.current = false;
+      // Find the latest assistant message
+      const lastMsg = messages[messages.length - 1];
+      if (lastMsg && lastMsg.role === 'assistant') {
+        // Check for Python code
+        const codeMatch = /```python\n([\s\S]*?)```/.exec(lastMsg.content);
+        if (codeMatch) {
+          const code = codeMatch[1];
+          // Execute it with incremented retry count
+          // Why delay? To ensure UI renders first
+          setTimeout(() => {
+            void handleExecuteCode(code, lastMsg.id, autoDebugConfig.retryCount);
+          }, 100);
+        } else {
+          // AI didn't provide code? Abort.
+          setAutoDebugConfig({ isActive: false, retryCount: 0, lastError: null });
+        }
+      }
+    }
+  }, [isSending, autoDebugConfig, messages, handleExecuteCode]);
+
+
+  // Custom Markdown Components Factory
+  const getMarkdownComponents = useCallback((messageId: string): Components => ({
     code(props) {
       const { className, children } = props;
       const match = /language-([\w-]+)/.exec(className || '');
       const isChartJson = match && match[1] === 'chart-json';
+      const isPython = match && match[1] === 'python';
 
       if (isChartJson) {
         try {
@@ -514,9 +638,39 @@ const ChatBotPage: React.FC = () => {
           return <code {...props} />;
         }
       }
+
+      if (isPython) {
+        const code = String(children).replace(/\n$/, '');
+        return (
+          <div style={{ position: 'relative', margin: '10px 0' }}>
+            <code {...props} />
+            <div style={{ marginTop: '5px', textAlign: 'right' }}>
+              <button
+                onClick={() => handleExecuteCode(code, messageId, 0)}
+                className={styles.runBtn}
+                style={{
+                  backgroundColor: '#28a745',
+                  color: 'white',
+                  border: 'none',
+                  padding: '5px 12px',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '0.85rem',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '5px'
+                }}
+              >
+                ▶️ 실행 및 검증 (Run & Verify)
+              </button>
+            </div>
+          </div>
+        );
+      }
+
       return <code {...props} />;
     }
-  }), []);
+  }), [handleExecuteCode]);
 
   const handleSubmit = useCallback(() => {
     if (!input.trim()) return;
@@ -742,7 +896,7 @@ const ChatBotPage: React.FC = () => {
               </div>
               <div className={styles.bubble}>
                 {/* remarkGfm 플러그인 적용: 테이블 등 GFM 지원 */}
-                <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                <ReactMarkdown remarkPlugins={[remarkGfm]} components={getMarkdownComponents(message.id)}>
                   {message.content}
                 </ReactMarkdown>
               </div>
