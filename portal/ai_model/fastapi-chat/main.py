@@ -27,6 +27,9 @@ from sqlalchemy import create_engine, text as sa_text
 from sqlalchemy.engine import Engine
 # PyPDF2: PDF 파일에서 텍스트를 추출하기 위한 라이브러리
 from PyPDF2 import PdfReader
+import stock_agent
+from stock_agent import StockAgent
+# Removed debug print
 
 # ---------- Config / Env ----------
 # 환경 설정 및 환경 변수 로드 섹션
@@ -124,6 +127,9 @@ engine: Optional[Engine] = (
   if SANITIZED_DB_URL
   else None
 )
+
+# Stock Agent 초기화
+stock_agent = StockAgent(client) if client else None
 
 app = FastAPI(title="AI Chat FastAPI Bridge", version="0.4.0")
 
@@ -653,6 +659,44 @@ async def chat(req: ChatRequest, user_id: str = Depends(get_user_id)):
   elif req.save_history:
     # [NEW CHAT] 세션 ID가 없고 기록 저장이 활성화된 경우에만 새로 생성
     session_id = create_session_db(user_id, derive_title_from_messages(req.messages))
+
+  # [STOCK AGENT CHECK]
+  # 마지막 사용자 메시지 확인
+  last_user_msg = req.messages[-1].content if req.messages and req.messages[-1].role == "user" else ""
+  
+  # 간단한 키워드 + LLM 판단으로 Stock Agent 호출 여부 결정 (Latency 고려하여 키워드 우선 체크)
+  stock_keywords = ["주가", "주식", "stock", "price"]
+  is_stock_query = any(k in last_user_msg.lower() for k in stock_keywords)
+  
+  # 키워드가 있거나, 매우 짧은 쿼리(종목명만 있는 경우)라면 에이전트 시도
+  if is_stock_query and stock_agent:
+    # 에이전트에게 1차적으로 쿼리 분석 위임 (run 메서드 내부에서 티커 추출 실패시 일반 대화로 fallback하거나 에러 메시지 리턴)
+    # 다만, 명확히 주식이 아니면(예: "주식이란 무엇인가") 일반 대화로 넘어가는게 좋음.
+    # 여기서는 일단 키워드 매칭되면 StockAgent 실행. 
+    # StockAgent 가 "종목을 찾을 수 없음"을 리턴하면 그대로 보여줄지 고민 필요.
+    # 여기서는 StockAgent 가 Markdown result를 리턴하므로 바로 응답하고 끝냄.
+    
+    agent_response = await stock_agent.run(last_user_msg)
+    
+    # 만약 에이전트가 "종목을 찾을 수 없습니다" 같은 텍스트만 보냈다면?
+    # 일단 그래도 보여주고, 사용자가 수정해서 다시 묻게 유도.
+    
+    if req.save_history and session_id:
+        add_message(session_id, "user", last_user_msg)
+        add_message(session_id, "assistant", agent_response)
+        touch_session(session_id)
+        
+    if req.stream:
+        async def stock_stream_generator():
+            # 스트리밍 시뮬레이션 (한번에 툭 던지면 심심하니까)
+            yield f"data: {json.dumps({'choices': [{'delta': {'content': agent_response}}]})}\n\n"
+            yield "data: [DONE]\n\n"
+        return StreamingResponse(stock_stream_generator(), media_type="text/event-stream")
+    else:
+        # Non-streaming
+        return {
+            "choices": [{"message": {"role": "assistant", "content": agent_response}}]
+        }
 
   # [CHATBOT ONLY] RAG context (업로드된 문서가 있을 경우 검색 수행)
   # SQL이나 번역 요청은 document_ids를 보내지 않으므로 이 로직을 건너뜁니다.

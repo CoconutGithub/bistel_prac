@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/DownSampling.iml" filepath="$PROJECT_DIR$/.idea/DownSampling.iml" />
+      <module fileurl="file://$PROJECT_DIR$/downsampling/downsampling.iml" filepath="$PROJECT_DIR$/downsampling/downsampling.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/downsampling.main.iml" filepath="$PROJECT_DIR$/.idea/modules/downsampling.main.iml" />
     </modules>
   </component>
