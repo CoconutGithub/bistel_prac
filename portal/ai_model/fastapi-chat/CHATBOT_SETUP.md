@@ -33,3 +33,28 @@ python으로 실행 중인 프로세스 찾가
 
 그리고 종료(하나씩 종료)
 ```taskkill /F /PID <PID>```
+
+## 6) 데이터베이스 공유 (Migration)
+
+### 6-1) 백업 (덤프 생성)
+현재 환경 터미널(PowerShell)에서 실행:
+```powershell
+pg_dump -h localhost -p 5432 -U postgres -d SIPortal2 > dump.sql
+```
+* 비밀번호 입력 필요
+
+### 6-2) 복원 (Restore)
+새로운 환경의 터미널(PowerShell)에서 실행:
+
+1. 먼저 PostgreSQL에 접속해서 DB 생성 (만약 없다면)
+   ```sql
+   -- psql 접속 후 실행
+   CREATE DATABASE <db name>;
+   ```
+
+2. 덤프 파일로 복원 실행
+   ```powershell
+   # -f 옵션으로 파일 지정
+   psql -h localhost -U postgres -d SIPortal2 -f dump.sql
+   ```
+* 오류 발생 시 사용자/권한 확인 필요
