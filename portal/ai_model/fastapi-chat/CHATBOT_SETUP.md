@@ -25,3 +25,11 @@ requirements.txt설치
 
 재실행
 ```uvicorn main:app --reload --port 8000 --env-file .env```
+
+## 5) uvicorn 안꺼질 때
+
+python으로 실행 중인 프로세스 찾가
+```tasklist /FI "IMAGENAME eq python.exe"```
+
+그리고 종료(하나씩 종료)
+```taskkill /F /PID <PID>```
